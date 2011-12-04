@@ -25,6 +25,7 @@ import nl.siegmann.epublib.domain.Book;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,9 +33,17 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.Layout.Alignment;
+import android.text.style.AlignmentSpan;
+import android.text.style.ImageSpan;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
@@ -48,6 +57,7 @@ import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 public class ReadingActivity extends Activity implements BookViewListener 
@@ -55,6 +65,8 @@ public class ReadingActivity extends Activity implements BookViewListener
 		
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
+	
+	protected static final int REQUEST_CODE_GET_CONTENT = 2;
 	
 	private String colourProfile;
 		
@@ -101,28 +113,8 @@ public class ReadingActivity extends Activity implements BookViewListener
         this.waitDialog = new ProgressDialog(this);
         this.waitDialog.setOwnerActivity(this);
         this.viewSwitcher = (ViewSwitcher) findViewById(R.id.mainContainer);
-                
         
-        this.fileName = getIntent().getStringExtra("file_name");
-        if ( fileName == null ) {        
-        	fileName = getIntent().getData().getPath();
-        }       
-        
-        this.progressService = new OpenKeyvalProgressService( settings.getString("email", "") );        
-        
-        int lastPos = -1;
-        int lastIndex = 0;        
-                
-        if ( settings != null ) {
-        	lastPos = settings.getInt(POS_KEY + fileName, -1 );
-        	lastIndex = settings.getInt(IDX_KEY + fileName, -1 );
-        	this.colourProfile = settings.getString("profile", "day");
-        }   
-        
-        if (savedInstanceState != null ) {
-        	lastPos = savedInstanceState.getInt(POS_KEY, -1);
-        	lastIndex = savedInstanceState.getInt(IDX_KEY, -1);
-        }       
+        this.progressService = new OpenKeyvalProgressService( settings.getString("email", "") );  
         
         this.gestureDetector = new GestureDetector(new SwipeListener());
         this.gestureListener = new View.OnTouchListener() {
@@ -132,22 +124,54 @@ public class ReadingActivity extends Activity implements BookViewListener
         };
        
     	this.bookView = (BookView) this.findViewById(R.id.bookView);
-    	this.bookView.setFileName(fileName);
-    	this.bookView.setPosition(lastPos);
-    	this.bookView.setIndex(lastIndex);
     	
     	this.viewSwitcher.setOnTouchListener(gestureListener);
     	this.bookView.setOnTouchListener(gestureListener);    	
     	this.bookView.addListener(this);
     	
-    	updateFromPrefs();
+    	String file = getIntent().getStringExtra("file_name");
     	
-        //Slightly hacky
+        if ( file == null && getIntent().getData() != null ) {        
+        	file = getIntent().getData().getPath();
+        }
+        
+        if ( file == null ) {
+        	file = settings.getString("last_file", "");
+        }
+        
+    	updateFileName(savedInstanceState, file);
+    	updateFromPrefs();
+        
+        new DownloadProgressTask().execute();        
+    }
+    
+    private void updateFileName(Bundle savedInstanceState, String fileName) {
+    	
+    	this.fileName = fileName;
+    	
+    	int lastPos = -1;
+    	int lastIndex = 0;        
+
+    	if ( settings != null ) {
+    		lastPos = settings.getInt(POS_KEY + fileName, -1 );
+    		lastIndex = settings.getInt(IDX_KEY + fileName, -1 );
+    		this.colourProfile = settings.getString("profile", "day");
+    	}   
+
+    	if (savedInstanceState != null ) {
+    		lastPos = savedInstanceState.getInt(POS_KEY, -1);
+    		lastIndex = savedInstanceState.getInt(IDX_KEY, -1);
+    	}       
+
+    	this.bookView.setFileName(fileName);
+    	this.bookView.setPosition(lastPos);
+    	this.bookView.setIndex(lastIndex);
+    	
+    	//Slightly hacky
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("last_file", fileName);
         editor.commit();    
-        
-        new DownloadProgressTask().execute();        
+
     }
     
     @Override
@@ -350,6 +374,28 @@ public class ReadingActivity extends Activity implements BookViewListener
     	return super.onPrepareOptionsMenu(menu);
     }
     
+    /**
+     * This is called after the file manager finished.
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	super.onActivityResult(requestCode, resultCode, data);
+
+    	if (resultCode == RESULT_OK && data != null) {
+    		// obtain the filename
+    		Uri fileUri = data.getData();
+    		if (fileUri != null) {
+    			String filePath = fileUri.getPath();
+    			if (filePath != null) {
+    				setTitle("PageTurner");
+    				bookView.clear();
+    				updateFileName(null, filePath);
+    				new DownloadProgressTask().execute();     
+    			}
+    		}
+    	}    	
+    }
+    
     @Override
     protected void onStop(){
        super.onStop();
@@ -414,11 +460,30 @@ public class ReadingActivity extends Activity implements BookViewListener
         	initTocDialog();
         	this.tocDialog.show();
         	return true;
+        	
+        case R.id.open_file:
+        	launchFileManager();
+        	return true;        	
         
         default:
             return super.onOptionsItemSelected(item);
         }
-    }    
+    }
+    
+    private void launchFileManager() {
+    	Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("file/*");
+
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        
+        try {
+                startActivityForResult(intent, REQUEST_CODE_GET_CONTENT);
+        } catch (ActivityNotFoundException e) {
+                // No compatible file manager was found.
+                Toast.makeText(this, "Please install OI File Manager from the Android Market.", 
+                                Toast.LENGTH_SHORT).show();
+        }
+    }
     
     private void initTocDialog() {
 
@@ -485,8 +550,34 @@ public class ReadingActivity extends Activity implements BookViewListener
             	bookView.setPosition( progress.getProgress() );
             }
             
-            bookView.restore();
+            if ( ! "".equals( fileName ) ) {
+            	bookView.restore();
+            } else {
+            	bookView.setText( getWelcomeText() );
+            }
     	}
+    }
+    
+    private Spanned getWelcomeText() {
+    	SpannableStringBuilder builder = new SpannableStringBuilder();
+    	
+    	builder.append( Html.fromHtml("<h1>Welcome to PageTurner</h1>"));
+    	builder.append("\uFFFC");
+    	Drawable logo = getResources().getDrawable(R.drawable.page_turner);
+    	
+    	logo.setBounds(0, 0, logo.getIntrinsicWidth(), logo.getIntrinsicHeight() );
+    	builder.setSpan(new ImageSpan(logo), 
+    			builder.length() -1, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    	builder.setSpan(new AlignmentSpan() {
+    		@Override
+    		public Alignment getAlignment() {
+    			return Alignment.ALIGN_CENTER;
+    		}
+    	}, builder.length() -1, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    	
+    	builder.append("\n\nPlease select \"Open book\" from the menu to start reading.");
+    	
+    	return builder;
     }
     
     private Animation inFromRightAnimation() {

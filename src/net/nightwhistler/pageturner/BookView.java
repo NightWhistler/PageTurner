@@ -200,6 +200,16 @@ public class BookView extends ScrollView {
 		loadText();
 	}
 	
+	public void clear() {
+		this.childView.setText("");
+		this.anchors.clear();
+		this.storedAnchor = null;
+		this.storedIndex = -1;
+		this.storedPosition = -1;
+		this.book = null;
+		this.fileName = null;
+	}
+	
 	/**
 	 * Loads the text and saves the restored position.
 	 */

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" 
+	android:key="PageTurnerState">
+	
+	<EditTextPreference
+	            android:key="email"
+	            android:title="E-mail address"
+	            android:summary="Used to sync your progress across devices. Leave blank to disable syncing."
+	            android:dialogTitle="E-mail address"
+	            android:dialogMessage="Please enter a valid e-mail address"   
+	            />
+
+	<CheckBoxPreference			
+            android:key="night_mode"
+            android:title="Night mode"
+            android:summary="Grey text on a black background, for reading in low light."
+            android:defaultValue="false" />
+
+	<CheckBoxPreference			
+            android:key="full_screen"
+            android:title="Full screen"
+            android:summary="Full-screen mode. Requires a restart."
+            android:defaultValue="false" />
+
+	<CheckBoxPreference			
+            android:key="scrolling"
+            android:title="Enable scrolling"
+            android:summary="Enabled browser-style scrolling"
+            android:defaultValue="false" />           
+    
+    
+    <CheckBoxPreference			
+            android:key="animations"
+            android:title="Enable animations"
+            android:summary="Enables sliding page change animations"
+            android:defaultValue="true" /> 
+	            
+	<EditTextPreference
+				android:key="text_size"
+				android:title="Text size"
+				android:summary="The size of the font used for displaying books."
+				android:numeric="integer"
+				android:defaultValue="16"
+				/>
+				
+    
+
+</PreferenceScreen>

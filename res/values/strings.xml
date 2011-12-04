@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Page Turner</string>
+    <string name="app_desc">Page Turner is a syncing e-book reader that allows you to sync your reading progress over multiple devices.</string>
+    <string name="browse">Browse...</string>
+    <string name="open_file">Open book</string>
+    <string name="choose_book">Please choose a file to open</string>
+    <string name="pref_key">PageTurnerState</string>    
+    <string name="night_mode">Night mode</string>
+    <string name="full_screen">Full screen</string>
+    <string name="settings">Reading settings</string>
+    <string name="textSize">Text size</string>  
+    <string name="enable_scroll">Enable scrolling</string>  
+    <string name="email_header">E-mail address (for sync)</string>    
+    <string name="profile_day">Switch to day mode</string>  
+    <string name="profile_night">Switch to night mode</string>
+    <string name="manual_sync">Sync reading progress</string>
+    <string name="prefs">Preferences</string>
+    <string name="quick_guide">Quick guide</string>
+    <string name="help">PageTurner only reads EPUB files. Change pages by swiping horizontally or using the volume buttons. Please check the Preferences page.</string>
+    <string name="show_toc">Show TOC</string>    
+</resources>

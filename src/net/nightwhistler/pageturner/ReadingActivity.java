@@ -360,8 +360,19 @@ public class ReadingActivity extends Activity implements BookViewListener
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+    	
+    	if ( this.tocDialog == null ) {
+    		initTocDialog();
+    	}
+    	
     	MenuItem nightMode = menu.findItem(R.id.profile_night);
     	MenuItem dayMode = menu.findItem(R.id.profile_day);
+    	
+    	MenuItem showToc = menu.findItem(R.id.show_toc );
+    	MenuItem sync = menu.findItem(R.id.manual_sync );
+    	
+    	showToc.setEnabled( this.tocDialog != null );
+    	sync.setEnabled( ! "".equals( settings.getString("email", "")) );
     	
     	if ( this.colourProfile.equals("day") ) {
     		dayMode.setVisible(false);
@@ -387,13 +398,22 @@ public class ReadingActivity extends Activity implements BookViewListener
     		if (fileUri != null) {
     			String filePath = fileUri.getPath();
     			if (filePath != null) {
-    				setTitle("PageTurner");
-    				bookView.clear();
-    				updateFileName(null, filePath);
-    				new DownloadProgressTask().execute();     
+    				loadNewBook(filePath);  
     			}
     		}
     	}    	
+    }
+    
+    private void loadNewBook( String fileName ) {
+    	setTitle("PageTurner");
+    	this.tocDialog = null;
+    	this.bookTitle = null;
+    	this.titleBase = null;
+    	
+		bookView.clear();
+		
+		updateFileName(null, fileName);
+		new DownloadProgressTask().execute();   
     }
     
     @Override
@@ -456,8 +476,7 @@ public class ReadingActivity extends Activity implements BookViewListener
         	startActivity(i);
         	return true;
         	
-        case R.id.show_toc:
-        	initTocDialog();
+        case R.id.show_toc:        	
         	this.tocDialog.show();
         	return true;
         	
@@ -493,7 +512,7 @@ public class ReadingActivity extends Activity implements BookViewListener
 
     	final List<BookView.TocEntry> tocList = this.bookView.getTableOfContents();
 
-    	if ( tocList == null ) {
+    	if ( tocList == null || tocList.isEmpty() ) {
     		return;
     	}
 

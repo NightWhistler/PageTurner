@@ -51,7 +51,7 @@ public class OpenKeyvalProgressService implements ProgressService {
 	@Override
 	public BookProgress getProgress(String fileName) {
 		
-		if ( "".equals( this.userId) ) {
+		if ( "".equals( this.userId) || "".equals(fileName) ) {
 			return null;
 		}
 		
@@ -85,9 +85,14 @@ public class OpenKeyvalProgressService implements ProgressService {
 		
 	}
 	
-	private String computeKey( String fileName ) {
+	private String computeKey( String fileName ) {		
 		
-		String filePart = fileName.substring( fileName.lastIndexOf('/') );
+		String filePart = fileName;
+		
+		if ( fileName.indexOf("/") != -1 ) {
+			filePart = fileName.substring( fileName.lastIndexOf('/') );
+		}
+		
 		String plainTextKey = this.userId + ":" + filePart;
 		
 		String hash = Integer.toHexString( plainTextKey.hashCode() );

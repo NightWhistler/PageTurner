@@ -40,7 +40,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Layout.Alignment;
-import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AlignmentSpan;
@@ -592,9 +591,17 @@ public class ReadingActivity extends Activity implements BookViewListener
     	protected void onPostExecute(BookProgress progress) {  
     		waitDialog.hide();
     		
-            if ( progress != null ) {
-            	bookView.setIndex(  progress.getIndex() );
-            	bookView.setPosition( progress.getProgress() );
+    		int index = bookView.getIndex();
+    		int pos = bookView.getPosition();
+    		
+            if ( progress != null ) {            	
+            	if ( progress.getIndex() > index ) {
+            		bookView.setIndex(progress.getIndex());
+            		bookView.setPosition( progress.getProgress() );
+            	} else if ( progress.getIndex() == index) {
+            		pos = Math.max(pos, progress.getProgress());
+            		bookView.setPosition(pos);
+            	}
             }
             
             if ( ! "".equals( fileName ) ) {

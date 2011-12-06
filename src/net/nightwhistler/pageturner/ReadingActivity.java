@@ -39,9 +39,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.Layout.Alignment;
+import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.Layout.Alignment;
 import android.text.style.AlignmentSpan;
 import android.text.style.ImageSpan;
 import android.view.GestureDetector;
@@ -57,6 +58,8 @@ import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
@@ -78,6 +81,8 @@ public class ReadingActivity extends Activity implements BookViewListener
 	
 	private ViewSwitcher viewSwitcher;
 	private BookView bookView;
+	private TextView titleBar;
+	private LinearLayout titleBarLayout;
 	
 	private SharedPreferences settings;
 		
@@ -101,12 +106,7 @@ public class ReadingActivity extends Activity implements BookViewListener
         
         // Restore preferences
         this.settings = PreferenceManager.getDefaultSharedPreferences(this);
-        
-        if ( settings.getBoolean("full_screen", false)) {
-        	requestWindowFeature(Window.FEATURE_NO_TITLE);
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
-                                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } 
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         
         setContentView(R.layout.read_book);
         
@@ -123,6 +123,8 @@ public class ReadingActivity extends Activity implements BookViewListener
             }
         };
        
+        this.titleBar = (TextView) this.findViewById(R.id.myTitleBarTextView);
+        this.titleBarLayout = (LinearLayout)findViewById(R.id.myTitleBarLayout);
     	this.bookView = (BookView) this.findViewById(R.id.bookView);
     	
     	this.viewSwitcher.setOnTouchListener(gestureListener);
@@ -181,10 +183,13 @@ public class ReadingActivity extends Activity implements BookViewListener
     	}
     	
     	String title = this.titleBase;
-    	    	
-    	title = title + " " + progressPercentage + "%";    	
     	
-    	setTitle(title);
+    	SpannableStringBuilder spannedTitle = new SpannableStringBuilder();
+    	spannedTitle.append(title);
+    	spannedTitle.append(" " + progressPercentage + "%");
+    	    	
+    	this.titleBar.setTextColor(Color.WHITE);
+    	this.titleBar.setText(spannedTitle);
     }
     
     private void updateFromPrefs() {
@@ -210,6 +215,16 @@ public class ReadingActivity extends Activity implements BookViewListener
         }
         
         this.animatePageChanges = settings.getBoolean("animations", false);
+        
+        if ( settings.getBoolean("full_screen", false)) {
+        	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            this.titleBarLayout.setVisibility(View.GONE);
+        } else {    
+        	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        	this.titleBarLayout.setVisibility(View.VISIBLE);
+    	}
         
         restoreColorProfile();
     }
@@ -317,7 +332,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     private void prepareSlide(Animation inAnim, Animation outAnim) {
     	
     	View otherView = findViewById(R.id.dummyView);
-    	otherView.setVisibility(View.INVISIBLE);
+    	otherView.setVisibility(View.GONE);
     	
     	bookView.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight());
     	
@@ -382,7 +397,20 @@ public class ReadingActivity extends Activity implements BookViewListener
     		nightMode.setVisible(false);
     	}
     	
+    	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+    	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    	this.titleBarLayout.setVisibility(View.VISIBLE);
+    	
     	return super.onPrepareOptionsMenu(menu);
+    }
+    
+    @Override
+    public void onOptionsMenuClosed(Menu menu) {
+    	if ( settings.getBoolean("full_screen", false)) {
+        	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
+                                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        	this.titleBarLayout.setVisibility(View.GONE);
+        }
     }
     
     /**

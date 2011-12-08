@@ -15,7 +15,7 @@
  */
 
 
-package net.nightwhistler.pageturner;
+package net.nightwhistler.pageturner.view;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +48,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -68,13 +67,10 @@ import android.widget.TextView;
 
 public class BookView extends ScrollView {
 
-    private static final int PADDING = 15;    
-    
-	private int storedPosition;
+    static final int PADDING = 15;    
+    	
 	private int storedIndex;
 	private String storedAnchor;
-	
-	private boolean enableScrolling;
 	
 	private TextView childView;
 	
@@ -94,6 +90,8 @@ public class BookView extends ScrollView {
 	
 	private int prevIndex = -1;
 	private int prevPos = -1;
+	
+	private PageChangeStrategy strategy;
 	
 	public BookView(Context context, AttributeSet attributes) {
 		super(context, attributes);		
@@ -143,8 +141,10 @@ public class BookView extends ScrollView {
         
         parser.registerHandler("p", new AnchorHandler(parser.getHandlerFor("p") ));
         
+        this.strategy = new SinglePageStrategy(this);
+        
         this.anchors = new HashMap<String, Integer>();
-	}
+	}	
 	
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
@@ -164,25 +164,9 @@ public class BookView extends ScrollView {
 			this.touchListener.onTouch(this, ev);
 		}
 		
-		if ( enableScrolling ) {
-			return super.onTouchEvent(ev);
-		}
 		
-		return true;			
+		return super.onTouchEvent(ev);					
 	}	
-	
-	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		if ( ! enableScrolling ) {
-			//Consume key up and down
-			if ( event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP
-					|| event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN ) {
-				return true;
-			}
-		}		
-		
-		return super.dispatchKeyEvent(event);
-	}
 	
 	public boolean hasPrevPosition() {
 		return this.prevIndex != -1 && this.prevPos != -1;
@@ -191,7 +175,7 @@ public class BookView extends ScrollView {
 	public void goBackInHistory() {
 		
 		this.spine.navigateByIndex( this.prevIndex );
-		this.storedPosition = prevPos;
+		strategy.setPosition(prevPos);
 		
 		this.storedAnchor = null;
 		this.prevIndex = -1;
@@ -204,10 +188,11 @@ public class BookView extends ScrollView {
 		this.childView.setText("");
 		this.anchors.clear();
 		this.storedAnchor = null;
-		this.storedIndex = -1;
-		this.storedPosition = -1;
+		this.storedIndex = -1;		
 		this.book = null;
 		this.fileName = null;
+		
+		strategy.setPosition( -1 );
 	}
 	
 	/**
@@ -221,7 +206,7 @@ public class BookView extends ScrollView {
 		this.storedIndex = index;
 	}
 	
-	private void loadText() {		
+	void loadText() {		
         new LoadTextTask().execute();        
 	}
 	
@@ -230,18 +215,25 @@ public class BookView extends ScrollView {
 	}	
 	
 	public void pageDown() {		
-		this.scroll( getHeight() - 2 * PADDING);		
+		strategy.pageDown();
 	}
 	
 	public void pageUp() {
-		this.scroll( (getHeight() - 2* PADDING ) * -1);		
+		strategy.pageUp();
 	}
 	
 	@Override
 	public void scrollBy(int x, int y) {		
-		super.scrollBy(x, y);
-		
+		super.scrollBy(x, y);		
 		progressUpdate();
+	}
+	
+	TextView getInnerView() {
+		return childView;
+	}
+	
+	PageTurnerSpine getSpine() {
+		return this.spine;
 	}
 	
 	@Override
@@ -268,80 +260,14 @@ public class BookView extends ScrollView {
 			this.storedAnchor = anchor;
 		}
 		
-		this.storedPosition = 0;
+		strategy.setPosition(0);
 		
 		if ( this.spine.navigateByHref(href) ) {
 			loadText();
 		} else {			
 			new LoadTextTask().execute(href);
 		}
-	}
-	
-	private void scroll( int delta ) {
-		
-		int currentPos = this.getScrollY();
-		
-		int newPos = currentPos + delta;
-		
-		this.scrollTo(0, findClosestLineBottom(newPos));
-		
-		if ( this.getScrollY() == currentPos ) {
-						
-			if ( delta < 0 ) {				
-				if (! spine.navigateBack() ) {					
-					return;
-				}
-			} else {				
-				if ( ! spine.navigateForward() ) {
-					return;
-				}
-			}
-			
-			this.childView.setText("");
-			
-			if ( delta > 0 ) {
-				scrollTo(0,0);
-				this.storedPosition = -1;
-			} else {
-				scrollTo(0, getHeight());
-				
-				//We scrolled back up, so we want the very bottom of the text.
-				this.storedPosition = Integer.MAX_VALUE;
-			}	
-			
-			loadText();
-		}
-	}
-	
-	private int findClosestLineBottom( int ypos ) {
-				
-		Layout layout = this.childView.getLayout();
-		
-		if ( layout == null ) {
-			return ypos;
-		}
-		
-		int currentLine = layout.getLineForVertical(ypos);
-		
-		//System.out.println("Returning line " + currentLine + " for ypos " + ypos);
-		
-		if ( currentLine > 0 ) {
-			int height = layout.getLineBottom(currentLine -1);
-			return height;
-		} else {
-			return 0;
-		}		
-	}
-	
-	private int findTextOffset(int ypos) {
-		
-		Layout layout = this.childView.getLayout();
-		if ( layout == null ) {
-			return 0;
-		}
-		
-		return layout.getLineStart(layout.getLineForVertical(ypos));		
-	}
+	}	
 	
 	public List<TocEntry> getTableOfContents() {
 		if ( this.book == null ) {
@@ -381,7 +307,7 @@ public class BookView extends ScrollView {
 	
 	@Override
 	public void fling(int velocityY) {
-		storedPosition = -1;
+		strategy.setPosition(-1);
 		super.fling(velocityY);
 	}
 	
@@ -394,14 +320,11 @@ public class BookView extends ScrollView {
 	}	
 	
 	public int getPosition() {
-			
-		int yPos = this.getScrollY();
-						
-		return findTextOffset(findClosestLineBottom(yPos));
+		return strategy.getPosition();		
 	}
 	
 	public void setPosition(int pos) {
-		this.storedPosition = pos;	
+		this.strategy.setPosition(pos);	
 	}
 	
 	/**
@@ -412,29 +335,9 @@ public class BookView extends ScrollView {
 	private void restorePosition() {				
 	
 		if ( this.storedAnchor != null && this.anchors.containsKey(storedAnchor) ) {
-			this.storedPosition = anchors.get(storedAnchor);
+			strategy.setPosition( anchors.get(storedAnchor) );
 			this.storedAnchor = null;
 		}
-		
-		if ( this.storedPosition == -1 || "".equals( this.childView.getText() )) {
-			return; //Hopefully come back later
-		} else {
-			
-			Layout layout = this.childView.getLayout();
-			
-			if ( layout != null ) {
-				
-				int line = layout.getLineForOffset(this.storedPosition);
-				
-				if ( line > 0 ) {
-					int newPos = layout.getLineBottom(line -1);
-					scrollTo(0, newPos);
-				} else {
-					scrollTo(0, 0);
-				}
-			}						 
-		}
-		
 	}
 	
 	/**
@@ -652,7 +555,20 @@ public class BookView extends ScrollView {
 	}
 	
 	public void setEnableScrolling(boolean enableScrolling) {
-		this.enableScrolling = enableScrolling;
+		
+		if ( this.strategy.isScrolling() != enableScrolling ) {
+
+			PageChangeStrategy oldStrategy = this.strategy;
+
+			if ( enableScrolling ) {
+				this.strategy = new ScrollingStrategy(this);
+			} else {
+				this.strategy = new SinglePageStrategy(this);
+			}
+
+			this.strategy.setPosition( oldStrategy.getPosition() );
+			loadText();			
+		}
 	}
 	
 	private void initBook() throws IOException {
@@ -726,7 +642,7 @@ public class BookView extends ScrollView {
 				}
 			}
 			
-			childView.setText( result ); 
+			strategy.loadText( result ); 
 			restorePosition();
 			
 			parseEntryComplete(spine.getPosition(), this.name);

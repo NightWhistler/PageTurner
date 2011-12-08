@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.nightwhistler.pageturner;
+package net.nightwhistler.pageturner.view;
 
 import nl.siegmann.epublib.domain.Book;
 

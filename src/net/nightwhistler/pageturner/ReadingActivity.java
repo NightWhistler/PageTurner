@@ -21,6 +21,8 @@ import java.util.List;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.OpenKeyvalProgressService;
 import net.nightwhistler.pageturner.sync.ProgressService;
+import net.nightwhistler.pageturner.view.BookView;
+import net.nightwhistler.pageturner.view.BookViewListener;
 import nl.siegmann.epublib.domain.Book;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -325,7 +327,7 @@ public class ReadingActivity extends Activity implements BookViewListener
 	        
 	    }
 
-	    return super.dispatchKeyEvent(event);    	
+	    return false;    	
     }
     
     private void prepareSlide(Animation inAnim, Animation outAnim) {
@@ -595,6 +597,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     		int pos = bookView.getPosition();
     		
             if ( progress != null ) {            	
+            	
             	if ( progress.getIndex() > index ) {
             		bookView.setIndex(progress.getIndex());
             		bookView.setPosition( progress.getProgress() );
@@ -602,7 +605,7 @@ public class ReadingActivity extends Activity implements BookViewListener
             		pos = Math.max(pos, progress.getProgress());
             		bookView.setPosition(pos);
             	}
-            }
+            }           
             
             if ( ! "".equals( fileName ) ) {
             	bookView.restore();

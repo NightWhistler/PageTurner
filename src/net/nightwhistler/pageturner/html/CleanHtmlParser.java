@@ -26,6 +26,8 @@ import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.Layout.Alignment;
+import android.text.style.AlignmentSpan;
 import android.text.style.QuoteSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
@@ -207,6 +209,22 @@ public class CleanHtmlParser {
 		};
 		
 		registerHandler("sup", superHandler);	
+		
+		TagNodeHandler centerHandler = new TagNodeHandler() {
+			
+			@Override
+			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+					int start, int end) {
+				builder.setSpan(new AlignmentSpan() {
+					@Override
+					public Alignment getAlignment() {
+						return Alignment.ALIGN_CENTER;
+					}
+				}, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);				
+			}
+		};
+		
+		registerHandler("center", centerHandler);
 	}
 	
 	private class HeaderHandler implements TagNodeHandler {

@@ -33,6 +33,8 @@ public interface ProgressService {
 	 */
 	public BookProgress getProgress( String fileName );
 	
+	public void setEmail(String email);
+	
 	
 	
 }

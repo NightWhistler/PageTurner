@@ -19,7 +19,7 @@ package net.nightwhistler.pageturner;
 import java.util.List;
 
 import net.nightwhistler.pageturner.sync.BookProgress;
-import net.nightwhistler.pageturner.sync.OpenKeyvalProgressService;
+import net.nightwhistler.pageturner.sync.PageTurnerWebProgressService;
 import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.view.BookView;
 import net.nightwhistler.pageturner.view.BookViewListener;
@@ -115,7 +115,8 @@ public class ReadingActivity extends Activity implements BookViewListener
         this.waitDialog.setOwnerActivity(this);
         this.viewSwitcher = (ViewSwitcher) findViewById(R.id.mainContainer);
         
-        this.progressService = new OpenKeyvalProgressService( settings.getString("email", "") );  
+        //this.progressService = new OpenKeyvalProgressService();
+        this.progressService = new PageTurnerWebProgressService(this);
         
         this.gestureDetector = new GestureDetector(new SwipeListener());
         this.gestureListener = new View.OnTouchListener() {
@@ -194,6 +195,9 @@ public class ReadingActivity extends Activity implements BookViewListener
     }
     
     private void updateFromPrefs() {
+    	
+    	this.progressService.setEmail( settings.getString("email", "") );
+    	
     	Typeface face = Typeface.createFromAsset(getAssets(), "gen_bk_bas.ttf");
         this.bookView.setTypeface(face);
                 

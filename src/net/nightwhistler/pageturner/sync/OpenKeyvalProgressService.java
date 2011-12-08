@@ -30,8 +30,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OpenKeyvalProgressService implements ProgressService {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(OpenKeyvalProgressService.class);	
 
 	private String userId;
 	
@@ -41,21 +45,27 @@ public class OpenKeyvalProgressService implements ProgressService {
 	private HttpClient client;
 	private HttpContext context;
 	
-	public OpenKeyvalProgressService(String userId) {
-		this.userId = userId;
-		
+	public OpenKeyvalProgressService() {				
 		this.client = new DefaultHttpClient();
 		this.context = new BasicHttpContext();
 	}
 	
 	@Override
+	public void setEmail(String email) {
+		this.userId = email;
+	}
+	
+	@Override
 	public BookProgress getProgress(String fileName) {
-		
+						
 		if ( "".equals( this.userId) || "".equals(fileName) ) {
 			return null;
 		}
 		
 		String key = computeKey(fileName);
+		
+		LOG.debug( "Doing progress query for key: " + key );
+		
 		HttpGet get = new HttpGet( BASE_URL + key );
 		
 		try {
@@ -63,9 +73,11 @@ public class OpenKeyvalProgressService implements ProgressService {
 			
 			int statusCode = response.getStatusLine().getStatusCode();
 			
+			LOG.debug( "Got status " + statusCode + " from server.");
+			
 			if ( statusCode != HTTP_SUCCESS ) {
 				return null;
-			}
+			}			
 			
 			String responseString = EntityUtils.toString(response.getEntity());
 			
@@ -80,6 +92,7 @@ public class OpenKeyvalProgressService implements ProgressService {
 					Integer.parseInt(parts[1]));
 			
 		} catch (Exception e) {
+			LOG.error( "Got error while querying server", e );			
 			return null;
 		} 
 		
@@ -108,6 +121,8 @@ public class OpenKeyvalProgressService implements ProgressService {
 		}
 		
 		String key = computeKey(fileName);
+		
+		LOG.debug("Posting update for key: " + key );
 				
 		HttpPost post = new HttpPost( BASE_URL + key );
 		
@@ -118,9 +133,12 @@ public class OpenKeyvalProgressService implements ProgressService {
 			pairs.add( pair );
 			
 			post.setEntity( new UrlEncodedFormEntity(pairs) );
-			client.execute(post, this.context);			
-		} catch (IOException io) {			
-			//fail silently
+			HttpResponse response = client.execute(post, this.context);
+			
+			LOG.debug("Got status " + response.getStatusLine().getStatusCode() + " from server.");
+			
+		} catch (IOException io) {
+			LOG.error("Got error while POSTing update:", io);			
 		}		
 		
 	}

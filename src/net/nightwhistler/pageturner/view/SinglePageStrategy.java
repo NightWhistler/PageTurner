@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.text.Layout.Alignment;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.widget.TextView;
@@ -13,7 +14,7 @@ import android.widget.TextView;
 public class SinglePageStrategy implements PageChangeStrategy {
 	
 	private Spanned text = new SpannableString("");	
-	private int storedPosition = - 1;
+	private int storedPosition = 0;
 	
 	private BookView bookView;
 	private TextView childView;
@@ -58,6 +59,8 @@ public class SinglePageStrategy implements PageChangeStrategy {
 			
 			this.storedPosition = 0;
 			this.childView.setText("");
+			this.clearText();
+			
 			bookView.loadText();
 			return;
 		}
@@ -106,6 +109,8 @@ public class SinglePageStrategy implements PageChangeStrategy {
 			}
 			
 			this.childView.setText("");
+			this.clearText();
+			
 			this.storedPosition = Integer.MAX_VALUE;
 			this.bookView.loadText();
 			return;
@@ -116,8 +121,23 @@ public class SinglePageStrategy implements PageChangeStrategy {
 		updatePosition();
 	}
 	
+	@Override
+	public void clearText() {
+		this.text = new SpannedString("");		
+	}	
 	
-	private void updatePosition() {	
+	@Override
+	public void clearStoredPosition() {
+		//No-op		
+	}
+	
+	@Override
+	public void reset() {
+		this.storedPosition = 0;
+		this.text = new SpannedString("");
+	}
+	
+	public void updatePosition() {	
 		
 		if ( this.text.length() == 0 ) {
 			return;

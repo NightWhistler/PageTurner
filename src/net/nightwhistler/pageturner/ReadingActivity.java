@@ -143,8 +143,8 @@ public class ReadingActivity extends Activity implements BookViewListener
         	file = settings.getString("last_file", "");
         }
         
-    	updateFileName(savedInstanceState, file);
-    	updateFromPrefs();
+        updateFromPrefs();
+    	updateFileName(savedInstanceState, file);    	
         
         new DownloadProgressTask().execute();        
     }

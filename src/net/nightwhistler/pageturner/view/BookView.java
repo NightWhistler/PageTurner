@@ -141,8 +141,6 @@ public class BookView extends ScrollView {
         
         parser.registerHandler("p", new AnchorHandler(parser.getHandlerFor("p") ));
         
-        this.strategy = new SinglePageStrategy(this);
-        
         this.anchors = new HashMap<String, Integer>();
 	}	
 	
@@ -174,8 +172,9 @@ public class BookView extends ScrollView {
 	
 	public void goBackInHistory() {
 		
+		this.strategy.clearText();
 		this.spine.navigateByIndex( this.prevIndex );
-		strategy.setPosition(prevPos);
+		strategy.setPosition(this.prevPos);
 		
 		this.storedAnchor = null;
 		this.prevIndex = -1;
@@ -192,13 +191,14 @@ public class BookView extends ScrollView {
 		this.book = null;
 		this.fileName = null;
 		
-		strategy.setPosition( -1 );
+		this.strategy.reset();
 	}
 	
 	/**
 	 * Loads the text and saves the restored position.
 	 */
 	public void restore() {
+		strategy.clearText();
 		loadText();
 	}
 	
@@ -243,7 +243,7 @@ public class BookView extends ScrollView {
 	}	
 	
 	public void navigateTo( String rawHref ) {
-		
+				
 		this.prevIndex = this.getIndex();
 		this.prevPos = this.getPosition();
 		
@@ -260,7 +260,8 @@ public class BookView extends ScrollView {
 			this.storedAnchor = anchor;
 		}
 		
-		strategy.setPosition(0);
+		this.strategy.clearText();
+		this.strategy.setPosition(0);
 		
 		if ( this.spine.navigateByHref(href) ) {
 			loadText();
@@ -307,7 +308,7 @@ public class BookView extends ScrollView {
 	
 	@Override
 	public void fling(int velocityY) {
-		strategy.setPosition(-1);
+		strategy.clearStoredPosition();
 		super.fling(velocityY);
 	}
 	
@@ -338,6 +339,8 @@ public class BookView extends ScrollView {
 			strategy.setPosition( anchors.get(storedAnchor) );
 			this.storedAnchor = null;
 		}
+		
+		this.strategy.updatePosition();
 	}
 	
 	/**
@@ -556,9 +559,16 @@ public class BookView extends ScrollView {
 	
 	public void setEnableScrolling(boolean enableScrolling) {
 		
-		if ( this.strategy.isScrolling() != enableScrolling ) {
+		if ( this.strategy == null || this.strategy.isScrolling() != enableScrolling ) {
 
-			PageChangeStrategy oldStrategy = this.strategy;
+			int pos = -1;
+			boolean wasNull = true;
+			
+			if ( this.strategy != null ) {
+				pos = this.strategy.getPosition();
+				this.strategy.clearText();
+				wasNull = false;
+			}			
 
 			if ( enableScrolling ) {
 				this.strategy = new ScrollingStrategy(this);
@@ -566,8 +576,10 @@ public class BookView extends ScrollView {
 				this.strategy = new SinglePageStrategy(this);
 			}
 
-			this.strategy.setPosition( oldStrategy.getPosition() );
-			loadText();			
+			if ( ! wasNull ) {				
+				this.strategy.setPosition( pos );
+				loadText();
+			}
 		}
 	}
 	

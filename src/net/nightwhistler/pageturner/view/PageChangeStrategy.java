@@ -41,4 +41,12 @@ public interface PageChangeStrategy {
 	/** Simple way to differentiate without instanceof **/
 	public boolean isScrolling();
 	
+	public void clearText();
+	
+	public void clearStoredPosition();
+	
+	public void updatePosition();
+	
+	public void reset();
+	
 }

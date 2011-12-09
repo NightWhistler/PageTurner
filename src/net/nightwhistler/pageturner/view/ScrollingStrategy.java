@@ -46,15 +46,20 @@ public class ScrollingStrategy implements PageChangeStrategy {
 		updatePosition();
 	}
 	
-	private void updatePosition() {
-		if ( this.storedPosition == -1 || "".equals( this.childView.getText() )) {
+	@Override
+	public void clearText() {
+		this.childView.setText("");		
+	}
+	
+	public void updatePosition() {
+		if ( this.storedPosition == -1 || this.childView.getText().length() == 0 ) {			
 			return; //Hopefully come back later
 		} else {
 			
 			Layout layout = this.childView.getLayout();
 			
 			if ( layout != null ) {
-				
+				this.storedPosition = Math.max(0, this.storedPosition);
 				int line = layout.getLineForOffset(this.storedPosition);
 				
 				if ( line > 0 ) {
@@ -65,6 +70,16 @@ public class ScrollingStrategy implements PageChangeStrategy {
 				}
 			}						 
 		}
+	}
+	
+	@Override
+	public void reset() {
+		this.storedPosition = -1;		
+	}
+	
+	@Override
+	public void clearStoredPosition() {
+		this.storedPosition = -1;	
 	}
 	
 	private void scroll( int delta ) {

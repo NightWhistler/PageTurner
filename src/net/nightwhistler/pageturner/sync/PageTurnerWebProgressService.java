@@ -59,6 +59,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 	public BookProgress getProgress(String fileName) {
 		
 		if ( "".equals( this.userId) || "".equals(fileName) ) {
+			LOG.debug( "Empty username or filename. Aborting sync. (" + this.userId + " / " + fileName + ")" );
 			return null;
 		}
 		

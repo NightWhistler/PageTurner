@@ -10,30 +10,22 @@
 	            android:dialogMessage="Please enter a valid e-mail address"   
 	            />
 
+
+	<PreferenceCategory
+                android:title="Visual settings">
 	<CheckBoxPreference			
             android:key="night_mode"
             android:title="Night mode"
             android:summary="Grey text on a black background, for reading in low light."
-            android:defaultValue="false" />
+            android:defaultValue="false" />            
+   		
 
 	<CheckBoxPreference			
             android:key="full_screen"
             android:title="Full screen"
             android:summary="Full-screen mode. Requires a restart."
             android:defaultValue="false" />
-
-	<CheckBoxPreference			
-            android:key="scrolling"
-            android:title="Enable scrolling"
-            android:summary="Enabled browser-style scrolling"
-            android:defaultValue="false" />           
-    
-    
-    <CheckBoxPreference			
-            android:key="animations"
-            android:title="Enable animations"
-            android:summary="Enables sliding page change animations"
-            android:defaultValue="true" /> 
+   
 	            
 	<EditTextPreference
 				android:key="text_size"
@@ -42,7 +34,92 @@
 				android:numeric="integer"
 				android:defaultValue="16"
 				/>
-				
+	
+	</PreferenceCategory>
+		
+			
+	<PreferenceCategory
+                android:title="Colour settings">                
+           
+        
+        	<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="day_text"
+    			android:title="Text colour"
+    			android:summary="For day mode"
+    			android:defaultValue="#000000" />
+    			
+    		<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="day_bg"
+    			android:title="Background colour"
+    			android:summary="For day mode"
+    			android:defaultValue="#ffffff" /> 
+    		
+    		    		
+    		
+             <net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="night_text"
+    			android:title="Text colour"
+    			android:summary="For night mode"
+    			android:defaultValue="#888888" />
+    				
+    		<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="night_bg"
+    			android:title="Background colour"
+    			android:summary="For night mode"
+    			android:defaultValue="#000000" />  
+    		
+    		
+    					
+    </PreferenceCategory>
+    
+	<PreferenceCategory
+                android:title="Navigation settings">
+                
+     <CheckBoxPreference			
+            android:key="scrolling"
+            android:title="Enable scrolling"
+            android:summary="Enabled browser-style scrolling"
+            android:defaultValue="false"
+            android:disableDependentsState="true" /> 
+                
+     <CheckBoxPreference			
+            android:key="animations"
+            android:title="Enable animations"
+            android:summary="Enables sliding page change animations"
+            android:defaultValue="true" /> 
+            
+     <CheckBoxPreference			
+            android:key="nav_vol"
+            android:title="Enable volume buttons"
+            android:summary="Press volume up/down to change pages."
+            android:defaultValue="false" />
+            
+     <CheckBoxPreference			
+            android:key="nav_swipe_h"
+            android:title="Enable horizontal swiping"
+            android:summary="Swipe left/right to change pages."
+            android:defaultValue="true" /> 
+            
+     <CheckBoxPreference			
+            android:key="nav_swipe_v"
+            android:title="Enable vertical swiping"
+            android:summary="Swipe up/down to change pages."
+            android:defaultValue="true" 
+            android:dependency="scrolling"/> 
+            
+     <CheckBoxPreference			
+            android:key="nav_tap_h"
+            android:title="Enable tapping sides"
+            android:summary="Tap the left/right edge of the screen to change pages."
+            android:defaultValue="true" />       
+     
+     <CheckBoxPreference			
+            android:key="nav_tap_v"
+            android:title="Enable tapping top/bottom"
+            android:summary="Tap the top/bottom edge of the screen to change pages."
+            android:defaultValue="true" />           
+                
+    </PreferenceCategory>
     
 
 </PreferenceScreen>

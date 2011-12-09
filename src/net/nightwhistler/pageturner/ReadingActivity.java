@@ -256,14 +256,16 @@ public class ReadingActivity extends Activity implements BookViewListener
     
     private void restoreColorProfile() {
     	if ( "night".equals(this.colourProfile) ) {
-    		this.viewSwitcher.setBackgroundColor(Color.BLACK);
-    		this.bookView.setBackgroundColor(Color.BLACK);
-    		this.bookView.setTextColor( Color.GRAY );
+    		this.viewSwitcher.setBackgroundColor(
+    				settings.getInt("night_bg", Color.BLACK));
+    		
+    		this.bookView.setBackgroundColor(settings.getInt("night_bg", Color.BLACK));
+    		this.bookView.setTextColor( settings.getInt("night_text", Color.GRAY));
     		
     	} else {
-    		this.viewSwitcher.setBackgroundColor(Color.WHITE);
-    		this.bookView.setBackgroundColor(Color.WHITE);
-    		this.bookView.setTextColor(Color.BLACK);
+    		this.viewSwitcher.setBackgroundColor(settings.getInt("day_bg", Color.WHITE));
+    		this.bookView.setBackgroundColor(settings.getInt("day_bg", Color.WHITE));
+    		this.bookView.setTextColor(settings.getInt("day_text", Color.BLACK));
     	}    	 	
     }
     
@@ -303,20 +305,25 @@ public class ReadingActivity extends Activity implements BookViewListener
 	    
 	    switch (keyCode) {
 	        
-	    	case KeyEvent.KEYCODE_VOLUME_DOWN:	        
-	        case KeyEvent.KEYCODE_DPAD_RIGHT:
+	    	case KeyEvent.KEYCODE_VOLUME_DOWN:
+	    		//Yes, this is nasty: if the setting is true, we fall through to the next case.
+	    		if (! settings.getBoolean("nav_vol", false) ) { return false; } 
+	        
+	    	case KeyEvent.KEYCODE_DPAD_RIGHT:
 	            
 	        	if (action == KeyEvent.ACTION_DOWN) {
-	                slideToLeft();	                
+	                pageDown();	                
 	            }
 	        	
-	        	return true;	            
-	            
-	        	
-	        case KeyEvent.KEYCODE_VOLUME_UP:	        
+	        	return true;	 
+
+	        case KeyEvent.KEYCODE_VOLUME_UP:
+		        //Same dirty trick.
+	    		if (! settings.getBoolean("nav_vol", false) ) { return false; } 
+
 	        case KeyEvent.KEYCODE_DPAD_LEFT:	
 	            if (action == KeyEvent.ACTION_DOWN) {
-	               slideToRight();	                
+	               pageUp();	                
 	            }
 	            
 	            return true;	
@@ -358,7 +365,7 @@ public class ReadingActivity extends Activity implements BookViewListener
 		this.viewSwitcher.reset();
     }
     
-    private void slideToLeft() {
+    private void pageDown() {
     	if ( animatePageChanges ) {
     		prepareSlide(inFromRightAnimation(), outToLeftAnimation());		
     		this.viewSwitcher.showNext();
@@ -368,7 +375,7 @@ public class ReadingActivity extends Activity implements BookViewListener
 		bookView.pageDown();
     }
     
-    private void slideToRight() {
+    private void pageUp() {
     	if ( animatePageChanges ) {
     		prepareSlide(inFromLeftAnimation(), outToRightAnimation());		
     		this.viewSwitcher.showNext(); 
@@ -686,22 +693,65 @@ public class ReadingActivity extends Activity implements BookViewListener
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             try {
-                if (Math.abs(e1.getY() - e2.getY()) < SWIPE_MAX_OFF_PATH) {                   
-                	// right to left swipe
-                	if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                		slideToLeft();
-                		return true;
-                	}  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                		slideToRight();
-                		return true;
-                	}
-                }     
+            	
+            	if ( settings.getBoolean("nav_swipe_h", true) ) {
+
+            		if (Math.abs(e1.getY() - e2.getY()) < SWIPE_MAX_OFF_PATH) {                   
+            			// right to left swipe
+            			if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+            				pageDown();
+            				return true;
+            			}  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+            				pageUp();
+            				return true;
+            			}
+            		}
+            	}
+            	
+            	if ( settings.getBoolean("nav_swipe_v", true) && ! settings.getBoolean("scrolling", true) ) {
+
+            		if (Math.abs(e1.getX() - e2.getX()) < SWIPE_MAX_OFF_PATH) {                   
+            			// right to left swipe
+            			if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+            				pageUp();
+            				return true;
+            			}  else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+            				pageDown();
+            				return true;
+            			}
+            		}
+            	}
                                
             } catch (Exception e) {
                 // nothing
             }
             
             return false;
+        }
+        
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+        	
+        	final int TAP_RANGE_H = bookView.getWidth() / 5;
+        	final int TAP_RANGE_V = bookView.getHeight() / 5;
+        	
+        	if ( e.getX() < TAP_RANGE_H ) {
+        		pageDown();
+        		return true;
+        	} else if (e.getX() > bookView.getWidth() - TAP_RANGE_H ) {
+        		pageDown();
+        		return true;
+        	}
+        	
+        	if ( e.getY() < TAP_RANGE_V ) {
+        		bookView.pageUp();
+        		return true;
+        	} else if ( e.getY() > bookView.getHeight() - TAP_RANGE_V ) {
+        		bookView.pageDown();
+        		return true;
+        	}
+        	
+        	return false;        	
         }
         
         

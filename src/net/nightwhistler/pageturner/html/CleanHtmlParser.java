@@ -18,15 +18,17 @@ package net.nightwhistler.pageturner.html;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
 
 import android.graphics.Typeface;
+import android.text.Layout.Alignment;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.Layout.Alignment;
 import android.text.style.AlignmentSpan;
 import android.text.style.QuoteSpan;
 import android.text.style.RelativeSizeSpan;
@@ -38,6 +40,14 @@ import android.text.style.TypefaceSpan;
 public class CleanHtmlParser {
 	
 	private Map<String, TagNodeHandler> handlers;
+	
+	private static StringReplacement[] REPLACEMENTS = {
+		
+		new StringReplacement("\n", " "),
+		new StringReplacement("&amp;", "&")
+		//new StringReplacement("&quot;", "\"")
+		
+	};
 	
 	public CleanHtmlParser() {
 		this.handlers = new HashMap<String, TagNodeHandler>();
@@ -64,7 +74,14 @@ public class CleanHtmlParser {
 				}
 			}
 			
-			builder.append( ((ContentNode) node).getContent().toString().replaceAll("\n", " ").trim() );
+			String baseContent = ((ContentNode) node).getContent().toString();
+			
+			for ( StringReplacement replacement: REPLACEMENTS ) {
+				baseContent = replacement.apply( baseContent );
+			}
+			
+			builder.append( baseContent.trim() );			
+			
 		} else if ( node instanceof TagNode ) { 
 			applySpan(builder, (TagNode) node); 
 		}		
@@ -244,5 +261,23 @@ public class CleanHtmlParser {
 			
 			builder.append("\n\n");
 		}
+	}
+	
+	private static class StringReplacement {
+				
+		private Matcher matcher;
+		private String replaceWith;
+	
+		public StringReplacement( String regex, String replaceWith ) {
+			Pattern pattern = Pattern.compile(regex);	
+			this.matcher = pattern.matcher("");
+			this.replaceWith = replaceWith;
+		}
+		
+		public String apply(String subject) {
+			this.matcher.reset(subject);			
+			return matcher.replaceAll(replaceWith);
+		}
+		
 	}
 }

@@ -16,9 +16,8 @@
 
 package net.nightwhistler.pageturner;
 
+import java.net.URLEncoder;
 import java.util.List;
-
-import com.globalmentor.android.widget.VerifiedFlingListener;
 
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.PageTurnerWebProgressService;
@@ -30,9 +29,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -48,13 +49,15 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AlignmentSpan;
 import android.text.style.ImageSpan;
-import android.util.DisplayMetrics;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -65,6 +68,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.globalmentor.android.widget.VerifiedFlingListener;
+
 public class ReadingActivity extends Activity implements BookViewListener 
 {
 		
@@ -72,6 +77,20 @@ public class ReadingActivity extends Activity implements BookViewListener
 	private static final String IDX_KEY = "index:";
 	
 	protected static final int REQUEST_CODE_GET_CONTENT = 2;
+	
+	public static final String PICK_RESULT_ACTION = "colordict.intent.action.PICK_RESULT";
+	
+	public static final String SEARCH_ACTION = "colordict.intent.action.SEARCH";
+	public static final String EXTRA_QUERY = "EXTRA_QUERY";
+	public static final String EXTRA_FULLSCREEN = "EXTRA_FULLSCREEN";
+	public static final String EXTRA_HEIGHT = "EXTRA_HEIGHT";
+	public static final String EXTRA_WIDTH = "EXTRA_WIDTH";
+	public static final String EXTRA_GRAVITY = "EXTRA_GRAVITY";
+	public static final String EXTRA_MARGIN_LEFT = "EXTRA_MARGIN_LEFT";
+	public static final String EXTRA_MARGIN_TOP = "EXTRA_MARGIN_TOP";
+	public static final String EXTRA_MARGIN_BOTTOM = "EXTRA_MARGIN_BOTTOM";
+	public static final String EXTRA_MARGIN_RIGHT = "EXTRA_MARGIN_RIGHT";
+
 	
 	private String colourProfile;
 		
@@ -95,6 +114,8 @@ public class ReadingActivity extends Activity implements BookViewListener
 	private String titleBase;
 	
 	private enum Orientation { HORIZONTAL, VERTICAL }
+	
+	private CharSequence selectedWord = null;
 	
     /** Called when the activity is first created. */
     @Override
@@ -120,7 +141,7 @@ public class ReadingActivity extends Activity implements BookViewListener
             public boolean onTouch(View v, MotionEvent event) {
                 return gestureDetector.onTouchEvent(event);
             }
-        };
+        };        
        
         this.titleBar = (TextView) this.findViewById(R.id.myTitleBarTextView);
         this.titleBarLayout = (LinearLayout)findViewById(R.id.myTitleBarLayout);
@@ -129,6 +150,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     	this.viewSwitcher.setOnTouchListener(gestureListener);
     	this.bookView.setOnTouchListener(gestureListener);    	
     	this.bookView.addListener(this);
+    	
+    	registerForContextMenu(bookView);
     	
     	String file = getIntent().getStringExtra("file_name");
     	
@@ -173,7 +196,7 @@ public class ReadingActivity extends Activity implements BookViewListener
         editor.putString("last_file", fileName);
         editor.commit();    
 
-    }
+    }    
     
     @Override
     public void progressUpdate(int progressPercentage) {
@@ -247,6 +270,63 @@ public class ReadingActivity extends Activity implements BookViewListener
     	this.bookTitle = book.getTitle();
     	this.titleBase = this.bookTitle;
     	setTitle( titleBase );  
+    }
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+    		ContextMenuInfo menuInfo) {
+    	
+    	//This is a hack to give the longclick handler time
+    	//to find the word the user long clicked on.    	
+    	
+    	if ( this.selectedWord != null ) {
+    		
+    		final CharSequence word = this.selectedWord;
+    		menu.setHeaderTitle("You selected '" + selectedWord + "'");
+    		
+    		final Intent intent = new Intent(PICK_RESULT_ACTION);
+        	intent.putExtra(EXTRA_QUERY, word.toString()); //Search Query
+        	intent.putExtra(EXTRA_FULLSCREEN, false); //
+        	intent.putExtra(EXTRA_HEIGHT, 400); //400pixel, if you don't specify, fill_parent"
+        	intent.putExtra(EXTRA_GRAVITY, Gravity.BOTTOM);
+        	intent.putExtra(EXTRA_MARGIN_LEFT, 100);
+        	
+        	if ( isIntentAvailable(this, intent)) {
+        		MenuItem item = menu.add("Look up in Dictionary");
+        		item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+					
+					@Override
+					public boolean onMenuItemClick(MenuItem item) {
+						startActivityForResult(intent, 5); 
+						return true;
+					}
+				});
+        	}
+        	        
+        	MenuItem newItem = menu.add("Look up on Wikipedia");
+        	newItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+				
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+					String url = "http://en.wikipedia.org/wiki/Special:Search?search=" + URLEncoder.encode( word.toString() );
+		            
+		            Intent i = new Intent(Intent.ACTION_VIEW);  
+		            i.setData(Uri.parse(url));  
+		            startActivity(i);  
+		            
+		            return true;
+				}
+			});
+        	
+        	this.selectedWord = null;
+    	}
+    	 
+    }    
+    
+    public static boolean isIntentAvailable(Context context, Intent intent) {
+    	final PackageManager packageManager = context.getPackageManager();
+    	List list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+    	return list.size() > 0;
     }
     
     private void restoreColorProfile() {
@@ -443,7 +523,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	super.onActivityResult(requestCode, resultCode, data);
 
-    	if (resultCode == RESULT_OK && data != null) {
+    	if ( resultCode == RESULT_OK && data != null) {
     		// obtain the filename
     		Uri fileUri = data.getData();
     		if (fileUri != null) {
@@ -452,7 +532,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     				loadNewBook(filePath);  
     			}
     		}
-    	}    	
+    	}	
+    	
     }
     
     private void loadNewBook( String fileName ) {
@@ -659,6 +740,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     	return builder;
     }
     
+    
     private class SwipeListener extends VerifiedFlingListener {
     	
     	public SwipeListener() {
@@ -714,6 +796,14 @@ public class ReadingActivity extends Activity implements BookViewListener
         	}
         	
         	return false;        	
+        }
+        
+        @Override
+        public void onLongPress(MotionEvent e) {
+        	CharSequence word = bookView.getWordAt(e.getX(), e.getY() );
+        	selectedWord = word;
+
+        	openContextMenu(bookView);
         }
         
         

@@ -48,6 +48,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -109,6 +110,8 @@ public class BookView extends ScrollView {
 			}
 		};  
 		
+		childView.setLongClickable(true);
+		
         this.setPadding(PADDING, PADDING, PADDING, PADDING);
         this.setBackgroundColor(Color.WHITE);
        
@@ -169,6 +172,7 @@ public class BookView extends ScrollView {
 	public boolean hasPrevPosition() {
 		return this.prevIndex != -1 && this.prevPos != -1;
 	}
+
 	
 	public void goBackInHistory() {
 		
@@ -241,6 +245,72 @@ public class BookView extends ScrollView {
 		super.scrollTo(x, y);
 		progressUpdate();
 	}	
+	
+	/**
+	 * Returns the full word containing the character at the selected location.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public CharSequence getWordAt( float x, float y ) {
+		
+		CharSequence text = this.childView.getText();
+		
+		if ( text.length() == 0 ) {
+			return null;
+		}
+		
+		Layout layout = this.childView.getLayout();
+		int line = layout.getLineForVertical( (int) y);
+		
+		int offset = layout.getOffsetForHorizontal(line, x);
+		
+		if ( isBoundaryCharacter(text.charAt(offset)) ) {
+			return null;
+		}
+		
+		int left = Math.max(0,offset -1);
+		int right = Math.min( text.length(), offset );
+		
+		CharSequence word = text.subSequence(left, right);
+		while ( left > 0 && ! isBoundaryCharacter(word.charAt(0))) {
+			left--;
+			word = text.subSequence(left, right);
+		}
+		
+		while ( right < text.length() && ! isBoundaryCharacter(word.charAt(word.length() -1))) {
+			right++;
+			word = text.subSequence(left, right);
+		}
+		
+		int start = 0;
+		int end = word.length();
+		
+		if ( isBoundaryCharacter(word.charAt(0))) {
+			start = 1;
+		}
+		
+		if ( isBoundaryCharacter(word.charAt(word.length() - 1))) {
+			end = word.length() - 1;
+		}
+		
+		return word.subSequence(start, end );
+	}
+	
+	private static boolean isBoundaryCharacter( char c ) {
+		char[] boundaryChars = { ' ', '.', ',','\"',
+				'\'', '\n', '\t'
+		};
+		
+		for ( int i=0; i < boundaryChars.length; i++ ) {
+			if (boundaryChars[i] == c) {
+				return true;
+			}		
+		}
+		
+		return false;
+	}
 	
 	public void navigateTo( String rawHref ) {
 				

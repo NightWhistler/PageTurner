@@ -18,6 +18,8 @@ package net.nightwhistler.pageturner;
 
 import java.util.List;
 
+import com.globalmentor.android.widget.VerifiedFlingListener;
+
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.PageTurnerWebProgressService;
 import net.nightwhistler.pageturner.sync.ProgressService;
@@ -55,7 +57,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -85,11 +86,7 @@ public class ReadingActivity extends Activity implements BookViewListener
 	private TextView titleBar;
 	private LinearLayout titleBarLayout;
 	
-	private SharedPreferences settings;
-		
-	private static final int SWIPE_MIN_DISTANCE = 100;
-    private static final int SWIPE_MAX_OFF_PATH = 250;
-    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+	private SharedPreferences settings;	
     
     private GestureDetector gestureDetector;
 	private View.OnTouchListener gestureListener;
@@ -662,51 +659,35 @@ public class ReadingActivity extends Activity implements BookViewListener
     	return builder;
     }
     
-    private class SwipeListener extends SimpleOnGestureListener {
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            try {            	
-            	
-            	DisplayMetrics dm = getResources().getDisplayMetrics();
-
-            	final int REL_SWIPE_MIN_DISTANCE = (int)(SWIPE_MIN_DISTANCE * dm.densityDpi / 160.0f);
-            	final int REL_SWIPE_MAX_OFF_PATH = (int)(SWIPE_MAX_OFF_PATH * dm.densityDpi / 160.0f);
-            	final int REL_SWIPE_THRESHOLD_VELOCITY = (int)(SWIPE_THRESHOLD_VELOCITY * dm.densityDpi / 160.0f);
-            	
-            	if ( settings.getBoolean("nav_swipe_h", true) ) {
-
-            		if (Math.abs(e1.getY() - e2.getY()) < REL_SWIPE_MAX_OFF_PATH) {                   
-            			// right to left swipe
-            			if(e1.getX() - e2.getX() > REL_SWIPE_MIN_DISTANCE && Math.abs(velocityX) > REL_SWIPE_THRESHOLD_VELOCITY) {
-            				pageDown(Orientation.HORIZONTAL);
-            				return true;
-            			}  else if (e2.getX() - e1.getX() > REL_SWIPE_MIN_DISTANCE && Math.abs(velocityX) > REL_SWIPE_THRESHOLD_VELOCITY) {
-            				pageUp(Orientation.HORIZONTAL);
-            				return true;
-            			}
-            		}
-            	}
-            	
-            	if ( settings.getBoolean("nav_swipe_v", true) && ! settings.getBoolean("scrolling", true) ) {
-
-            		if (Math.abs(e1.getX() - e2.getX()) < REL_SWIPE_MAX_OFF_PATH) {                   
-            			// right to left swipe
-            			if(e1.getY() - e2.getY() > REL_SWIPE_MIN_DISTANCE && Math.abs(velocityY) > REL_SWIPE_THRESHOLD_VELOCITY) {
-            				pageDown(Orientation.VERTICAL);
-            				return true;
-            			}  else if (e2.getY() - e1.getY() > REL_SWIPE_MIN_DISTANCE && Math.abs(velocityY) > REL_SWIPE_THRESHOLD_VELOCITY) {
-            				pageUp(Orientation.VERTICAL);            				
-            				return true;
-            			}
-            		}
-            	}
-                               
-            } catch (Exception e) {
-                // nothing
-            }
-            
-            return false;
-        }
+    private class SwipeListener extends VerifiedFlingListener {
+    	
+    	public SwipeListener() {
+    		super(ReadingActivity.this);
+		}    	
+      
+    	@Override
+    	public boolean onVerifiedFling(MotionEvent e1, MotionEvent e2,
+    			float velocityX, float velocityY) {
+    		
+    		boolean swipeH = settings.getBoolean("nav_swipe_h", true);
+    		boolean swipeV = settings.getBoolean("nav_swipe_v", true) && ! settings.getBoolean("scrolling", true);
+    		
+    		if ( swipeH && velocityX > 0 ) {
+    			pageUp(Orientation.HORIZONTAL);
+    			return true;
+    		} else if ( swipeH && velocityX < 0 ) {
+    			pageDown(Orientation.HORIZONTAL);
+    			return true;
+    		} else if ( swipeV && velocityY < 0 ) {
+    			pageDown( Orientation.VERTICAL );
+    			return true;
+    		} else if ( swipeV && velocityY > 0 ) {
+    			pageUp( Orientation.VERTICAL );
+    			return true;
+    		}
+    		
+    		return false;
+    	}
         
         @Override
         public boolean onSingleTapUp(MotionEvent e) {

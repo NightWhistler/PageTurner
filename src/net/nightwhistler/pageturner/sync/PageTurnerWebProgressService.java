@@ -1,6 +1,5 @@
 package net.nightwhistler.pageturner.sync;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.ArrayList;

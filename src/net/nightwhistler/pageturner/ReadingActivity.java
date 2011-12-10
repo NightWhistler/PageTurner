@@ -776,25 +776,31 @@ public class ReadingActivity extends Activity implements BookViewListener
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
         	
+        	boolean tapH = settings.getBoolean("nav_tap_h", true);
+        	boolean tapV = settings.getBoolean("nav_tap_v", true);
+        	
         	final int TAP_RANGE_H = bookView.getWidth() / 5;
         	final int TAP_RANGE_V = bookView.getHeight() / 5;
-        	
-        	if ( e.getX() < TAP_RANGE_H ) {
-        		pageUp(Orientation.HORIZONTAL);
-        		return true;
-        	} else if (e.getX() > bookView.getWidth() - TAP_RANGE_H ) {
-        		pageDown(Orientation.HORIZONTAL);
-        		return true;
+        	if ( tapH ) {
+        		if ( e.getX() < TAP_RANGE_H ) {
+        			pageUp(Orientation.HORIZONTAL);
+        			return true;
+        		} else if (e.getX() > bookView.getWidth() - TAP_RANGE_H ) {
+        			pageDown(Orientation.HORIZONTAL);
+        			return true;
+        		}
         	}
         	
         	int yBase = bookView.getScrollY();        	
         	
-        	if ( e.getY() < TAP_RANGE_V + yBase ) {
-        		pageUp(Orientation.VERTICAL);
-        		return true;
-        	} else if ( e.getY() > (yBase + bookView.getHeight()) - TAP_RANGE_V ) {
-        		pageDown(Orientation.VERTICAL);
-        		return true;
+        	if ( tapV ) {
+        		if ( e.getY() < TAP_RANGE_V + yBase ) {
+        			pageUp(Orientation.VERTICAL);
+        			return true;
+        		} else if ( e.getY() > (yBase + bookView.getHeight()) - TAP_RANGE_V ) {
+        			pageDown(Orientation.VERTICAL);
+        			return true;
+        		}
         	}
         	
         	return false;        	

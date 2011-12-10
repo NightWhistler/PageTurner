@@ -34,6 +34,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -325,7 +326,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     
     public static boolean isIntentAvailable(Context context, Intent intent) {
     	final PackageManager packageManager = context.getPackageManager();
-    	List list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+    	List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
     	return list.size() > 0;
     }
     

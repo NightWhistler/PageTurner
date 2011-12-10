@@ -270,13 +270,19 @@ public class CleanHtmlParser {
 	
 		public StringReplacement( String regex, String replaceWith ) {
 			Pattern pattern = Pattern.compile(regex);	
-			this.matcher = pattern.matcher("");
+			this.matcher = pattern.matcher("");			
 			this.replaceWith = replaceWith;
 		}
 		
 		public String apply(String subject) {
-			this.matcher.reset(subject);			
-			return matcher.replaceAll(replaceWith);
+			this.matcher.reset(subject);	
+			
+			if ( matcher.matches() ) { 
+				return matcher.replaceAll(replaceWith);
+			} else {
+				return subject;
+			}
+			
 		}
 		
 	}

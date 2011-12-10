@@ -654,8 +654,8 @@ public class BookView extends ScrollView {
 				}
 			}
 			
-			strategy.loadText( result ); 
 			restorePosition();
+			strategy.loadText( result );			
 			
 			parseEntryComplete(spine.getPosition(), this.name);
 		}

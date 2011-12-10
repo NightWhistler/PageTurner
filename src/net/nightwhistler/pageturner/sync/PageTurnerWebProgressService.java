@@ -125,7 +125,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 			
 			LOG.debug("Got status " + response.getStatusLine().getStatusCode() + " from server.");
 			
-		} catch (IOException io) {	
+		} catch (Exception io) {	
 			LOG.error("Got error while POSTing update:", io);	
 			//fail silently
 		}	

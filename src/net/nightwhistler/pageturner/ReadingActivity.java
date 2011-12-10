@@ -46,6 +46,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AlignmentSpan;
 import android.text.style.ImageSpan;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
@@ -54,11 +55,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -93,11 +93,11 @@ public class ReadingActivity extends Activity implements BookViewListener
     
     private GestureDetector gestureDetector;
 	private View.OnTouchListener gestureListener;
-	
-	private boolean animatePageChanges;
-	
+		
 	private String bookTitle;
 	private String titleBase;
+	
+	private enum Orientation { HORIZONTAL, VERTICAL }
 	
     /** Called when the activity is first created. */
     @Override
@@ -217,9 +217,7 @@ public class ReadingActivity extends Activity implements BookViewListener
         	this.colourProfile = "night";
         } else {
         	this.colourProfile = "day";
-        }
-        
-        this.animatePageChanges = settings.getBoolean("animations", false);
+        }        
         
         if ( settings.getBoolean("full_screen", false)) {
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -285,7 +283,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     	}
     	
     	setTitle(this.titleBase);
-    	this.waitDialog.hide();
+    	this.waitDialog.dismiss();
     }
     
     @Override
@@ -312,7 +310,7 @@ public class ReadingActivity extends Activity implements BookViewListener
 	    	case KeyEvent.KEYCODE_DPAD_RIGHT:
 	            
 	        	if (action == KeyEvent.ACTION_DOWN) {
-	                pageDown();	                
+	                pageDown(Orientation.HORIZONTAL);	                
 	            }
 	        	
 	        	return true;	 
@@ -323,7 +321,7 @@ public class ReadingActivity extends Activity implements BookViewListener
 
 	        case KeyEvent.KEYCODE_DPAD_LEFT:	
 	            if (action == KeyEvent.ACTION_DOWN) {
-	               pageUp();	                
+	               pageUp(Orientation.HORIZONTAL);	                
 	            }
 	            
 	            return true;	
@@ -365,22 +363,38 @@ public class ReadingActivity extends Activity implements BookViewListener
 		this.viewSwitcher.reset();
     }
     
-    private void pageDown() {
-    	if ( animatePageChanges ) {
-    		prepareSlide(inFromRightAnimation(), outToLeftAnimation());		
+    private void pageDown(Orientation o) {
+    	
+    	boolean animateH = settings.getBoolean("animate_h", true);
+    	boolean animateV = settings.getBoolean("animate_v", true);
+    	
+    	if ( o == Orientation.HORIZONTAL && animateH ) {
+    		prepareSlide(Animations.inFromRightAnimation(), Animations.outToLeftAnimation());
     		this.viewSwitcher.showNext();
     		this.viewSwitcher.showNext();
-    	}
+    	} else if ( animateV ){
+    		prepareSlide(Animations.inFromBottomAnimation(), Animations.outToTopAnimation() );
+    		this.viewSwitcher.showNext();
+    		this.viewSwitcher.showNext();
+    	}    	
     	
 		bookView.pageDown();
     }
     
-    private void pageUp() {
-    	if ( animatePageChanges ) {
-    		prepareSlide(inFromLeftAnimation(), outToRightAnimation());		
-    		this.viewSwitcher.showNext(); 
+    private void pageUp(Orientation o) {
+    	
+    	boolean animateH = settings.getBoolean("animate_h", true);
+    	boolean animateV = settings.getBoolean("animate_v", true);
+    	
+    	if ( o == Orientation.HORIZONTAL && animateH) {
+    		prepareSlide(Animations.inFromLeftAnimation(), Animations.outToRightAnimation());
     		this.viewSwitcher.showNext();
-    	}
+        	this.viewSwitcher.showNext();
+    	} else if ( animateV ){
+    		prepareSlide(Animations.inFromTopAnimation(), Animations.outToBottomAnimation());
+    		this.viewSwitcher.showNext();
+    		this.viewSwitcher.showNext();
+    	}    	    	
     	
 		bookView.pageUp();
     }
@@ -602,7 +616,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     	
     	@Override
     	protected void onPostExecute(BookProgress progress) {  
-    		waitDialog.hide();
+    		waitDialog.dismiss();    		
     		
     		int index = bookView.getIndex();
     		int pos = bookView.getPosition();
@@ -648,61 +662,26 @@ public class ReadingActivity extends Activity implements BookViewListener
     	return builder;
     }
     
-    private Animation inFromRightAnimation() {
-
-    	Animation inFromRight = new TranslateAnimation(
-    			Animation.RELATIVE_TO_PARENT,  +1.0f, Animation.RELATIVE_TO_PARENT,  0.0f,
-    			Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,   0.0f
-    	);
-    	inFromRight.setDuration(500);
-    	inFromRight.setInterpolator(new AccelerateInterpolator());
-    	return inFromRight;
-    }
-    
-    private Animation outToLeftAnimation() {
-    	Animation outtoLeft = new TranslateAnimation(
-    			Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,  -1.0f,
-    			Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,   0.0f
-    	);
-    	outtoLeft.setDuration(500);
-    	outtoLeft.setInterpolator(new AccelerateInterpolator());
-    	return outtoLeft;
-    }
-
-    private Animation inFromLeftAnimation() {
-    	Animation inFromLeft = new TranslateAnimation(
-    			Animation.RELATIVE_TO_PARENT,  -1.0f, Animation.RELATIVE_TO_PARENT,  0.0f,
-    			Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,   0.0f
-    	);
-    	inFromLeft.setDuration(500);
-    	inFromLeft.setInterpolator(new AccelerateInterpolator());
-    	return inFromLeft;
-    }
-    
-    private Animation outToRightAnimation() {
-    	Animation outtoRight = new TranslateAnimation(
-    			Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,  +1.0f,
-    			Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,   0.0f
-    	);
-    	outtoRight.setDuration(500);
-    	outtoRight.setInterpolator(new AccelerateInterpolator());
-    	return outtoRight;
-    }
-    
     private class SwipeListener extends SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            try {
+            try {            	
+            	
+            	DisplayMetrics dm = getResources().getDisplayMetrics();
+
+            	final int REL_SWIPE_MIN_DISTANCE = (int)(SWIPE_MIN_DISTANCE * dm.densityDpi / 160.0f);
+            	final int REL_SWIPE_MAX_OFF_PATH = (int)(SWIPE_MAX_OFF_PATH * dm.densityDpi / 160.0f);
+            	final int REL_SWIPE_THRESHOLD_VELOCITY = (int)(SWIPE_THRESHOLD_VELOCITY * dm.densityDpi / 160.0f);
             	
             	if ( settings.getBoolean("nav_swipe_h", true) ) {
 
-            		if (Math.abs(e1.getY() - e2.getY()) < SWIPE_MAX_OFF_PATH) {                   
+            		if (Math.abs(e1.getY() - e2.getY()) < REL_SWIPE_MAX_OFF_PATH) {                   
             			// right to left swipe
-            			if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-            				pageDown();
+            			if(e1.getX() - e2.getX() > REL_SWIPE_MIN_DISTANCE && Math.abs(velocityX) > REL_SWIPE_THRESHOLD_VELOCITY) {
+            				pageDown(Orientation.HORIZONTAL);
             				return true;
-            			}  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-            				pageUp();
+            			}  else if (e2.getX() - e1.getX() > REL_SWIPE_MIN_DISTANCE && Math.abs(velocityX) > REL_SWIPE_THRESHOLD_VELOCITY) {
+            				pageUp(Orientation.HORIZONTAL);
             				return true;
             			}
             		}
@@ -710,13 +689,13 @@ public class ReadingActivity extends Activity implements BookViewListener
             	
             	if ( settings.getBoolean("nav_swipe_v", true) && ! settings.getBoolean("scrolling", true) ) {
 
-            		if (Math.abs(e1.getX() - e2.getX()) < SWIPE_MAX_OFF_PATH) {                   
+            		if (Math.abs(e1.getX() - e2.getX()) < REL_SWIPE_MAX_OFF_PATH) {                   
             			// right to left swipe
-            			if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-            				pageUp();
+            			if(e1.getY() - e2.getY() > REL_SWIPE_MIN_DISTANCE && Math.abs(velocityY) > REL_SWIPE_THRESHOLD_VELOCITY) {
+            				pageDown(Orientation.VERTICAL);
             				return true;
-            			}  else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-            				pageDown();
+            			}  else if (e2.getY() - e1.getY() > REL_SWIPE_MIN_DISTANCE && Math.abs(velocityY) > REL_SWIPE_THRESHOLD_VELOCITY) {
+            				pageUp(Orientation.VERTICAL);            				
             				return true;
             			}
             		}
@@ -736,18 +715,20 @@ public class ReadingActivity extends Activity implements BookViewListener
         	final int TAP_RANGE_V = bookView.getHeight() / 5;
         	
         	if ( e.getX() < TAP_RANGE_H ) {
-        		pageDown();
+        		pageUp(Orientation.HORIZONTAL);
         		return true;
         	} else if (e.getX() > bookView.getWidth() - TAP_RANGE_H ) {
-        		pageDown();
+        		pageDown(Orientation.HORIZONTAL);
         		return true;
         	}
         	
-        	if ( e.getY() < TAP_RANGE_V ) {
-        		bookView.pageUp();
+        	int yBase = bookView.getScrollY();        	
+        	
+        	if ( e.getY() < TAP_RANGE_V + yBase ) {
+        		pageUp(Orientation.VERTICAL);
         		return true;
-        	} else if ( e.getY() > bookView.getHeight() - TAP_RANGE_V ) {
-        		bookView.pageDown();
+        	} else if ( e.getY() > (yBase + bookView.getHeight()) - TAP_RANGE_V ) {
+        		pageDown(Orientation.VERTICAL);
         		return true;
         	}
         	

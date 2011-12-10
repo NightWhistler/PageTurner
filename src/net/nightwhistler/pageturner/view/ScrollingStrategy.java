@@ -59,8 +59,8 @@ public class ScrollingStrategy implements PageChangeStrategy {
 			Layout layout = this.childView.getLayout();
 			
 			if ( layout != null ) {
-				this.storedPosition = Math.max(0, this.storedPosition);
-				int line = layout.getLineForOffset(this.storedPosition);
+				int pos = Math.max(0, this.storedPosition);
+				int line = layout.getLineForOffset(pos);
 				
 				if ( line > 0 ) {
 					int newPos = layout.getLineBottom(line -1);

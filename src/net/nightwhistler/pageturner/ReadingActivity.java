@@ -360,7 +360,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     	}
     	
     	setTitle(this.titleBase);
-    	this.waitDialog.dismiss();
+    	this.waitDialog.hide();
     }
     
     @Override
@@ -565,6 +565,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     	   // Commit the edits!
     	   editor.commit();
        }
+       
+       this.waitDialog.dismiss();
     }
     
     @Override
@@ -694,7 +696,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     	
     	@Override
     	protected void onPostExecute(BookProgress progress) {  
-    		waitDialog.dismiss();    		
+    		waitDialog.hide();    		
     		
     		int index = bookView.getIndex();
     		int pos = bookView.getPosition();

@@ -19,9 +19,13 @@ public class ScrollingStrategy implements PageChangeStrategy {
 
 	@Override
 	public int getPosition() {
-		int yPos = bookView.getScrollY();
+		if ( childView.getText().length() == 0 ) {
+			return storedPosition;
+		} else {
+			int yPos = bookView.getScrollY();
 		
-		return findTextOffset(findClosestLineBottom(yPos));
+			return findTextOffset(findClosestLineBottom(yPos));
+		}
 	}
 	
 	@Override

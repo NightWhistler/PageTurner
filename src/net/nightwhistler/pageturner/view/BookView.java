@@ -58,6 +58,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
+import android.text.style.URLSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -454,7 +455,14 @@ public class BookView extends ScrollView {
 				int start, int end) {
 			
 			final String href = node.getAttributeByName("href");
-			if ( href != null ) {			
+			
+			if ( href == null ) {
+				return;
+			}
+			
+			if ( href.startsWith("http://")) {
+				builder.setSpan(new URLSpan(href), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			} else {
 				
 				ClickableSpan span = new ClickableSpan() {
 					
@@ -558,6 +566,9 @@ public class BookView extends ScrollView {
 	private static HtmlCleaner createHtmlCleaner() {
 		HtmlCleaner result = new HtmlCleaner();
 		CleanerProperties cleanerProperties = result.getProperties();
+		
+		cleanerProperties.setAdvancedXmlEscape(true);
+		cleanerProperties.setTransResCharsToNCR(true);
 		cleanerProperties.setOmitXmlDeclaration(true);
 		cleanerProperties.setOmitDoctypeDeclaration(false);
 		cleanerProperties.setRecognizeUnicodeChars(true);

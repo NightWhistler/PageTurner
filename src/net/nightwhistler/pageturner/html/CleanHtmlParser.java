@@ -41,21 +41,28 @@ public class CleanHtmlParser {
 	
 	private Map<String, TagNodeHandler> handlers;	
 	
-	private static int MARGIN_INDENT = 40;
+	private static int MARGIN_INDENT = 30;
 	
 	private static Pattern SPECIAL_CHAR = Pattern.compile( "(&.*;|\n)" );
 		
 	private static Map<String, String> REPLACEMENTS = new HashMap<String, String>();
 	
 	static {
+		
+		/*
+		 * This isn't really needed anymore, since a properly
+		 * configured HtmlCleaner will do it already.
+		 */
 		REPLACEMENTS.put("\n", " ");
+	
 		REPLACEMENTS.put("&nbsp;", " ");
 		REPLACEMENTS.put("&amp;", "&");
 		REPLACEMENTS.put("&quot;", "\"");
 		REPLACEMENTS.put("&cent;", "¢" ); 	
 		REPLACEMENTS.put("&lt;", "<" );
 		REPLACEMENTS.put("&gt;", ">" );
-		REPLACEMENTS.put("&sect;", "§" );		
+		REPLACEMENTS.put("&sect;", "§" );
+				
 	}
 	
 	public CleanHtmlParser() {
@@ -177,6 +184,11 @@ public class CleanHtmlParser {
 		TagNodeHandler marginHandler = new TagNodeHandler() {
 			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 					int start, int end) {
+				
+				if ( builder.charAt(builder.length() -1) != '\n' ) {
+					builder.append("\n");
+				}
+				
 				builder.setSpan(new LeadingMarginSpan.Standard(MARGIN_INDENT), 
 						start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				builder.append("\n\n");

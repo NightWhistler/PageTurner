@@ -266,7 +266,7 @@ public class PageTurnerSpine {
 		
 		//Else we construct a basic front page with title and author.
 		if ( book.getCoverImage() == null ) {												
-			centerpiece = "<h1>" + book.getTitle() != null ? book.getTitle(): "Book without a title" + "</h1>";
+			centerpiece = "<h1>" + (book.getTitle() != null ? book.getTitle(): "Book without a title") + "</h1>";
 			
 			if ( ! book.getMetadata().getAuthors().isEmpty() ) {						
 				for ( Author author: book.getMetadata().getAuthors() ) {							

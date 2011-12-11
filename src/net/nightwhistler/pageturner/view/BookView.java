@@ -421,7 +421,7 @@ public class BookView extends ScrollView {
 	 * @author Alex Kuiper
 	 *
 	 */
-	private class AnchorHandler implements TagNodeHandler {
+	private class AnchorHandler extends TagNodeHandler {
 		
 		private TagNodeHandler wrappedHandler;
 		
@@ -448,7 +448,7 @@ public class BookView extends ScrollView {
 	 * @author work
 	 *
 	 */
-	private class LinkTagHandler implements TagNodeHandler {
+	private class LinkTagHandler extends TagNodeHandler {
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 				int start, int end) {
@@ -469,7 +469,7 @@ public class BookView extends ScrollView {
 		}
 	}
 	
-	private class ImageTagHandler implements TagNodeHandler {
+	private class ImageTagHandler extends TagNodeHandler {
 		
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,

@@ -37,7 +37,11 @@ import android.text.SpannableStringBuilder;
  * @author Alex Kuiper
  *
  */
-public interface TagNodeHandler {
+public abstract class TagNodeHandler {
+	
+	public void beforeChildren( TagNode node, SpannableStringBuilder builder ) {
+		
+	}
 
 	/**
 	 * Handle the given node and add spans if needed.
@@ -47,5 +51,5 @@ public interface TagNodeHandler {
 	 * @param start start position of inner text of this node
 	 * @param end end position of inner text of this node.
 	 */
-	public void handleTagNode( TagNode node, SpannableStringBuilder builder, int start, int end );
+	public abstract void handleTagNode( TagNode node, SpannableStringBuilder builder, int start, int end );
 }

@@ -31,7 +31,6 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AlignmentSpan;
 import android.text.style.LeadingMarginSpan;
-import android.text.style.QuoteSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.SubscriptSpan;
@@ -41,6 +40,23 @@ import android.text.style.TypefaceSpan;
 public class CleanHtmlParser {
 	
 	private Map<String, TagNodeHandler> handlers;	
+	
+	private static int MARGIN_INDENT = 40;
+	
+	private static Pattern SPECIAL_CHAR = Pattern.compile( "(&.*;|\n)" );
+		
+	private static Map<String, String> REPLACEMENTS = new HashMap<String, String>();
+	
+	static {
+		REPLACEMENTS.put("\n", " ");
+		REPLACEMENTS.put("&nbsp;", " ");
+		REPLACEMENTS.put("&amp;", "&");
+		REPLACEMENTS.put("&quot;", "\"");
+		REPLACEMENTS.put("&cent;", "¢" ); 	
+		REPLACEMENTS.put("&lt;", "<" );
+		REPLACEMENTS.put("&gt;", ">" );
+		REPLACEMENTS.put("&sect;", "§" );		
+	}
 	
 	public CleanHtmlParser() {
 		this.handlers = new HashMap<String, TagNodeHandler>();
@@ -54,6 +70,7 @@ public class CleanHtmlParser {
 	public Spanned fromTagNode( TagNode node ) {
 		SpannableStringBuilder result = new SpannableStringBuilder();
 		handleContent(result, node);
+		
 		return result;		
 	}
 	
@@ -67,15 +84,39 @@ public class CleanHtmlParser {
 				}
 			}
 			
-			String baseContent = ((ContentNode) node).getContent().toString();
-			baseContent.replaceAll("\\n", " ");			
-			
-			builder.append( baseContent.trim() );			
-			
+			String text = getEditedText( ((ContentNode) node).getContent().toString() ).trim();
+			builder.append( text );
+			//builder.append( ((ContentNode) node).getContent().toString().replaceAll("\n", " ").trim() );			
+						
 		} else if ( node instanceof TagNode ) { 
 			applySpan(builder, (TagNode) node); 
 		}		
 	}
+	
+	/**
+	 * Replace all words starting with the letter 'a' or 'A' with
+	 * their uppercase forms.
+	 */
+	private static String getEditedText(String aText){
+		StringBuffer result = new StringBuffer();
+		Matcher matcher = SPECIAL_CHAR.matcher(aText);
+
+		while ( matcher.find() ) {
+			matcher.appendReplacement(result, getReplacement(matcher));
+		}
+		matcher.appendTail(result);
+		return result.toString();
+	}	 
+
+	private static String getReplacement(Matcher aMatcher){
+		String result = REPLACEMENTS.get( aMatcher.group(0) );
+		
+		if ( result == null ) {
+			return "";
+		} else {
+			return result;
+		}	
+	}	
 	
 	/**
 	 * Gets the currently registered handler for this tag.
@@ -91,15 +132,19 @@ public class CleanHtmlParser {
 	
 	private void applySpan( SpannableStringBuilder builder, TagNode node ) {
 		
+		TagNodeHandler handler = this.handlers.get(node.getName());
+		
 		int lengthBefore = builder.length();
+		
+		if ( handler != null ) {
+			handler.beforeChildren(node, builder);
+		}
 		
 		for ( Object childNode: node.getChildren() ) {
 			handleContent(builder, childNode );
 		}
 		
 		int lengthAfter = builder.length();
-		
-		TagNodeHandler handler = this.handlers.get(node.getName());
 		
 		if ( handler != null ) {
 			handler.handleTagNode(node, builder, lengthBefore, lengthAfter);
@@ -131,15 +176,19 @@ public class CleanHtmlParser {
 		registerHandler("b", boldHandler);
 		registerHandler("em", boldHandler);
 		
-		TagNodeHandler quoteHandler = new TagNodeHandler() {
+		TagNodeHandler marginHandler = new TagNodeHandler() {
 			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 					int start, int end) {
-				builder.setSpan(new LeadingMarginSpan.Standard(2), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				builder.setSpan(new LeadingMarginSpan.Standard(MARGIN_INDENT), 
+						start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				builder.append("\n\n");
 			}
 		};
 		
-		registerHandler("blockquote", quoteHandler);
+		registerHandler("blockquote", marginHandler);
+		registerHandler("ul", marginHandler);
+		registerHandler("ol", marginHandler);
+		
 		
 		TagNodeHandler brHandler = new TagNodeHandler() {
 			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
@@ -231,12 +280,12 @@ public class CleanHtmlParser {
 			}
 		};
 		
-		registerHandler("center", centerHandler);
+		registerHandler("center", centerHandler);	
 		
-		
+		registerHandler("li", new ListItemHandler() );		
 	}
 	
-	private class HeaderHandler implements TagNodeHandler {
+	private class HeaderHandler extends TagNodeHandler {
 		
 		private float size;
 		
@@ -253,29 +302,60 @@ public class CleanHtmlParser {
 			
 			builder.append("\n\n");
 		}
-	}
+	}	
 	
-	private static class StringReplacement {
+	private class ListItemHandler extends TagNodeHandler {
+		
+		private int getMyIndex(TagNode node) {
+			
+			if ( node.getParent() == null ) {
+				return -1;
+			}
+			
+			int i = 1;
+			
+			for ( Object child: node.getParent().getChildren() ) {
+				if ( child == node ) {
+					return i;
+				} 				
 				
-		private Matcher matcher;
-		private String replaceWith;
-	
-		public StringReplacement( String regex, String replaceWith ) {
-			Pattern pattern = Pattern.compile(regex);	
-			this.matcher = pattern.matcher("");			
-			this.replaceWith = replaceWith;
+				if (child instanceof TagNode ) {
+					TagNode childNode = (TagNode) child;				
+					if ( "li".equals(childNode.getName())) {
+						i++;
+					}
+				}
+			}
+			
+			return -1;
 		}
 		
-		public String apply(String subject) {
-			this.matcher.reset(subject);	
+		private String getParentName(TagNode node) {
+			if ( node.getParent() == null ) {
+				return null;
+			}
 			
-			if ( matcher.matches() ) { 
-				return matcher.replaceAll(replaceWith);
-			} else {
-				return subject;
+			return node.getParent().getName();
+		}
+		
+		@Override
+		public void beforeChildren(TagNode node, SpannableStringBuilder builder) {
+			if ( "ol".equals(getParentName(node))) {
+				builder.append( "" + getMyIndex(node) + ". " );
+			} else if ("ul".equals(getParentName(node))) {
+				//Unicode bullet character.
+				builder.append("\u2022  ");
+			}
+		}
+		
+		@Override
+		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+				int start, int end) {
+			
+			if ( builder.charAt(builder.length() -1) != '\n' ) {
+				builder.append("\n");
 			}
 			
 		}
-		
 	}
 }

@@ -1,17 +1,20 @@
 /*
  * Copyright (C) 2011 Alex Kuiper
+ * 
+ * This file is part of PageTurner
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * PageTurner is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * PageTurner is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License
+ * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
 
 package net.nightwhistler.pageturner.html;
@@ -45,28 +48,8 @@ public class CleanHtmlParser {
 	
 	private static int MARGIN_INDENT = 30;
 	
-	private static Pattern SPECIAL_CHAR = Pattern.compile( "(&.*;|\n)" );
-			
-	private static Map<String, String> REPLACEMENTS = new HashMap<String, String>();
-	
-	static {
+	private static Pattern SPECIAL_CHAR = Pattern.compile( "(\t| +|\n)" );
 		
-		/*
-		 * This isn't really needed anymore, since a properly
-		 * configured HtmlCleaner will do it already.
-		 */
-		REPLACEMENTS.put("\n", " ");
-	
-		REPLACEMENTS.put("&nbsp;", " ");
-		REPLACEMENTS.put("&amp;", "&");
-		REPLACEMENTS.put("&quot;", "\"");
-		REPLACEMENTS.put("&cent;", "¢" ); 	
-		REPLACEMENTS.put("&lt;", "<" );
-		REPLACEMENTS.put("&gt;", ">" );
-		REPLACEMENTS.put("&sect;", "§" );
-				
-	}
-	
 	public CleanHtmlParser() {
 		this.handlers = new HashMap<String, TagNodeHandler>();
 		registerBuiltInHandlers();
@@ -127,21 +110,11 @@ public class CleanHtmlParser {
 		Matcher matcher = SPECIAL_CHAR.matcher(aText);
 
 		while ( matcher.find() ) {
-			matcher.appendReplacement(result, getReplacement(matcher));
+			matcher.appendReplacement(result, " ");
 		}
 		matcher.appendTail(result);
 		return result.toString();
-	}	 
-
-	private static String getReplacement(Matcher aMatcher){
-		String result = REPLACEMENTS.get( aMatcher.group(0) );
-		
-		if ( result == null ) {
-			return "";
-		} else {
-			return result;
-		}	
-	}	
+	}	 	
 	
 	/**
 	 * Gets the currently registered handler for this tag.
@@ -332,7 +305,7 @@ public class CleanHtmlParser {
 		
 		@Override
 		public void beforeChildren(TagNode node, SpannableStringBuilder builder) {
-			if ( builder.charAt(builder.length() -1) != '\n' ) {
+			if (builder.length() > 0 && builder.charAt(builder.length() -1) != '\n' ) {
 				builder.append("\n");					
 			}
 		}
@@ -397,7 +370,7 @@ public class CleanHtmlParser {
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 				int start, int end) {
 			
-			if ( builder.charAt(builder.length() -1) != '\n' ) {
+			if (builder.length() > 0 && builder.charAt(builder.length() -1) != '\n' ) {
 				builder.append("\n");
 			}
 			

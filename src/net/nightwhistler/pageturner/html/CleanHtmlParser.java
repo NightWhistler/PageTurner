@@ -41,10 +41,12 @@ public class CleanHtmlParser {
 	
 	private Map<String, TagNodeHandler> handlers;	
 	
+	private boolean stripExtraWhiteSpace = false;
+	
 	private static int MARGIN_INDENT = 30;
 	
 	private static Pattern SPECIAL_CHAR = Pattern.compile( "(&.*;|\n)" );
-		
+			
 	private static Map<String, String> REPLACEMENTS = new HashMap<String, String>();
 	
 	static {
@@ -70,6 +72,10 @@ public class CleanHtmlParser {
 		registerBuiltInHandlers();
 	}
 	
+	public void setStripExtraWhiteSpace(boolean stripExtraWhiteSpace) {
+		this.stripExtraWhiteSpace = stripExtraWhiteSpace;
+	}
+	
 	public void registerHandler( String tagName, TagNodeHandler handler ) {
 		this.handlers.put(tagName, handler);
 	}
@@ -79,6 +85,20 @@ public class CleanHtmlParser {
 		handleContent(result, node);
 		
 		return result;		
+	}
+	
+	private void appendNewLine( SpannableStringBuilder builder ) {
+		
+		int len = builder.length();
+		
+		if ( stripExtraWhiteSpace ) {
+			//Should never have more than 2 \n characters in a row.
+			if ( len > 2 && builder.charAt(len -1) == '\n' && builder.charAt(len - 2) == '\n' ) {
+				return; 
+			}
+		}
+		
+		builder.append("\n");		
 	}
 	
 	private void handleContent( SpannableStringBuilder builder, Object node ) {		
@@ -168,8 +188,7 @@ public class CleanHtmlParser {
 		registerHandler("i", italicHandler);
 		registerHandler("strong", italicHandler);
 		registerHandler("cite", italicHandler);
-		registerHandler("dfn", italicHandler);
-		
+		registerHandler("dfn", italicHandler);		
 		
 		TagNodeHandler boldHandler = new TagNodeHandler() {
 			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
@@ -188,7 +207,7 @@ public class CleanHtmlParser {
 					SpannableStringBuilder builder) {
 				
 				if (builder.length() > 0 && builder.charAt(builder.length() -1) != '\n' ) {
-					builder.append("\n");					
+					appendNewLine(builder);					
 				}
 			}
 			
@@ -197,7 +216,8 @@ public class CleanHtmlParser {
 				
 				builder.setSpan(new LeadingMarginSpan.Standard(MARGIN_INDENT), 
 						start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				builder.append("\n\n");
+				appendNewLine(builder);
+				appendNewLine(builder);
 			}
 		};
 		
@@ -209,7 +229,7 @@ public class CleanHtmlParser {
 		TagNodeHandler brHandler = new TagNodeHandler() {
 			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 					int start, int end) {
-				builder.append("\n");
+				appendNewLine(builder);
 			}
 		};
 		
@@ -218,7 +238,8 @@ public class CleanHtmlParser {
 		TagNodeHandler pHandler = new TagNodeHandler() {
 			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 					int start, int end) {
-				builder.append("\n\n");
+				appendNewLine(builder);
+				appendNewLine(builder);
 			}
 		};
 		
@@ -323,7 +344,8 @@ public class CleanHtmlParser {
 			builder.setSpan(new RelativeSizeSpan(size), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			builder.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			
-			builder.append("\n\n");
+			appendNewLine(builder);
+			appendNewLine(builder);
 		}
 	}	
 	

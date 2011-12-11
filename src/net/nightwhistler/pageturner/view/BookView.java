@@ -159,6 +159,10 @@ public class BookView extends ScrollView {
 		this.touchListener = l;
 	}
 	
+	public void setStripWhiteSpace(boolean stripWhiteSpace) {
+		this.parser.setStripExtraWhiteSpace(stripWhiteSpace);
+	}
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
 		

@@ -233,6 +233,7 @@ public class ReadingActivity extends Activity implements BookViewListener
         bookView.setTextSize( textSize );
         
         bookView.setEnableScrolling(settings.getBoolean("scrolling", false));
+        bookView.setStripWhiteSpace(settings.getBoolean("strip_whitespace", true));
         
         if ( settings.getBoolean("night_mode", false)) {
         	this.colourProfile = "night";

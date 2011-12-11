@@ -304,25 +304,37 @@ public class ReadingActivity extends Activity implements BookViewListener
 				});
         	}
         	        
-        	MenuItem newItem = menu.add("Look up on Wikipedia");
-        	newItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-				
-				@Override
-				public boolean onMenuItemClick(MenuItem item) {
-					String url = "http://en.wikipedia.org/wiki/Special:Search?search=" + URLEncoder.encode( word.toString() );
+        	MenuItem newItem = menu.add("Search on Wikipedia");
+        	newItem.setOnMenuItemClickListener(new BrowserSearchMenuItem(
+					"http://en.wikipedia.org/wiki/Special:Search?search="
+        			+ URLEncoder.encode( word.toString() )));
 		            
-		            Intent i = new Intent(Intent.ACTION_VIEW);  
-		            i.setData(Uri.parse(url));  
-		            startActivity(i);  
-		            
-		            return true;
-				}
-			});
+        	MenuItem newItem2 = menu.add("Search on Google");
+        	newItem2.setOnMenuItemClickListener(new BrowserSearchMenuItem(
+					"http://www.google.com/search?q="
+        			+ URLEncoder.encode( word.toString() )));
         	
         	this.selectedWord = null;
-    	}
-    	 
+    	}    	 
     }    
+    
+    private class BrowserSearchMenuItem implements OnMenuItemClickListener {
+    	
+    	private String launchURL;
+    	
+    	public BrowserSearchMenuItem(String url) {
+    		this.launchURL = url;
+		}
+    	
+    	@Override
+    	public boolean onMenuItemClick(MenuItem item) {
+    		Intent i = new Intent(Intent.ACTION_VIEW);  
+            i.setData(Uri.parse(this.launchURL));  
+            startActivity(i);  
+            
+            return true;
+    	}
+    }
     
     public static boolean isIntentAvailable(Context context, Intent intent) {
     	final PackageManager packageManager = context.getPackageManager();

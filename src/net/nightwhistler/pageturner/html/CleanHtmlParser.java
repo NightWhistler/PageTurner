@@ -30,6 +30,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AlignmentSpan;
+import android.text.style.LeadingMarginSpan;
 import android.text.style.QuoteSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
@@ -39,15 +40,7 @@ import android.text.style.TypefaceSpan;
 
 public class CleanHtmlParser {
 	
-	private Map<String, TagNodeHandler> handlers;
-	
-	private static StringReplacement[] REPLACEMENTS = {
-		
-		new StringReplacement("\n", " "),
-		new StringReplacement("&amp;", "&")
-		//new StringReplacement("&quot;", "\"")
-		
-	};
+	private Map<String, TagNodeHandler> handlers;	
 	
 	public CleanHtmlParser() {
 		this.handlers = new HashMap<String, TagNodeHandler>();
@@ -75,10 +68,7 @@ public class CleanHtmlParser {
 			}
 			
 			String baseContent = ((ContentNode) node).getContent().toString();
-			
-			for ( StringReplacement replacement: REPLACEMENTS ) {
-				baseContent = replacement.apply( baseContent );
-			}
+			baseContent.replaceAll("\\n", " ");			
 			
 			builder.append( baseContent.trim() );			
 			
@@ -144,7 +134,7 @@ public class CleanHtmlParser {
 		TagNodeHandler quoteHandler = new TagNodeHandler() {
 			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 					int start, int end) {
-				builder.setSpan(new QuoteSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				builder.setSpan(new LeadingMarginSpan.Standard(2), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				builder.append("\n\n");
 			}
 		};
@@ -242,6 +232,8 @@ public class CleanHtmlParser {
 		};
 		
 		registerHandler("center", centerHandler);
+		
+		
 	}
 	
 	private class HeaderHandler implements TagNodeHandler {

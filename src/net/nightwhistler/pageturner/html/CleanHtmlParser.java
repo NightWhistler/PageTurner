@@ -182,12 +182,18 @@ public class CleanHtmlParser {
 		registerHandler("em", boldHandler);
 		
 		TagNodeHandler marginHandler = new TagNodeHandler() {
-			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-					int start, int end) {
+			
+			@Override
+			public void beforeChildren(TagNode node,
+					SpannableStringBuilder builder) {
 				
-				if ( builder.charAt(builder.length() -1) != '\n' ) {
-					builder.append("\n");
+				if (builder.length() > 0 && builder.charAt(builder.length() -1) != '\n' ) {
+					builder.append("\n");					
 				}
+			}
+			
+			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+					int start, int end) {				
 				
 				builder.setSpan(new LeadingMarginSpan.Standard(MARGIN_INDENT), 
 						start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -302,6 +308,13 @@ public class CleanHtmlParser {
 		public HeaderHandler(float size) {
 			this.size = size;
 		}		
+		
+		@Override
+		public void beforeChildren(TagNode node, SpannableStringBuilder builder) {
+			if ( builder.charAt(builder.length() -1) != '\n' ) {
+				builder.append("\n");					
+			}
+		}
 		
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,

@@ -85,8 +85,7 @@ public class CleanHtmlParser {
 			}
 			
 			String text = getEditedText( ((ContentNode) node).getContent().toString() ).trim();
-			builder.append( text );
-			//builder.append( ((ContentNode) node).getContent().toString().replaceAll("\n", " ").trim() );			
+			builder.append( text );			
 						
 		} else if ( node instanceof TagNode ) { 
 			applySpan(builder, (TagNode) node); 
@@ -94,8 +93,7 @@ public class CleanHtmlParser {
 	}
 	
 	/**
-	 * Replace all words starting with the letter 'a' or 'A' with
-	 * their uppercase forms.
+	 * Matches newlines and special characters and replaces them.
 	 */
 	private static String getEditedText(String aText){
 		StringBuffer result = new StringBuffer();

@@ -39,6 +39,15 @@ import android.text.SpannableStringBuilder;
  */
 public abstract class TagNodeHandler {
 	
+	/**
+	 * Called before the children of this node are handled, allowing for
+	 * text to be inserted before the childrens' text.
+	 * 
+	 * Default implementation is a no-op.
+	 * 
+	 * @param node
+	 * @param builder
+	 */
 	public void beforeChildren( TagNode node, SpannableStringBuilder builder ) {
 		
 	}

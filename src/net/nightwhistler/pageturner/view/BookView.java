@@ -301,7 +301,7 @@ public class BookView extends ScrollView {
 	
 	private static boolean isBoundaryCharacter( char c ) {
 		char[] boundaryChars = { ' ', '.', ',','\"',
-				'\'', '\n', '\t'
+				'\'', '\n', '\t', ':'
 		};
 		
 		for ( int i=0; i < boundaryChars.length; i++ ) {
@@ -450,6 +450,18 @@ public class BookView extends ScrollView {
 	 *
 	 */
 	private class LinkTagHandler extends TagNodeHandler {
+		
+		private List<String> externalProtocols;
+		
+		public LinkTagHandler() {
+			this.externalProtocols = new ArrayList<String>();
+			externalProtocols.add("http://");
+			externalProtocols.add("https://");
+			externalProtocols.add("http://");
+			externalProtocols.add("ftp://");
+			externalProtocols.add("mailto:");
+		}
+		
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 				int start, int end) {
@@ -460,20 +472,24 @@ public class BookView extends ScrollView {
 				return;
 			}
 			
-			if ( href.startsWith("http://")) {
-				builder.setSpan(new URLSpan(href), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			} else {
-				
-				ClickableSpan span = new ClickableSpan() {
+			//First check if it should be a normal URL link
+			for ( String protocol: this.externalProtocols ) {
+				if ( href.toLowerCase().startsWith(protocol)) {
+					builder.setSpan(new URLSpan(href), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					return;
+				}
+			}
+			
+			//If not, consider it an internal nav link.			
+			ClickableSpan span = new ClickableSpan() {
 					
-					@Override
-					public void onClick(View widget) {
-						navigateTo(href);					
-					}
-				};
+				@Override
+				public void onClick(View widget) {
+					navigateTo(href);					
+				}
+			};
 				
-				builder.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			} 
+			builder.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);			 
 		}
 	}
 	

@@ -48,8 +48,63 @@ public class CleanHtmlParser {
 	
 	private static int MARGIN_INDENT = 30;
 	
-	private static Pattern SPECIAL_CHAR = Pattern.compile( "(\t| +|\n)" );
+	//private static Pattern SPECIAL_CHAR = Pattern.compile( "(\t| +|\n)" );
+	
+	private static Pattern SPECIAL_CHAR = Pattern.compile( "(\t| +|&[a-z]*;|&#[0-9]*;|\n)" );
+
+	private static Map<String, String> REPLACEMENTS = new HashMap<String, String>();
+
+	static {
+
+		/*
+		 * This isn't really needed anymore, since a properly
+		 * configured HtmlCleaner will do it already.
+		 */
 		
+		REPLACEMENTS.put("", " ");
+		REPLACEMENTS.put("\n", " ");		
+		REPLACEMENTS.put("&nbsp;", " ");
+		REPLACEMENTS.put("&amp;", "&");
+		REPLACEMENTS.put("&quot;", "\"");
+		REPLACEMENTS.put("&cent;", "¢" );
+		REPLACEMENTS.put("&lt;", "<" );
+		REPLACEMENTS.put("&gt;", ">" );
+		REPLACEMENTS.put("&sect;", "§" );
+
+	}
+		
+	private static String getEditedText(String aText){
+		StringBuffer result = new StringBuffer();
+		Matcher matcher = SPECIAL_CHAR.matcher(aText);
+
+		while ( matcher.find() ) {
+			matcher.appendReplacement(result, getReplacement(matcher));
+		}
+		matcher.appendTail(result);
+		return result.toString();
+	}
+
+	private static String getReplacement(Matcher aMatcher){
+		
+		String match = aMatcher.group(0).trim();
+		String result = REPLACEMENTS.get( match );
+
+		if ( result != null ) {
+			return result;
+		} else if ( match.startsWith("&#") ) {
+			//Translate to unicode character.
+			try {
+				Integer code = Integer.parseInt(match.substring(2, match.length()-1));
+				return "" + (char) code.intValue();
+			} catch (NumberFormatException nfe) {
+				return "";
+			}
+		} else {
+			return "";
+		}
+	}
+
+
 	public CleanHtmlParser() {
 		this.handlers = new HashMap<String, TagNodeHandler>();
 		registerBuiltInHandlers();
@@ -102,19 +157,6 @@ public class CleanHtmlParser {
 		}		
 	}
 	
-	/**
-	 * Matches newlines and special characters and replaces them.
-	 */
-	private static String getEditedText(String aText){
-		StringBuffer result = new StringBuffer();
-		Matcher matcher = SPECIAL_CHAR.matcher(aText);
-
-		while ( matcher.find() ) {
-			matcher.appendReplacement(result, " ");
-		}
-		matcher.appendTail(result);
-		return result.toString();
-	}	 	
 	
 	/**
 	 * Gets the currently registered handler for this tag.

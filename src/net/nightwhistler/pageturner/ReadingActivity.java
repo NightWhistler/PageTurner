@@ -22,12 +22,15 @@ package net.nightwhistler.pageturner;
 import java.net.URLEncoder;
 import java.util.List;
 
+import net.nightwhistler.pageturner.library.LibraryService;
+import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.PageTurnerWebProgressService;
 import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.view.BookView;
 import net.nightwhistler.pageturner.view.BookViewListener;
 import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.Metadata;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -101,6 +104,8 @@ public class ReadingActivity extends Activity implements BookViewListener
 	private String fileName;
 	
 	private ProgressService progressService;	
+	private LibraryService libraryService;
+	
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
 	
@@ -139,6 +144,7 @@ public class ReadingActivity extends Activity implements BookViewListener
         
         //this.progressService = new OpenKeyvalProgressService();
         this.progressService = new PageTurnerWebProgressService(this);
+        this.libraryService = new SqlLiteLibraryService(this);
         
         this.gestureDetector = new GestureDetector(new SwipeListener());
         this.gestureListener = new View.OnTouchListener() {
@@ -271,10 +277,13 @@ public class ReadingActivity extends Activity implements BookViewListener
     }
     
     @Override
-    public void bookOpened(Book book) {    	
+    public void bookOpened(Book book) {
+    	
     	this.bookTitle = book.getTitle();
     	this.titleBase = this.bookTitle;
     	setTitle( titleBase );  
+    	
+    	new AddBookToLibraryTask().execute(book);
     }
     
     @Override
@@ -635,6 +644,10 @@ public class ReadingActivity extends Activity implements BookViewListener
         	launchFileManager();
         	return true;        	
         
+        case R.id.open_library:
+        	launchLibrary();
+        	return true;  	
+        	
         default:
             return super.onOptionsItemSelected(item);
         }
@@ -653,6 +666,11 @@ public class ReadingActivity extends Activity implements BookViewListener
                 Toast.makeText(this, "Please install OI File Manager from the Android Market.", 
                                 Toast.LENGTH_SHORT).show();
         }
+    }
+    
+    private void launchLibrary() {
+    	Intent intent = new Intent(this, LibraryActivity.class);
+    	startActivityForResult(intent, 99);
     }
     
     private void initTocDialog() {
@@ -695,6 +713,31 @@ public class ReadingActivity extends Activity implements BookViewListener
      	   
     		outState.putInt(POS_KEY, this.bookView.getPosition() );  
     		outState.putInt(IDX_KEY, this.bookView.getIndex());
+    	}
+    }
+    
+    private class AddBookToLibraryTask extends AsyncTask<Book, Integer, Void> {
+    	@Override
+    	protected Void doInBackground(Book... params) {
+    		
+    		Book book = params[0];
+    		
+    		Metadata metaData = book.getMetadata();
+        	
+        	String authorFirstName = "Unknown author";
+        	String authorLastName = "";
+        	
+        	if ( metaData.getAuthors().size() > 0 ) {
+        		authorFirstName = metaData.getAuthors().get(0).getFirstname();
+        		authorLastName = metaData.getAuthors().get(0).getLastname();
+        	}
+        	
+        	byte[] cover = book.getCoverImage() != null ? book.getCoverImage().getData() : null;
+        	
+        	libraryService.storeBook(fileName, authorFirstName, authorLastName, 
+        			book.getTitle(), cover );
+    		
+    		return null;
     	}
     }
     

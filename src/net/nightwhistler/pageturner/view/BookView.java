@@ -582,7 +582,7 @@ public class BookView extends ScrollView {
 		}
 	}
 	
-	private TagNode processHtml(Resource resource, String outputEncoding) throws IOException {		
+	private TagNode processHtml(Resource resource) throws IOException {		
 		return this.htmlCleaner.clean(resource.getReader());
 	}
 	
@@ -591,11 +591,14 @@ public class BookView extends ScrollView {
 		CleanerProperties cleanerProperties = result.getProperties();
 		
 		cleanerProperties.setAdvancedXmlEscape(true);
-		cleanerProperties.setTransResCharsToNCR(true);
+		
 		cleanerProperties.setOmitXmlDeclaration(true);
-		cleanerProperties.setOmitDoctypeDeclaration(false);
-		cleanerProperties.setRecognizeUnicodeChars(true);
+		cleanerProperties.setOmitDoctypeDeclaration(false);		
+		
 		cleanerProperties.setTranslateSpecialEntities(true);
+		cleanerProperties.setTransResCharsToNCR(true);
+		cleanerProperties.setRecognizeUnicodeChars(true);
+		
 		cleanerProperties.setIgnoreQuestAndExclam(true);
 		cleanerProperties.setUseEmptyElementTags(false);
 		
@@ -739,7 +742,7 @@ public class BookView extends ScrollView {
 			}			
 			
 			try {
-				return parser.fromTagNode( processHtml(resource, "UTF-8") );			
+				return parser.fromTagNode( processHtml(resource) );			
 			} catch (IOException io ) {
 				return new SpannableString( "Could not load text: " + io.getMessage() );
 			}			

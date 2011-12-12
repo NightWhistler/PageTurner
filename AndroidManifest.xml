@@ -47,5 +47,10 @@
                   
         </activity>
         
+        <activity android:name="LibraryActivity"
+                  android:label="PageTurner Library"> 
+                  
+        </activity>
+        
     </application>
 </manifest> 

@@ -8,6 +8,12 @@ public interface LibraryService {
 	
 	public QueryResult<LibraryBook> findAllByLastRead();
 	
+	public QueryResult<LibraryBook> findAllByLastAdded();
+	
+	public QueryResult<LibraryBook> findAllByTitle();
+	
+	public QueryResult<LibraryBook> findAllByAuthor();
+	
 	public boolean hasBook( String fileName );
 	
 	public void close();

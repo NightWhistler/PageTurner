@@ -435,11 +435,13 @@ public class ReadingActivity extends Activity implements BookViewListener
 	        		bookView.goBackInHistory();
 	        		
 	        		return true;
+	        	} else {
+	        		this.finish();
 	        	}
 	        
 	    }
 
-	    return false;    	
+	    return false;
     }
     
     private void prepareSlide(Animation inAnim, Animation outAnim) {

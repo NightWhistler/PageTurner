@@ -13,6 +13,11 @@ public abstract class QueryResultAdapter<T> extends BaseAdapter {
 		notifyDataSetChanged();
 	}
 	
+	public void clear() {
+		result = null;
+		notifyDataSetChanged();
+	}
+	
 	@Override
 	public int getCount() {
 		if ( this.result == null ) {

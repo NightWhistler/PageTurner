@@ -5,12 +5,12 @@
 
     <ImageView
         android:id="@+id/bookCover"
-        android:layout_width="90px"
-        android:layout_height="90px"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"        
+        android:src="@drawable/page_turner"
         android:layout_marginLeft="4px"
         android:layout_marginRight="10px"
-        android:layout_marginTop="4px"
-        android:src="@drawable/page_turner" >
+        android:layout_marginTop="4px" >
     </ImageView>
 
     <LinearLayout
@@ -24,20 +24,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Title"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/bookAuthor"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="by John Doe" />
-
-        <TextView
-            android:id="@+id/addedToLibrary"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Never"
-            android:textSize="10sp" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />       
 
     </LinearLayout>
 

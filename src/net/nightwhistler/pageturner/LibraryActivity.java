@@ -33,6 +33,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +41,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -51,11 +53,16 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	
 	private BookAdapter bookAdapter;
 	
+	private ArrayAdapter<String> menuAdapter;
+	
 	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH);
 	
 	ProgressDialog waitDialog;
-
 	ProgressDialog importDialog;
+	
+	private static final String[] MENU_ITEMS = {
+		"Most recently read books", "Most recently added books", "Books by title", "Books by author" 
+	};	
 	
 	private static final Logger LOG = LoggerFactory.getLogger(LibraryActivity.class); 
 	
@@ -66,19 +73,19 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		
 		this.libraryService = new SqlLiteLibraryService(this);
 		
-		this.bookAdapter = new BookAdapter(this);		
-		setListAdapter(bookAdapter);		
-		
+		this.bookAdapter = new BookAdapter(this);
+		this.menuAdapter = new ArrayAdapter<String>(this, R.layout.menu_row, 
+				R.id.bookTitle, MENU_ITEMS);
+				
+		//setListAdapter(bookAdapter);
+		setListAdapter(menuAdapter);
+				
 		this.waitDialog = new ProgressDialog(this);
 		this.waitDialog.setOwnerActivity(this);
 		
 		this.importDialog = new ProgressDialog(this);
 		this.importDialog.setOwnerActivity(this);
 		
-		this.waitDialog.setTitle("Loading library...");
-		this.waitDialog.show();
-		
-		new LoadBooksTask().execute();
 	}
 	
 	@Override
@@ -100,10 +107,7 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 
 		Intent intent = new Intent("org.openintents.action.PICK_DIRECTORY");
-		//intent.setType("file/*");
-
-		//intent.addCategory(Intent.CATEGORY_OPENABLE);
-
+		
 		try {
 			startActivityForResult(intent, 1);
 		} catch (ActivityNotFoundException e) {
@@ -156,6 +160,23 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		}
 	}
 	
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+				
+		if ( getListAdapter() == this.bookAdapter
+				&& event.getKeyCode() == KeyEvent.KEYCODE_BACK 
+				&& event.getAction() == KeyEvent.ACTION_DOWN ) {
+			
+			setListAdapter(this.menuAdapter);			
+			return true;
+		}
+		
+		return super.dispatchKeyEvent(event);
+		
+	}
+	
+	
+	
 	/**
 	 * Based on example found here:
 	 * http://www.vogella.de/articles/AndroidListView/article.html
@@ -169,8 +190,8 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		
 		public BookAdapter(Context context) {
 			this.context = context;
-		}
-
+		}		
+		
 		@Override
 		public View getView(int index, LibraryBook book, View convertView,
 				ViewGroup parent) {
@@ -202,15 +223,26 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		
-		LibraryBook book = this.bookAdapter.getResultAt(position);
+		if ( getListAdapter() == menuAdapter ) {
+			handleMenuClick(position);
+		} else {
 		
-		Intent intent = this.getIntent();
+			LibraryBook book = this.bookAdapter.getResultAt(position);
 		
-		intent.setData( Uri.parse(book.getFileName()));
-		this.setResult(RESULT_OK, intent);
+			Intent intent = this.getIntent();
+		
+			intent.setData( Uri.parse(book.getFileName()));
+			this.setResult(RESULT_OK, intent);
 				
-		finish();
+			finish();
+		}
 
+	}
+	
+	private void handleMenuClick(int position) {
+		this.bookAdapter.clear();
+		this.setListAdapter(bookAdapter);
+		new LoadBooksTask().execute(position);
 	}
 	
 	private class ImportBooksTask extends AsyncTask<File, Integer, Void> {	
@@ -230,8 +262,7 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 			findEpubsInFolder(parent, books);
 			
 			int total = books.size();
-			int i = 0;
-			
+			int i = 0;			
 	        
 			while ( i < books.size() ) {
 				
@@ -307,15 +338,30 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 				builder.show();
 			}
 			
-			new LoadBooksTask().execute();
+			new LoadBooksTask().execute(1);
 		}
 	}
 	
-	private class LoadBooksTask extends AsyncTask<Void, Integer, QueryResult<LibraryBook>> {		
+	private class LoadBooksTask extends AsyncTask<Integer, Integer, QueryResult<LibraryBook>> {		
 		
 		@Override
-		protected QueryResult<LibraryBook> doInBackground(Void... params) {
-			return libraryService.findAllByLastRead();
+		protected void onPreExecute() {
+			waitDialog.setTitle("Loading library...");
+			waitDialog.show();
+		}
+		
+		@Override
+		protected QueryResult<LibraryBook> doInBackground(Integer... params) {
+			switch ( params[0] ) {			
+			case 1:
+				return libraryService.findAllByLastAdded();
+			case 2:
+				return libraryService.findAllByTitle();
+			case 3:
+				return libraryService.findAllByAuthor();
+			default:
+				return libraryService.findAllByLastRead();
+			}			
 		}
 		
 		@Override

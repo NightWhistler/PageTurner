@@ -117,7 +117,8 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getDataBase();
 		
 		Cursor cursor = db.query("lib_books", fieldsAsString(Field.values()), 
-				null, new String[0], null, null,
+				fieldName != null ? fieldName.toString() + " is not null" : null,
+			    new String[0], null, null,
 				fieldName != null ? fieldName.toString() + " " + order.toString() : null );		
 		
 		return new LibraryBookResult(cursor);

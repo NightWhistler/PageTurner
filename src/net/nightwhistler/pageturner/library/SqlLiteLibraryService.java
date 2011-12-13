@@ -35,6 +35,28 @@ public class SqlLiteLibraryService implements LibraryService {
 				LibraryDatabaseHelper.Order.DESC );
 	}
 	
+	@Override
+	public QueryResult<LibraryBook> findAllByAuthor() {
+		return helper.findAllOrderedBy(
+				LibraryDatabaseHelper.Field.a_last_name,
+				LibraryDatabaseHelper.Order.ASC );
+	
+	}
+	
+	@Override
+	public QueryResult<LibraryBook> findAllByLastAdded() {
+		return helper.findAllOrderedBy(
+				LibraryDatabaseHelper.Field.date_added,
+				LibraryDatabaseHelper.Order.DESC );	
+	}
+	
+	@Override
+	public QueryResult<LibraryBook> findAllByTitle() {
+		return helper.findAllOrderedBy(
+				LibraryDatabaseHelper.Field.title,
+				LibraryDatabaseHelper.Order.ASC );	
+	}
+	
 	public void close() {
 		helper.close();
 	}

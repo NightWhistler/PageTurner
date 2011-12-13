@@ -8,6 +8,7 @@ public interface LibraryService {
 	
 	public QueryResult<LibraryBook> findAllByLastRead();
 	
+	public boolean hasBook( String fileName );
 	
 	public void close();
 }

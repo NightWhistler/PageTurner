@@ -39,6 +39,11 @@ public class SqlLiteLibraryService implements LibraryService {
 		helper.close();
 	}
 	
+	@Override
+	public boolean hasBook(String fileName) {
+		return helper.hasBook(fileName);
+	}
+	
 	private byte[] resizeImage( byte[] input ) {
 		
 		if ( input == null ) {
@@ -47,6 +52,10 @@ public class SqlLiteLibraryService implements LibraryService {
 				
 		Bitmap bitmapOrg = BitmapFactory.decodeByteArray(input, 0, input.length);
 
+		if ( bitmapOrg == null ) {
+			return null;
+		}
+		
 		int height = bitmapOrg.getHeight();
 		int width = bitmapOrg.getWidth();
 		int newHeight = THUMBNAIL_HEIGHT;

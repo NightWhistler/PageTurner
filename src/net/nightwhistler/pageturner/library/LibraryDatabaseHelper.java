@@ -46,6 +46,10 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 			this.database = getReadableDatabase();
 		}
 		
+		if (! this.database.isOpen() ) {
+			this.database = getReadableDatabase();
+		}
+		
 		return this.database;
 	}
 	
@@ -91,6 +95,21 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		
 		findBook.close();
 		db.close();		
+	}
+	
+	public boolean hasBook( String fileName ) {
+		Field[] fields = { Field.file_name };
+		String[] args = { fileName };
+		
+		String whereClause = Field.file_name.toString() + " = ?";
+		
+		Cursor findBook = getDataBase().query( "lib_books", fieldsAsString(fields), whereClause,
+				args, null, null, null );
+		
+		boolean result =  findBook.getCount() != 0;
+		findBook.close();
+		
+		return result;
 	}
 	
 	public QueryResult<LibraryBook> findAllOrderedBy( Field fieldName, Order order ) {

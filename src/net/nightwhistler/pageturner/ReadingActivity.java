@@ -672,7 +672,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     
     private void launchLibrary() {
     	Intent intent = new Intent(this, LibraryActivity.class);
-    	startActivityForResult(intent, 99);
+    	startActivity(intent);
+    	finish();
     }
     
     private void initTocDialog() {

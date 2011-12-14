@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.app.AlertDialog;
+import android.app.LauncherActivity;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -149,7 +150,12 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	}	
 	
 	private void findEpubsInFolder( File folder, List<File> items) {
-		if ( folder.isDirectory() ) {
+		
+		if ( folder == null ) {
+			return;
+		}
+		
+		if ( folder.isDirectory() && folder.listFiles() != null) {
 			for (File child: folder.listFiles() ) {
 				findEpubsInFolder(child, items); 
 			}
@@ -229,12 +235,12 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		
 			LibraryBook book = this.bookAdapter.getResultAt(position);
 		
-			Intent intent = this.getIntent();
+			Intent intent = new Intent(this, ReadingActivity.class);
 		
 			intent.setData( Uri.parse(book.getFileName()));
 			this.setResult(RESULT_OK, intent);
 				
-			finish();
+			startActivity(intent);
 		}
 
 	}
@@ -252,6 +258,7 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		@Override
 		protected void onPreExecute() {
 			importDialog.setTitle("Importing books...");
+			importDialog.setMessage("Scanning for EPUB files.");
 			importDialog.show();
 		}		
 		

@@ -20,8 +20,7 @@
 
 package net.nightwhistler.pageturner.view;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ import java.util.Set;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.html.CleanHtmlParser;
 import net.nightwhistler.pageturner.html.TagNodeHandler;
+import net.nightwhistler.pageturner.view.ResourceLoader.ResourceCallback;
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Resource;
@@ -44,6 +44,8 @@ import nl.siegmann.epublib.util.StringUtil;
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -97,6 +99,9 @@ public class BookView extends ScrollView {
 	private int prevPos = -1;
 	
 	private PageChangeStrategy strategy;
+	private ResourceLoader loader;		
+	
+	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 	
 	public BookView(Context context, AttributeSet attributes) {
 		super(context, attributes);		
@@ -153,6 +158,7 @@ public class BookView extends ScrollView {
 	
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
+		this.loader = new ResourceLoader(fileName);
 	}
 	
 	@Override
@@ -500,35 +506,31 @@ public class BookView extends ScrollView {
 		}
 	}
 	
-	private class ImageTagHandler extends TagNodeHandler {
+	private class ImageCallback implements ResourceCallback {
+		
+		private SpannableStringBuilder builder;
+		private int start;
+		private int end;
+		
+		public ImageCallback(SpannableStringBuilder builder, int start, int end) {
+			this.builder = builder;
+			this.start = start;
+			this.end = end;
+		}
 		
 		@Override
-		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-				int start, int end) {						
-			String src = node.getAttributeByName("src");
+		public void onLoadResource(String href, byte[] data) {
 			
-	        builder.append("\uFFFC");
+			Drawable drawable = getDrawable(data);
 	        
-	        Drawable drawable = getDrawable(src);
-			
 	        if ( drawable != null ) {
-				builder.setSpan( new ImageSpan(drawable), start, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}
-		}		
+				builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}			
+		}
 		
-		private Drawable getDrawable(String source) {
-			
-			Resource imgRes = book.getResources().getByHref(source);
-			
-			BitmapDrawable draw = null;
-			
-			try {
-				if ( imgRes != null ) {					
-					draw = new BitmapDrawable(getResources(), imgRes.getInputStream() );
-				} 
-			} catch (IOException io) {
-				//Just leave draw null
-			}
+		private Drawable getDrawable(byte[] data) {
+									
+			BitmapDrawable draw = new BitmapDrawable(getResources(), new ByteArrayInputStream(data));
 			
 			if ( draw != null ) {
 				int targetWidth = draw.getBitmap().getWidth();
@@ -547,6 +549,21 @@ public class BookView extends ScrollView {
 			
 			return draw;					
 		}
+		
+	}
+	
+	private class ImageTagHandler extends TagNodeHandler {
+		
+		@Override
+		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+				int start, int end) {						
+			String src = node.getAttributeByName("src");
+			
+	        builder.append("\uFFFC");
+	        
+	        loader.registerCallback(src, new ImageCallback(builder, start, builder.length()));
+		}				
+		
 	}
 	
 	@Override
@@ -691,15 +708,25 @@ public class BookView extends ScrollView {
 	}
 	
 	private void initBook() throws IOException {
+		
+						
 		// read epub file
-        EpubReader epubReader = new EpubReader();
-	
-         	
-        File file = new File(fileName);        	
-	    book = epubReader.readEpub( new FileInputStream(file) );
-	    
+        EpubReader epubReader = new EpubReader();	
+       
+       	book = epubReader.readEpubLazy(fileName, "UTF-8", true);
+        	    
 	    this.spine = new PageTurnerSpine(book);	   
 	    this.spine.navigateByIndex( this.storedIndex );
+	    
+	    int totalResources = book.getResources().size();
+	    int count = 0;
+	    for (Resource res: book.getResources().getAll() ) {
+	    	if ( res.isInitialized() ) {
+	    		count++;
+	    	}
+	    }
+	    
+	    LOG.info("Book is read. Resources " + count + " of " + totalResources );
 	}	
 	
 	private class LoadTextTask extends AsyncTask<String, Integer, Spanned> {
@@ -717,6 +744,8 @@ public class BookView extends ScrollView {
 		}
 		
 		protected Spanned doInBackground(String...hrefs) {	
+			
+			loader.clear();
 			
 			if ( BookView.this.book == null ) {
 				try {
@@ -742,7 +771,9 @@ public class BookView extends ScrollView {
 			}			
 			
 			try {
-				return parser.fromTagNode( processHtml(resource) );			
+				Spanned result = parser.fromTagNode( processHtml(resource) );
+				loader.load(); //Load all image resources.
+				return result;
 			} catch (IOException io ) {
 				return new SpannableString( "Could not load text: " + io.getMessage() );
 			}			

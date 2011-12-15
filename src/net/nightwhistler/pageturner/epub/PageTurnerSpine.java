@@ -57,7 +57,7 @@ public class PageTurnerSpine {
 		String href = null;
 	    
 	    if ( book.getCoverPage() != null && 
-	    		book.getCoverPage().getData().length <= COVER_PAGE_THRESHOLD ) {
+	    		book.getCoverPage().getSize() <= COVER_PAGE_THRESHOLD ) {
 	    	
 	    	href = book.getCoverPage().getHref();
 	    } 
@@ -81,7 +81,7 @@ public class PageTurnerSpine {
 		newEntry.title = resource.getTitle();
 		newEntry.resource = resource;
 		newEntry.href = resource.getHref();
-		newEntry.size = resource.getData().length;
+		newEntry.size = (int) resource.getSize();
 		
 		entries.add(newEntry);
 	}

@@ -19,8 +19,12 @@
 
 package net.nightwhistler.pageturner;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
@@ -97,7 +101,8 @@ public class ReadingActivity extends Activity implements BookViewListener
 	public static final String EXTRA_MARGIN_TOP = "EXTRA_MARGIN_TOP";
 	public static final String EXTRA_MARGIN_BOTTOM = "EXTRA_MARGIN_BOTTOM";
 	public static final String EXTRA_MARGIN_RIGHT = "EXTRA_MARGIN_RIGHT";
-
+	
+	private static final Logger LOG = LoggerFactory.getLogger(ReadingActivity.class);
 	
 	private String colourProfile;
 		
@@ -454,14 +459,14 @@ public class ReadingActivity extends Activity implements BookViewListener
     	bookView.buildDrawingCache(false);
 		Bitmap drawingCache = bookView.getDrawingCache();		
 		  		
-		Bitmap copy = drawingCache.copy(drawingCache.getConfig(), false);
-		bookView.destroyDrawingCache();
-		
+		if ( drawingCache != null ) {					
+			Bitmap copy = drawingCache.copy(drawingCache.getConfig(), false);
+			this.viewSwitcher.setBackgroundDrawable( new BitmapDrawable(copy) );
+			bookView.destroyDrawingCache();
+		}
 				
 		this.viewSwitcher.setInAnimation(inAnim);
 		this.viewSwitcher.setOutAnimation(outAnim);
-		
-		this.viewSwitcher.setBackgroundDrawable( new BitmapDrawable(copy) );
 		
 		//Set the second child forward, which is an empty TextView (i.e. invisible)
 		//this.viewFlipper.setDisplayedChild(1);
@@ -672,9 +677,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     
     private void launchLibrary() {
     	Intent intent = new Intent(this, LibraryActivity.class);
-    	startActivity(intent);
-    	finish();
-    }
+    	startActivity(intent);    	
+    }    
     
     private void initTocDialog() {
 
@@ -735,7 +739,15 @@ public class ReadingActivity extends Activity implements BookViewListener
         		authorLastName = metaData.getAuthors().get(0).getLastname();
         	}
         	
-        	byte[] cover = book.getCoverImage() != null ? book.getCoverImage().getData() : null;
+        	byte[] cover = null;
+        	
+        	if ( book.getCoverImage() != null ) {
+        		try {
+        			cover = book.getCoverImage().getData();
+        		} catch (IOException io) {
+        			LOG.error( "Could not read cover", io);
+        		}
+        	}
         	
         	libraryService.storeBook(fileName, authorFirstName, authorLastName, 
         			book.getTitle(), cover );

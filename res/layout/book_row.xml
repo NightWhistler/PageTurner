@@ -5,8 +5,8 @@
 
     <ImageView
         android:id="@+id/bookCover"
-        android:layout_width="90px"
-        android:layout_height="90px"
+        android:layout_width="120px"
+        android:layout_height="120px"
         android:layout_marginLeft="4px"
         android:layout_marginRight="10px"
         android:layout_marginTop="4px"

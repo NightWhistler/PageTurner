@@ -1,9 +1,7 @@
 package net.nightwhistler.pageturner;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.app.AlertDialog;
-import android.app.LauncherActivity;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -55,7 +52,7 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	private BookAdapter bookAdapter;
 	
 	private ArrayAdapter<String> menuAdapter;
-	
+		
 	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH);
 	
 	ProgressDialog waitDialog;
@@ -198,13 +195,20 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 			this.context = context;
 		}		
 		
+		
 		@Override
 		public View getView(int index, LibraryBook book, View convertView,
 				ViewGroup parent) {
 			
-			LayoutInflater inflater = (LayoutInflater) context
+			View rowView;
+			
+			if ( convertView == null ) {			
+				LayoutInflater inflater = (LayoutInflater) context
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View rowView = inflater.inflate(R.layout.book_row, parent, false);
+				rowView = inflater.inflate(R.layout.book_row, parent, false);
+			} else {
+				rowView = convertView;
+			}
 			
 			TextView titleView = (TextView) rowView.findViewById(R.id.bookTitle);
 			TextView authorView = (TextView) rowView.findViewById(R.id.bookAuthor);
@@ -223,7 +227,8 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 			}
 			
 			return rowView;
-		}
+		}	
+	
 	}
 
 	@Override
@@ -240,13 +245,14 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 			intent.setData( Uri.parse(book.getFileName()));
 			this.setResult(RESULT_OK, intent);
 				
-			startActivity(intent);
+			startActivityIfNeeded(intent, 99);
 		}
 
 	}
 	
 	private void handleMenuClick(int position) {
-		this.bookAdapter.clear();
+		this.bookAdapter.clear();		
+		
 		this.setListAdapter(bookAdapter);
 		new LoadBooksTask().execute(position);
 	}
@@ -278,7 +284,7 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 				LOG.info("Importing: " + book.getAbsolutePath() );
 				try {
 					if ( ! libraryService.hasBook(book.getAbsolutePath() ) ) {
-						importBook( book);
+						importBook( book.getAbsolutePath() );
 					}					
 				} catch (OutOfMemoryError oom ) {
 					hadError = true;
@@ -292,15 +298,13 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 			return null;
 		}
 		
-		private void importBook(File file) {
+		private void importBook(String file) {
 			try {
 				// read epub file
 		        EpubReader epubReader = new EpubReader();
-		        
-				InputStream input = new FileInputStream(file);
-				Book importedBook = epubReader.readEpub(input);
-				input.close();
-				
+		        				
+				Book importedBook = epubReader.readEpubLazy(file, "UTF-8", false);
+								
 				Metadata metaData = importedBook.getMetadata();
 	        	
 	        	String authorFirstName = "Unknown author";
@@ -311,9 +315,14 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	        		authorLastName = metaData.getAuthors().get(0).getLastname();
 	        	}
 	        	
-	        	byte[] cover = importedBook.getCoverImage() != null ? importedBook.getCoverImage().getData() : null;
+	        	byte[] cover = null;
 	        	
-	        	libraryService.storeBook(file.getAbsolutePath(), authorFirstName, authorLastName, 
+	        	if ( importedBook.getCoverImage() != null ) {
+	        		cover = importedBook.getCoverImage().getData();
+	        		importedBook.getCoverImage().close();
+	        	}	        	
+	        	
+	        	libraryService.storeBook(file, authorFirstName, authorLastName, 
 	        			importedBook.getTitle(), cover );		        	
 	        	
 	        	cover = null;	        		        	

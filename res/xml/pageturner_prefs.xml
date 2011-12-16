@@ -35,7 +35,33 @@
 				android:title="Strip whitespace"
 				android:summary="Strips out unneeded blank lines."
 				android:defaultValue="true"
-				/>	
+				/>
+				
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="margin_h"
+				android:title="Horizontal margins"
+				android:summary="Space on the left and right edge of the screen."
+				android:dialogTitle="Margin size"								
+				android:defaultValue="15"
+				android:max="150"				
+				/>    					
+	
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="margin_v"
+				android:title="Vertical margins"
+				android:summary="Space on the top and bottom edge of the screen."
+				android:dialogTitle="Margin size"								
+				android:defaultValue="15"
+				android:max="150"				
+				/>  
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="line_spacing"
+				android:title="Line spacing"
+				android:summary="Adds extra vertical space between lines."
+				android:dialogTitle="Line spacing"								
+				android:defaultValue="0"
+				android:max="50"				
+				/>   		
 	
 	</PreferenceCategory>		
 			

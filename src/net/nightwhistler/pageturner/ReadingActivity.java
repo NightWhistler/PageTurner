@@ -68,14 +68,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -243,12 +241,20 @@ public class ReadingActivity extends Activity implements BookViewListener
     	Typeface face = Typeface.createFromAsset(getAssets(), "gen_bk_bas.ttf");
         this.bookView.setTypeface(face);
                 
-        int userTextSize = settings.getInt("itext_size", 16);
-                
+        int userTextSize = settings.getInt("itext_size", 16);                
         bookView.setTextSize( userTextSize );
+        
+        int marginH = settings.getInt("margin_h", 15);
+        int marginV = settings.getInt("margin_v", 15);
+        
+        bookView.setHorizontalMargin(marginH);
+        bookView.setVerticalMargin(marginV);
         
         bookView.setEnableScrolling(settings.getBoolean("scrolling", false));
         bookView.setStripWhiteSpace(settings.getBoolean("strip_whitespace", true));
+        
+        int lineSpacing = settings.getInt("line_spacing", 0);
+        bookView.setLineSpacing(lineSpacing);
         
         int brightness = 50;              
         

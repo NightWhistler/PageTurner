@@ -114,7 +114,7 @@ public class SinglePageStrategy implements PageChangeStrategy {
 			return start;
 		} else {
 				
-			int topLine = layout.getLineForVertical( layout.getHeight() - (bookView.getHeight() - 2 * BookView.PADDING ) );
+			int topLine = layout.getLineForVertical( layout.getHeight() - (bookView.getHeight() - 2 * bookView.getVerticalMargin() ) );
 			int offset = layout.getLineStart( topLine +2 );
 		
 			return start + offset;
@@ -182,10 +182,10 @@ public class SinglePageStrategy implements PageChangeStrategy {
 		TextPaint textPaint = childView.getPaint();
 		int boundedWidth = childView.getWidth();
 
-		StaticLayout layout = new StaticLayout(cutOff, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+		StaticLayout layout = new StaticLayout(cutOff, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
 		layout.draw(new Canvas());
 					
-		int bottomLine = layout.getLineForVertical( bookView.getHeight() - ( 2 * BookView.PADDING) );
+		int bottomLine = layout.getLineForVertical( bookView.getHeight() - ( 2 * bookView.getVerticalMargin()) );
 		bottomLine = Math.max( 1, bottomLine );
 		
 		if ( layout.getHeight() >= bookView.getHeight() && text.length() > 10) {

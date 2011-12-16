@@ -52,7 +52,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -77,8 +76,6 @@ import android.widget.TextView;
 
 
 public class BookView extends ScrollView {
-
-    static final int PADDING = 15;    
     	
 	private int storedIndex;
 	private String storedAnchor;
@@ -105,6 +102,10 @@ public class BookView extends ScrollView {
 	private PageChangeStrategy strategy;
 	private ResourceLoader loader;		
 	
+	private int horizontalMargin = 15;
+	private int verticalMargin = 15;
+	private int lineSpacing = 0;
+	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 	
 	public BookView(Context context, AttributeSet attributes) {
@@ -123,13 +124,8 @@ public class BookView extends ScrollView {
 			}
 		};  
 		
-		childView.setLongClickable(true);
-		
-        this.setPadding(PADDING, PADDING, PADDING, PADDING);
-        this.setBackgroundColor(Color.WHITE);
-       
+		childView.setLongClickable(true);	        
         this.setVerticalFadingEdgeEnabled(false);
-        childView.setTextColor( Color.BLACK );
         childView.setFocusable(true);
         childView.setLinksClickable(true);
         
@@ -191,6 +187,49 @@ public class BookView extends ScrollView {
 		return this.prevIndex != -1 && this.prevPos != -1;
 	}
 
+	public void setLineSpacing( int lineSpacing ) {
+		if ( lineSpacing != this.lineSpacing ) {
+			this.lineSpacing = lineSpacing;
+			this.childView.setLineSpacing(lineSpacing, 1);
+			
+			if ( strategy != null ) {
+				strategy.updatePosition();
+			}
+		}
+	}
+	
+	public int getLineSpacing() {
+		return lineSpacing;
+	}
+	
+	public void setHorizontalMargin(int horizontalMargin) {
+		
+		if ( horizontalMargin != this.horizontalMargin ) {
+			this.horizontalMargin = horizontalMargin;
+			setPadding(this.horizontalMargin, this.verticalMargin, this.horizontalMargin, this.verticalMargin);
+			if ( strategy != null ) {
+				strategy.updatePosition();
+			}
+		}		
+	}
+	
+	public void setVerticalMargin(int verticalMargin) {
+		if ( verticalMargin != this.verticalMargin ) {
+			this.verticalMargin = verticalMargin;
+			setPadding(this.horizontalMargin, this.verticalMargin, this.horizontalMargin, this.verticalMargin);
+			if ( strategy != null ) {
+				strategy.updatePosition();
+			}
+		}		
+	}	
+	
+	public int getHorizontalMargin() {
+		return horizontalMargin;
+	}
+	
+	public int getVerticalMargin() {
+		return verticalMargin;
+	}
 	
 	public void goBackInHistory() {
 		
@@ -536,8 +575,8 @@ public class BookView extends ScrollView {
 									
 			BitmapDrawable draw = new BitmapDrawable(getResources(), new ByteArrayInputStream(data));
 			
-			int screenHeight = getHeight() - ( PADDING * 2);
-			int screenWidth = getWidth() - ( PADDING * 2 );
+			int screenHeight = getHeight() - ( verticalMargin * 2);
+			int screenWidth = getWidth() - ( horizontalMargin * 2 );
 			
 			if ( draw != null ) {
 				int targetWidth = draw.getBitmap().getWidth();

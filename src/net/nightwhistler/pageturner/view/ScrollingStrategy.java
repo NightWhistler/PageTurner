@@ -54,12 +54,12 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	
 	@Override
 	public void pageDown() {
-		this.scroll( bookView.getHeight() - 2 * BookView.PADDING);
+		this.scroll( bookView.getHeight() - 2 * bookView.getVerticalMargin());
 	}
 	
 	@Override
 	public void pageUp() {
-		this.scroll( (bookView.getHeight() - 2* BookView.PADDING ) * -1);
+		this.scroll( (bookView.getHeight() - 2* bookView.getVerticalMargin() ) * -1);
 	}
 	
 	@Override

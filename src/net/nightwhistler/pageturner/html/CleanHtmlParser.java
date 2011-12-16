@@ -46,20 +46,13 @@ public class CleanHtmlParser {
 	
 	private boolean stripExtraWhiteSpace = false;
 	
-	private static int MARGIN_INDENT = 30;
-	
-	//private static Pattern SPECIAL_CHAR = Pattern.compile( "(\t| +|\n)" );
+	private static int MARGIN_INDENT = 30;	
 	
 	private static Pattern SPECIAL_CHAR = Pattern.compile( "(\t| +|&[a-z]*;|&#[0-9]*;|\n)" );
 
 	private static Map<String, String> REPLACEMENTS = new HashMap<String, String>();
 
-	static {
-
-		/*
-		 * This isn't really needed anymore, since a properly
-		 * configured HtmlCleaner will do it already.
-		 */
+	static {		
 		
 		REPLACEMENTS.put("", " ");
 		REPLACEMENTS.put("\n", " ");		
@@ -120,7 +113,7 @@ public class CleanHtmlParser {
 
 	public Spanned fromTagNode( TagNode node ) {
 		SpannableStringBuilder result = new SpannableStringBuilder();
-		handleContent(result, node);
+		handleContent(result, node, null);
 		
 		return result;		
 	}
@@ -139,8 +132,10 @@ public class CleanHtmlParser {
 		builder.append("\n");		
 	}
 	
-	private void handleContent( SpannableStringBuilder builder, Object node ) {		
+	private void handleContent( SpannableStringBuilder builder, Object node, TagNode parent ) {		
 		if ( node instanceof ContentNode ) {			
+			
+			ContentNode contentNode = (ContentNode) node;
 			
 			if ( builder.length() > 0 ) {
 				char lastChar = builder.charAt( builder.length() - 1 );
@@ -149,7 +144,13 @@ public class CleanHtmlParser {
 				}
 			}
 			
-			String text = getEditedText( ((ContentNode) node).getContent().toString() ).trim();
+			String text;
+			if ( hasPreParent(parent) ) {
+				text = contentNode.getContent().toString();
+			} else {
+				text = getEditedText( contentNode.getContent().toString() ).trim();
+			}
+			
 			builder.append( text );			
 						
 		} else if ( node instanceof TagNode ) { 
@@ -157,6 +158,14 @@ public class CleanHtmlParser {
 		}		
 	}
 	
+	private boolean hasPreParent( TagNode tagNode ) {
+		if ( tagNode == null ) {
+			return false;
+		}
+		
+		return tagNode.getName().equals("pre")
+			|| hasPreParent(tagNode.getParent());
+	}
 	
 	/**
 	 * Gets the currently registered handler for this tag.
@@ -181,7 +190,7 @@ public class CleanHtmlParser {
 		}
 		
 		for ( Object childNode: node.getChildren() ) {
-			handleContent(builder, childNode );
+			handleContent(builder, childNode, node );
 		}
 		
 		int lengthAfter = builder.length();
@@ -277,6 +286,22 @@ public class CleanHtmlParser {
 		};
 		
 		registerHandler("tt", monSpaceHandler);	
+		
+		//PRE is a special case: here we apply the style, but it's also handled special in
+		//contentNode processing.		
+		TagNodeHandler preHandler = new TagNodeHandler() {
+			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+					int start, int end) {
+				
+				builder.setSpan( new TypefaceSpan("monospace"), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				appendNewLine(builder);
+				appendNewLine(builder);
+			}
+		};
+		
+		registerHandler("pre", preHandler);	
+		
+		
 		
 		TagNodeHandler bigHandler = new TagNodeHandler() {
 			public void handleTagNode(TagNode node, SpannableStringBuilder builder,

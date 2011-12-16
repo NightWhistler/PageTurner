@@ -107,7 +107,9 @@ public class SinglePageStrategy implements PageChangeStrategy {
 
 		TextPaint textPaint = childView.getPaint();
 		int boundedWidth = childView.getWidth();
-		StaticLayout layout = new StaticLayout(cutOff, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+		StaticLayout layout = new StaticLayout(cutOff, textPaint, boundedWidth , 
+				Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
+		
 		layout.draw(new Canvas());	
 		
 		if ( layout.getHeight() < bookView.getHeight() ) {
@@ -171,8 +173,7 @@ public class SinglePageStrategy implements PageChangeStrategy {
 		}
 		
 		this.storedPosition = Math.max(0, this.storedPosition);
-		this.storedPosition = Math.min(this.text.length() -1, this.storedPosition);
-				
+		this.storedPosition = Math.min(this.text.length() -1, this.storedPosition);				
 		
 		int totalLength = this.text.length();
 		int end = Math.min( storedPosition + MAX_PAGE_SIZE, totalLength);
@@ -191,7 +192,25 @@ public class SinglePageStrategy implements PageChangeStrategy {
 		if ( layout.getHeight() >= bookView.getHeight() && text.length() > 10) {
 			
 			int offset = layout.getLineStart(bottomLine -1);		
-			CharSequence section = cutOff.subSequence(0, offset);		
+			CharSequence section = cutOff.subSequence(0, offset);	
+			
+			/*
+			 * Special case, happens with big pictures
+			 * We increase the length of the text we display until it becomes to big for
+			 * the screen, then cut off 1 before that.			
+			 */			
+			if ( section.length() == 0 ) {
+				for ( int i=1; i < cutOff.length(); i++ ) {
+					section = cutOff.subSequence(0, i);
+					layout = new StaticLayout(section, textPaint, boundedWidth , 
+							Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
+					if ( layout.getHeight() >= bookView.getHeight() ) {
+						section = cutOff.subSequence(0, i-1);
+						break;
+					}
+				}
+			}
+			
 			childView.setText(section);
 			
 		} else {

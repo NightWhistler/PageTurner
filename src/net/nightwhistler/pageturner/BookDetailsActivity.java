@@ -41,11 +41,13 @@ public class BookDetailsActivity extends Activity {
 		setContentView(R.layout.book_details);
 		
 		LibraryBook book = (LibraryBook) getIntent().getExtras().getSerializable( "book" );
-	
-		if ( book.getCoverImage() != null ) {
-			ImageView coverView = (ImageView) findViewById(R.id.coverImage);
+		ImageView coverView = (ImageView) findViewById(R.id.coverImage);
+		
+		if ( book.getCoverImage() != null ) {			
 			coverView.setImageBitmap( BitmapFactory.decodeByteArray(book.getCoverImage(),
 					0, book.getCoverImage().length));
+		} else {			
+			coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
 		}
 		
 		TextView titleView = (TextView) findViewById(R.id.titleField);

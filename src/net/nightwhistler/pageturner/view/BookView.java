@@ -20,8 +20,8 @@
 
 package net.nightwhistler.pageturner.view;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
@@ -102,8 +103,8 @@ public class BookView extends ScrollView {
 	private PageChangeStrategy strategy;
 	private ResourceLoader loader;		
 	
-	private int horizontalMargin = 15;
-	private int verticalMargin = 15;
+	private int horizontalMargin = 0;
+	private int verticalMargin = 0;
 	private int lineSpacing = 0;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
@@ -562,18 +563,27 @@ public class BookView extends ScrollView {
 		}
 		
 		@Override
-		public void onLoadResource(String href, byte[] data) {
+		public void onLoadResource(String href, InputStream input) {
 			
-			Drawable drawable = getDrawable(data);
-	        
-	        if ( drawable != null ) {
-				builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}			
+			Drawable drawable = null;
+			try {				
+				drawable = getDrawable(input);
+			} catch (OutOfMemoryError outofmem) {
+				LOG.error("Could not load image", outofmem);
+			}
+			
+			if ( drawable == null ) {
+				drawable = getResources().getDrawable(R.drawable.image_32x32);
+			}
+			
+			
+			builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+						
 		}
 		
-		private Drawable getDrawable(byte[] data) {
+		private Drawable getDrawable(InputStream input) {
 									
-			BitmapDrawable draw = new BitmapDrawable(getResources(), new ByteArrayInputStream(data));
+			BitmapDrawable draw = new BitmapDrawable(getResources(), input);
 			
 			int screenHeight = getHeight() - ( verticalMargin * 2);
 			int screenWidth = getWidth() - ( horizontalMargin * 2 );
@@ -591,9 +601,9 @@ public class BookView extends ScrollView {
 					targetHeight = (int) (targetWidth * ratio);					
 					
 					if ( targetHeight >= screenHeight ) {
-						ratio = (double) ( screenHeight -1 ) / (targetHeight);
+						ratio = (double) ( screenHeight - 10 ) / (targetHeight);
 						
-						targetHeight = screenHeight - 1;
+						targetHeight = screenHeight - 10;
 						targetWidth = (int) (targetWidth * ratio);
 					}
 				}
@@ -773,7 +783,7 @@ public class BookView extends ScrollView {
         		MediatypeService.PNG, MediatypeService.SVG, //Handled by the ResourceLoader
         		
         		MediatypeService.OPENTYPE, MediatypeService.TTF, //We don't support custom fonts either
-        		MediatypeService.XPGT
+        		MediatypeService.XPGT,
         };        	
         
        	book = epubReader.readEpubLazy(fileName, "UTF-8", Arrays.asList(lazyTypes));

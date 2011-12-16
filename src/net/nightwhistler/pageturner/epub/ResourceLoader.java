@@ -20,6 +20,7 @@ package net.nightwhistler.pageturner.epub;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class ResourceLoader  {
 	}
 	
 	public static interface ResourceCallback {
-		void onLoadResource( String href, byte[] data );
+		void onLoadResource( String href, InputStream stream );
 	}
 	
 	private class Holder {
@@ -72,30 +73,36 @@ public class ResourceLoader  {
 	
 	public void load() throws IOException {
 		
-		ZipInputStream in = new ZipInputStream(new FileInputStream(this.fileName));
+		ZipInputStream in = null;
 		
-		for(ZipEntry zipEntry = in.getNextEntry(); zipEntry != null; zipEntry = in.getNextEntry()) {
-			if(zipEntry.isDirectory()) {
-				continue;
-			}
-			
-			String href = zipEntry.getName();
-			
-			LOG.info("Got resource " + href );
-			
-			List<ResourceCallback> filteredCallbacks = findCallbacksFor(href);
-			
-			if ( ! filteredCallbacks.isEmpty() ) {
-			
-				byte[] data = IOUtil.toByteArray(in);
-			
-				for ( ResourceCallback callBack: filteredCallbacks ) {
-					callBack.onLoadResource(href, data);
+		try {
+			in = new ZipInputStream(new FileInputStream(this.fileName));
+
+			for(ZipEntry zipEntry = in.getNextEntry(); zipEntry != null; zipEntry = in.getNextEntry()) {
+				if(zipEntry.isDirectory()) {
+					continue;
+				}
+
+				String href = zipEntry.getName();
+
+				LOG.info("Got resource " + href );
+
+				List<ResourceCallback> filteredCallbacks = findCallbacksFor(href);
+
+				if ( ! filteredCallbacks.isEmpty() ) {
+
+					for ( ResourceCallback callBack: filteredCallbacks ) {
+						callBack.onLoadResource(href, in);
+					}
 				}
 			}
+		} finally {
+			if ( in != null ) {
+				in.close();
+			}
+			
+			this.callbacks.clear();
 		}
-		
-		in.close();
 	}
 	
 	private List<ResourceCallback> findCallbacksFor( String href ) {

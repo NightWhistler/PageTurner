@@ -38,6 +38,7 @@ import nl.siegmann.epublib.service.MediatypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -47,6 +48,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -80,6 +82,8 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	private ProgressDialog waitDialog;
 	private ProgressDialog importDialog;
 		
+	private Drawable backupCover;
+	
 	private int lastPosition;
 	
 	private static final String[] MENU_ITEMS = {
@@ -106,6 +110,8 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		
 		this.importDialog = new ProgressDialog(this);
 		this.importDialog.setOwnerActivity(this);
+		
+		this.backupCover = getResources().getDrawable(R.drawable.river_diary );
 		
 		registerForContextMenu(getListView());		
 	}
@@ -134,9 +140,8 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 				Intent intent = new Intent( LibraryActivity.this, BookDetailsActivity.class );
-				intent.putExtra("book", selectedBook);
-				startActivity(intent);
-				
+				intent.putExtra("book", selectedBook);				
+				startActivity(intent);					
 				return true;
 			}
 		});
@@ -154,6 +159,12 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		});				
 		
 	}	
+	
+	@Override
+	public void finishFromChild(Activity child) {
+		this.bookAdapter.clear();
+		new LoadBooksTask().equals(this.lastPosition);
+	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -269,6 +280,8 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 			if ( book.getCoverImage() != null ) {
 				byte[] cover = book.getCoverImage();
 				imageView.setImageBitmap( BitmapFactory.decodeByteArray(cover, 0, cover.length ));
+			} else {
+				imageView.setImageDrawable(backupCover);
 			}
 			
 			return rowView;

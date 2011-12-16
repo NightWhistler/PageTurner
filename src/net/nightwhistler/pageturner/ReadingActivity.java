@@ -128,7 +128,7 @@ public class ReadingActivity extends Activity implements BookViewListener
 	
 	private boolean oldBrightness = false;
 	private boolean oldStripWhiteSpace = false;
-	
+		
 	private enum Orientation { HORIZONTAL, VERTICAL }
 	
 	private CharSequence selectedWord = null;
@@ -149,7 +149,6 @@ public class ReadingActivity extends Activity implements BookViewListener
         this.waitDialog.setOwnerActivity(this);
         this.viewSwitcher = (ViewSwitcher) findViewById(R.id.mainContainer);
         
-        //this.progressService = new OpenKeyvalProgressService();
         this.progressService = new PageTurnerWebProgressService(this);
         this.libraryService = new SqlLiteLibraryService(this);
         
@@ -198,8 +197,7 @@ public class ReadingActivity extends Activity implements BookViewListener
 
     	if ( settings != null ) {
     		lastPos = settings.getInt(POS_KEY + fileName, -1 );
-    		lastIndex = settings.getInt(IDX_KEY + fileName, -1 );
-    		this.colourProfile = settings.getString("profile", "day");
+    		lastIndex = settings.getInt(IDX_KEY + fileName, -1 );    		
     	}   
 
     	if (savedInstanceState != null ) {
@@ -254,23 +252,7 @@ public class ReadingActivity extends Activity implements BookViewListener
         bookView.setStripWhiteSpace(settings.getBoolean("strip_whitespace", true));
         
         int lineSpacing = settings.getInt("line_spacing", 0);
-        bookView.setLineSpacing(lineSpacing);
-        
-        int brightness = 50;              
-        
-        if ( settings.getBoolean("night_mode", false)) {
-        	this.colourProfile = "night";
-        	brightness = settings.getInt("night_bright", 50);
-        } else {
-        	this.colourProfile = "day";
-        	brightness = settings.getInt("day_bright", 50);
-        }        
-        
-        if ( settings.getBoolean("set_brightness", false)) {
-        	WindowManager.LayoutParams lp = getWindow().getAttributes();
-        	lp.screenBrightness = (float) brightness / 100f;
-        	getWindow().setAttributes(lp);
-        }         
+        bookView.setLineSpacing(lineSpacing);             
 
         if ( settings.getBoolean("full_screen", false)) {
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -387,18 +369,35 @@ public class ReadingActivity extends Activity implements BookViewListener
     }
     
     private void restoreColorProfile() {
-    	if ( "night".equals(this.colourProfile) ) {
-    		this.viewSwitcher.setBackgroundColor(
-    				settings.getInt("night_bg", Color.BLACK));
-    		
-    		this.bookView.setBackgroundColor(settings.getInt("night_bg", Color.BLACK));
-    		this.bookView.setTextColor( settings.getInt("night_text", Color.GRAY));
-    		
+
+    	int brightness = 50;
+
+    	if ( settings.getBoolean("night_mode", false)) {
+    		this.colourProfile = "night";
+    		brightness = settings.getInt("night_bright", 50);
     	} else {
-    		this.viewSwitcher.setBackgroundColor(settings.getInt("day_bg", Color.WHITE));
+    		this.colourProfile = "day";
+    		brightness = settings.getInt("day_bright", 50);
+    	}      
+
+
+    	if ( "night".equals(this.colourProfile) ) {    		
+    		this.bookView.setBackgroundColor(settings.getInt("night_bg", Color.BLACK));
+    		this.viewSwitcher.setBackgroundColor(settings.getInt("night_bg", Color.BLACK));
+    		this.bookView.setTextColor( settings.getInt("night_text", Color.GRAY));
+
+    	} else {
     		this.bookView.setBackgroundColor(settings.getInt("day_bg", Color.WHITE));
+    		this.viewSwitcher.setBackgroundColor(settings.getInt("day_bg", Color.WHITE));
     		this.bookView.setTextColor(settings.getInt("day_text", Color.BLACK));
-    	}    	 	
+    	}
+
+    	if ( settings.getBoolean("set_brightness", false)) {
+    		WindowManager.LayoutParams lp = getWindow().getAttributes();
+    		lp.screenBrightness = (float) brightness / 100f;
+    		getWindow().setAttributes(lp);
+    	}    
+
     }
     
     @Override
@@ -483,21 +482,33 @@ public class ReadingActivity extends Activity implements BookViewListener
     	
     	bookView.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight());
     	
-    	bookView.buildDrawingCache(false);
-		Bitmap drawingCache = bookView.getDrawingCache();		
+    	try {
+    		bookView.buildDrawingCache(false);
+    		Bitmap drawingCache = bookView.getDrawingCache();		
 		  		
-		if ( drawingCache != null ) {					
-			Bitmap copy = drawingCache.copy(drawingCache.getConfig(), false);
-			this.viewSwitcher.setBackgroundDrawable( new BitmapDrawable(copy) );
-			bookView.destroyDrawingCache();
-		}
-				
+    		if ( drawingCache != null ) {					
+    			Bitmap copy = drawingCache.copy(drawingCache.getConfig(), false);
+    			this.viewSwitcher.setBackgroundDrawable( new BitmapDrawable(copy) );
+    			bookView.destroyDrawingCache();
+    		}
+    	} catch (OutOfMemoryError out) {
+    		restoreBackgroundColour();	
+    	}				
+    	
 		this.viewSwitcher.setInAnimation(inAnim);
 		this.viewSwitcher.setOutAnimation(outAnim);
 		
 		//Set the second child forward, which is an empty TextView (i.e. invisible)
 		//this.viewFlipper.setDisplayedChild(1);
 		this.viewSwitcher.reset();
+    }
+    
+    private void restoreBackgroundColour() {    	
+		if ( this.colourProfile.equals("day") ) {
+			this.viewSwitcher.setBackgroundColor(settings.getInt("day_bg", Color.WHITE));
+		} else {
+			this.viewSwitcher.setBackgroundColor(settings.getInt("night_bg", Color.BLACK));
+		}
     }
     
     private void pageDown(Orientation o) {
@@ -637,11 +648,9 @@ public class ReadingActivity extends Activity implements BookViewListener
     }   
     
     private void setProfile(String profileName) {    	
-    	
-        this.colourProfile = profileName;
-        
+    	        
         SharedPreferences.Editor editor = this.settings.edit();
-    	editor.putBoolean("night_mode", this.colourProfile.equals("night"));
+    	editor.putBoolean("night_mode", ! this.colourProfile.equals("night"));
     	editor.commit();   
     	
         this.restoreColorProfile();    	

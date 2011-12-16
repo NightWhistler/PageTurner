@@ -43,14 +43,15 @@
         </activity>
         
         <activity android:name="PageTurnerPrefsActivity"
-                  android:label="PageTurner preferences"> 
+                  android:label="PageTurner preferences" /> 
                   
-        </activity>
-        
+               
         <activity android:name="LibraryActivity"
-                  android:label="PageTurner Library"> 
-                  
-        </activity>
+                  android:label="PageTurner Library" />                 
+          
+        <activity android:name="BookDetailsActivity"
+                  android:label="Book details" />           
+        
         
     </application>
 </manifest> 

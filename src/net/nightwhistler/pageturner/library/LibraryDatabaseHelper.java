@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2011 Alex Kuiper
+ * 
+ * This file is part of PageTurner
+ *
+ * PageTurner is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * PageTurner is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
+ */
 package net.nightwhistler.pageturner.library;
 
 import java.util.Date;
@@ -11,7 +29,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	public enum Field { file_name, title, a_first_name, a_last_name,
-		date_added, date_last_read, cover_image
+		date_added, date_last_read, description, cover_image
 	}	
 	
 	private SQLiteDatabase database;
@@ -21,10 +39,12 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	private static final String CREATE_TABLE =
 		"create table lib_books ( file_name text primary key, title text, " +
 		"a_first_name text, a_last_name text, date_added integer, " +
-		"date_last_read integer, cover_image blob );";
+		"date_last_read integer, description text, cover_image blob );";
+	
+	private static final String DROP_TABLE = "drop table lib_books;";
 	
 	private static final String DB_NAME = "PageTurnerLibrary";
-	private static final int VERSION = 1;
+	private static final int VERSION = 2;
 
 	
 	public LibraryDatabaseHelper(Context context) {
@@ -39,6 +59,16 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		//Nothing to do yet :)		
+		db.execSQL(DROP_TABLE);
+		db.execSQL(CREATE_TABLE);
+	}	
+	
+	public void delete( String fileName ) {
+		SQLiteDatabase database = getWritableDatabase();		
+		String[] args = { fileName };
+		
+		database.delete("lib_books", Field.file_name + " = ?", args );
+		database.close();
 	}
 	
 	private SQLiteDatabase getDataBase() {
@@ -60,18 +90,25 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		}
 	}
 	
-	public void store(String fileName, String authorFirstName,
-			String authorLastName, String title, byte[] coverImage) {
+	public void updateLastRead( String fileName ) {
 		
-		SQLiteDatabase db = getWritableDatabase();
-		
-		Field[] fields = { Field.file_name };
+		SQLiteDatabase database = getWritableDatabase();
+		String whereClause = Field.file_name.toString() + " = ?";
 		String[] args = { fileName };
 		
-		String whereClause = Field.file_name.toString() + " = ?";
+		ContentValues content = new ContentValues();
+		content.put( Field.date_last_read.toString(), new Date().getTime() );
 		
-		Cursor findBook = db.query( "lib_books", fieldsAsString(fields), whereClause,
-				args, null, null, null );
+		database.update("lib_books", content, whereClause, args);
+		
+		database.close();
+	}
+	
+	public void storeNewBook(String fileName, String authorFirstName,
+			String authorLastName, String title, String description,
+			byte[] coverImage, boolean setLastRead) {
+		
+		SQLiteDatabase db = getWritableDatabase();
 		
 		ContentValues content = new ContentValues();
 				
@@ -79,21 +116,17 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		content.put(Field.a_first_name.toString(), authorFirstName );
 		content.put(Field.a_last_name.toString(), authorLastName );
 		content.put(Field.cover_image.toString(), coverImage );
-		content.put(Field.date_last_read.toString(), new Date().getTime() );
+		content.put(Field.description.toString(), description );
 		
-		if ( findBook.getCount() == 0 ) {
-			//create			
+		if ( setLastRead ) {
+			content.put(Field.date_last_read.toString(), new Date().getTime() );
+		}		
 			
-			content.put(Field.file_name.toString(), fileName );
-			content.put(Field.date_added.toString(), new Date().getTime() );			
+		content.put(Field.file_name.toString(), fileName );
+		content.put(Field.date_added.toString(), new Date().getTime() );			
 			
-			db.insert("lib_books", null, content);
-		} else {								
-			//update
-			db.update("lib_books", content, whereClause, args);
-		}	
+		db.insert("lib_books", null, content);
 		
-		findBook.close();
 		db.close();		
 	}
 	
@@ -110,6 +143,27 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		findBook.close();
 		
 		return result;
+	}
+	
+	public QueryResult<LibraryBook> findByField( Field fieldName, String fieldValue ) {
+		
+		SQLiteDatabase db = this.getDataBase();
+		
+		String[] args = { fieldValue };
+		String whereClause;
+		
+		if ( fieldValue == null ) {
+			whereClause = fieldName.toString() + " is null";
+			args = null;
+		} else {
+			whereClause = fieldName.toString() + " = ?";			
+		}
+		
+		Cursor cursor = db.query("lib_books", fieldsAsString(Field.values()), 
+				whereClause, args, null, null,
+				Field.title + " " + Order.DESC.toString()  );		
+		
+		return new LibraryBookResult(cursor);
 	}
 	
 	public QueryResult<LibraryBook> findAllOrderedBy( Field fieldName, Order order ) {
@@ -140,6 +194,8 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 					cursor.getString(Field.a_last_name.ordinal())));
 			
 			newBook.setTitle( cursor.getString(Field.title.ordinal()));
+			
+			newBook.setDescription(cursor.getString(Field.description.ordinal()));
 			
 			try {
 				newBook.setAddedToLibrary(new Date(cursor.getLong(Field.date_added.ordinal())));

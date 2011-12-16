@@ -1,9 +1,28 @@
+/*
+ * Copyright (C) 2011 Alex Kuiper
+ * 
+ * This file is part of PageTurner
+ *
+ * PageTurner is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * PageTurner is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
+ */
 package net.nightwhistler.pageturner;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -13,8 +32,8 @@ import net.nightwhistler.pageturner.library.QueryResult;
 import net.nightwhistler.pageturner.library.QueryResultAdapter;
 import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
 import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.Metadata;
 import nl.siegmann.epublib.epub.EpubReader;
+import nl.siegmann.epublib.service.MediatypeService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,19 +50,22 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class LibraryActivity extends ListActivity implements OnItemSelectedListener {
 	
@@ -55,18 +77,20 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		
 	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH);
 	
-	ProgressDialog waitDialog;
-	ProgressDialog importDialog;
+	private ProgressDialog waitDialog;
+	private ProgressDialog importDialog;
+		
+	private int lastPosition;
 	
 	private static final String[] MENU_ITEMS = {
-		"Most recently read books", "Most recently added books", "Books by title", "Books by author" 
+		"Most recently read books", "Most recently added books", "Unread books", "All books by title", "All books by author" 
 	};	
 	
 	private static final Logger LOG = LoggerFactory.getLogger(LibraryActivity.class); 
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
+		
 		super.onCreate(savedInstanceState);
 		
 		this.libraryService = new SqlLiteLibraryService(this);
@@ -75,7 +99,6 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		this.menuAdapter = new ArrayAdapter<String>(this, R.layout.menu_row, 
 				R.id.bookTitle, MENU_ITEMS);
 				
-		//setListAdapter(bookAdapter);
 		setListAdapter(menuAdapter);
 				
 		this.waitDialog = new ProgressDialog(this);
@@ -84,19 +107,58 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		this.importDialog = new ProgressDialog(this);
 		this.importDialog.setOwnerActivity(this);
 		
+		registerForContextMenu(getListView());		
 	}
 	
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int pos,
 			long id) {
 		
-		//parent.getItemAtPosition(pos).toString()
-		
 	}
 	
 	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		
+		if ( this.getListAdapter() == this.menuAdapter ) {
+			return;
+		}
+		
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+		final LibraryBook selectedBook = bookAdapter.getResultAt(info.position);
+		
+		MenuItem detailsItem = menu.add( "View details");
+		
+		detailsItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				Intent intent = new Intent( LibraryActivity.this, BookDetailsActivity.class );
+				intent.putExtra("book", selectedBook);
+				startActivity(intent);
+				
+				return true;
+			}
+		});
+		
+		MenuItem deleteItem = menu.add("Delete from library");
+		
+		deleteItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				libraryService.deleteBook( selectedBook.getFileName() );
+				new LoadBooksTask().execute(lastPosition);
+				return true;					
+			}
+		});				
+		
+	}	
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add("Scan for books");
+		MenuItem item = menu.add("Scan folder for books");
+		item.setIcon( getResources().getDrawable(R.drawable.folder) );
 		
 		return true;
 	}
@@ -104,17 +166,17 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 
+
 		Intent intent = new Intent("org.openintents.action.PICK_DIRECTORY");
-		
+
 		try {
 			startActivityForResult(intent, 1);
 		} catch (ActivityNotFoundException e) {
-			// No compatible file manager was found.
-			Toast.makeText(this, "Please install OI File Manager from the Android Market.", 
-					Toast.LENGTH_SHORT).show();
+			new ImportBooksTask().execute(new File("/sdcard"));  
 		}
-		
+
 		return true;
+	
 	}
 	
 	@Override
@@ -137,31 +199,14 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	protected void onStop() {		
 		this.libraryService.close();	
 		this.waitDialog.dismiss();
+		this.importDialog.dismiss();
 		super.onStop();
 	}
 	
 	@Override
 	public void onNothingSelected(AdapterView<?> arg0) {
-		// TODO Auto-generated method stub
-		
+				
 	}	
-	
-	private void findEpubsInFolder( File folder, List<File> items) {
-		
-		if ( folder == null ) {
-			return;
-		}
-		
-		if ( folder.isDirectory() && folder.listFiles() != null) {
-			for (File child: folder.listFiles() ) {
-				findEpubsInFolder(child, items); 
-			}
-		} else {
-			if ( folder.getName().endsWith(".epub") ) {
-				items.add(folder);
-			}
-		}
-	}
 	
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
@@ -251,6 +296,7 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	}
 	
 	private void handleMenuClick(int position) {
+		this.lastPosition = position;
 		this.bookAdapter.clear();		
 		
 		this.setListAdapter(bookAdapter);
@@ -260,6 +306,11 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	private class ImportBooksTask extends AsyncTask<File, Integer, Void> {	
 		
 		private boolean hadError = false;
+		
+		private static final int UPDATE_FOLDER = 1;
+		private static final int UPDATE_IMPORT = 2;
+		
+		private int foldersScanned = 0;
 			
 		@Override
 		protected void onPreExecute() {
@@ -292,10 +343,32 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 				}
 				
 				i++;
-				publishProgress(i, total);
+				publishProgress(UPDATE_IMPORT, i, total);
 			}
 			
 			return null;
+		}
+		
+		private void findEpubsInFolder( File folder, List<File> items) {
+			
+			if ( folder == null ) {
+				return;
+			}
+			
+			if ( folder.isDirectory() && folder.listFiles() != null) {
+				
+				for (File child: folder.listFiles() ) {
+					findEpubsInFolder(child, items); 
+				}
+				
+				foldersScanned++;
+				publishProgress(UPDATE_FOLDER, foldersScanned);
+				
+			} else {
+				if ( folder.getName().endsWith(".epub") ) {
+					items.add(folder);
+				}
+			}
 		}
 		
 		private void importBook(String file) {
@@ -303,36 +376,21 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 				// read epub file
 		        EpubReader epubReader = new EpubReader();
 		        				
-				Book importedBook = epubReader.readEpubLazy(file, "UTF-8", false);
-								
-				Metadata metaData = importedBook.getMetadata();
-	        	
-	        	String authorFirstName = "Unknown author";
-	        	String authorLastName = "";
-	        	
-	        	if ( metaData.getAuthors().size() > 0 ) {
-	        		authorFirstName = metaData.getAuthors().get(0).getFirstname();
-	        		authorLastName = metaData.getAuthors().get(0).getLastname();
-	        	}
-	        	
-	        	byte[] cover = null;
-	        	
-	        	if ( importedBook.getCoverImage() != null ) {
-	        		cover = importedBook.getCoverImage().getData();
-	        		importedBook.getCoverImage().close();
-	        	}	        	
-	        	
-	        	libraryService.storeBook(file, authorFirstName, authorLastName, 
-	        			importedBook.getTitle(), cover );		        	
-	        	
-	        	cover = null;	        		        	
+				Book importedBook = epubReader.readEpubLazy(file, "UTF-8", Arrays.asList(MediatypeService.mediatypes));								
+				
+	        	libraryService.storeBook(file, importedBook, false);	        		        	
 				
 			} catch (IOException io ) {}
 		}
 		
 		@Override
 		protected void onProgressUpdate(Integer... values) {
-			importDialog.setMessage("Importing " + values[0] + " / " + values[1]);			
+			
+			if ( values[0] == UPDATE_IMPORT ) {
+				importDialog.setMessage("Importing " + values[1] + " / " + values[2]);
+			} else {
+				importDialog.setMessage("Scanning for EPUB files.\nFolders scanned: " + values[1] );
+			}
 		}
 		
 		@Override
@@ -372,8 +430,10 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 			case 1:
 				return libraryService.findAllByLastAdded();
 			case 2:
-				return libraryService.findAllByTitle();
+				return libraryService.findUnread();
 			case 3:
+				return libraryService.findAllByTitle();
+			case 4:
 				return libraryService.findAllByAuthor();
 			default:
 				return libraryService.findAllByLastRead();

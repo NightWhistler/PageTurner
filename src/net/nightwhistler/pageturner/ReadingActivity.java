@@ -19,12 +19,8 @@
 
 package net.nightwhistler.pageturner;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
@@ -34,7 +30,10 @@ import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.view.BookView;
 import net.nightwhistler.pageturner.view.BookViewListener;
 import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.Metadata;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -69,12 +68,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -127,6 +128,9 @@ public class ReadingActivity extends Activity implements BookViewListener
 	private String bookTitle;
 	private String titleBase;
 	
+	private boolean oldBrightness = false;
+	private boolean oldStripWhiteSpace = false;
+	
 	private enum Orientation { HORIZONTAL, VERTICAL }
 	
 	private CharSequence selectedWord = null;
@@ -165,6 +169,9 @@ public class ReadingActivity extends Activity implements BookViewListener
     	this.viewSwitcher.setOnTouchListener(gestureListener);
     	this.bookView.setOnTouchListener(gestureListener);    	
     	this.bookView.addListener(this);
+    	
+    	this.oldBrightness = settings.getBoolean("set_brightness", false);
+    	this.oldStripWhiteSpace = settings.getBoolean("strip_whitespace", false);
     	
     	registerForContextMenu(bookView);
     	
@@ -230,31 +237,35 @@ public class ReadingActivity extends Activity implements BookViewListener
     }
     
     private void updateFromPrefs() {
-    	
+    	    	
     	this.progressService.setEmail( settings.getString("email", "") );
     	
     	Typeface face = Typeface.createFromAsset(getAssets(), "gen_bk_bas.ttf");
         this.bookView.setTypeface(face);
                 
-        String userTextSize = settings.getString("text_size", "16");
-        
-        float textSize = 16f;
-        
-        try {
-        	textSize = Float.parseFloat( userTextSize );
-        }catch (NumberFormatException nfe){}
-        
-        bookView.setTextSize( textSize );
+        int userTextSize = settings.getInt("itext_size", 16);
+                
+        bookView.setTextSize( userTextSize );
         
         bookView.setEnableScrolling(settings.getBoolean("scrolling", false));
         bookView.setStripWhiteSpace(settings.getBoolean("strip_whitespace", true));
         
+        int brightness = 50;              
+        
         if ( settings.getBoolean("night_mode", false)) {
         	this.colourProfile = "night";
+        	brightness = settings.getInt("night_bright", 50);
         } else {
         	this.colourProfile = "day";
+        	brightness = settings.getInt("day_bright", 50);
         }        
         
+        if ( settings.getBoolean("set_brightness", false)) {
+        	WindowManager.LayoutParams lp = getWindow().getAttributes();
+        	lp.screenBrightness = (float) brightness / 100f;
+        	getWindow().setAttributes(lp);
+        }         
+
         if ( settings.getBoolean("full_screen", false)) {
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -266,7 +277,16 @@ public class ReadingActivity extends Activity implements BookViewListener
     	}
         
         restoreColorProfile();
-    }
+        
+        //Check if we need a restart
+        if ( settings.getBoolean("set_brightness", false) != oldBrightness
+        		|| settings.getBoolean("strip_whitespace", false) != oldStripWhiteSpace ) {
+        	Intent intent = new Intent(this, ReadingActivity.class);
+        	intent.setData(Uri.parse(this.fileName));
+        	startActivity(intent);
+        	finish();
+        }
+    }    
     
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -452,6 +472,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     private void prepareSlide(Animation inAnim, Animation outAnim) {
     	
     	View otherView = findViewById(R.id.dummyView);
+    	    	
     	otherView.setVisibility(View.GONE);
     	
     	bookView.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight());
@@ -639,6 +660,10 @@ public class ReadingActivity extends Activity implements BookViewListener
         	return true;
         	
         case R.id.preferences:
+        	
+        	oldBrightness = settings.getBoolean("set_brightness", false);
+        	oldStripWhiteSpace = settings.getBoolean("strip_whitespace", false);
+        	
         	Intent i = new Intent(this, PageTurnerPrefsActivity.class);
         	startActivity(i);
         	return true;
@@ -727,30 +752,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     	@Override
     	protected Void doInBackground(Book... params) {
     		
-    		Book book = params[0];
-    		
-    		Metadata metaData = book.getMetadata();
-        	
-        	String authorFirstName = "Unknown author";
-        	String authorLastName = "";
-        	
-        	if ( metaData.getAuthors().size() > 0 ) {
-        		authorFirstName = metaData.getAuthors().get(0).getFirstname();
-        		authorLastName = metaData.getAuthors().get(0).getLastname();
-        	}
-        	
-        	byte[] cover = null;
-        	
-        	if ( book.getCoverImage() != null ) {
-        		try {
-        			cover = book.getCoverImage().getData();
-        		} catch (IOException io) {
-        			LOG.error( "Could not read cover", io);
-        		}
-        	}
-        	
-        	libraryService.storeBook(fileName, authorFirstName, authorLastName, 
-        			book.getTitle(), cover );
+    		Book book = params[0];		
+        	libraryService.storeBook(fileName, book, true );
     		
     		return null;
     	}

@@ -63,6 +63,7 @@ public class SinglePageStrategy implements PageChangeStrategy {
 	@Override
 	public void pageDown() {			
 		
+		int oldPos = this.storedPosition;
 		int totalLength = this.text.length();
 		
 		int textEnd = this.storedPosition + 
@@ -83,8 +84,12 @@ public class SinglePageStrategy implements PageChangeStrategy {
 			return;
 		}
 		
-		this.storedPosition = Math.min(textEnd, totalLength -1 ); 
+		if ( textEnd == oldPos ) {
+			textEnd++;
+		}
 		
+		this.storedPosition = Math.min(textEnd, totalLength -1 ); 
+				
 		
 		updatePosition();
 	}

@@ -42,11 +42,15 @@
     	android:layout_width="fill_parent"
     	android:layout_height="fill_parent"    
     	android:orientation="vertical">
-        
-    <net.nightwhistler.pageturner.view.BookView android:id="@+id/bookView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />    
     
+   
+                
+        <net.nightwhistler.pageturner.view.BookView 
+            android:id="@+id/bookView"
+        	android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        />
+     
     <TextView android:layout_width="fill_parent"
         android:layout_height="fill_parent" 
         android:id="@+id/dummyView" />

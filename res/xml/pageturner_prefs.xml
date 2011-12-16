@@ -21,53 +21,77 @@
             android:defaultValue="false" />
    
 	            
-	<EditTextPreference
-				android:key="text_size"
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="itext_size"
 				android:title="Text size"
-				android:summary="The size of the font used for displaying books."
-				android:numeric="integer"
+				android:dialogTitle="Font size"
+				android:summary="The size of the font used for displaying books."				
 				android:defaultValue="16"
+				android:max="48"
 				/>
 				
 	<CheckBoxPreference
 				android:key="strip_whitespace"
 				android:title="Strip whitespace"
-				android:summary="Strips out unneeded blank lines (requires restart)."
+				android:summary="Strips out unneeded blank lines."
 				android:defaultValue="true"
-				/>
+				/>	
 	
 	</PreferenceCategory>		
 			
 	<PreferenceCategory
                 android:title="Colour settings">                
            
+           <CheckBoxPreference
+				android:key="set_brightness"
+				android:title="Brightness controls"
+				android:summary="Lets PageTurner control screen brightness"
+				android:defaultValue="false"
+				/>
         
         	<net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="day_text"
     			android:title="Text colour"
     			android:summary="For day mode"
-    			android:defaultValue="#000000" />
+    			android:defaultValue="-16777216" />
     			
     		<net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="day_bg"
     			android:title="Background colour"
     			android:summary="For day mode"
-    			android:defaultValue="#ffffff" />     		
+    			android:defaultValue="-1" />     		
     		    		
+			<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="day_bright"
+				android:title="Screen brightness"
+				android:summary="For day mode"
+				android:dialogTitle="Screen brightness"								
+				android:defaultValue="50"
+				android:max="100"
+				android:dependency="set_brightness"
+				/>    		    		
     		
              <net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="night_text"
     			android:title="Text colour"
     			android:summary="For night mode"
-    			android:defaultValue="#888888" />
+    			android:defaultValue="-7829368" />
     				
     		<net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="night_bg"
     			android:title="Background colour"
     			android:summary="For night mode"
-    			android:defaultValue="#000000" />  
+    			android:defaultValue="-16777216" />  
     		
-    		
+    		<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="night_bright"
+				android:title="Screen brightness"
+				android:summary="For night mode"
+				android:dialogTitle="Screen brightness"								
+				android:defaultValue="50"
+				android:max="100"
+				android:dependency="set_brightness"
+				/>  
     					
     </PreferenceCategory>
     

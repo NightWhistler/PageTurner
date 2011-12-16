@@ -1,6 +1,28 @@
+/*
+ * Copyright (C) 2011 Alex Kuiper
+ * 
+ * This file is part of PageTurner
+ *
+ * PageTurner is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * PageTurner is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
+ */
 package net.nightwhistler.pageturner.library;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.Metadata;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,23 +32,66 @@ import android.graphics.Matrix;
 
 public class SqlLiteLibraryService implements LibraryService {
 	
-	private static final int THUMBNAIL_HEIGHT = 150;
+	private static final int THUMBNAIL_HEIGHT = 250;
 	
 	LibraryDatabaseHelper helper;
 	
 	public SqlLiteLibraryService(Context context) {
 		this.helper = new LibraryDatabaseHelper(context);
-	}
-
+	}		
+	
+	
 	@Override
-	public void storeBook(String fileName, String authorFirstName,
-			String authorLastName, String title, byte[] coverImage) {
+	public void storeBook(String fileName, Book book, boolean updateLastRead) {
 		
-		byte[] thumbNail = resizeImage(coverImage);
+		boolean hasBook = hasBook(fileName);
 		
-		this.helper.store(fileName, authorFirstName, 
-				authorLastName, title, thumbNail);
+		if ( hasBook && !updateLastRead ) {
+			return;
+		} else if ( hasBook ) {
+			helper.updateLastRead(fileName);
+			return;
+		}
+				
+		Metadata metaData = book.getMetadata();
+    	
+    	String authorFirstName = "Unknown author";
+    	String authorLastName = "";
+    	
+    	if ( metaData.getAuthors().size() > 0 ) {
+    		authorFirstName = metaData.getAuthors().get(0).getFirstname();
+    		authorLastName = metaData.getAuthors().get(0).getLastname();
+    	}
+    	
+    	byte[] thumbNail = null;
+    	
+    	try {
+    		if ( book.getCoverImage() != null ) {    			
+    			thumbNail = resizeImage(book.getCoverImage().getData());
+    			book.getCoverImage().close();
+    		}
+    	} catch (IOException io) {
+    		
+    	}    	
+		
+    	String description = "";
+    	
+    	if ( ! metaData.getDescriptions().isEmpty() ) {
+    		description = metaData.getDescriptions().get(0);
+    	}
+    	
+		this.helper.storeNewBook(fileName, authorFirstName, 
+				authorLastName, book.getTitle(), description, 
+				thumbNail, updateLastRead);    	
+		
 	}
+	
+	@Override
+	public QueryResult<LibraryBook> findUnread() {
+		return helper.findByField( LibraryDatabaseHelper.Field.date_last_read,
+				null);
+				
+	}	
 	
 	@Override
 	public QueryResult<LibraryBook> findAllByLastRead() {		
@@ -60,6 +125,11 @@ public class SqlLiteLibraryService implements LibraryService {
 	public void close() {
 		helper.close();
 	}
+	
+	@Override
+	public void deleteBook(String fileName) {
+		this.helper.delete( fileName );		
+	}	
 	
 	@Override
 	public boolean hasBook(String fileName) {

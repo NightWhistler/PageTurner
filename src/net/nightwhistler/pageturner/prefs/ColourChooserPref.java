@@ -23,6 +23,7 @@ import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
@@ -34,10 +35,13 @@ import android.util.AttributeSet;
 
 public class ColourChooserPref extends DialogPreference implements OnAmbilWarnaListener {
 
+	private static final String androidns="http://schemas.android.com/apk/res/android";
+	
 	int defaultColour;	
 	
 	public ColourChooserPref(Context context, AttributeSet attributes) {
-		super(context, attributes);
+		super(context, attributes);		
+		this.defaultColour = attributes.getAttributeIntValue(androidns,"defaultValue", Color.BLACK);		
 	}
 	
 	@Override

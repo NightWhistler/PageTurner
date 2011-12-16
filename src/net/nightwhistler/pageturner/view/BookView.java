@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,14 +32,17 @@ import java.util.Map;
 import java.util.Set;
 
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
+import net.nightwhistler.pageturner.epub.ResourceLoader;
+import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
 import net.nightwhistler.pageturner.html.CleanHtmlParser;
 import net.nightwhistler.pageturner.html.TagNodeHandler;
-import net.nightwhistler.pageturner.view.ResourceLoader.ResourceCallback;
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.MediaType;
 import nl.siegmann.epublib.domain.Resource;
 import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubReader;
+import nl.siegmann.epublib.service.MediatypeService;
 import nl.siegmann.epublib.util.StringUtil;
 
 import org.htmlcleaner.CleanerProperties;
@@ -532,16 +536,27 @@ public class BookView extends ScrollView {
 									
 			BitmapDrawable draw = new BitmapDrawable(getResources(), new ByteArrayInputStream(data));
 			
+			int screenHeight = getHeight() - ( PADDING * 2);
+			int screenWidth = getWidth() - ( PADDING * 2 );
+			
 			if ( draw != null ) {
 				int targetWidth = draw.getBitmap().getWidth();
 				int targetHeight = draw.getBitmap().getHeight();
 
 				//We scale to screen width for the cover or if the image is too wide.
-				if ( targetWidth > getWidth() || spine.isCover() ) {
+				if ( targetWidth > screenWidth || spine.isCover() ) {
+					
 					double ratio = (double) draw.getBitmap().getHeight() / (double) draw.getBitmap().getWidth();
-
-					targetWidth = getWidth() - ( PADDING * 2 );
-					targetHeight = (int) (targetWidth * ratio);				
+					
+					targetWidth = screenWidth - 1;
+					targetHeight = (int) (targetWidth * ratio);					
+					
+					if ( targetHeight >= screenHeight ) {
+						ratio = (double) ( screenHeight -1 ) / (targetHeight);
+						
+						targetHeight = screenHeight - 1;
+						targetWidth = (int) (targetWidth * ratio);
+					}
 				}
 
 				draw.setBounds(0, 0, targetWidth, targetHeight);					
@@ -707,13 +722,22 @@ public class BookView extends ScrollView {
 		}
 	}
 	
-	private void initBook() throws IOException {
-		
+	private void initBook() throws IOException {		
 						
 		// read epub file
         EpubReader epubReader = new EpubReader();	
        
-       	book = epubReader.readEpubLazy(fileName, "UTF-8", true);
+        MediaType[] lazyTypes = {
+        		MediatypeService.CSS, //We don't support CSS yet 
+        		
+        		MediatypeService.GIF, MediatypeService.JPG,
+        		MediatypeService.PNG, MediatypeService.SVG, //Handled by the ResourceLoader
+        		
+        		MediatypeService.OPENTYPE, MediatypeService.TTF, //We don't support custom fonts either
+        		MediatypeService.XPGT
+        };        	
+        
+       	book = epubReader.readEpubLazy(fileName, "UTF-8", Arrays.asList(lazyTypes));
         	    
 	    this.spine = new PageTurnerSpine(book);	   
 	    this.spine.navigateByIndex( this.storedIndex );

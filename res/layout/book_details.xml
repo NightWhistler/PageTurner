@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+<LinearLayout 
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"> 
+     
+    	<LinearLayout 
+        	android:layout_height="wrap_content"
+        	android:layout_width="fill_parent"
+        	android:gravity="center_horizontal" >
+
+        	<ImageView
+        	    android:id="@+id/coverImage"
+            	android:src="@drawable/page_turner" 
+            	android:layout_width="250px"
+            	android:layout_height="250px"/>
+        </LinearLayout>
+        <ImageView    		
+    		android:src="@android:drawable/divider_horizontal_dark"
+    		android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:scaleType="fitXY"
+    		android:paddingLeft="5dp"
+    		android:paddingRight="5dp"
+    		android:paddingBottom="2dp"
+    		android:paddingTop="2dp" />        
+
+        <TextView
+        	android:id="@+id/titleField"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="Title of the book"
+        	android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/authorField"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="by Someone"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        
+        <ImageView    		
+    		android:src="@android:drawable/divider_horizontal_dark"
+    		android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:scaleType="fitXY"
+    		android:paddingLeft="5dp"
+    		android:paddingRight="5dp"
+    		android:paddingBottom="2dp"
+    		android:paddingTop="2dp" />
+        
+        <TextView
+            android:id="@+id/lastRead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last read: never"/>
+        
+        <TextView
+            android:id="@+id/addedToLibrary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Added to library: never"/>
+        
+        <ImageView    		
+    		android:src="@android:drawable/divider_horizontal_dark"
+    		android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:scaleType="fitXY"
+    		android:paddingLeft="5dp"
+    		android:paddingRight="5dp"
+    		android:paddingBottom="2dp"
+    		android:paddingTop="2dp" />
+        
+        <TextView
+            android:id="@+id/bookDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""/>
+
+</LinearLayout>
+</ScrollView>

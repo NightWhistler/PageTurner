@@ -20,6 +20,17 @@ package net.nightwhistler.pageturner.library;
 
 import android.database.Cursor;
 
+/**
+ * A QueryResult maps a Cursor and performs
+ * basic O/R mapping.
+ * 
+ * Subclasses should implement the actual mapping
+ * from a row to an object by overriding convertRow()
+ * 
+ * @author Alex Kuiper
+ *
+ * @param <T> the type to map to.
+ */
 public abstract class QueryResult<T> {
 
 	private Cursor wrappedCursor;

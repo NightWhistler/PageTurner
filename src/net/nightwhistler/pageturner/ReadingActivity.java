@@ -57,6 +57,7 @@ import android.text.Html;
 import android.text.Layout.Alignment;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.style.AlignmentSpan;
 import android.text.style.ImageSpan;
 import android.view.ContextMenu;
@@ -85,7 +86,8 @@ public class ReadingActivity extends Activity implements BookViewListener
 		
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
-	
+	private static final String BOOK_KEY = "book:";
+		
 	protected static final int REQUEST_CODE_GET_CONTENT = 2;
 	
 	public static final String PICK_RESULT_ACTION = "colordict.intent.action.PICK_RESULT";
@@ -208,6 +210,11 @@ public class ReadingActivity extends Activity implements BookViewListener
     	this.bookView.setFileName(fileName);
     	this.bookView.setPosition(lastPos);
     	this.bookView.setIndex(lastIndex);
+    	
+    	if ( savedInstanceState != null && savedInstanceState.containsKey(BOOK_KEY) ) {
+			Book book = (Book) savedInstanceState.getSerializable(BOOK_KEY);
+			this.bookView.setBook(book);
+		}    	
     	
     	//Slightly hacky
         SharedPreferences.Editor editor = settings.edit();
@@ -404,7 +411,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     public void errorOnBookOpening(String errorMessage) {    	
     	this.waitDialog.hide();    	
     	String message = "Error opening book: " + errorMessage;
-        bookView.setText(message);    	
+        bookView.setText(new SpannedString(message));    	
     }
     
     @Override
@@ -760,6 +767,12 @@ public class ReadingActivity extends Activity implements BookViewListener
      	   
     		outState.putInt(POS_KEY, this.bookView.getPosition() );  
     		outState.putInt(IDX_KEY, this.bookView.getIndex());
+    		
+    		Book book = this.bookView.getBook();
+    		    		
+    		if ( book != null ) {
+    			outState.putSerializable(BOOK_KEY, this.bookView.getBook() );
+    		}    		
     	}
     }
     

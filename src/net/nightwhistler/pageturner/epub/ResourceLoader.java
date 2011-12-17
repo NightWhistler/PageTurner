@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import nl.siegmann.epublib.util.IOUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

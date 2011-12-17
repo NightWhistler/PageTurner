@@ -22,16 +22,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+/**
+ * A ListAdapter which uses QueryResult objects.
+ * 
+ * @author Alex Kuiper
+ *
+ * @param <T> the type of objects in the result.
+ */
 public abstract class QueryResultAdapter<T> extends BaseAdapter {
 
 	QueryResult<T> result;
 	
 	public void setResult(QueryResult<T> result) {
+		
+		if ( this.result != null ) {
+			this.result.close();
+		}
+		
 		this.result = result;
 		notifyDataSetChanged();
 	}
 	
 	public void clear() {
+		if ( this.result != null ) {
+			result.close();
+		}
+		
 		result = null;
 		notifyDataSetChanged();
 	}

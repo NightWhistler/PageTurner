@@ -38,7 +38,6 @@ import nl.siegmann.epublib.service.MediatypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -54,7 +53,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -160,11 +158,6 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		
 	}	
 	
-	@Override
-	public void finishFromChild(Activity child) {
-		this.bookAdapter.clear();
-		new LoadBooksTask().equals(this.lastPosition);
-	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -176,7 +169,6 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-
 
 		Intent intent = new Intent("org.openintents.action.PICK_DIRECTORY");
 
@@ -204,7 +196,7 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
     			}
     		}
     	}	
-	}
+	}	
 	
 	@Override
 	protected void onStop() {		
@@ -220,21 +212,32 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	}	
 	
 	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-				
-		if ( getListAdapter() == this.bookAdapter
-				&& event.getKeyCode() == KeyEvent.KEYCODE_BACK 
-				&& event.getAction() == KeyEvent.ACTION_DOWN ) {
-			
-			setListAdapter(this.menuAdapter);			
-			return true;
-		}
+	public void onBackPressed() {
+		if ( getListAdapter() == this.bookAdapter ) {			
+			setListAdapter(this.menuAdapter);
+		} else {
+			finish();
+		}	
+	}	
+	
+	@Override
+	protected void onPause() {
 		
-		return super.dispatchKeyEvent(event);
+		this.bookAdapter.clear();
+		this.libraryService.close();
+		//We clear the list to free up memory.
 		
+		super.onPause();
 	}
 	
-	
+	@Override
+	protected void onResume() {
+		super.onResume();		
+		
+		if ( getListAdapter() == this.bookAdapter ) {
+			new LoadBooksTask().execute(this.lastPosition);
+		}
+	}
 	
 	/**
 	 * Based on example found here:
@@ -289,6 +292,8 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	
 	}
 
+	
+	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		

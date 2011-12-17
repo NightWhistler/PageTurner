@@ -48,7 +48,15 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
 	
 	public LibraryDatabaseHelper(Context context) {
-		super(context, DB_NAME, null, VERSION);
+		super(context, DB_NAME, null, VERSION);		
+	}
+	
+	private synchronized SQLiteDatabase getDataBase() {
+		if ( this.database == null ) {
+			this.database = getWritableDatabase();
+		}
+		
+		return this.database;
 	}
 	
 	@Override
@@ -64,24 +72,11 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	}	
 	
 	public void delete( String fileName ) {
-		SQLiteDatabase database = getWritableDatabase();		
+		
 		String[] args = { fileName };
 		
-		database.delete("lib_books", Field.file_name + " = ?", args );
-		database.close();
-	}
-	
-	private SQLiteDatabase getDataBase() {
-		if ( this.database == null ) {
-			this.database = getReadableDatabase();
-		}
-		
-		if (! this.database.isOpen() ) {
-			this.database = getReadableDatabase();
-		}
-		
-		return this.database;
-	}
+		getDataBase().delete("lib_books", Field.file_name + " = ?", args );		
+	}	
 	
 	public void close() {
 		if ( this.database != null ) {
@@ -92,24 +87,20 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	public void updateLastRead( String fileName ) {
 		
-		SQLiteDatabase database = getWritableDatabase();
 		String whereClause = Field.file_name.toString() + " = ?";
 		String[] args = { fileName };
 		
 		ContentValues content = new ContentValues();
 		content.put( Field.date_last_read.toString(), new Date().getTime() );
 		
-		database.update("lib_books", content, whereClause, args);
-		
-		database.close();
+		getDataBase().update("lib_books", content, whereClause, args);		
 	}
 	
 	public void storeNewBook(String fileName, String authorFirstName,
 			String authorLastName, String title, String description,
 			byte[] coverImage, boolean setLastRead) {
 		
-		SQLiteDatabase db = getWritableDatabase();
-		
+				
 		ContentValues content = new ContentValues();
 				
 		content.put(Field.title.toString(), title );
@@ -125,9 +116,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		content.put(Field.file_name.toString(), fileName );
 		content.put(Field.date_added.toString(), new Date().getTime() );			
 			
-		db.insert("lib_books", null, content);
-		
-		db.close();		
+		getDataBase().insert("lib_books", null, content);
 	}
 	
 	public boolean hasBook( String fileName ) {
@@ -145,10 +134,9 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return result;
 	}
 	
-	public QueryResult<LibraryBook> findByField( Field fieldName, String fieldValue ) {
-		
-		SQLiteDatabase db = this.getDataBase();
-		
+	public QueryResult<LibraryBook> findByField( Field fieldName, String fieldValue,
+			Field orderField, Order ordering) {
+						
 		String[] args = { fieldValue };
 		String whereClause;
 		
@@ -159,18 +147,16 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 			whereClause = fieldName.toString() + " = ?";			
 		}
 		
-		Cursor cursor = db.query("lib_books", fieldsAsString(Field.values()), 
+		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
 				whereClause, args, null, null,
-				Field.title + " " + Order.DESC.toString()  );		
+				orderField + " " + ordering  );		
 		
 		return new LibraryBookResult(cursor);
 	}
 	
 	public QueryResult<LibraryBook> findAllOrderedBy( Field fieldName, Order order ) {
-		
-		SQLiteDatabase db = this.getDataBase();
-		
-		Cursor cursor = db.query("lib_books", fieldsAsString(Field.values()), 
+						
+		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
 				fieldName != null ? fieldName.toString() + " is not null" : null,
 			    new String[0], null, null,
 				fieldName != null ? fieldName.toString() + " " + order.toString() : null );		
@@ -210,8 +196,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 			
 			return newBook;
 		}
-	}
-	
+	}	
 	
 	//public void createOrUpdateBook( 
 	

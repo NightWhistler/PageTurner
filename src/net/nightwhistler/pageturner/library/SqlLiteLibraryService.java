@@ -88,8 +88,10 @@ public class SqlLiteLibraryService implements LibraryService {
 	
 	@Override
 	public QueryResult<LibraryBook> findUnread() {
-		return helper.findByField( LibraryDatabaseHelper.Field.date_last_read,
-				null);
+		return helper.findByField(
+				LibraryDatabaseHelper.Field.date_last_read,
+				null, LibraryDatabaseHelper.Field.date_last_read, 
+				LibraryDatabaseHelper.Order.ASC);
 				
 	}	
 	

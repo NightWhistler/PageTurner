@@ -692,8 +692,13 @@ public class BookView extends ScrollView {
 	 * Sets the given text to be displayed, overriding the book.
 	 * @param text
 	 */
-	public void setText(CharSequence text) {
-		this.childView.setText(text);
+	public void setText(Spanned text) {
+		this.strategy.loadText(text);
+		this.strategy.updatePosition();
+	}
+	
+	public Book getBook() {
+		return book;
 	}
 	
 	public float getTextSize() {
@@ -771,6 +776,13 @@ public class BookView extends ScrollView {
 		}
 	}
 	
+	public void setBook( Book book ) {
+		
+		this.book = book;
+		this.spine = new PageTurnerSpine(book);	   
+	    this.spine.navigateByIndex( this.storedIndex );	    
+	}
+	
 	private void initBook() throws IOException {		
 						
 		// read epub file
@@ -786,20 +798,8 @@ public class BookView extends ScrollView {
         		MediatypeService.XPGT,
         };        	
         
-       	book = epubReader.readEpubLazy(fileName, "UTF-8", Arrays.asList(lazyTypes));
-        	    
-	    this.spine = new PageTurnerSpine(book);	   
-	    this.spine.navigateByIndex( this.storedIndex );
-	    
-	    int totalResources = book.getResources().size();
-	    int count = 0;
-	    for (Resource res: book.getResources().getAll() ) {
-	    	if ( res.isInitialized() ) {
-	    		count++;
-	    	}
-	    }
-	    
-	    LOG.info("Book is read. Resources " + count + " of " + totalResources );
+       	Book newBook = epubReader.readEpubLazy(fileName, "UTF-8", Arrays.asList(lazyTypes));
+        setBook( newBook );
 	}	
 	
 	private class LoadTextTask extends AsyncTask<String, Integer, Spanned> {

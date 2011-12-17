@@ -68,12 +68,15 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -283,6 +286,8 @@ public class ReadingActivity extends Activity implements BookViewListener
         }
     }    
     
+    
+    
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
     	super.onWindowFocusChanged(hasFocus);
@@ -442,10 +447,10 @@ public class ReadingActivity extends Activity implements BookViewListener
 	    int keyCode = event.getKeyCode();
 	    
 	    switch (keyCode) {
-	        
+	    
 	    	case KeyEvent.KEYCODE_VOLUME_DOWN:
 	    		//Yes, this is nasty: if the setting is true, we fall through to the next case.
-	    		if (! settings.getBoolean("nav_vol", false) ) { return false; } 
+	    		if (! settings.getBoolean("nav_vol", false) ) { return false; }	    		
 	        
 	    	case KeyEvent.KEYCODE_DPAD_RIGHT:
 	            
@@ -479,13 +484,12 @@ public class ReadingActivity extends Activity implements BookViewListener
 	    }
 
 	    return false;
-    }
+    }   
     
     private void prepareSlide(Animation inAnim, Animation outAnim) {
     	
-    	View otherView = findViewById(R.id.dummyView);
-    	    	
-    	otherView.setVisibility(View.GONE);
+    	View otherView = findViewById(R.id.dummyView);    	    	
+    	otherView.setVisibility(View.VISIBLE);
     	
     	bookView.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight());
     	
@@ -494,20 +498,19 @@ public class ReadingActivity extends Activity implements BookViewListener
     		Bitmap drawingCache = bookView.getDrawingCache();		
 		  		
     		if ( drawingCache != null ) {					
-    			Bitmap copy = drawingCache.copy(drawingCache.getConfig(), false);
-    			this.viewSwitcher.setBackgroundDrawable( new BitmapDrawable(copy) );
+    			Bitmap copy = drawingCache.copy(drawingCache.getConfig(), false);    			
+    			( (ImageView) otherView).setImageBitmap(copy);
     			bookView.destroyDrawingCache();
     		}
     	} catch (OutOfMemoryError out) {
     		restoreBackgroundColour();	
     	}				
     	
+    	viewSwitcher.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight() );
+    	this.viewSwitcher.showNext();
+    	
 		this.viewSwitcher.setInAnimation(inAnim);
-		this.viewSwitcher.setOutAnimation(outAnim);
-		
-		//Set the second child forward, which is an empty TextView (i.e. invisible)
-		//this.viewFlipper.setDisplayedChild(1);
-		this.viewSwitcher.reset();
+		this.viewSwitcher.setOutAnimation(outAnim);		
     }
     
     private void restoreBackgroundColour() {    	
@@ -526,10 +529,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     	if ( o == Orientation.HORIZONTAL && animateH ) {
     		prepareSlide(Animations.inFromRightAnimation(), Animations.outToLeftAnimation());
     		this.viewSwitcher.showNext();
-    		this.viewSwitcher.showNext();
     	} else if ( animateV ){
-    		prepareSlide(Animations.inFromBottomAnimation(), Animations.outToTopAnimation() );
-    		this.viewSwitcher.showNext();
+    		prepareSlide(Animations.inFromBottomAnimation(), Animations.outToTopAnimation() );    		
     		this.viewSwitcher.showNext();
     	}    	
     	
@@ -542,12 +543,10 @@ public class ReadingActivity extends Activity implements BookViewListener
     	boolean animateV = settings.getBoolean("animate_v", true);
     	
     	if ( o == Orientation.HORIZONTAL && animateH) {
-    		prepareSlide(Animations.inFromLeftAnimation(), Animations.outToRightAnimation());
-    		this.viewSwitcher.showNext();
+    		prepareSlide(Animations.inFromLeftAnimation(), Animations.outToRightAnimation());    		
         	this.viewSwitcher.showNext();
     	} else if ( animateV ){
-    		prepareSlide(Animations.inFromTopAnimation(), Animations.outToBottomAnimation());
-    		this.viewSwitcher.showNext();
+    		prepareSlide(Animations.inFromTopAnimation(), Animations.outToBottomAnimation());    		
     		this.viewSwitcher.showNext();
     	}    	    	
     	
@@ -576,7 +575,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     	} else {
     		dayMode.setVisible(true);
     		nightMode.setVisible(false);
-    	}
+    	}    
     	
     	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
     	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -650,7 +649,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.reading_menu, menu);
+        inflater.inflate(R.menu.reading_menu, menu);    	
+    	
         return true;
     }   
     

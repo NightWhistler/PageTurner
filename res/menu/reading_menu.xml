@@ -16,11 +16,7 @@
           
     <item android:id="@+id/profile_night"          
           android:title="@string/profile_night"
-          android:icon="@drawable/moon" />
-          
-    <item android:id="@+id/manual_sync"          
-          android:title="@string/manual_sync"
-          android:icon="@drawable/loop" />          
+          android:icon="@drawable/moon" />       
           
     <item android:id="@+id/preferences"          
           android:title="@string/prefs" 
@@ -30,4 +26,11 @@
           android:title="@string/show_toc"
           android:icon="@drawable/list" />
 
+	<item android:id="@+id/rolling_blind"          
+          android:title="@string/rolling_blind"
+          android:icon="@drawable/play" />
+          
+	<item android:id="@+id/manual_sync"          
+          android:title="@string/manual_sync"
+          android:icon="@drawable/loop" />       
 </menu>

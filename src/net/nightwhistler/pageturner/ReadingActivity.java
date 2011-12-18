@@ -47,11 +47,11 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Layout.Alignment;
@@ -68,14 +68,12 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -138,6 +136,8 @@ public class ReadingActivity extends Activity implements BookViewListener
 	
 	private CharSequence selectedWord = null;
 	
+	private Handler handler;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -149,6 +149,8 @@ public class ReadingActivity extends Activity implements BookViewListener
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
         setContentView(R.layout.read_book);
+        
+        this.handler = new Handler();
         
         this.waitDialog = new ProgressDialog(this);
         this.waitDialog.setOwnerActivity(this);
@@ -439,12 +441,16 @@ public class ReadingActivity extends Activity implements BookViewListener
     	
     	this.waitDialog.setTitle("Loading, please wait");
     	this.waitDialog.show();
-    }
+    }    
+    
     
     @Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		int action = event.getAction();
 	    int keyCode = event.getKeyCode();
+	    
+	    //Immediately stop rolling blind mode.
+	    bookView.setBackgroundBitmap(null);
 	    
 	    switch (keyCode) {
 	    
@@ -486,10 +492,38 @@ public class ReadingActivity extends Activity implements BookViewListener
 	    return false;
     }   
     
-    private void prepareSlide(Animation inAnim, Animation outAnim) {
+    
+    private void doRollingBlind() {
+    	Bitmap bitmap = getBookViewSnapshot();
+    	this.bookView.setBackgroundBitmap(bitmap);
     	
-    	View otherView = findViewById(R.id.dummyView);    	    	
-    	otherView.setVisibility(View.VISIBLE);
+    	bookView.setPixelsToDraw(0);
+    	bookView.pageDown();    	
+    	
+    	handler.post( new RollerRunnable() );    	
+    }
+    
+    private class RollerRunnable implements Runnable {
+    	
+    	private int count = 0;
+    	
+    	@Override
+    	public void run() {
+    		count += 1;
+    		
+    		if ( count < bookView.getHeight() &&
+    				bookView.getBackgroundBitmap() != null ) {
+    			
+    			bookView.setPixelsToDraw( count );
+    			handler.postDelayed(this, 250);
+    		} else if ( bookView.getBackgroundBitmap() != null ) {
+    			doRollingBlind();
+    		}
+    	}
+    }
+    
+    
+    private Bitmap getBookViewSnapshot() {
     	
     	bookView.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight());
     	
@@ -498,13 +532,28 @@ public class ReadingActivity extends Activity implements BookViewListener
     		Bitmap drawingCache = bookView.getDrawingCache();		
 		  		
     		if ( drawingCache != null ) {					
-    			Bitmap copy = drawingCache.copy(drawingCache.getConfig(), false);    			
-    			( (ImageView) otherView).setImageBitmap(copy);
+    			Bitmap copy = drawingCache.copy(drawingCache.getConfig(), false);
     			bookView.destroyDrawingCache();
+    			return copy;
     		}
+    		
     	} catch (OutOfMemoryError out) {
     		restoreBackgroundColour();	
-    	}				
+    	}	
+    	
+    	return null;
+    }
+    
+    private void prepareSlide(Animation inAnim, Animation outAnim) {
+    	
+    	View otherView = findViewById(R.id.dummyView);    	    	
+    	otherView.setVisibility(View.VISIBLE);
+    	
+    	Bitmap bitmap = getBookViewSnapshot();
+    	
+    	if ( bitmap != null ) {
+    		( (ImageView) otherView).setImageBitmap(bitmap);
+    	}    		
     	
     	viewSwitcher.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight() );
     	this.viewSwitcher.showNext();
@@ -523,6 +572,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     
     private void pageDown(Orientation o) {
     	
+    	this.bookView.setBackgroundBitmap(null);
+    	
     	boolean animateH = settings.getBoolean("animate_h", true);
     	boolean animateV = settings.getBoolean("animate_v", true);
     	
@@ -538,6 +589,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     }
     
     private void pageUp(Orientation o) {
+    	
+    	this.bookView.setBackgroundBitmap(null);
     	
     	boolean animateH = settings.getBoolean("animate_h", true);
     	boolean animateV = settings.getBoolean("animate_v", true);
@@ -649,8 +702,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.reading_menu, menu);    	
-    	
+        inflater.inflate(R.menu.reading_menu, menu);        
+        
         return true;
     }   
     
@@ -701,6 +754,10 @@ public class ReadingActivity extends Activity implements BookViewListener
         case R.id.open_library:
         	launchLibrary();
         	return true;  	
+        	
+        case R.id.rolling_blind:
+        	doRollingBlind();
+        	return true;
         	
         default:
             return super.onOptionsItemSelected(item);
@@ -769,10 +826,14 @@ public class ReadingActivity extends Activity implements BookViewListener
     		outState.putInt(IDX_KEY, this.bookView.getIndex());
     		
     		Book book = this.bookView.getBook();
-    		    		
-    		if ( book != null ) {
-    			outState.putSerializable(BOOK_KEY, this.bookView.getBook() );
-    		}    		
+    		    
+    		try {
+    			if ( book != null ) {
+    				outState.putSerializable(BOOK_KEY, this.bookView.getBook() );
+    			}
+    		} catch ( OutOfMemoryError out ) {
+    			//Simply build it up again later.
+    		}
     	}
     }
     
@@ -879,9 +940,9 @@ public class ReadingActivity extends Activity implements BookViewListener
     		return false;
     	}
         
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-        	
+    	@Override
+    	public boolean onSingleTapConfirmed(MotionEvent e) {
+    		
         	boolean tapH = settings.getBoolean("nav_tap_h", true);
         	boolean tapV = settings.getBoolean("nav_tap_v", true);
         	

@@ -53,6 +53,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -107,6 +112,9 @@ public class BookView extends ScrollView {
 	private int verticalMargin = 0;
 	private int lineSpacing = 0;
 	
+	private Bitmap backgroundBitmap;
+	private int pixelsToDraw;
+	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 	
 	public BookView(Context context, AttributeSet attributes) {
@@ -122,7 +130,31 @@ public class BookView extends ScrollView {
 			
 			public boolean dispatchKeyEvent(KeyEvent event) {
 				return BookView.this.dispatchKeyEvent(event);
+			}	
+			
+			protected void onDraw(Canvas canvas) {
+				super.onDraw(canvas);
+				if ( backgroundBitmap != null ) {
+					
+					Rect source = new Rect( getHorizontalMargin(),							
+							getVerticalMargin() + pixelsToDraw,
+							backgroundBitmap.getWidth() - horizontalMargin,
+							backgroundBitmap.getHeight() - verticalMargin );
+					
+					Rect dest = new Rect( 0, pixelsToDraw, 
+							backgroundBitmap.getWidth() - (2*horizontalMargin), 
+							backgroundBitmap.getHeight() - (2*verticalMargin) );					
+					
+					canvas.drawBitmap(backgroundBitmap, source, dest, null);
+					
+					Paint paint = new Paint();
+					paint.setColor(Color.GRAY);
+					paint.setStyle(Paint.Style.STROKE);
+					
+					canvas.drawLine(0, dest.top, dest.right, dest.top, paint);
+				}	
 			}
+			
 		};  
 		
 		childView.setLongClickable(true);	        
@@ -172,6 +204,21 @@ public class BookView extends ScrollView {
 	public void setStripWhiteSpace(boolean stripWhiteSpace) {
 		this.parser.setStripExtraWhiteSpace(stripWhiteSpace);
 	}
+	
+	public void setBackgroundBitmap(Bitmap backgroundBitmap) {
+		this.backgroundBitmap = backgroundBitmap;			
+	}
+	
+	public Bitmap getBackgroundBitmap() {
+		return backgroundBitmap;
+	}
+	
+	public void setPixelsToDraw(int pixelsToDraw) {
+		this.pixelsToDraw = pixelsToDraw;
+		invalidate();
+	}	
+	
+
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {

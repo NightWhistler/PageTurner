@@ -54,6 +54,16 @@ public abstract class TagNodeHandler {
 	public void beforeChildren( TagNode node, SpannableStringBuilder builder ) {
 		
 	}
+	
+	/**
+	 * If this TagNodeHandler takes care of rendering the content.
+	 * 
+	 * If true, the parser will not add the content itself.
+	 * @return
+	 */
+	public boolean rendersContent() {
+		return false;
+	}
 
 	/**
 	 * Handle the given node and add spans if needed.

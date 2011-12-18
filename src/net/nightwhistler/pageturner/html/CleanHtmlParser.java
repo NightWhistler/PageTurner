@@ -144,27 +144,28 @@ public class CleanHtmlParser {
 				}
 			}
 			
-			String text;
-			if ( hasPreParent(parent) ) {
-				text = contentNode.getContent().toString();
-			} else {
-				text = getEditedText( contentNode.getContent().toString() ).trim();
-			}
 			
-			builder.append( text );			
+			if ( ! hasContentBlockingParent(parent) ) {
+				String text = getEditedText( contentNode.getContent().toString() ).trim();
+				builder.append( text );
+			}			
+						
 						
 		} else if ( node instanceof TagNode ) { 
 			applySpan(builder, (TagNode) node); 
 		}		
 	}
 	
-	private boolean hasPreParent( TagNode tagNode ) {
+	private boolean hasContentBlockingParent( TagNode tagNode ) {
 		if ( tagNode == null ) {
 			return false;
 		}
 		
-		return tagNode.getName().equals("pre")
-			|| hasPreParent(tagNode.getParent());
+		TagNodeHandler handler = getHandlerFor(tagNode.getName());
+		
+		boolean blocksContent = handler != null && handler.rendersContent();
+		
+		return blocksContent || hasContentBlockingParent(tagNode.getParent());
 	}
 	
 	/**
@@ -287,17 +288,7 @@ public class CleanHtmlParser {
 		
 		registerHandler("tt", monSpaceHandler);	
 		
-		//PRE is a special case: here we apply the style, but it's also handled special in
-		//contentNode processing.		
-		TagNodeHandler preHandler = new TagNodeHandler() {
-			public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-					int start, int end) {
-				
-				builder.setSpan( new TypefaceSpan("monospace"), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				appendNewLine(builder);
-				appendNewLine(builder);
-			}
-		};
+		TagNodeHandler preHandler = new PreHandler();
 		
 		registerHandler("pre", preHandler);	
 		
@@ -360,6 +351,47 @@ public class CleanHtmlParser {
 		registerHandler("center", centerHandler);	
 		
 		registerHandler("li", new ListItemHandler() );		
+	}	
+	
+	private class PreHandler extends TagNodeHandler {
+		
+		@Override
+		public void beforeChildren(TagNode node, SpannableStringBuilder builder) {
+			// TODO Auto-generated method stub
+			super.beforeChildren(node, builder);
+		}
+		
+		private void getPlainText( StringBuffer buffer, Object node ) {
+			if ( node instanceof ContentNode ) {
+				ContentNode contentNode = (ContentNode) node;
+				buffer.append( contentNode.getContent() );
+			} else {
+				TagNode tagNode = (TagNode) node;
+				for ( Object child: tagNode.getChildren() ) {
+					getPlainText(buffer, child);
+				}
+			}
+		}
+		
+		@Override
+		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+				int start, int end) {
+			
+			StringBuffer buffer = new StringBuffer();
+			getPlainText(buffer, node);
+			
+			builder.append( buffer.toString() );
+			
+			builder.setSpan( new TypefaceSpan("monospace"), start, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			appendNewLine(builder);
+			appendNewLine(builder);		
+		}
+		
+		@Override
+		public boolean rendersContent() {
+			return true;
+		}
+		
 	}
 	
 	private class HeaderHandler extends TagNodeHandler {

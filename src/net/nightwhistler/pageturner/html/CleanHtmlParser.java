@@ -142,31 +142,15 @@ public class CleanHtmlParser {
 				if ( lastChar != ' ' && lastChar != '\n' ) {
 					builder.append(' ');
 				}
-			}
-			
-			
-			if ( ! hasContentBlockingParent(parent) ) {
-				String text = getEditedText( contentNode.getContent().toString() ).trim();
-				builder.append( text );
 			}			
-						
+			
+			String text = getEditedText( contentNode.getContent().toString() ).trim();
+			builder.append( text );						
 						
 		} else if ( node instanceof TagNode ) { 
 			applySpan(builder, (TagNode) node); 
 		}		
-	}
-	
-	private boolean hasContentBlockingParent( TagNode tagNode ) {
-		if ( tagNode == null ) {
-			return false;
-		}
-		
-		TagNodeHandler handler = getHandlerFor(tagNode.getName());
-		
-		boolean blocksContent = handler != null && handler.rendersContent();
-		
-		return blocksContent || hasContentBlockingParent(tagNode.getParent());
-	}
+	}	
 	
 	/**
 	 * Gets the currently registered handler for this tag.
@@ -190,8 +174,11 @@ public class CleanHtmlParser {
 			handler.beforeChildren(node, builder);
 		}
 		
-		for ( Object childNode: node.getChildren() ) {
-			handleContent(builder, childNode, node );
+		if ( handler == null || ! handler.rendersContent() ) {
+		
+			for ( Object childNode: node.getChildren() ) {
+				handleContent(builder, childNode, node );
+			}
 		}
 		
 		int lengthAfter = builder.length();

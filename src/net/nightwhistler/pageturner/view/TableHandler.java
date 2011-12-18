@@ -8,38 +8,42 @@ import net.nightwhistler.pageturner.html.TagNodeHandler;
 
 import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Paint.Align;
+import android.graphics.Paint.Style;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.Layout.Alignment;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.SpannedString;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.style.AlignmentSpan;
 import android.text.style.ImageSpan;
 
 public class TableHandler extends TagNodeHandler {
+	
+	Logger LOG = LoggerFactory.getLogger(TableHandler.class);
 
-	private int tableWidth = 200;
-	private int tableHeight = 500;
+	private int tableWidth = 400;	
 	private Typeface typeFace = Typeface.DEFAULT;
 	private float textSize = 16f;
 	private int textColor = Color.BLACK;
 	private int backgroundColor = Color.WHITE;
 		
-	private Context context;
+	private static final int PADDING = 5;
+	
 	private CleanHtmlParser parser;
 	
-	public TableHandler(Context context, CleanHtmlParser parser) {
-		this.context = context;
+	public TableHandler(CleanHtmlParser parser) {
+		this.parser = parser;
 	}
 	
 	public void setTableWidth(int tableWidth) {
@@ -70,7 +74,7 @@ public class TableHandler extends TagNodeHandler {
 	private void readNode( Object node, Table table ) {
 		
 		if ( node instanceof ContentNode ) {
-			table.addCell( new SpannedString( ( (ContentNode) node).getContent() ));
+			//table.addCell( new SpannedString( ( (ContentNode) node).getContent() ));
 			return;
 		}
 		
@@ -102,10 +106,49 @@ public class TableHandler extends TagNodeHandler {
 	}
 	
 	
-	private Bitmap render(Table table) {
+	private Bitmap render(List<Spanned> tablerow, boolean lastRow) {
 		
+		Paint paint = new Paint();
+		paint.setColor( this.textColor );
+		paint.setStyle(Style.STROKE);
 		
-		return null;		
+		int numberOfColumns = tablerow.size();
+		int columnWidth = tableWidth / numberOfColumns;		
+		int rowHeight = calculateRowHeight(tablerow);
+				
+		Bitmap result = Bitmap.createBitmap( (numberOfColumns * columnWidth) + 1,
+				rowHeight, Config.ARGB_8888 );
+		
+		Canvas canvas = new Canvas(result);
+		canvas.drawColor( this.backgroundColor );		
+		
+		int offset = 0;
+		
+		for ( int i=0; i < numberOfColumns; i++ ) {
+			
+			offset = i * columnWidth;
+			
+			//The rect is open at the bottom, so there's a single line between rows.
+			canvas.drawRect(offset, 0, offset + columnWidth, rowHeight, paint);
+			
+			StaticLayout layout = new StaticLayout(tablerow.get(i), getTextPaint(),
+					(columnWidth - 2*PADDING), Alignment.ALIGN_NORMAL, 1f, 0f, true);			
+			
+			canvas.translate(offset + PADDING, 0);
+			
+			layout.draw(canvas);
+			
+			canvas.translate( -1 * PADDING, 0);
+		}	
+		
+		if ( lastRow ) {
+			//Reset canvas to begin line
+			canvas.translate( -1 * offset, 0);
+			//Draw a bottom line
+			canvas.drawLine(0, rowHeight - 1, numberOfColumns * columnWidth, rowHeight -1, paint);
+		}
+		
+		return result;		
 	}
 	
 	private TextPaint getTextPaint() {
@@ -118,59 +161,59 @@ public class TableHandler extends TagNodeHandler {
 		return textPaint;
 	}	
 	
-	private int calculateTableHeight( Table table ) {
+	private int calculateRowHeight( List<Spanned> row ) {
 		
 		TextPaint textPaint = getTextPaint();
 		
-		int tableHeight = 0;
+		int columnWidth = tableWidth / row.size();
+
+		int rowHeight = 0;
+
+		for ( Spanned cell: row ) {
+
+			StaticLayout layout = new StaticLayout(cell, textPaint,
+					columnWidth - 2*PADDING,
+					Alignment.ALIGN_NORMAL, 1f, 0f, true);			
+
+			if ( layout.getHeight() > rowHeight ) {
+				rowHeight = layout.getHeight();
+			}
+		}	
 		
-		if ( ! table.isEmpty() ) {
-			
-			int columnCount = table.getFirstRow().size();			
-			int columnWidth = tableWidth / columnCount;
-			
-			for ( List<Spanned> row: table.getRows() ) {
-				
-				int rowHeight = 0;
-				
-				for ( Spanned cell: row ) {
-					
-					StaticLayout layout = new StaticLayout(cell, textPaint,
-							columnWidth, Alignment.ALIGN_NORMAL, 1f, 0f, false);
-					
-					if ( layout.getHeight() > rowHeight ) {
-						rowHeight = layout.getHeight();
-					}
-				}	
-				
-				tableHeight += rowHeight;
-			}			
-		}
-		
-		return tableHeight;		
+		return rowHeight;		
 	}
 	
 	@Override
 	public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-			int start, int end) {
-		
-		builder.append("\uFFFC");
-        
+			int start, int end) {	
+        		
 		Table table = getTable(node);
-		Bitmap bitmap = render(table);
 		
-		BitmapDrawable drawable = new BitmapDrawable( bitmap );
-		drawable.setBounds( 0, 0, bitmap.getWidth(), bitmap.getHeight() );
+		LOG.debug("Table has " + table.getRows().size() + " rows and " +
+				table.getFirstRow().size() + " columns" );
 		
-		
-		builder.setSpan( new ImageSpan(drawable), start, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		builder.setSpan(new AlignmentSpan() {
-			@Override
-			public Alignment getAlignment() {
-				return Alignment.ALIGN_CENTER;
-			}
-		}, start, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);	
-				
+		for (int i=0; i < table.getRows().size(); i++ ) {
+			
+			List<Spanned> row = table.getRows().get(i);
+			builder.append("\uFFFC\n");
+			
+			Bitmap bitmap = render(row, i == (table.getRows().size() -1) );
+
+			BitmapDrawable drawable = new BitmapDrawable( bitmap );
+			drawable.setBounds( 0, 0, bitmap.getWidth(), bitmap.getHeight() );
+
+			builder.setSpan( new ImageSpan(drawable), start, builder.length(), 
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			
+			builder.setSpan(new AlignmentSpan() {
+				@Override
+				public Alignment getAlignment() {
+					return Alignment.ALIGN_CENTER;
+				}
+			}, start, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			
+			start+=2;
+		}		
 	}
 	
 	private class Table {
@@ -186,11 +229,7 @@ public class TableHandler extends TagNodeHandler {
 		
 		public List<Spanned> getFirstRow() {
 			return content.get(0);
-		}
-		
-		public boolean isEmpty() {
-			return content.isEmpty();
-		}
+		}		
 		
 		public List<List<Spanned>> getRows() {
 			return content;

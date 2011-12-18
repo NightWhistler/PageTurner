@@ -88,6 +88,8 @@ public class BookView extends ScrollView {
 	private HtmlCleaner htmlCleaner;
 	private CleanHtmlParser parser;
 	
+	private TableHandler tableHandler;
+	
 	private OnTouchListener touchListener;
 	
 	private PageTurnerSpine spine;
@@ -154,7 +156,8 @@ public class BookView extends ScrollView {
         
         parser.registerHandler("p", new AnchorHandler(parser.getHandlerFor("p") ));
 
-        parser.registerHandler("table", new TableHandler(context));
+        this.tableHandler = new TableHandler(parser);
+        parser.registerHandler("table", tableHandler);
         
         this.anchors = new HashMap<String, Integer>();
 	}	
@@ -276,6 +279,7 @@ public class BookView extends ScrollView {
 	
 	public void setTypeface(Typeface typeFace) {
 		this.childView.setTypeface( typeFace );
+		this.tableHandler.setTypeFace(typeFace);
 	}	
 	
 	public void pageDown() {		
@@ -360,7 +364,7 @@ public class BookView extends ScrollView {
 	
 	private static boolean isBoundaryCharacter( char c ) {
 		char[] boundaryChars = { ' ', '.', ',','\"',
-				'\'', '\n', '\t', ':'
+				'\'', '\n', '\t', ':', '!'
 		};
 		
 		for ( int i=0; i < boundaryChars.length; i++ ) {
@@ -639,12 +643,16 @@ public class BookView extends ScrollView {
 		if ( this.childView != null ) {
 			this.childView.setBackgroundColor(color);
 		}
+		
+		this.tableHandler.setBackgroundColor(color);
 	}
 	
 	public void setTextColor( int color ) {
 		if ( this.childView != null ) {
 			this.childView.setTextColor(color);
 		}
+		
+		this.tableHandler.setTextColor(color);
 	}
 	
 	public static class TocEntry {
@@ -709,6 +717,7 @@ public class BookView extends ScrollView {
 	
 	public void setTextSize(float textSize) {
 		this.childView.setTextSize(textSize);
+		this.tableHandler.setTextSize(textSize);
 	}
 	
 	public void addListener(BookViewListener listener) {

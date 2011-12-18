@@ -498,6 +498,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     
     private void doRollingBlind() {
     	
+    	bookView.setKeepScreenOn(true);
+    	
     	Bitmap bitmap = getBookViewSnapshot();
     	this.bookView.setBackgroundBitmap(bitmap);
     	
@@ -544,6 +546,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     	this.bookView.setPixelsToDraw(0);
     	bookView.setEnableScrolling( settings.getBoolean("scrolling", false));
     	Toast.makeText(this, "Rolling blind mode stopped.", Toast.LENGTH_SHORT);
+    	bookView.setKeepScreenOn(false);
     }
     
     private Bitmap getBookViewSnapshot() {

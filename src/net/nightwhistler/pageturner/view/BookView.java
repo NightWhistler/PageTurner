@@ -153,6 +153,8 @@ public class BookView extends ScrollView {
         parser.registerHandler("h6", new AnchorHandler(parser.getHandlerFor("h6") ));
         
         parser.registerHandler("p", new AnchorHandler(parser.getHandlerFor("p") ));
+
+        parser.registerHandler("table", new TableHandler(context));
         
         this.anchors = new HashMap<String, Integer>();
 	}	

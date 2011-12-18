@@ -161,6 +161,7 @@ public class BookView extends ScrollView {
         this.setVerticalFadingEdgeEnabled(false);
         childView.setFocusable(true);
         childView.setLinksClickable(true);
+        childView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT) );
         
         MovementMethod m = childView.getMovementMethod();  
         if ((m == null) || !(m instanceof LinkMovementMethod)) {  
@@ -635,7 +636,7 @@ public class BookView extends ScrollView {
 			int screenHeight = getHeight() - ( verticalMargin * 2);
 			int screenWidth = getWidth() - ( horizontalMargin * 2 );
 			
-			if ( draw != null ) {
+			if ( draw != null && draw.getBitmap() != null ) {
 				int targetWidth = draw.getBitmap().getWidth();
 				int targetHeight = draw.getBitmap().getHeight();
 
@@ -804,8 +805,11 @@ public class BookView extends ScrollView {
 			int pos = -1;
 			boolean wasNull = true;
 			
+			Spanned text = null;
+			
 			if ( this.strategy != null ) {
 				pos = this.strategy.getPosition();
+				text = this.strategy.getText();
 				this.strategy.clearText();
 				wasNull = false;
 			}			
@@ -817,7 +821,12 @@ public class BookView extends ScrollView {
 			}
 
 			if ( ! wasNull ) {				
-				this.strategy.setPosition( pos );
+				this.strategy.setPosition( pos );				 
+			}
+			
+			if ( text != null && text.length() > 0 ) {
+				this.strategy.loadText(text);
+			} else {
 				loadText();
 			}
 		}
@@ -865,7 +874,9 @@ public class BookView extends ScrollView {
 		
 		protected Spanned doInBackground(String...hrefs) {	
 			
-			loader.clear();
+			if ( loader != null ) {
+				loader.clear();
+			}
 			
 			if ( BookView.this.book == null ) {
 				try {

@@ -10,6 +10,14 @@
 	            android:dialogMessage="Please enter a valid e-mail address"   
 	            />
 
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="blind_speed"
+				android:title="Autoscrolling speed"
+				android:summary="For rolling blind mode."
+				android:dialogTitle="Scroll speed"								
+				android:defaultValue="75"
+				android:max="99"				
+				/>
 
 	<PreferenceCategory
                 android:title="Visual settings">  		
@@ -19,8 +27,47 @@
             android:title="Full screen"
             android:summary="Hides all status bars."
             android:defaultValue="false" />
+            
+   <CheckBoxPreference
+			android:key="set_brightness"
+			android:title="Brightness controls"
+			android:summary="Lets PageTurner control screen brightness"
+			android:defaultValue="false"
+			/>
    
+   <com.hlidskialf.android.preference.SeekBarPreference
+				android:key="day_bright"
+				android:title="Screen brightness"
+				android:summary="For day mode"
+				android:dialogTitle="Screen brightness"								
+				android:defaultValue="50"
+				android:max="100"
+				android:dependency="set_brightness"
+				/>   
+	
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="night_bright"
+				android:title="Screen brightness"
+				android:summary="For night mode"
+				android:dialogTitle="Screen brightness"								
+				android:defaultValue="50"
+				android:max="100"
+				android:dependency="set_brightness"
+				/>  
 	            
+	
+	</PreferenceCategory>
+	
+	<PreferenceCategory
+                android:title="Text display settings">
+                
+     <CheckBoxPreference
+				android:key="strip_whitespace"
+				android:title="Strip whitespace"
+				android:summary="Strips out unneeded blank lines."
+				android:defaultValue="true"
+				/>  		
+	
 	<com.hlidskialf.android.preference.SeekBarPreference
 				android:key="itext_size"
 				android:title="Text size"
@@ -28,14 +75,7 @@
 				android:summary="The size of the font used for displaying books."				
 				android:defaultValue="16"
 				android:max="48"
-				/>
-				
-	<CheckBoxPreference
-				android:key="strip_whitespace"
-				android:title="Strip whitespace"
-				android:summary="Strips out unneeded blank lines."
-				android:defaultValue="true"
-				/>
+				/>	
 				
 	<com.hlidskialf.android.preference.SeekBarPreference
 				android:key="margin_h"
@@ -61,19 +101,12 @@
 				android:dialogTitle="Line spacing"								
 				android:defaultValue="0"
 				android:max="50"				
-				/>   		
+				/>
 	
 	</PreferenceCategory>		
 			
 	<PreferenceCategory
-                android:title="Colour settings">                
-           
-           <CheckBoxPreference
-				android:key="set_brightness"
-				android:title="Brightness controls"
-				android:summary="Lets PageTurner control screen brightness"
-				android:defaultValue="false"
-				/>
+                android:title="Colour settings">
         
         	<net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="day_text"
@@ -87,15 +120,7 @@
     			android:summary="For day mode"
     			android:defaultValue="-1" />     		
     		    		
-			<com.hlidskialf.android.preference.SeekBarPreference
-				android:key="day_bright"
-				android:title="Screen brightness"
-				android:summary="For day mode"
-				android:dialogTitle="Screen brightness"								
-				android:defaultValue="50"
-				android:max="100"
-				android:dependency="set_brightness"
-				/>    		    		
+			 		    		
     		
              <net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="night_text"
@@ -109,15 +134,7 @@
     			android:summary="For night mode"
     			android:defaultValue="-16777216" />  
     		
-    		<com.hlidskialf.android.preference.SeekBarPreference
-				android:key="night_bright"
-				android:title="Screen brightness"
-				android:summary="For night mode"
-				android:dialogTitle="Screen brightness"								
-				android:defaultValue="50"
-				android:max="100"
-				android:dependency="set_brightness"
-				/>  
+    	
     					
     </PreferenceCategory>
     

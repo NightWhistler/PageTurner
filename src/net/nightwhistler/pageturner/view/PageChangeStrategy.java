@@ -67,4 +67,6 @@ public interface PageChangeStrategy {
 	
 	public void reset();
 	
+	public Spanned getText();
+	
 }

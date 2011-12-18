@@ -30,6 +30,8 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	private TextView childView;
 	private int storedPosition;
 	
+	private Spanned text;
+	
 	public ScrollingStrategy(BookView bookView) {
 		this.bookView = bookView;
 		this.childView = bookView.getInnerView();		
@@ -49,6 +51,7 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	@Override
 	public void loadText(Spanned text) {		
 		childView.setText(text);
+		this.text = text;
 		updatePosition();
 	}
 	
@@ -70,7 +73,8 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	
 	@Override
 	public void clearText() {
-		this.childView.setText("");		
+		this.childView.setText("");	
+		this.text = null;
 	}
 	
 	public void updatePosition() {
@@ -92,6 +96,11 @@ public class ScrollingStrategy implements PageChangeStrategy {
 				}
 			}						 
 		}
+	}
+	
+	@Override
+	public Spanned getText() {
+		return text;
 	}
 	
 	@Override

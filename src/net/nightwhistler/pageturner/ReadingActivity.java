@@ -260,7 +260,10 @@ public class ReadingActivity extends Activity implements BookViewListener
         bookView.setHorizontalMargin(marginH);
         bookView.setVerticalMargin(marginV);
         
-        bookView.setEnableScrolling(settings.getBoolean("scrolling", false));
+        if ( ! isRollingBlind() ) {
+        	bookView.setEnableScrolling(settings.getBoolean("scrolling", false));
+        }
+        
         bookView.setStripWhiteSpace(settings.getBoolean("strip_whitespace", true));
         
         int lineSpacing = settings.getInt("line_spacing", 0);
@@ -449,8 +452,10 @@ public class ReadingActivity extends Activity implements BookViewListener
 		int action = event.getAction();
 	    int keyCode = event.getKeyCode();
 	    
-	    //Immediately stop rolling blind mode.
-	    bookView.setBackgroundBitmap(null);
+	    if ( isRollingBlind() ) {
+	    	stopRollingBlind();
+	    	return true;
+	    }
 	    
 	    switch (keyCode) {
 	    
@@ -493,12 +498,19 @@ public class ReadingActivity extends Activity implements BookViewListener
     }   
     
     
+    private boolean isRollingBlind() {
+    	return bookView.getBackgroundBitmap() != null;
+    }
+    
     private void doRollingBlind() {
+    	
     	Bitmap bitmap = getBookViewSnapshot();
     	this.bookView.setBackgroundBitmap(bitmap);
     	
     	bookView.setPixelsToDraw(0);
     	bookView.pageDown();    	
+    	
+    	bookView.setEnableScrolling(false);
     	
     	handler.post( new RollerRunnable() );    	
     }
@@ -515,13 +527,30 @@ public class ReadingActivity extends Activity implements BookViewListener
     				bookView.getBackgroundBitmap() != null ) {
     			
     			bookView.setPixelsToDraw( count );
-    			handler.postDelayed(this, 250);
+    			
+    			int speed = settings.getInt("blind_speed", 75);
+    			
+    			long delay = (-10 * speed) + 1000l;
+    			
+    			handler.postDelayed(this, delay);
+    			
+    			LOG.debug( "Updating rolling blind position to " + count );
     		} else if ( bookView.getBackgroundBitmap() != null ) {
     			doRollingBlind();
+    			LOG.debug( "Finished a full round of blind rolling. Restarting." );
+    		} else {
+    			LOG.debug( "BookView no longer has a backing bitmap. Aborting rolling blind." );
+    			stopRollingBlind();
     		}
     	}
     }
     
+    private void stopRollingBlind() {
+    	this.bookView.setBackgroundBitmap(null);
+    	this.bookView.setPixelsToDraw(0);
+    	bookView.setEnableScrolling( settings.getBoolean("scrolling", false));
+    	Toast.makeText(this, "Rolling blind mode stopped.", Toast.LENGTH_SHORT);
+    }
     
     private Bitmap getBookViewSnapshot() {
     	
@@ -572,7 +601,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     
     private void pageDown(Orientation o) {
     	
-    	this.bookView.setBackgroundBitmap(null);
+    	stopRollingBlind();
     	
     	boolean animateH = settings.getBoolean("animate_h", true);
     	boolean animateV = settings.getBoolean("animate_v", true);
@@ -590,7 +619,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     
     private void pageUp(Orientation o) {
     	
-    	this.bookView.setBackgroundBitmap(null);
+    	stopRollingBlind();
     	
     	boolean animateH = settings.getBoolean("animate_h", true);
     	boolean animateV = settings.getBoolean("animate_v", true);
@@ -920,6 +949,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     	public boolean onVerifiedFling(MotionEvent e1, MotionEvent e2,
     			float velocityX, float velocityY) {
     		
+    		stopRollingBlind();
+    		
     		boolean swipeH = settings.getBoolean("nav_swipe_h", true);
     		boolean swipeV = settings.getBoolean("nav_swipe_v", true) && ! settings.getBoolean("scrolling", true);
     		
@@ -942,6 +973,8 @@ public class ReadingActivity extends Activity implements BookViewListener
         
     	@Override
     	public boolean onSingleTapConfirmed(MotionEvent e) {
+    		
+    		stopRollingBlind();
     		
         	boolean tapH = settings.getBoolean("nav_tap_h", true);
         	boolean tapV = settings.getBoolean("nav_tap_v", true);

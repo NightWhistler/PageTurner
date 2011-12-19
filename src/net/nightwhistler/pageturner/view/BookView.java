@@ -54,8 +54,10 @@ import org.slf4j.LoggerFactory;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -620,40 +622,37 @@ public class BookView extends ScrollView {
 		@Override
 		public void onLoadResource(String href, InputStream input) {
 			
-			Drawable drawable = null;
+			Bitmap bitmap = null;
 			try {				
-				drawable = getDrawable(input);
+				bitmap = getBitmap(input);
 			} catch (OutOfMemoryError outofmem) {
 				LOG.error("Could not load image", outofmem);
 			}
 			
-			if ( drawable == null ) {
-				drawable = getResources().getDrawable(R.drawable.image_32x32);
+			if ( bitmap != null ) {
+				builder.setSpan( new ImageSpan(bitmap), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
-			
-			
-			builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 						
 		}
 		
-		private Drawable getDrawable(InputStream input) {
-									
-			BitmapDrawable draw = new BitmapDrawable(getResources(), input);
+		private Bitmap getBitmap(InputStream input) {
+			
+			//BitmapDrawable draw = new BitmapDrawable(getResources(), input);
+			Bitmap originalBitmap = BitmapFactory.decodeStream(input);
 			
 			int screenHeight = getHeight() - ( verticalMargin * 2);
 			int screenWidth = getWidth() - ( horizontalMargin * 2 );
 			
-			if ( draw != null && draw.getBitmap() != null ) {
-				int targetWidth = draw.getBitmap().getWidth();
-				int targetHeight = draw.getBitmap().getHeight();
-
+			if ( originalBitmap != null ) {
+				int originalWidth = originalBitmap.getWidth();
+				int originalHeight = originalBitmap.getHeight();
+				
 				//We scale to screen width for the cover or if the image is too wide.
-				if ( targetWidth > screenWidth || spine.isCover() ) {
+				if ( originalWidth > screenWidth || originalHeight > screenHeight || spine.isCover() ) {
+					double ratio = (double) originalHeight / (double) originalWidth;
 					
-					double ratio = (double) draw.getBitmap().getHeight() / (double) draw.getBitmap().getWidth();
-					
-					targetWidth = screenWidth - 1;
-					targetHeight = (int) (targetWidth * ratio);					
+					int targetWidth = screenWidth - 1;
+					int targetHeight = (int) (targetWidth * ratio);					
 					
 					if ( targetHeight >= screenHeight ) {
 						ratio = (double) ( screenHeight - 10 ) / (targetHeight);
@@ -661,14 +660,16 @@ public class BookView extends ScrollView {
 						targetHeight = screenHeight - 10;
 						targetWidth = (int) (targetWidth * ratio);
 					}
-				}
-
-				draw.setBounds(0, 0, targetWidth, targetHeight);					
+					
+                    //android.graphics.Bitmap.createScaledBitmap should do the same.					
+					return Bitmap.createScaledBitmap(originalBitmap, targetWidth, targetHeight, false);
+				} else {
+					return originalBitmap;
+				}									
 			}
 			
-			return draw;					
-		}
-		
+			return null;
+		}		
 	}
 	
 	private class ImageTagHandler extends TagNodeHandler {
@@ -851,7 +852,11 @@ public class BookView extends ScrollView {
 	    this.spine.navigateByIndex( this.storedIndex );	    
 	}
 	
-	private void initBook() throws IOException {		
+	private void initBook() throws IOException {	
+		
+		if ( this.fileName == null ) {
+			throw new IOException("No file-name specified.");
+		}
 						
 		// read epub file
         EpubReader epubReader = new EpubReader();	

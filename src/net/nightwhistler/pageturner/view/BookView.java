@@ -630,7 +630,9 @@ public class BookView extends ScrollView {
 			}
 			
 			if ( bitmap != null ) {
-				builder.setSpan( new ImageSpan(bitmap), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				Drawable drawable = new BitmapDrawable( bitmap );
+				drawable.setBounds(0,0, bitmap.getWidth() - 1, bitmap.getHeight() - 1);
+				builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 						
 		}
@@ -649,26 +651,26 @@ public class BookView extends ScrollView {
 				
 				//We scale to screen width for the cover or if the image is too wide.
 				if ( originalWidth > screenWidth || originalHeight > screenHeight || spine.isCover() ) {
-					double ratio = (double) originalHeight / (double) originalWidth;
 					
 					int targetWidth = screenWidth - 1;
-					int targetHeight = (int) (targetWidth * ratio);					
+					int targetHeight = screenHeight - 1;
 					
-					if ( targetHeight >= screenHeight ) {
-						ratio = (double) ( screenHeight - 10 ) / (targetHeight);
-						
-						targetHeight = screenHeight - 10;
-						targetWidth = (int) (targetWidth * ratio);
+					if ( originalWidth > originalHeight ) {
+						double ratio = (double) targetWidth / (double) originalWidth;
+						targetHeight = (int) (originalHeight * ratio);
+					} else {
+						double ratio = (double) targetHeight / (double) originalHeight;
+						targetWidth = (int) ( originalWidth * ratio );
 					}
 					
-                    //android.graphics.Bitmap.createScaledBitmap should do the same.					
-					return Bitmap.createScaledBitmap(originalBitmap, targetWidth, targetHeight, false);
-				} else {
-					return originalBitmap;
+					LOG.debug("Rescaling from " + originalWidth + "x" + originalHeight + " to " + targetWidth + "x" + targetHeight );
+					
+					//android.graphics.Bitmap.createScaledBitmap should do the same.					
+					return Bitmap.createScaledBitmap(originalBitmap, targetWidth, targetHeight, true);
 				}									
 			}
 			
-			return null;
+			return originalBitmap;
 		}		
 	}
 	

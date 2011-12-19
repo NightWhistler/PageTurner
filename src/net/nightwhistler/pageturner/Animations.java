@@ -24,7 +24,7 @@ import android.view.animation.TranslateAnimation;
 
 public class Animations {
 
-	public static final int DURATION = 500;
+	public static final int DURATION = 300;
 	
 	public static Animation inFromRightAnimation() {
 

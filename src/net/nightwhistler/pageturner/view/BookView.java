@@ -53,6 +53,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -109,6 +116,9 @@ public class BookView extends ScrollView {
 	private int verticalMargin = 0;
 	private int lineSpacing = 0;
 	
+	private Bitmap backgroundBitmap;
+	private int pixelsToDraw;
+	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 	
 	public BookView(Context context, AttributeSet attributes) {
@@ -120,17 +130,45 @@ public class BookView extends ScrollView {
 			protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 				super.onSizeChanged(w, h, oldw, oldh);
 				restorePosition();	
+				
+				int tableWidth = (int) ( this.getWidth() * 0.9 );
+				tableHandler.setTableWidth( tableWidth );
 			}
 			
 			public boolean dispatchKeyEvent(KeyEvent event) {
 				return BookView.this.dispatchKeyEvent(event);
+			}	
+			
+			protected void onDraw(Canvas canvas) {
+				super.onDraw(canvas);
+				if ( backgroundBitmap != null ) {
+					
+					Rect source = new Rect( getHorizontalMargin(),							
+							getVerticalMargin() + pixelsToDraw,
+							backgroundBitmap.getWidth() - horizontalMargin,
+							backgroundBitmap.getHeight() - verticalMargin );
+					
+					Rect dest = new Rect( 0, pixelsToDraw, 
+							backgroundBitmap.getWidth() - (2*horizontalMargin), 
+							backgroundBitmap.getHeight() - (2*verticalMargin) );					
+					
+					canvas.drawBitmap(backgroundBitmap, source, dest, null);
+					
+					Paint paint = new Paint();
+					paint.setColor(Color.GRAY);
+					paint.setStyle(Paint.Style.STROKE);
+					
+					canvas.drawLine(0, dest.top, dest.right, dest.top, paint);
+				}	
 			}
+			
 		};  
 		
 		childView.setLongClickable(true);	        
         this.setVerticalFadingEdgeEnabled(false);
         childView.setFocusable(true);
         childView.setLinksClickable(true);
+        childView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT) );
         
         MovementMethod m = childView.getMovementMethod();  
         if ((m == null) || !(m instanceof LinkMovementMethod)) {  
@@ -177,6 +215,19 @@ public class BookView extends ScrollView {
 	public void setStripWhiteSpace(boolean stripWhiteSpace) {
 		this.parser.setStripExtraWhiteSpace(stripWhiteSpace);
 	}
+	
+	public void setBackgroundBitmap(Bitmap backgroundBitmap) {
+		this.backgroundBitmap = backgroundBitmap;			
+	}
+	
+	public Bitmap getBackgroundBitmap() {
+		return backgroundBitmap;
+	}
+	
+	public void setPixelsToDraw(int pixelsToDraw) {
+		this.pixelsToDraw = pixelsToDraw;
+		invalidate();
+	}	
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
@@ -571,40 +622,37 @@ public class BookView extends ScrollView {
 		@Override
 		public void onLoadResource(String href, InputStream input) {
 			
-			Drawable drawable = null;
+			Bitmap bitmap = null;
 			try {				
-				drawable = getDrawable(input);
+				bitmap = getBitmap(input);
 			} catch (OutOfMemoryError outofmem) {
 				LOG.error("Could not load image", outofmem);
 			}
 			
-			if ( drawable == null ) {
-				drawable = getResources().getDrawable(R.drawable.image_32x32);
+			if ( bitmap != null ) {
+				builder.setSpan( new ImageSpan(bitmap), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
-			
-			
-			builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 						
 		}
 		
-		private Drawable getDrawable(InputStream input) {
-									
-			BitmapDrawable draw = new BitmapDrawable(getResources(), input);
+		private Bitmap getBitmap(InputStream input) {
+			
+			//BitmapDrawable draw = new BitmapDrawable(getResources(), input);
+			Bitmap originalBitmap = BitmapFactory.decodeStream(input);
 			
 			int screenHeight = getHeight() - ( verticalMargin * 2);
 			int screenWidth = getWidth() - ( horizontalMargin * 2 );
 			
-			if ( draw != null ) {
-				int targetWidth = draw.getBitmap().getWidth();
-				int targetHeight = draw.getBitmap().getHeight();
-
+			if ( originalBitmap != null ) {
+				int originalWidth = originalBitmap.getWidth();
+				int originalHeight = originalBitmap.getHeight();
+				
 				//We scale to screen width for the cover or if the image is too wide.
-				if ( targetWidth > screenWidth || spine.isCover() ) {
+				if ( originalWidth > screenWidth || originalHeight > screenHeight || spine.isCover() ) {
+					double ratio = (double) originalHeight / (double) originalWidth;
 					
-					double ratio = (double) draw.getBitmap().getHeight() / (double) draw.getBitmap().getWidth();
-					
-					targetWidth = screenWidth - 1;
-					targetHeight = (int) (targetWidth * ratio);					
+					int targetWidth = screenWidth - 1;
+					int targetHeight = (int) (targetWidth * ratio);					
 					
 					if ( targetHeight >= screenHeight ) {
 						ratio = (double) ( screenHeight - 10 ) / (targetHeight);
@@ -612,14 +660,16 @@ public class BookView extends ScrollView {
 						targetHeight = screenHeight - 10;
 						targetWidth = (int) (targetWidth * ratio);
 					}
-				}
-
-				draw.setBounds(0, 0, targetWidth, targetHeight);					
+					
+                    //android.graphics.Bitmap.createScaledBitmap should do the same.					
+					return Bitmap.createScaledBitmap(originalBitmap, targetWidth, targetHeight, false);
+				} else {
+					return originalBitmap;
+				}									
 			}
 			
-			return draw;					
-		}
-		
+			return null;
+		}		
 	}
 	
 	private class ImageTagHandler extends TagNodeHandler {
@@ -768,8 +818,11 @@ public class BookView extends ScrollView {
 			int pos = -1;
 			boolean wasNull = true;
 			
+			Spanned text = null;
+			
 			if ( this.strategy != null ) {
 				pos = this.strategy.getPosition();
+				text = this.strategy.getText();
 				this.strategy.clearText();
 				wasNull = false;
 			}			
@@ -781,7 +834,12 @@ public class BookView extends ScrollView {
 			}
 
 			if ( ! wasNull ) {				
-				this.strategy.setPosition( pos );
+				this.strategy.setPosition( pos );				 
+			}
+			
+			if ( text != null && text.length() > 0 ) {
+				this.strategy.loadText(text);
+			} else {
 				loadText();
 			}
 		}
@@ -794,7 +852,11 @@ public class BookView extends ScrollView {
 	    this.spine.navigateByIndex( this.storedIndex );	    
 	}
 	
-	private void initBook() throws IOException {		
+	private void initBook() throws IOException {	
+		
+		if ( this.fileName == null ) {
+			throw new IOException("No file-name specified.");
+		}
 						
 		// read epub file
         EpubReader epubReader = new EpubReader();	
@@ -829,7 +891,9 @@ public class BookView extends ScrollView {
 		
 		protected Spanned doInBackground(String...hrefs) {	
 			
-			loader.clear();
+			if ( loader != null ) {
+				loader.clear();
+			}
 			
 			if ( BookView.this.book == null ) {
 				try {

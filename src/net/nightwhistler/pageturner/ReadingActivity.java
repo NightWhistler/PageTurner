@@ -47,11 +47,11 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Layout.Alignment;
@@ -68,14 +68,12 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -89,8 +87,7 @@ public class ReadingActivity extends Activity implements BookViewListener
 		
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
-	private static final String BOOK_KEY = "book:";
-		
+			
 	protected static final int REQUEST_CODE_GET_CONTENT = 2;
 	
 	public static final String PICK_RESULT_ACTION = "colordict.intent.action.PICK_RESULT";
@@ -138,6 +135,8 @@ public class ReadingActivity extends Activity implements BookViewListener
 	
 	private CharSequence selectedWord = null;
 	
+	private Handler handler;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -149,6 +148,8 @@ public class ReadingActivity extends Activity implements BookViewListener
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
         setContentView(R.layout.read_book);
+        
+        this.handler = new Handler();
         
         this.waitDialog = new ProgressDialog(this);
         this.waitDialog.setOwnerActivity(this);
@@ -213,12 +214,7 @@ public class ReadingActivity extends Activity implements BookViewListener
     	this.bookView.setFileName(fileName);
     	this.bookView.setPosition(lastPos);
     	this.bookView.setIndex(lastIndex);
-    	
-    	if ( savedInstanceState != null && savedInstanceState.containsKey(BOOK_KEY) ) {
-			Book book = (Book) savedInstanceState.getSerializable(BOOK_KEY);
-			this.bookView.setBook(book);
-		}    	
-    	
+    	    	
     	//Slightly hacky
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("last_file", fileName);
@@ -258,7 +254,10 @@ public class ReadingActivity extends Activity implements BookViewListener
         bookView.setHorizontalMargin(marginH);
         bookView.setVerticalMargin(marginV);
         
-        bookView.setEnableScrolling(settings.getBoolean("scrolling", false));
+        if ( ! isRollingBlind() ) {
+        	bookView.setEnableScrolling(settings.getBoolean("scrolling", false));
+        }
+        
         bookView.setStripWhiteSpace(settings.getBoolean("strip_whitespace", true));
         
         int lineSpacing = settings.getInt("line_spacing", 0);
@@ -439,12 +438,18 @@ public class ReadingActivity extends Activity implements BookViewListener
     	
     	this.waitDialog.setTitle("Loading, please wait");
     	this.waitDialog.show();
-    }
+    }    
+    
     
     @Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		int action = event.getAction();
 	    int keyCode = event.getKeyCode();
+	    
+	    if ( isRollingBlind() ) {
+	    	stopRollingBlind();
+	    	return true;
+	    }
 	    
 	    switch (keyCode) {
 	    
@@ -486,10 +491,65 @@ public class ReadingActivity extends Activity implements BookViewListener
 	    return false;
     }   
     
-    private void prepareSlide(Animation inAnim, Animation outAnim) {
+    
+    private boolean isRollingBlind() {
+    	return bookView.getBackgroundBitmap() != null;
+    }
+    
+    private void doRollingBlind() {
     	
-    	View otherView = findViewById(R.id.dummyView);    	    	
-    	otherView.setVisibility(View.VISIBLE);
+    	bookView.setKeepScreenOn(true);
+    	
+    	Bitmap bitmap = getBookViewSnapshot();
+    	this.bookView.setBackgroundBitmap(bitmap);
+    	
+    	bookView.setPixelsToDraw(0);
+    	bookView.pageDown();    	
+    	
+    	bookView.setEnableScrolling(false);
+    	
+    	handler.post( new RollerRunnable() );    	
+    }
+    
+    private class RollerRunnable implements Runnable {
+    	
+    	private int count = 0;
+    	
+    	@Override
+    	public void run() {
+    		count += 1;
+    		
+    		if ( count < bookView.getHeight() &&
+    				bookView.getBackgroundBitmap() != null ) {
+    			
+    			bookView.setPixelsToDraw( count );
+    			
+    			int speed = settings.getInt("blind_speed", 75);
+    			
+    			long delay = (-10 * speed) + 1000l;
+    			
+    			handler.postDelayed(this, delay);
+    			
+    			LOG.debug( "Updating rolling blind position to " + count );
+    		} else if ( bookView.getBackgroundBitmap() != null ) {
+    			doRollingBlind();
+    			LOG.debug( "Finished a full round of blind rolling. Restarting." );
+    		} else {
+    			LOG.debug( "BookView no longer has a backing bitmap. Aborting rolling blind." );
+    			stopRollingBlind();
+    		}
+    	}
+    }
+    
+    private void stopRollingBlind() {
+    	this.bookView.setBackgroundBitmap(null);
+    	this.bookView.setPixelsToDraw(0);
+    	bookView.setEnableScrolling( settings.getBoolean("scrolling", false));
+    	Toast.makeText(this, "Rolling blind mode stopped.", Toast.LENGTH_SHORT);
+    	bookView.setKeepScreenOn(false);
+    }
+    
+    private Bitmap getBookViewSnapshot() {
     	
     	bookView.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight());
     	
@@ -498,13 +558,28 @@ public class ReadingActivity extends Activity implements BookViewListener
     		Bitmap drawingCache = bookView.getDrawingCache();		
 		  		
     		if ( drawingCache != null ) {					
-    			Bitmap copy = drawingCache.copy(drawingCache.getConfig(), false);    			
-    			( (ImageView) otherView).setImageBitmap(copy);
+    			Bitmap copy = drawingCache.copy(drawingCache.getConfig(), false);
     			bookView.destroyDrawingCache();
+    			return copy;
     		}
+    		
     	} catch (OutOfMemoryError out) {
     		restoreBackgroundColour();	
-    	}				
+    	}	
+    	
+    	return null;
+    }
+    
+    private void prepareSlide(Animation inAnim, Animation outAnim) {
+    	
+    	View otherView = findViewById(R.id.dummyView);    	    	
+    	otherView.setVisibility(View.VISIBLE);
+    	
+    	Bitmap bitmap = getBookViewSnapshot();
+    	
+    	if ( bitmap != null ) {
+    		( (ImageView) otherView).setImageBitmap(bitmap);
+    	}    		
     	
     	viewSwitcher.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight() );
     	this.viewSwitcher.showNext();
@@ -523,6 +598,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     
     private void pageDown(Orientation o) {
     	
+    	stopRollingBlind();
+    	
     	boolean animateH = settings.getBoolean("animate_h", true);
     	boolean animateV = settings.getBoolean("animate_v", true);
     	
@@ -538,6 +615,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     }
     
     private void pageUp(Orientation o) {
+    	
+    	stopRollingBlind();
     	
     	boolean animateH = settings.getBoolean("animate_h", true);
     	boolean animateV = settings.getBoolean("animate_v", true);
@@ -649,8 +728,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.reading_menu, menu);    	
-    	
+        inflater.inflate(R.menu.reading_menu, menu);        
+        
         return true;
     }   
     
@@ -701,6 +780,10 @@ public class ReadingActivity extends Activity implements BookViewListener
         case R.id.open_library:
         	launchLibrary();
         	return true;  	
+        	
+        case R.id.rolling_blind:
+        	doRollingBlind();
+        	return true;
         	
         default:
             return super.onOptionsItemSelected(item);
@@ -768,11 +851,6 @@ public class ReadingActivity extends Activity implements BookViewListener
     		outState.putInt(POS_KEY, this.bookView.getPosition() );  
     		outState.putInt(IDX_KEY, this.bookView.getIndex());
     		
-    		Book book = this.bookView.getBook();
-    		    		
-    		if ( book != null ) {
-    			outState.putSerializable(BOOK_KEY, this.bookView.getBook() );
-    		}    		
     	}
     }
     
@@ -859,6 +937,8 @@ public class ReadingActivity extends Activity implements BookViewListener
     	public boolean onVerifiedFling(MotionEvent e1, MotionEvent e2,
     			float velocityX, float velocityY) {
     		
+    		stopRollingBlind();
+    		
     		boolean swipeH = settings.getBoolean("nav_swipe_h", true);
     		boolean swipeV = settings.getBoolean("nav_swipe_v", true) && ! settings.getBoolean("scrolling", true);
     		
@@ -879,9 +959,11 @@ public class ReadingActivity extends Activity implements BookViewListener
     		return false;
     	}
         
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-        	
+    	@Override
+    	public boolean onSingleTapConfirmed(MotionEvent e) {
+    		
+    		stopRollingBlind();
+    		
         	boolean tapH = settings.getBoolean("nav_tap_h", true);
         	boolean tapV = settings.getBoolean("nav_tap_v", true);
         	

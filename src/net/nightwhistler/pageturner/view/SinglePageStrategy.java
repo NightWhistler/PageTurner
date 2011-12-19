@@ -124,6 +124,11 @@ public class SinglePageStrategy implements PageChangeStrategy {
 	}
 	
 	@Override
+	public Spanned getText() {
+		return this.text;
+	}
+	
+	@Override
 	public void pageUp() {				
 		
 		int pageStart = findStartOfPage(this.storedPosition);		

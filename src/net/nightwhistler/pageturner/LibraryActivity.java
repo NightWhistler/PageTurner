@@ -329,12 +329,17 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		private static final int UPDATE_IMPORT = 2;
 		
 		private int foldersScanned = 0;
+		
+		private boolean oldKeepScreenOn;
 			
 		@Override
 		protected void onPreExecute() {
 			importDialog.setTitle("Importing books...");
 			importDialog.setMessage("Scanning for EPUB files.");
 			importDialog.show();
+			
+			this.oldKeepScreenOn = getListView().getKeepScreenOn();
+			getListView().setKeepScreenOn(true);
 		}		
 		
 		@Override
@@ -430,6 +435,7 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 				builder.show();
 			}
 			
+			getListView().setKeepScreenOn(oldKeepScreenOn);
 			new LoadBooksTask().execute(1);
 		}
 	}

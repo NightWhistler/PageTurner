@@ -50,7 +50,16 @@
                   android:label="PageTurner Library" />                 
           
         <activity android:name="BookDetailsActivity"
-                  android:label="Book details" />           
+                  android:label="Book details" />   
+                  
+        <activity android:name="BookCaseActivity"
+            	android:label="Book case" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+ 
+            </activity>
         
         
     </application>

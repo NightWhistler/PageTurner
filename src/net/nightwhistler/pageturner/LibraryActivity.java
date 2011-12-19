@@ -164,6 +164,17 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		MenuItem item = menu.add("Scan folder for books");
 		item.setIcon( getResources().getDrawable(R.drawable.folder) );
 		
+		MenuItem item2 = menu.add("Show bookcase");
+		item2.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				Intent intent = new Intent(LibraryActivity.this, BookCaseActivity.class);
+				startActivity(intent);
+				return true;
+			}
+		});
+		
 		return true;
 	}
 	

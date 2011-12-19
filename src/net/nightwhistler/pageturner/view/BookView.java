@@ -663,9 +663,9 @@ public class BookView extends ScrollView {
 					
                     //android.graphics.Bitmap.createScaledBitmap should do the same.					
 					return Bitmap.createScaledBitmap(originalBitmap, targetWidth, targetHeight, false);
-				} else {
-					return originalBitmap;
-				}									
+				} 
+					
+				return originalBitmap;													
 			}
 			
 			return null;

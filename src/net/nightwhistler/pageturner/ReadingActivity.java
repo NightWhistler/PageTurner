@@ -158,7 +158,7 @@ public class ReadingActivity extends Activity implements BookViewListener
         this.progressService = new PageTurnerWebProgressService(this);
         this.libraryService = new SqlLiteLibraryService(this);
         
-        this.gestureDetector = new GestureDetector(new SwipeListener());
+        this.gestureDetector = new GestureDetector(this, new SwipeListener());
         this.gestureListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 return gestureDetector.onTouchEvent(event);

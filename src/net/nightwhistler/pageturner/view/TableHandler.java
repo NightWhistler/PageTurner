@@ -76,8 +76,8 @@ public class TableHandler extends TagNodeHandler {
 	
 	private void readNode( Object node, Table table ) {
 		
-		if ( node instanceof ContentNode ) {
-			//table.addCell( new SpannedString( ( (ContentNode) node).getContent() ));
+		//We can't handle plain content nodes within the table.
+		if ( node instanceof ContentNode ) {			
 			return;
 		}
 		
@@ -106,54 +106,7 @@ public class TableHandler extends TagNodeHandler {
 		readNode(node, result);		
 		
 		return result;
-	}
-	
-	/*
-	private Bitmap render(List<Spanned> tablerow, boolean lastRow) {
-		
-		Paint paint = new Paint();
-		paint.setColor( this.textColor );
-		paint.setStyle(Style.STROKE);
-		
-		int numberOfColumns = tablerow.size();
-		int columnWidth = tableWidth / numberOfColumns;		
-		int rowHeight = calculateRowHeight(tablerow);
-				
-		Bitmap result = Bitmap.createBitmap( (numberOfColumns * columnWidth) + 1,
-				rowHeight, Config.ARGB_8888 );
-		
-		Canvas canvas = new Canvas(result);
-		canvas.drawColor( this.backgroundColor );		
-		
-		int offset = 0;
-		
-		for ( int i=0; i < numberOfColumns; i++ ) {
-			
-			offset = i * columnWidth;
-			
-			//The rect is open at the bottom, so there's a single line between rows.
-			canvas.drawRect(offset, 0, offset + columnWidth, rowHeight, paint);
-			
-			StaticLayout layout = new StaticLayout(tablerow.get(i), getTextPaint(),
-					(columnWidth - 2*PADDING), Alignment.ALIGN_NORMAL, 1f, 0f, true);			
-			
-			canvas.translate(offset + PADDING, 0);
-			
-			layout.draw(canvas);
-			
-			canvas.translate( -1 * PADDING, 0);
-		}	
-		
-		if ( lastRow ) {
-			//Reset canvas to begin line
-			canvas.translate( -1 * offset, 0);
-			//Draw a bottom line
-			canvas.drawLine(0, rowHeight - 1, numberOfColumns * columnWidth, rowHeight -1, paint);
-		}
-		
-		return result;		
-	}
-	*/
+	}	
 	
 	private TextPaint getTextPaint() {
 		TextPaint textPaint = new TextPaint();
@@ -199,9 +152,9 @@ public class TableHandler extends TagNodeHandler {
 		for (int i=0; i < table.getRows().size(); i++ ) {
 			
 			List<Spanned> row = table.getRows().get(i);
-			builder.append("\uFFFC\n");
+			builder.append("\uFFFC");
 			
-			TableRowDrawable drawable = new TableRowDrawable(row, i == (table.getRows().size() -1) );
+			TableRowDrawable drawable = new TableRowDrawable(row );
 			drawable.setBounds( 0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight() );
 
 			builder.setSpan( new ImageSpan(drawable), start, start + 1, 
@@ -214,19 +167,18 @@ public class TableHandler extends TagNodeHandler {
 				}
 			}, start, start + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			
-			start+= 2;
+			start++;
 		}		
 	}
 	
 	private class TableRowDrawable extends Drawable {
 		
 		private List<Spanned> tableRow;
-		private boolean lastRow;
-		
-		public TableRowDrawable(List<Spanned> tableRow, boolean lastRow) {
-			this.tableRow = tableRow;
-			this.lastRow = lastRow;
+
+		public TableRowDrawable(List<Spanned> tableRow) {
+			this.tableRow = tableRow;			
 		}
+		
 		
 		@Override
 		public void draw(Canvas canvas) {
@@ -236,11 +188,7 @@ public class TableHandler extends TagNodeHandler {
 			
 			int numberOfColumns = tableRow.size();
 			int columnWidth = tableWidth / numberOfColumns;		
-			int rowHeight = calculateRowHeight(tableRow);				
-			
-			canvas.drawColor( backgroundColor );	
-			
-			setBounds(0, 0, tableWidth, rowHeight);
+			int rowHeight = calculateRowHeight(tableRow);
 			
 			int offset = 0;
 			
@@ -257,15 +205,10 @@ public class TableHandler extends TagNodeHandler {
 				canvas.translate(offset + PADDING, 0);				
 				layout.draw(canvas);				
 				canvas.translate( -1 * PADDING, 0);
-			}	
-			
-			if ( lastRow ) {
-				//Reset canvas to begin line
-				canvas.translate( -1 * offset, 0);
-				//Draw a bottom line
-				canvas.drawLine(0, rowHeight - 1, numberOfColumns * columnWidth, rowHeight -1, paint);
-			}
+				
+			}			
 		}
+		
 		
 		@Override
 		public int getIntrinsicHeight() {

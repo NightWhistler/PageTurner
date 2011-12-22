@@ -25,6 +25,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.BitmapFactory;
 
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
@@ -191,7 +192,12 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 				newBook.setLastRead(new Date(cursor.getLong(Field.date_last_read.ordinal())));
 			} catch (RuntimeException r){}
 			
-			newBook.setCoverImage( cursor.getBlob(Field.cover_image.ordinal() ) );			
+			byte[] coverData = cursor.getBlob(Field.cover_image.ordinal());
+			
+			if ( coverData != null ) {			
+				newBook.setCoverImage( BitmapFactory.decodeByteArray(coverData, 0, coverData.length ) );
+			}
+			
 			newBook.setFileName( cursor.getString(Field.file_name.ordinal()));
 			
 			return newBook;

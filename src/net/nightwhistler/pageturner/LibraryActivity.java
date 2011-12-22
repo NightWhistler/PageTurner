@@ -291,9 +291,8 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 			
 			dateView.setText( "Added on " + DATE_FORMAT.format(book.getAddedToLibrary()));
 			
-			if ( book.getCoverImage() != null ) {
-				byte[] cover = book.getCoverImage();
-				imageView.setImageBitmap( BitmapFactory.decodeByteArray(cover, 0, cover.length ));
+			if ( book.getCoverImage() != null ) {				
+				imageView.setImageBitmap(book.getCoverImage());
 			} else {
 				imageView.setImageDrawable(backupCover);
 			}

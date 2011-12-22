@@ -24,9 +24,7 @@ import java.util.Locale;
 
 import net.nightwhistler.pageturner.library.LibraryBook;
 import android.app.Activity;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,8 +42,7 @@ public class BookDetailsActivity extends Activity {
 		ImageView coverView = (ImageView) findViewById(R.id.coverImage);
 		
 		if ( book.getCoverImage() != null ) {			
-			coverView.setImageBitmap( BitmapFactory.decodeByteArray(book.getCoverImage(),
-					0, book.getCoverImage().length));
+			coverView.setImageBitmap( book.getCoverImage() );
 		} else {			
 			coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
 		}

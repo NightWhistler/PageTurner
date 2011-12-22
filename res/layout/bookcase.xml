@@ -4,9 +4,18 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <net.nightwhistler.pageturner.view.BookCaseView 
-        android:id="@+id/bookCase"
+    <ViewSwitcher
+        android:id="@+id/bookCaseViewFlipper"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />    
+        android:layout_height="fill_parent" >
+        
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+        
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+    </ViewSwitcher>
 
 </LinearLayout>

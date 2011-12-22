@@ -38,8 +38,6 @@ public class BookCaseView extends View {
 	private Drawable background;
 	private Drawable shelf;
 	
-	private LibraryService libraryService;
-	
 	private static final int WIDTH = 150;
 	private static final int HEIGHT = 150;
 	
@@ -55,14 +53,10 @@ public class BookCaseView extends View {
 		this.background = getResources().getDrawable(R.drawable.pine);
 		this.shelf = getResources().getDrawable(R.drawable.shelf);
 		
-		this.libraryService = new SqlLiteLibraryService(context);		
-		
-		this.result = this.libraryService.findAllByTitle();
-		
 		this.setFocusableInTouchMode(true);
 		this.setClickable(false);
 		
-		setBackgroundDrawable( new BookCaseDrawable(9) );
+		//setBackgroundDrawable( new BookCaseDrawable(9) );
         
 	}	
 	
@@ -73,17 +67,7 @@ public class BookCaseView extends View {
 		invalidate();
 	}
 	
-	private int getBooksPerRow() {
-		return (getWidth() / WIDTH);
-	}
 	
-	private int getRows() {
-		return getHeight() / getRowHeight();
-	}
-	
-	private int getRowHeight() {
-		return HEIGHT + this.shelf.getIntrinsicHeight();
-	}
 	
 	private void drawSelectedBookInfo( Canvas canvas ) {
 		if ( this.selectedBook != null ) {
@@ -127,8 +111,7 @@ public class BookCaseView extends View {
 		ImageView coverView = (ImageView) layout.findViewById(R.id.coverImage);
 		
 		if ( this.selectedBook.getCoverImage() != null ) {			
-			coverView.setImageBitmap( BitmapFactory.decodeByteArray(this.selectedBook.getCoverImage(),
-					0, this.selectedBook.getCoverImage().length));
+			coverView.setImageBitmap( selectedBook.getCoverImage() );
 		} else {			
 			coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
 		}				
@@ -151,51 +134,8 @@ public class BookCaseView extends View {
 		descriptionView.setText(this.selectedBook.getDescription());
 	}
 	
-	private Drawable getCover( LibraryBook book ) {
-		if ( book == null || book.getCoverImage() == null ) {
-			return getContext().getResources().getDrawable(R.drawable.river_diary);
-		}
-		
-		Bitmap bitmap = BitmapFactory.decodeByteArray(book.getCoverImage(), 0, book.getCoverImage().length );
-		return new BitmapDrawable(bitmap);
-	}
 	
 	
-	private class BookCaseDrawable extends Drawable {
-		
-		int startOffset;
-		
-		public BookCaseDrawable(int offset) {
-			this.startOffset = offset;
-		}
-		
-		@Override
-		public void draw(Canvas canvas) {
-			drawBackGround(canvas);
-			drawShelves(canvas);
-			drawBooks(canvas, startOffset);
-			
-			drawSelectedBookInfo(canvas);
-		}
-		
-		@Override
-		public int getOpacity() {			
-			return PixelFormat.OPAQUE;
-		}
-		
-		@Override
-		public void setAlpha(int alpha) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-		@Override
-		public void setColorFilter(ColorFilter cf) {
-			// TODO Auto-generated method stub
-			
-		}
-	
-	}
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -208,95 +148,15 @@ public class BookCaseView extends View {
 		return false;
 	}
 	
-	private void drawBooks(Canvas canvas, int startOffset) {
-				
-		int numberOfSlots = getBooksPerRow();
-		int slotWidth = getWidth() / numberOfSlots;
-		
-		int combinedHeight = getRowHeight();		
-		int rows = getRows();
-		
-		int count = startOffset;			
-
-		for ( int j=0; j < rows; j++ ) {
-			int top = (j * combinedHeight) + (shelf.getIntrinsicHeight() / 2);
-			for ( int i=0; i < numberOfSlots; i++ ) {				
-				
-				if ( count < this.result.getSize() ) {
-					
-					LibraryBook book = result.getItemAt(count);
-										
-					Drawable bitMapDrawable = getCover(book);
-					double ratio = (double) bitMapDrawable.getIntrinsicWidth() / (double) bitMapDrawable.getIntrinsicHeight();						
-						
-					int leftOfSlot = i * slotWidth;
-					int widthOfBook = (int) (WIDTH * ratio);
-					int leftOfBook = leftOfSlot + ( slotWidth / 2 ) - ( widthOfBook / 2 );
-						
-					bitMapDrawable.setBounds(leftOfBook, top, leftOfBook + widthOfBook, top + HEIGHT );
-					bitMapDrawable.draw(canvas);					
-
-					count++;
-				}
-			}
-		}
-		
-	}
+	
 	
 	public void fireClick( float x, float y ) {
-		onClick(findIndexAt(x, y));
+		//onClick(findIndexAt(x, y));
 	}
 	
 	
-	private int findIndexAt( float x, float y ) {
-		
-		int column = (int) x / WIDTH;
-		int row = (int) y / getRowHeight();
-		
-		int index = row * getBooksPerRow() + column;
-		
-		return index;
-	}
 	
-	private void drawShelves(Canvas canvas) {
-		int shelfHeight = this.shelf.getIntrinsicHeight();
-		
-		int combinedHeight = HEIGHT + shelfHeight;
-		
-		int rows = getHeight() / combinedHeight;
-		int cols = ( getWidth() / shelf.getIntrinsicWidth() ) + 1;
-		
-		for ( int i=0; i < cols; i++ ) {
-			int left = i * shelf.getIntrinsicWidth();
-			
-			for ( int j=0; j < rows; j++ ) {
-				int top = j * combinedHeight;
-				
-				shelf.setBounds(left, top + HEIGHT, 
-						left + shelf.getIntrinsicWidth(),
-						top + combinedHeight);
-				
-				shelf.draw(canvas);
-			}
-		}		
-	}
 	
-	private void drawBackGround(Canvas canvas ) {
-		int rows = ( getHeight() / background.getIntrinsicHeight() ) + 1;
-		int cols = ( getWidth() / background.getIntrinsicWidth() ) + 1;
-		
-		for ( int i=0; i < cols; i++ ) {
-			int left = i * background.getIntrinsicWidth();
-			
-			for ( int j=0; j < rows; j++ ) {
-				int top = j * background.getIntrinsicHeight();
-				
-				background.setBounds(left, top, 
-						left + background.getIntrinsicWidth(),
-						top + background.getIntrinsicHeight());
-				
-				background.draw(canvas);				
-			}
-		}
-	}	
+	
+	
 }

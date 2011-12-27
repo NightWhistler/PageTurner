@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
@@ -57,7 +56,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -694,9 +692,7 @@ public class BookView extends ScrollView {
 		
 		if ( this.childView != null ) {
 			this.childView.setBackgroundColor(color);
-		}
-		
-		this.tableHandler.setBackgroundColor(color);
+		}		
 	}
 	
 	public void setTextColor( int color ) {

@@ -11,16 +11,13 @@ import org.htmlcleaner.TagNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.graphics.Paint.Style;
+import android.graphics.PixelFormat;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.Layout.Alignment;
 import android.text.Spannable;
@@ -39,8 +36,7 @@ public class TableHandler extends TagNodeHandler {
 	private Typeface typeFace = Typeface.DEFAULT;
 	private float textSize = 16f;
 	private int textColor = Color.BLACK;
-	private int backgroundColor = Color.WHITE;
-		
+			
 	private static final int PADDING = 5;
 	
 	private CleanHtmlParser parser;
@@ -51,11 +47,7 @@ public class TableHandler extends TagNodeHandler {
 	
 	public void setTableWidth(int tableWidth) {
 		this.tableWidth = tableWidth;
-	}
-	
-	public void setBackgroundColor(int backgroundColor) {
-		this.backgroundColor = backgroundColor;
-	}
+	}	
 	
 	public void setTextColor(int textColor) {
 		this.textColor = textColor;

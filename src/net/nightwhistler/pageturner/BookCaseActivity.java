@@ -1,11 +1,9 @@
 package net.nightwhistler.pageturner;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.QueryResult;
+import net.nightwhistler.pageturner.library.QueryResultAdapter;
 import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
 import net.nightwhistler.pageturner.view.BookCaseDrawable;
 
@@ -13,70 +11,48 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.app.Activity;
-import android.content.Context;
+import android.app.ListActivity;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.animation.Animation;
+import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ViewFlipper;
-import android.widget.ViewSwitcher;
-
-import com.globalmentor.android.widget.VerifiedFlingListener;
 
 public class BookCaseActivity extends Activity {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookCaseActivity.class);
 	
-	private ViewSwitcher bookCaseView;
+	private GridView bookCaseView;
 	
 	private GestureDetector gestureDetector;
 	private View.OnTouchListener touchListener;
 	
 	private LibraryService libraryService;
 	
-	private QueryResult<LibraryBook> result;
+	private QueryResult<LibraryBook> result;	
 	
-	private List<BookCaseDrawable> bookCaseViews = new ArrayList<BookCaseDrawable>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
-		// TODO Auto-generated method stub
+				
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.bookcase);
-		this.bookCaseView = (ViewSwitcher) findViewById(R.id.bookCaseViewFlipper);
+		this.bookCaseView = (GridView) findViewById(R.id.bookCaseGrid);
 		bookCaseView.setOnTouchListener(touchListener);
 		
-		this.gestureDetector = new GestureDetector(this, 
-				new ClickListener(this));
-		this.touchListener = new View.OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				return gestureDetector.onTouchEvent(event);				
-			}
-		};			
-		
-		this.libraryService = new SqlLiteLibraryService(this);		
-		
-		result = this.libraryService.findAllByTitle();
-		
-		for ( int i=0; i < this.bookCaseView.getChildCount(); i++ ) {
-			
-			ImageView imageView = (ImageView) this.bookCaseView.getChildAt(i);			
-			BookCaseDrawable drawable = getBookCaseDrawable();
-			imageView.setImageDrawable( drawable );			
-
-			imageView.setOnTouchListener(touchListener);
+		//Drawable background = getBookCaseDrawable();
+		//bookCaseView.setBackgroundDrawable(background);
 						
-			this.bookCaseViews.add( drawable );
-		}
+		bookCaseView.setNumColumns(3);
+		BookGridAdapter adapter = new BookGridAdapter();
+		bookCaseView.setAdapter( adapter );
 		
+		this.libraryService = new SqlLiteLibraryService(this);
+		adapter.setResult( this.libraryService.findAllByTitle() );
 	}
 	
 	private BookCaseDrawable getBookCaseDrawable() {
@@ -88,14 +64,38 @@ public class BookCaseActivity extends Activity {
 		//drawable.setBounds( 0, 0, bookCaseView.getWidth(), bookCaseView.getHeight() );
 		
 		return drawable;
-	} 
-
+	}	
 	
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		return this.gestureDetector.onTouchEvent(event);
+	private class BookGridAdapter extends QueryResultAdapter<LibraryBook> {
+		@Override
+		public View getView(int index, LibraryBook object, View convertView,
+				ViewGroup parent) {
+			
+			ImageView imageView;
+			
+			if ( convertView != null ) {
+				imageView = (ImageView) convertView;
+			} else {
+				imageView = new ImageView(BookCaseActivity.this);
+			}			
+			
+			Drawable drawable;
+			if ( object.getCoverImage() != null ) {
+				drawable = new BitmapDrawable(object.getCoverImage());
+			} else {
+				drawable = getResources().getDrawable(R.drawable.river_diary);
+			}
+			
+			drawable.setBounds( 0, 0, 150, 150 );
+			imageView.setImageDrawable(drawable);
+			
+			//imageView.setBackgroundResource(R.drawable.pine);
+			
+			return imageView;
+		}
 	}
 	
+	/*
 	private class ClickListener extends VerifiedFlingListener {
 		
 		public ClickListener(Context context) {
@@ -152,5 +152,6 @@ public class BookCaseActivity extends Activity {
 		}
 		
 	}
+	*/
 	
 }

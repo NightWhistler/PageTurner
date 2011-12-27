@@ -1,21 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
 
-    <ViewSwitcher
-        android:id="@+id/bookCaseViewFlipper"
+    <GridView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/bookCaseGrid"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
-        
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
-        
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
-    </ViewSwitcher>
+        android:layout_height="wrap_content"
+        android:numColumns="3"
+        android:horizontalSpacing="20px"
+        android:verticalSpacing="10px"
+        android:background="@drawable/wallpaper_lay" >        
+    </GridView>
 
-</LinearLayout>

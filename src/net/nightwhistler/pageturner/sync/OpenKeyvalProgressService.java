@@ -36,6 +36,9 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import roboguice.inject.ContextScoped;
+
+@ContextScoped
 public class OpenKeyvalProgressService implements ProgressService {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(OpenKeyvalProgressService.class);	

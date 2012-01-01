@@ -23,25 +23,44 @@ import java.util.Date;
 import java.util.Locale;
 
 import net.nightwhistler.pageturner.library.LibraryBook;
-import android.app.Activity;
+import roboguice.activity.RoboActivity;
+import roboguice.inject.InjectExtra;
+import roboguice.inject.InjectView;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class BookDetailsActivity extends Activity {
+public class BookDetailsActivity extends RoboActivity {
 	
 	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH);
+	
+	@InjectView(R.id.coverImage)
+	private ImageView coverView;
+	
+	@InjectExtra("book")
+	private LibraryBook book;
+	
+	@InjectView(R.id.titleField) 
+	private TextView titleView;
+	
+	@InjectView(R.id.authorField)
+	private TextView authorView;
+	
+	@InjectView(R.id.lastRead)
+	private TextView lastRead;
+	
+	@InjectView(R.id.addedToLibrary)
+	private TextView added;
+	
+	@InjectView(R.id.bookDescription)
+	private TextView descriptionView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);		
 		setContentView(R.layout.book_details);
-		
-		LibraryBook book = (LibraryBook) getIntent().getExtras().getSerializable( "book" );
-		ImageView coverView = (ImageView) findViewById(R.id.coverImage);
 		
 		if ( book.getCoverImage() != null ) {			
 			coverView.setImageBitmap( BitmapFactory.decodeByteArray(book.getCoverImage(),
@@ -50,21 +69,14 @@ public class BookDetailsActivity extends Activity {
 			coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
 		}
 		
-		TextView titleView = (TextView) findViewById(R.id.titleField);
 		titleView.setText(book.getTitle());		
-		
-		TextView authorView = (TextView) findViewById(R.id.authorField);
 		authorView.setText( "by " + book.getAuthor().getFirstName() + " " + book.getAuthor().getLastName() );
 		
-		if (book.getLastRead() != null && ! book.getLastRead().equals(new Date(0))) {
-			TextView lastRead = (TextView) findViewById(R.id.lastRead);
+		if (book.getLastRead() != null && ! book.getLastRead().equals(new Date(0))) {			
 			lastRead.setText("Last read: " + DATE_FORMAT.format(book.getLastRead()) );
 		}
 		
-		TextView added = (TextView) findViewById(R.id.addedToLibrary);
 		added.setText( "Added to library: " + DATE_FORMAT.format(book.getAddedToLibrary()) );
-		
-		TextView descriptionView = (TextView) findViewById(R.id.bookDescription);
 		descriptionView.setText(book.getDescription());
 	}
 	

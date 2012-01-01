@@ -23,23 +23,25 @@ import java.io.IOException;
 
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Metadata;
-
-import android.content.Context;
+import roboguice.inject.ContextScoped;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 
+import com.google.inject.Inject;
+
+@ContextScoped
 public class SqlLiteLibraryService implements LibraryService {
 	
 	private static final int THUMBNAIL_HEIGHT = 250;
 	
-	LibraryDatabaseHelper helper;
+	private LibraryDatabaseHelper helper;	
 	
-	public SqlLiteLibraryService(Context context) {
-		this.helper = new LibraryDatabaseHelper(context);
-	}		
-	
+	@Inject
+	public void setHelper(LibraryDatabaseHelper helper) {
+		this.helper = helper;
+	}
 	
 	@Override
 	public void storeBook(String fileName, Book book, boolean updateLastRead) {

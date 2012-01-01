@@ -23,9 +23,7 @@ import java.net.URLEncoder;
 import java.util.List;
 
 import net.nightwhistler.pageturner.library.LibraryService;
-import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
 import net.nightwhistler.pageturner.sync.BookProgress;
-import net.nightwhistler.pageturner.sync.PageTurnerWebProgressService;
 import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.view.BookView;
 import net.nightwhistler.pageturner.view.BookViewListener;
@@ -34,7 +32,8 @@ import nl.siegmann.epublib.domain.Book;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.app.Activity;
+import roboguice.activity.RoboActivity;
+import roboguice.inject.InjectView;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -81,8 +80,9 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.globalmentor.android.widget.VerifiedFlingListener;
+import com.google.inject.Inject;
 
-public class ReadingActivity extends Activity implements BookViewListener 
+public class ReadingActivity extends RoboActivity implements BookViewListener 
 {
 		
 	private static final String POS_KEY = "offset:";
@@ -105,20 +105,26 @@ public class ReadingActivity extends Activity implements BookViewListener
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ReadingActivity.class);
 	
-	private String colourProfile;
-		
-	private String fileName;
-	
+	@Inject	
 	private ProgressService progressService;	
+	
+	@Inject 
 	private LibraryService libraryService;
+	
+	@InjectView(R.id.mainContainer) 
+	private ViewSwitcher viewSwitcher;	
+	
+	@InjectView(R.id.bookView) 
+	private BookView bookView;
+	
+	@InjectView(R.id.myTitleBarTextView) 
+	private TextView titleBar;
+	
+	@InjectView(R.id.myTitleBarLayout) 
+	private LinearLayout titleBarLayout;
 	
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
-	
-	private ViewSwitcher viewSwitcher;
-	private BookView bookView;
-	private TextView titleBar;
-	private LinearLayout titleBarLayout;
 	
 	private SharedPreferences settings;	
     
@@ -127,6 +133,8 @@ public class ReadingActivity extends Activity implements BookViewListener
 		
 	private String bookTitle;
 	private String titleBase;
+	private String colourProfile;	
+	private String fileName;
 	
 	private boolean oldBrightness = false;
 	private boolean oldStripWhiteSpace = false;
@@ -152,23 +160,15 @@ public class ReadingActivity extends Activity implements BookViewListener
         this.handler = new Handler();
         
         this.waitDialog = new ProgressDialog(this);
-        this.waitDialog.setOwnerActivity(this);
-        this.viewSwitcher = (ViewSwitcher) findViewById(R.id.mainContainer);
-        
-        this.progressService = new PageTurnerWebProgressService(this);
-        this.libraryService = new SqlLiteLibraryService(this);
+        this.waitDialog.setOwnerActivity(this);               
         
         this.gestureDetector = new GestureDetector(new SwipeListener());
         this.gestureListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 return gestureDetector.onTouchEvent(event);
             }
-        };        
-       
-        this.titleBar = (TextView) this.findViewById(R.id.myTitleBarTextView);
-        this.titleBarLayout = (LinearLayout)findViewById(R.id.myTitleBarLayout);
-    	this.bookView = (BookView) this.findViewById(R.id.bookView);
-    	
+        };   
+        
     	this.viewSwitcher.setOnTouchListener(gestureListener);
     	this.bookView.setOnTouchListener(gestureListener);    	
     	this.bookView.addListener(this);
@@ -283,9 +283,7 @@ public class ReadingActivity extends Activity implements BookViewListener
         	startActivity(intent);
         	finish();
         }
-    }    
-    
-    
+    }        
     
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {

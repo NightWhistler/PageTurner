@@ -46,10 +46,14 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import roboguice.inject.ContextScoped;
+
+import com.google.inject.Inject;
+
 import android.content.Context;
 
 
-
+@ContextScoped
 public class PageTurnerWebProgressService implements ProgressService {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(PageTurnerWebProgressService.class);	
@@ -62,6 +66,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 	private static final String BASE_URL = "https://ostara.nightwhistler.net/pageturner/progress/";
 	private static final int HTTP_SUCCESS = 200;
 	
+	@Inject
 	public PageTurnerWebProgressService(Context context) {		
 		this.context = new BasicHttpContext();
 		this.client = new SSLHttpClient(context);			

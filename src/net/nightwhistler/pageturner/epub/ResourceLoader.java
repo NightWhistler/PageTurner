@@ -83,8 +83,6 @@ public class ResourceLoader  {
 
 				String href = zipEntry.getName();
 
-				//LOG.info("Got resource " + href );
-
 				List<ResourceCallback> filteredCallbacks = findCallbacksFor(href);
 
 				if ( ! filteredCallbacks.isEmpty() ) {

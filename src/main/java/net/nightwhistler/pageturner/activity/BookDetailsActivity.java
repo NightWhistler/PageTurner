@@ -16,12 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
-package net.nightwhistler.pageturner;
+package net.nightwhistler.pageturner.activity;
 
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.R.drawable;
+import net.nightwhistler.pageturner.R.id;
+import net.nightwhistler.pageturner.R.layout;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectExtra;

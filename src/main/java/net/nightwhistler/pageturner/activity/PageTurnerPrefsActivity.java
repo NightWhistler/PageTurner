@@ -17,8 +17,10 @@
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
 
-package net.nightwhistler.pageturner;
+package net.nightwhistler.pageturner.activity;
 
+import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.R.xml;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 

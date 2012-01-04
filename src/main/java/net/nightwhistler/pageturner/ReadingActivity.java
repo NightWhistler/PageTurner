@@ -22,6 +22,8 @@ package net.nightwhistler.pageturner;
 import java.net.URLEncoder;
 import java.util.List;
 
+import net.nightwhistler.pageturner.activity.LibraryActivity;
+import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;

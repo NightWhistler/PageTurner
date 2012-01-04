@@ -31,11 +31,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.htmlspanner.TagNodeHandler;
+import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
-import net.nightwhistler.pageturner.html.CleanHtmlParser;
-import net.nightwhistler.pageturner.html.TagNodeHandler;
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.MediaType;
@@ -45,11 +46,11 @@ import nl.siegmann.epublib.epub.EpubReader;
 import nl.siegmann.epublib.service.MediatypeService;
 import nl.siegmann.epublib.util.StringUtil;
 
-import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -90,9 +91,7 @@ public class BookView extends ScrollView {
 	
 	private Set<BookViewListener> listeners;
 	
-	private HtmlCleaner htmlCleaner;
-	private CleanHtmlParser parser;
-	
+	private HtmlSpanner spanner;		
 	private TableHandler tableHandler;
 	
 	private OnTouchListener touchListener;
@@ -176,27 +175,29 @@ public class BookView extends ScrollView {
         }  
         
         this.setSmoothScrollingEnabled(false);        
-        this.addView(childView);
-        
-        this.htmlCleaner = createHtmlCleaner();   
-        this.parser = new CleanHtmlParser();
-        parser.registerHandler("img", new ImageTagHandler() );
-        parser.registerHandler("a", new AnchorHandler(new LinkTagHandler()) );
-        
-        parser.registerHandler("h1", new AnchorHandler(parser.getHandlerFor("h1") ));
-        parser.registerHandler("h2", new AnchorHandler(parser.getHandlerFor("h2") ));
-        parser.registerHandler("h3", new AnchorHandler(parser.getHandlerFor("h3") ));
-        parser.registerHandler("h4", new AnchorHandler(parser.getHandlerFor("h4") ));
-        parser.registerHandler("h5", new AnchorHandler(parser.getHandlerFor("h5") ));
-        parser.registerHandler("h6", new AnchorHandler(parser.getHandlerFor("h6") ));
-        
-        parser.registerHandler("p", new AnchorHandler(parser.getHandlerFor("p") ));
-
-        this.tableHandler = new TableHandler(parser);
-        parser.registerHandler("table", tableHandler);
+        this.addView(childView);        
         
         this.anchors = new HashMap<String, Integer>();
-	}	
+	}
+	
+	@Inject
+	public void setSpanner(HtmlSpanner spanner) {
+		this.spanner = spanner;
+        spanner.registerHandler("img", new ImageTagHandler() );
+        spanner.registerHandler("a", new AnchorHandler(new LinkTagHandler()) );
+        
+        spanner.registerHandler("h1", new AnchorHandler(spanner.getHandlerFor("h1") ));
+        spanner.registerHandler("h2", new AnchorHandler(spanner.getHandlerFor("h2") ));
+        spanner.registerHandler("h3", new AnchorHandler(spanner.getHandlerFor("h3") ));
+        spanner.registerHandler("h4", new AnchorHandler(spanner.getHandlerFor("h4") ));
+        spanner.registerHandler("h5", new AnchorHandler(spanner.getHandlerFor("h5") ));
+        spanner.registerHandler("h6", new AnchorHandler(spanner.getHandlerFor("h6") ));
+        
+        spanner.registerHandler("p", new AnchorHandler(spanner.getHandlerFor("p") ));
+
+        this.tableHandler = new TableHandler();
+        spanner.registerHandler("table", tableHandler);
+	}
 	
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
@@ -211,7 +212,7 @@ public class BookView extends ScrollView {
 	}
 	
 	public void setStripWhiteSpace(boolean stripWhiteSpace) {
-		this.parser.setStripExtraWhiteSpace(stripWhiteSpace);
+		this.spanner.setStripExtraWhiteSpace(stripWhiteSpace);
 	}
 	
 	public void setBackgroundBitmap(Bitmap backgroundBitmap) {
@@ -719,31 +720,6 @@ public class BookView extends ScrollView {
 		public String getTitle() {
 			return title;
 		}
-	}
-	
-	private TagNode processHtml(Resource resource) throws IOException {		
-		return this.htmlCleaner.clean(resource.getReader());
-	}
-	
-	private static HtmlCleaner createHtmlCleaner() {
-		HtmlCleaner result = new HtmlCleaner();
-		CleanerProperties cleanerProperties = result.getProperties();
-		
-		cleanerProperties.setAdvancedXmlEscape(true);
-		
-		cleanerProperties.setOmitXmlDeclaration(true);
-		cleanerProperties.setOmitDoctypeDeclaration(false);		
-		
-		cleanerProperties.setTranslateSpecialEntities(true);
-		cleanerProperties.setTransResCharsToNCR(true);
-		cleanerProperties.setRecognizeUnicodeChars(true);
-		
-		cleanerProperties.setIgnoreQuestAndExclam(true);
-		cleanerProperties.setUseEmptyElementTags(false);
-		
-		cleanerProperties.setPruneTags("script,style,title");
-		
-		return result;
 	}	
 	
 	/**
@@ -917,7 +893,7 @@ public class BookView extends ScrollView {
 			}			
 			
 			try {
-				Spanned result = parser.fromTagNode( processHtml(resource) );
+				Spanned result = spanner.fromHtml(resource.getReader());
 				loader.load(); //Load all image resources.
 				return result;
 			} catch (IOException io ) {

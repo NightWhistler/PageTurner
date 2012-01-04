@@ -79,6 +79,13 @@
          <scope>provided</scope>
      </dependency>
      
+     <dependency>
+         <groupId>net.nightwhistler.htmlspanner</groupId>
+         <artifactId>htmlspanner</artifactId>
+         <version>0.1-SNAPSHOT</version>
+         <scope>compile</scope>
+     </dependency>
+     
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-android</artifactId>

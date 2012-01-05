@@ -22,6 +22,7 @@ package net.nightwhistler.pageturner.activity;
 import java.net.URLEncoder;
 import java.util.List;
 
+import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Animations;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.LibraryService;
@@ -51,6 +52,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -127,6 +129,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 	
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
+	private AlertDialog pickProgressDialog;
 	
 	private SharedPreferences settings;	
     
@@ -137,6 +140,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 	private String titleBase;
 	private String colourProfile;	
 	private String fileName;
+	private int progressPercentage;
 	
 	private boolean oldBrightness = false;
 	private boolean oldStripWhiteSpace = false;
@@ -174,6 +178,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	this.viewSwitcher.setOnTouchListener(gestureListener);
     	this.bookView.setOnTouchListener(gestureListener);    	
     	this.bookView.addListener(this);
+    	this.bookView.setSpanner(getInjector().getInstance(HtmlSpanner.class));
     	
     	this.oldBrightness = settings.getBoolean("set_brightness", false);
     	this.oldStripWhiteSpace = settings.getBoolean("strip_whitespace", false);
@@ -242,6 +247,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     		return;
     	}
     	
+    	this.progressPercentage = progressPercentage;
+    	
     	String title = this.titleBase;
     	
     	SpannableStringBuilder spannedTitle = new SpannableStringBuilder();
@@ -255,6 +262,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     private void updateFromPrefs() {
     	    	
     	this.progressService.setEmail( settings.getString("email", "") );
+    	this.progressService.setDeviceName( settings.getString("device_name", Build.MODEL));
     	
     	Typeface face = Typeface.createFromAsset(getAssets(), "gen_bk_bas.ttf");
         this.bookView.setTypeface(face);
@@ -722,7 +730,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 
        if ( this.bookView != null ) {
     	   progressService.storeProgress(this.fileName,
-    			   this.bookView.getIndex(), this.bookView.getPosition());
+    			   this.bookView.getIndex(), this.bookView.getPosition(), this.progressPercentage );
     	   
     	   // We need an Editor object to make preference changes.
     	   // All objects are from android.context.Context    	   
@@ -769,7 +777,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
             return true;
             
         case R.id.manual_sync:
-        	new DownloadProgressTask().execute();
+        	new ManualProgressSync().execute();
         	return true;
         	
         case R.id.preferences:
@@ -822,6 +830,33 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	startActivity(intent);    	
     }    
     
+    private void showPickProgressDialog( final List<BookProgress> results ) {
+
+    	final CharSequence[] items = new CharSequence[ results.size() ];
+
+    	for ( int i=0; i < items.length; i++ ) {
+    		BookProgress progress = results.get(i);
+    		items[i] = progress.getDeviceName() + " - " + progress.getPercentage() + "%";
+    	}
+
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setTitle("Progress updates");    	
+    	
+    	builder.setItems(items, new DialogInterface.OnClickListener() {
+    		public void onClick(DialogInterface dialog, int item) {
+    			BookProgress progress = results.get(item);
+    			bookView.setIndex( progress.getIndex() );
+    			bookView.setPosition( progress.getProgress() );
+    			
+    			bookView.restore();
+    		}
+    	});
+
+    	AlertDialog dialog = builder.create();
+    	dialog.setOwnerActivity(this);
+    	dialog.show();
+    }
+    
     private void initTocDialog() {
 
     	if ( this.tocDialog != null ) {
@@ -858,7 +893,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     protected void onSaveInstanceState(Bundle outState) {
     	if ( this.bookView != null ) {
     		progressService.storeProgress(this.fileName,
-     			   this.bookView.getIndex(), this.bookView.getPosition());
+     			   this.bookView.getIndex(), this.bookView.getPosition(), this.progressPercentage);
      	   
     		outState.putInt(POS_KEY, this.bookView.getPosition() );  
     		outState.putInt(IDX_KEY, this.bookView.getIndex());
@@ -878,7 +913,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	}
     }
     
-    private class DownloadProgressTask extends AsyncTask<Void, Integer, BookProgress> {
+    private class ManualProgressSync extends AsyncTask<Void, Integer, List<BookProgress>> {
     	
     	@Override
     	protected void onPreExecute() {
@@ -887,8 +922,39 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	}
     	
     	@Override
+    	protected List<BookProgress> doInBackground(Void... params) {    		
+    		return progressService.getProgress(fileName);    		
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(List<BookProgress> progress) {  
+    		waitDialog.hide();    		
+    		
+    		if ( progress == null ) {
+    			Toast.makeText(ReadingActivity.this, "Sync failed.", Toast.LENGTH_SHORT );
+    		} else {
+    			showPickProgressDialog(progress);
+    		}
+    	}
+    }
+    
+    private class DownloadProgressTask extends AsyncTask<Void, Integer, BookProgress> {
+    	    	    	
+    	@Override
+    	protected void onPreExecute() {
+    		waitDialog.setTitle("Syncing progress...");
+    		waitDialog.show();
+    	}
+    	
+    	@Override
     	protected BookProgress doInBackground(Void... params) {    		
-    		return progressService.getProgress(fileName);
+    		List<BookProgress> updates = progressService.getProgress(fileName);
+    		
+    		if ( updates != null && updates.size() > 0 ) {
+    			return updates.get(0);
+    		}
+    		
+    		return null;
     	}
     	
     	@Override
@@ -906,8 +972,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
             	} else if ( progress.getIndex() == index) {
             		pos = Math.max(pos, progress.getProgress());
             		bookView.setPosition(pos);
-            	}
-            }           
+            	}            	
+            	
+            } 
             
             bookView.restore();            
     	}

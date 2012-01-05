@@ -178,9 +178,9 @@ public class BookView extends ScrollView {
         this.addView(childView);        
         
         this.anchors = new HashMap<String, Integer>();
-	}
+        this.tableHandler = new TableHandler();
+	}	
 	
-	@Inject
 	public void setSpanner(HtmlSpanner spanner) {
 		this.spanner = spanner;
         spanner.registerHandler("img", new ImageTagHandler() );
@@ -194,8 +194,6 @@ public class BookView extends ScrollView {
         spanner.registerHandler("h6", new AnchorHandler(spanner.getHandlerFor("h6") ));
         
         spanner.registerHandler("p", new AnchorHandler(spanner.getHandlerFor("p") ));
-
-        this.tableHandler = new TableHandler();
         spanner.registerHandler("table", tableHandler);
 	}
 	
@@ -233,8 +231,7 @@ public class BookView extends ScrollView {
 		
 		if ( this.touchListener != null ) {
 			this.touchListener.onTouch(this, ev);
-		}
-		
+		}	
 		
 		return super.onTouchEvent(ev);					
 	}	
@@ -328,7 +325,7 @@ public class BookView extends ScrollView {
 	}
 	
 	public void setTypeface(Typeface typeFace) {
-		this.childView.setTypeface( typeFace );
+		this.childView.setTypeface( typeFace );		
 		this.tableHandler.setTypeFace(typeFace);
 	}	
 	

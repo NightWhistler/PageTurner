@@ -9,6 +9,15 @@
 	            android:dialogTitle="E-mail address"
 	            android:dialogMessage="Please enter a valid e-mail address"   
 	            />
+	
+	<EditTextPreference
+	            android:key="device_name"
+	            android:title="Device name"
+	            android:summary="Unique name for this device, for conflict resolution."
+	            android:dialogTitle="Device name"
+	            android:dialogMessage="Please enter a name for this device."
+	            android:dependency="email"   
+	            />
 
 	<com.hlidskialf.android.preference.SeekBarPreference
 				android:key="blind_speed"

@@ -20,15 +20,27 @@
 package net.nightwhistler.pageturner.activity;
 
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.R.xml;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 
 public class PageTurnerPrefsActivity extends PreferenceActivity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		if ( ! settings.contains("device_name") ) {
+	 	   SharedPreferences.Editor editor = settings.edit();
+	 	   editor.putString("device_name", Build.MODEL );
+	 	   // Commit the edits!
+	 	   editor.commit();			
+		}
+		
 		addPreferencesFromResource(R.xml.pageturner_prefs);
 		
 	}

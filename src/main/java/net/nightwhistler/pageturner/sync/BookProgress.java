@@ -18,6 +18,8 @@
  */
 package net.nightwhistler.pageturner.sync;
 
+import java.util.Date;
+
 public class BookProgress {
 
 	String fileName;
@@ -26,10 +28,19 @@ public class BookProgress {
 	
 	private int progress;
 	
-	public BookProgress( String fileName, int index, int progress ) {
+	private Date timeStamp;
+	private int percentage;
+	
+	private String deviceName;
+	
+	public BookProgress( String fileName, int index, int progress, int percentage,
+			Date timeStamp, String deviceName ) {
 		this.fileName = fileName;
 		this.index = index;
 		this.progress = progress;
+		this.percentage = percentage;
+		this.timeStamp = timeStamp;
+		this.deviceName = deviceName;
 	}
 	
 	public String getFileName() {
@@ -42,6 +53,18 @@ public class BookProgress {
 	
 	public int getProgress() {
 		return progress;
+	}
+	
+	public String getDeviceName() {
+		return deviceName;
+	}
+	
+	public int getPercentage() {
+		return percentage;
+	}
+	
+	public Date getTimeStamp() {
+		return timeStamp;
 	}
 	
 }

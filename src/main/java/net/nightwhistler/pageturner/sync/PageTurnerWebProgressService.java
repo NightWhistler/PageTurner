@@ -20,7 +20,9 @@ package net.nightwhistler.pageturner.sync;
 
 import java.io.InputStream;
 import java.security.KeyStore;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import net.nightwhistler.pageturner.R;
@@ -42,15 +44,15 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import roboguice.inject.ContextScoped;
+import android.content.Context;
 
 import com.google.inject.Inject;
-
-import android.content.Context;
 
 
 @ContextScoped
@@ -59,17 +61,25 @@ public class PageTurnerWebProgressService implements ProgressService {
 	private static final Logger LOG = LoggerFactory.getLogger(PageTurnerWebProgressService.class);	
 	
 	private String userId;
+	private String deviceId;
 	
 	private HttpClient client;
 	private HttpContext context;
 	
-	private static final String BASE_URL = "https://ostara.nightwhistler.net/pageturner/progress/";
+	private static final String BASE_URL = "http://192.168.0.111:8080/PageTurnerWeb/progress/";
 	private static final int HTTP_SUCCESS = 200;
+	
+	private SimpleDateFormat dateFormat;
 	
 	@Inject
 	public PageTurnerWebProgressService(Context context) {		
 		this.context = new BasicHttpContext();
-		this.client = new SSLHttpClient(context);			
+		this.client = new SSLHttpClient(context);	
+		
+		this.dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		// explicitly set timezone of input if needed
+		dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));	
+
 	}	
 	
 	@Override
@@ -78,7 +88,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 	}
 	
 	@Override
-	public BookProgress getProgress(String fileName) {
+	public List<BookProgress> getProgress(String fileName) {
 		
 		if ( "".equals( this.userId) || "".equals(fileName) ) {
 			LOG.debug( "Empty username or filename. Aborting sync. (" + this.userId + " / " + fileName + ")" );
@@ -103,12 +113,26 @@ public class PageTurnerWebProgressService implements ProgressService {
 			
 			String responseString = EntityUtils.toString(response.getEntity());
 			
-			JSONObject json = new JSONObject(responseString);
+			JSONArray jsonArray = new JSONArray(responseString);
 			
-			int index = json.getInt("bookIndex");
-			int progress = json.getInt("progress"); 
+			List<BookProgress> result = new ArrayList<BookProgress>();
 			
-			return new BookProgress(fileName, index, progress );
+			for ( int i=0; i < jsonArray.length(); i++ ) {
+				
+				JSONObject json = jsonArray.getJSONObject(i);
+				
+				int index = json.getInt("bookIndex");
+				int progress = json.getInt("progress");
+				int percentage = json.getInt("percentage");
+				
+				Date timeStamp = dateFormat.parse( json.getString("storedOn") );
+				
+				String deviceName = json.getString("deviceName");
+			
+				result.add( new BookProgress(fileName, index, progress, percentage, timeStamp, deviceName ) );
+			}
+			
+			return result;
 			
 		} catch (Exception e) {
 			LOG.error( "Got error while querying server", e );
@@ -118,7 +142,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 	}
 	
 	@Override
-	public void storeProgress(String fileName, int index, int progress) {
+	public void storeProgress(String fileName, int index, int progress, int percentage) {
 				
 		if ( "".equals( this.userId) ) {
 			return;
@@ -139,7 +163,10 @@ public class PageTurnerWebProgressService implements ProgressService {
 			List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 			pairs.add( new BasicNameValuePair("bookIndex", "" + index ) );
 			pairs.add(new BasicNameValuePair("progress", "" + progress ));
-			pairs.add(new BasicNameValuePair("title", filePart ));			
+			pairs.add(new BasicNameValuePair("title", filePart ));
+			pairs.add(new BasicNameValuePair("deviceName", this.deviceId ));
+			pairs.add(new BasicNameValuePair("percentage", "" + percentage ));
+			pairs.add(new BasicNameValuePair("userId", this.userId ));
 			
 			post.setEntity( new UrlEncodedFormEntity(pairs) );			
 			
@@ -152,6 +179,11 @@ public class PageTurnerWebProgressService implements ProgressService {
 			//fail silently
 		}	
 		
+	}
+	
+	@Override
+	public void setDeviceName(String deviceName) {
+		this.deviceId = deviceName;		
 	}
 	
 	private String computeKey( String fileName ) {		

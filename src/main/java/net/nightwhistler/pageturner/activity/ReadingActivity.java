@@ -20,6 +20,7 @@
 package net.nightwhistler.pageturner.activity;
 
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
@@ -68,17 +69,21 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -832,29 +837,62 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     private void showPickProgressDialog( final List<BookProgress> results ) {
 
-    	final CharSequence[] items = new CharSequence[ results.size() ];
-
-    	for ( int i=0; i < items.length; i++ ) {
-    		BookProgress progress = results.get(i);
-    		items[i] = progress.getDeviceName() + " - " + progress.getPercentage() + "%";
-    	}
-
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setTitle("Progress updates");    	
     	
-    	builder.setItems(items, new DialogInterface.OnClickListener() {
-    		public void onClick(DialogInterface dialog, int item) {
-    			BookProgress progress = results.get(item);
-    			bookView.setIndex( progress.getIndex() );
-    			bookView.setPosition( progress.getProgress() );
-    			
-    			bookView.restore();
-    		}
-    	});
+    	ProgressListAdapter adapter = new ProgressListAdapter(results);
+    	
+    	builder.setAdapter(adapter, adapter);
 
     	AlertDialog dialog = builder.create();
     	dialog.setOwnerActivity(this);
     	dialog.show();
+    }
+    
+    private class ProgressListAdapter extends ArrayAdapter<BookProgress> implements 
+    	DialogInterface.OnClickListener {
+    	
+    	private List<BookProgress> books;
+    	
+    	public ProgressListAdapter(List<BookProgress> books) {
+    		super(ReadingActivity.this, R.id.deviceName, books);
+    		this.books = books;
+		}
+    	
+    	@Override
+    	public void onClick(DialogInterface dialog, int which) {
+    		BookProgress progress = books.get(which);
+			bookView.setIndex( progress.getIndex() );
+			bookView.setPosition( progress.getProgress() );
+			
+			bookView.restore();    		
+    	}
+    	
+    	@Override
+    	public View getView(int position, View convertView, ViewGroup parent) {
+    		
+    		View rowView;
+    		
+    		if ( convertView == null ) {
+    			LayoutInflater inflater = (LayoutInflater) 
+    				getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    			
+    			rowView = inflater.inflate(R.layout.progress_row, parent, false);
+    		} else {
+    			rowView = convertView;
+    		}
+    		
+    		TextView deviceView = (TextView) convertView.findViewById(R.id.deviceName);
+    		TextView dateView = (TextView) convertView.findViewById(R.id.timeStamp );
+    		
+    		BookProgress progress = books.get(position);
+    		
+    		deviceView.setText( progress.getDeviceName() + " - " + progress.getPercentage() + "%" );
+    		dateView.setText( new SimpleDateFormat().format(progress.getTimeStamp()) );
+    		
+    		return rowView;
+    		
+    	}
     }
     
     private void initTocDialog() {

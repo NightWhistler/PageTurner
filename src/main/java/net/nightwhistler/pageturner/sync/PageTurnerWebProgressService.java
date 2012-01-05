@@ -66,7 +66,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 	private HttpClient client;
 	private HttpContext context;
 	
-	private static final String BASE_URL = "http://192.168.0.111:8080/PageTurnerWeb/progress/";
+	private static final String BASE_URL = "http://api.pageturner-reader.org/progress/";
 	private static final int HTTP_SUCCESS = 200;
 	
 	private SimpleDateFormat dateFormat;

@@ -163,10 +163,10 @@ public class PageTurnerWebProgressService implements ProgressService {
 			List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 			pairs.add( new BasicNameValuePair("bookIndex", "" + index ) );
 			pairs.add(new BasicNameValuePair("progress", "" + progress ));
-			pairs.add(new BasicNameValuePair("title", filePart ));
+			pairs.add(new BasicNameValuePair("title", Integer.toHexString( filePart.hashCode() )));
 			pairs.add(new BasicNameValuePair("deviceName", this.deviceId ));
 			pairs.add(new BasicNameValuePair("percentage", "" + percentage ));
-			pairs.add(new BasicNameValuePair("userId", this.userId ));
+			pairs.add(new BasicNameValuePair("userId", Integer.toHexString( this.userId.hashCode() )));
 			
 			post.setEntity( new UrlEncodedFormEntity(pairs) );			
 			

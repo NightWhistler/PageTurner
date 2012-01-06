@@ -45,6 +45,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
@@ -310,6 +311,17 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         	startActivity(intent);
         	finish();
         }
+        
+        String orientation = settings.getString("screen_orientation", "no_lock");
+        
+        if ( "portrait".equals(orientation) ) {
+        	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else if ( "landscape".endsWith(orientation) ) {
+        	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+        	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
+
     }        
     
     @Override

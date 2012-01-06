@@ -37,6 +37,14 @@
             android:summary="Hides all status bars."
             android:defaultValue="false" />
             
+    <ListPreference
+     	android:title="Screen orientation"
+        android:summary="Allows you to lock the screen orientation"
+        android:key="screen_orientation"
+        android:defaultValue="no_lock"
+        android:entries="@array/orientationLabels"
+        android:entryValues="@array/orientation" />
+            
    <CheckBoxPreference
 			android:key="set_brightness"
 			android:title="Brightness controls"

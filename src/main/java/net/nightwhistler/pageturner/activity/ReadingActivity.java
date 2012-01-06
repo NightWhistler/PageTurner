@@ -27,10 +27,12 @@ import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.animation.Animations;
 import net.nightwhistler.pageturner.animation.Animator;
+import net.nightwhistler.pageturner.animation.PageCurlAnimator;
 import net.nightwhistler.pageturner.animation.RollingBlindAnimator;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;
+import net.nightwhistler.pageturner.view.AnimatedImageView;
 import net.nightwhistler.pageturner.view.BookView;
 import net.nightwhistler.pageturner.view.BookViewListener;
 import nl.siegmann.epublib.domain.Book;
@@ -135,10 +137,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 	@InjectView(R.id.myTitleBarLayout) 
 	private LinearLayout titleBarLayout;
 	
+	@InjectView(R.id.dummyView)
+	private AnimatedImageView dummyView;
+	
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
-	private AlertDialog pickProgressDialog;
-	
+		
 	private SharedPreferences settings;	
     
     private GestureDetector gestureDetector;
@@ -499,7 +503,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 	    	case KeyEvent.KEYCODE_DPAD_RIGHT:
 	            
 	        	if (action == KeyEvent.ACTION_DOWN) {
-	                pageDown(Orientation.HORIZONTAL);	                
+	                //pageDown(Orientation.HORIZONTAL);
+	        		doPageCurl(true);
 	            }
 	        	
 	        	return true;	 
@@ -510,7 +515,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 
 	        case KeyEvent.KEYCODE_DPAD_LEFT:	
 	            if (action == KeyEvent.ACTION_DOWN) {
-	               pageUp(Orientation.HORIZONTAL);	                
+	               //pageUp(Orientation.HORIZONTAL);
+	            	doPageCurl(false);
 	            }
 	            
 	            return true;	
@@ -532,46 +538,140 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     
     private boolean isRollingBlind() {
-    	Animator anim = bookView.getCurrentAnimator();
+    	Animator anim = dummyView.getAnimator();
     	return anim != null && anim instanceof RollingBlindAnimator;
     }
     
     private void doRollingBlind() {
     	
+    	if ( viewSwitcher.getCurrentView() == this.dummyView ) {
+    		viewSwitcher.showNext();
+    	}
+    	
     	bookView.setKeepScreenOn(true);
     	
-    	Bitmap bitmap = getBookViewSnapshot();
-    	RollingBlindAnimator anim = new RollingBlindAnimator(bookView.getHorizontalMargin(),
-    			bookView.getVerticalMargin());
+    	Bitmap before = getBookViewSnapshot();
+    	
+    	bookView.pageDown();
+    	
+    	Bitmap after = getBookViewSnapshot();    	
+    	
+    	RollingBlindAnimator anim = new RollingBlindAnimator();
     	anim.setAnimationSpeed( settings.getInt("blind_speed", 20) );
     	anim.setStepSize(2);
     	
-    	anim.setBackgroundBitmap(bitmap);
+    	anim.setBackgroundBitmap(before);
+    	anim.setForegroudBitmap(after);
     	
-    	bookView.setCurrentAnimator(anim);
-    	bookView.pageDown();    	
+    	dummyView.setAnimator(anim);
+    	viewSwitcher.showNext();
     	
     	bookView.setEnableScrolling(false);
     	
     	handler.post( new RollerRunnable() );    	
     }
     
+    private void doPageCurl(boolean flipRight) {
+    	
+    	if ( this.dummyView.getAnimator() == null ) {
+    		
+    		if ( viewSwitcher.getCurrentView() == this.dummyView ) {
+        		viewSwitcher.showNext();
+        	}
+        	
+    		Bitmap before = getBookViewSnapshot();
+    		
+    		PageCurlAnimator animator = new PageCurlAnimator(flipRight);    		
+    		
+    		if ( flipRight ) {
+    			bookView.pageDown();
+    			Bitmap after = getBookViewSnapshot();
+    			animator.setBackgroundBitmap(after);
+        		animator.setForegroundBitmap(before);
+    		} else {
+    			bookView.pageUp();
+    			Bitmap after = getBookViewSnapshot();
+    			animator.setBackgroundBitmap(before);
+        		animator.setForegroundBitmap(after);
+    		}    		
+    		
+
+    		dummyView.setAnimator(animator);
+    		
+        	this.viewSwitcher.showNext();
+
+        	handler.post( new PageCurlRunnable() );
+    	} else {
+    		/*
+    		dummyView.getAnimator().advanceOneFrame();
+    		
+    		Animator anim = dummyView.getAnimator();
+			
+			if ( anim.isFinished() ) {
+				 				
+				if ( viewSwitcher.getCurrentView() == dummyView ) {
+					viewSwitcher.showNext();    					
+				}
+				
+				dummyView.setAnimator(null);   				
+				
+			}
+			*/
+    	}
+    	
+    	dummyView.invalidate();
+    	
+    	    	
+    }
+    
+    
+    private class PageCurlRunnable implements Runnable {
+    	@Override
+    	public void run() {
+    		    		
+    		if ( dummyView.getAnimator() == null ) {
+    			LOG.debug( "BookView no longer has an animator. Aborting rolling blind." );
+    			//stopRollingBlind();
+    		} else {
+    			
+    			Animator anim = dummyView.getAnimator();
+    			
+    			if ( anim.isFinished() ) {
+    				 				
+    				if ( viewSwitcher.getCurrentView() == dummyView ) {
+    					viewSwitcher.showNext();    					
+    				}
+    				
+    				dummyView.setAnimator(null);   				
+    				
+    			} else {    			
+    				anim.advanceOneFrame();
+    				dummyView.invalidate();
+    				
+    				int delay = 1000 / anim.getAnimationSpeed();
+    			
+    				handler.postDelayed(this, delay);
+    			} 
+    		}    		
+    	}
+    }   
+    
     private class RollerRunnable implements Runnable {
     	@Override
     	public void run() {
     		    		
-    		if ( bookView.getCurrentAnimator() == null ) {
+    		if ( dummyView.getAnimator() == null ) {
     			LOG.debug( "BookView no longer has an animator. Aborting rolling blind." );
     			stopRollingBlind();
     		} else {
     			
-    			Animator anim = bookView.getCurrentAnimator();
+    			Animator anim = dummyView.getAnimator();
     			
     			if ( anim.isFinished() ) {
     				doRollingBlind();
     			} else {    			
     				anim.advanceOneFrame();
-    				bookView.invalidate();
+    				dummyView.invalidate();
     				
     				int delay = 1000 / anim.getAnimationSpeed();
     			
@@ -583,12 +683,15 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     private void stopRollingBlind() {
     	
-    	this.bookView.setCurrentAnimator(null);
-    	this.bookView.invalidate();
+    	this.dummyView.setAnimator(null);
+    	
+    	if ( viewSwitcher.getCurrentView() == this.dummyView ) {
+    		viewSwitcher.showNext();
+    	}
     	
     	bookView.setEnableScrolling( settings.getBoolean("scrolling", false));
     	
-    	bookView.setKeepScreenOn(false);
+    	bookView.setKeepScreenOn(false);    	
     }
     
     private Bitmap getBookViewSnapshot() {
@@ -613,14 +716,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     }
     
     private void prepareSlide(Animation inAnim, Animation outAnim) {
-    	
-    	View otherView = findViewById(R.id.dummyView);    	    	
-    	otherView.setVisibility(View.VISIBLE);
+    	    	    	    	
+    	dummyView.setVisibility(View.VISIBLE);
     	
     	Bitmap bitmap = getBookViewSnapshot();
     	
     	if ( bitmap != null ) {
-    		( (ImageView) otherView).setImageBitmap(bitmap);
+    		dummyView.setImageBitmap(bitmap);
     	}    		
     	
     	viewSwitcher.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight() );

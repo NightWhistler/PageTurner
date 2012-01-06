@@ -110,10 +110,6 @@ public class BookView extends ScrollView {
 	private int verticalMargin = 0;
 	private int lineSpacing = 0;
 	
-	private Bitmap backgroundBitmap;
-		
-	private Animator currentAnimator;
-	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 	
 	public BookView(Context context, AttributeSet attributes) {
@@ -132,14 +128,7 @@ public class BookView extends ScrollView {
 			
 			public boolean dispatchKeyEvent(KeyEvent event) {
 				return BookView.this.dispatchKeyEvent(event);
-			}	
-			
-			protected void onDraw(Canvas canvas) {
-				super.onDraw(canvas);
-				if ( currentAnimator != null ) {
-					currentAnimator.draw(canvas);
-				}
-			}
+			}			
 			
 		};  
 		
@@ -177,7 +166,7 @@ public class BookView extends ScrollView {
         
         spanner.registerHandler("p", new AnchorHandler(spanner.getHandlerFor("p") ));
         spanner.registerHandler("table", tableHandler);
-	}
+	}	
 	
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
@@ -193,15 +182,7 @@ public class BookView extends ScrollView {
 	
 	public void setStripWhiteSpace(boolean stripWhiteSpace) {
 		this.spanner.setStripExtraWhiteSpace(stripWhiteSpace);
-	}
-	
-	public void setCurrentAnimator(Animator currentAnimator) {
-		this.currentAnimator = currentAnimator;
-	}
-	
-	public Animator getCurrentAnimator() {
-		return currentAnimator;
-	}
+	}	
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {

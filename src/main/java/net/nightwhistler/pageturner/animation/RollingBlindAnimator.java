@@ -9,21 +9,14 @@ import android.graphics.Rect;
 public class RollingBlindAnimator implements Animator {
 
 	private Bitmap backgroundBitmap;
-	
-	private int horizontalMargin;
-	private int verticalMargin;
+	private Bitmap foregroudBitmap;
 	
 	private int count;
 	
 	private int stepSize = 1;
 	
 	private int animationSpeed;
-	
-	public RollingBlindAnimator(int horizontalMargin, int verticalMargin) {
-		this.horizontalMargin = horizontalMargin;
-		this.verticalMargin = verticalMargin;
-	}
-	
+		
 	@Override
 	public void advanceOneFrame() {
 		count++;		
@@ -33,24 +26,21 @@ public class RollingBlindAnimator implements Animator {
 	public void draw(Canvas canvas) {
 		if ( backgroundBitmap != null ) {
 			
-			int pixelsToDraw = count * stepSize;
+			int pixelsToDraw = count * stepSize;		
 			
-			Rect source = new Rect( horizontalMargin,							
-					verticalMargin + pixelsToDraw,
-					backgroundBitmap.getWidth() - horizontalMargin,
-					backgroundBitmap.getHeight() - verticalMargin );
+			Rect top = new Rect( 0, 0, backgroundBitmap.getWidth(), pixelsToDraw );
+						
+			canvas.drawBitmap(foregroudBitmap, top, top, null);
 			
-			Rect dest = new Rect( 0, pixelsToDraw, 
-					backgroundBitmap.getWidth() - (2*horizontalMargin), 
-					backgroundBitmap.getHeight() - (2*verticalMargin) );					
+			Rect bottom = new Rect( 0, pixelsToDraw, backgroundBitmap.getWidth(), backgroundBitmap.getHeight() );
 			
-			canvas.drawBitmap(backgroundBitmap, source, dest, null);
+			canvas.drawBitmap(backgroundBitmap, bottom, bottom, null);
 			
 			Paint paint = new Paint();
 			paint.setColor(Color.GRAY);
 			paint.setStyle(Paint.Style.STROKE);
 			
-			canvas.drawLine(0, dest.top, dest.right, dest.top, paint);
+			canvas.drawLine(0, pixelsToDraw, backgroundBitmap.getWidth(), pixelsToDraw, paint);
 		}		
 	}
 	
@@ -67,6 +57,10 @@ public class RollingBlindAnimator implements Animator {
 	
 	public void setBackgroundBitmap(Bitmap backgroundBitmap) {
 		this.backgroundBitmap = backgroundBitmap;
+	}
+	
+	public void setForegroudBitmap(Bitmap foregroudBitmap) {
+		this.foregroudBitmap = foregroudBitmap;
 	}
 	
 	public void setStepSize(int stepSize) {

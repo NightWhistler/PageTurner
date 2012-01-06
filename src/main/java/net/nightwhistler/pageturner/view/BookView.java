@@ -451,6 +451,20 @@ public class BookView extends ScrollView {
 		}
 	}	
 	
+	public void navigateTo( int index, int position ) {
+		
+		this.prevIndex = this.getIndex();
+		this.prevPos = this.getPosition();
+		
+		this.storedIndex = index;
+		this.strategy.clearText();
+		this.strategy.setPosition(position);
+				
+		this.spine.navigateByIndex(index);
+		
+		loadText();
+	}
+	
 	public List<TocEntry> getTableOfContents() {
 		if ( this.book == null ) {
 			return null;
@@ -810,8 +824,6 @@ public class BookView extends ScrollView {
 			
 			if ( text != null && text.length() > 0 ) {
 				this.strategy.loadText(text);
-			} else {
-				loadText();
 			}
 		}
 	}

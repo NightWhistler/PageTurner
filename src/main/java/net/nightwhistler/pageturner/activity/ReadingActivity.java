@@ -838,7 +838,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     private void showPickProgressDialog( final List<BookProgress> results ) {
 
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setTitle("Progress updates");    	
+    	builder.setTitle("Stored bookmarks");    	
     	
     	ProgressListAdapter adapter = new ProgressListAdapter(results);
     	
@@ -862,10 +862,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	@Override
     	public void onClick(DialogInterface dialog, int which) {
     		BookProgress progress = books.get(which);
-			bookView.setIndex( progress.getIndex() );
-			bookView.setPosition( progress.getProgress() );
-			
-			bookView.restore();    		
+			bookView.navigateTo(progress.getIndex(), progress.getProgress() );    		
     	}
     	
     	@Override
@@ -882,11 +879,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     			rowView = convertView;
     		}
     		
-    		TextView deviceView = (TextView) convertView.findViewById(R.id.deviceName);
-    		TextView dateView = (TextView) convertView.findViewById(R.id.timeStamp );
+    		TextView deviceView = (TextView) rowView.findViewById(R.id.deviceName);
+    		TextView dateView = (TextView) rowView.findViewById(R.id.timeStamp );
     		
     		BookProgress progress = books.get(position);
     		
+    		deviceView.setTextColor( Color.BLACK );
     		deviceView.setText( progress.getDeviceName() + " - " + progress.getPercentage() + "%" );
     		dateView.setText( new SimpleDateFormat().format(progress.getTimeStamp()) );
     		

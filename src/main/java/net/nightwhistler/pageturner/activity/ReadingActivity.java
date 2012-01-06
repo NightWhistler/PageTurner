@@ -850,7 +850,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     private void showPickProgressDialog( final List<BookProgress> results ) {
 
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setTitle("Stored bookmarks");    	
+    	builder.setTitle("Stored sync points");    	
     	
     	ProgressListAdapter adapter = new ProgressListAdapter(results);
     	
@@ -979,7 +979,18 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     		waitDialog.hide();    		
     		
     		if ( progress == null ) {
-    			Toast.makeText(ReadingActivity.this, "Sync failed.", Toast.LENGTH_SHORT );
+    			
+    		    AlertDialog alertDialog = new AlertDialog.Builder(ReadingActivity.this).create();
+   		        alertDialog.setTitle("Sync failed");
+   		        alertDialog.setMessage("Could not connect to the sync server.");
+
+   		        alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+	              public void onClick(DialogInterface dialog, int which) {
+	            	  dialog.dismiss();
+    		      } });
+   		        
+   		        alertDialog.show();   		        
+    			
     		} else {
     			showPickProgressDialog(progress);
     		}

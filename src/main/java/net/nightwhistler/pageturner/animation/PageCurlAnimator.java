@@ -80,6 +80,8 @@ public class PageCurlAnimator implements Animator {
 	
 	/** LAGACY The current background */
 	private Bitmap mBackground;		
+	
+	private int backgroundColor = Color.WHITE;
 
 	private boolean started = false;
 	private boolean finished = false;
@@ -126,6 +128,10 @@ public class PageCurlAnimator implements Animator {
 			// Create values
 			doSimpleCurl();			
 		}
+	}
+	
+	public void setBackgroundColor(int backgroundColor) {
+		this.backgroundColor = backgroundColor;
 	}
 	
 	private void drawDebug(Canvas canvas)
@@ -217,6 +223,8 @@ public class PageCurlAnimator implements Animator {
 	@Override
 	public void draw(Canvas canvas) {
 		
+		
+		
 		// Translate the whole canvas
 		//canvas.translate(mCurrentLeft, mCurrentTop);
 		
@@ -226,7 +234,7 @@ public class PageCurlAnimator implements Animator {
 			onFirstDrawEvent(canvas);
 		}
 		
-		canvas.drawColor(Color.WHITE);
+		canvas.drawColor(backgroundColor);
 		
 		// Curl pages
 		//DoPageCurl();
@@ -255,9 +263,6 @@ public class PageCurlAnimator implements Animator {
 			drawDebug(canvas);
 		}
 		
-		// Restore canvas
-		//canvas.restore();
-		
 	}
 	
 	/**
@@ -285,8 +290,7 @@ public class PageCurlAnimator implements Animator {
 		mOldMovement = new Vector2D(0,0);				
 		
 		// Create our edge paint
-		mCurlEdgePaint = new Paint();
-		mCurlEdgePaint.setColor(Color.WHITE);
+		mCurlEdgePaint = new Paint();		
 		mCurlEdgePaint.setAntiAlias(true);
 		mCurlEdgePaint.setStyle(Paint.Style.FILL);
 		mCurlEdgePaint.setShadowLayer(10, -5, 5, 0x99000000);
@@ -551,6 +555,7 @@ public class PageCurlAnimator implements Animator {
 	private void drawCurlEdge( Canvas canvas )
 	{
 		if ( started && ! finished ) {
+			mCurlEdgePaint.setColor(backgroundColor);
 			Path path = createCurlEdgePath();
 			canvas.drawPath(path, mCurlEdgePaint);
 		}

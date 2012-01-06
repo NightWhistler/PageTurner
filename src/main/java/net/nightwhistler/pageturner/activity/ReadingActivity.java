@@ -430,26 +430,42 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	} else {
     		this.colourProfile = "day";
     		brightness = settings.getInt("day_bright", 50);
-    	}      
-
-
-    	if ( "night".equals(this.colourProfile) ) {    		
-    		this.bookView.setBackgroundColor(settings.getInt("night_bg", Color.BLACK));
-    		this.viewSwitcher.setBackgroundColor(settings.getInt("night_bg", Color.BLACK));
-    		this.bookView.setTextColor( settings.getInt("night_text", Color.GRAY));
-
-    	} else {
-    		this.bookView.setBackgroundColor(settings.getInt("day_bg", Color.WHITE));
-    		this.viewSwitcher.setBackgroundColor(settings.getInt("day_bg", Color.WHITE));
-    		this.bookView.setTextColor(settings.getInt("day_text", Color.BLACK));
     	}
+
+    	this.bookView.setBackgroundColor(getBackgroundColor());
+    	this.viewSwitcher.setBackgroundColor(getBackgroundColor());
+    	this.bookView.setTextColor(getTextColor());   
+    	this.bookView.setLinkColor(getLinkColor());
 
     	if ( settings.getBoolean("set_brightness", false)) {
     		WindowManager.LayoutParams lp = getWindow().getAttributes();
     		lp.screenBrightness = (float) brightness / 100f;
     		getWindow().setAttributes(lp);
-    	}    
-
+    	}  
+    }
+    
+    private int getBackgroundColor() {
+    	if ( "night".equals(this.colourProfile) ) {   
+    		return settings.getInt("night_bg", Color.BLACK);
+    	} else {
+    		return settings.getInt("day_bg", Color.WHITE);
+    	}
+    }
+    
+    private int getTextColor() {
+    	if ( "night".equals(this.colourProfile) ) {   
+    		return settings.getInt("night_text", Color.GRAY);
+    	} else {
+    		return settings.getInt("day_text", Color.BLACK);
+    	}
+    }
+    
+    private int getLinkColor() {
+    	if ( "night".equals(this.colourProfile) ) {   
+    		return settings.getInt("night_link", Color.rgb(255, 165, 0));
+    	} else {
+    		return settings.getInt("day_link", Color.BLUE );
+    	}
     }
     
     @Override
@@ -577,7 +593,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         	
     		Bitmap before = getBookViewSnapshot();
     		
-    		PageCurlAnimator animator = new PageCurlAnimator(flipRight);    		
+    		PageCurlAnimator animator = new PageCurlAnimator(flipRight);    
+    		animator.setBackgroundColor(getBackgroundColor());    		
     		
     		if ( flipRight ) {
     			bookView.pageDown();

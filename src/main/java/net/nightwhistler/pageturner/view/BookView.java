@@ -221,6 +221,10 @@ public class BookView extends ScrollView {
 		}		
 	}
 	
+	public void setLinkColor(int color) {
+		this.childView.setLinkTextColor(color);
+	}
+	
 	public void setVerticalMargin(int verticalMargin) {
 		if ( verticalMargin != this.verticalMargin ) {
 			this.verticalMargin = verticalMargin;

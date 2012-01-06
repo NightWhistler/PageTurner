@@ -137,6 +137,11 @@
     			android:summary="For day mode"
     			android:defaultValue="-1" />     		
     		    		
+			<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="day_link"
+    			android:title="Link colour"
+    			android:summary="For day mode"
+    			android:defaultValue="-16776961" />  
 			 		    		
     		
              <net.nightwhistler.pageturner.prefs.ColourChooserPref
@@ -150,6 +155,12 @@
     			android:title="Background colour"
     			android:summary="For night mode"
     			android:defaultValue="-16777216" />  
+    			
+    		<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="night_link"
+    			android:title="Link colour"
+    			android:summary="For night mode"
+    			android:defaultValue="-23296" />  
     		
     	
     					

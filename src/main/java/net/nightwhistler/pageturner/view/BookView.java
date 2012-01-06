@@ -34,6 +34,7 @@ import java.util.Set;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
+import net.nightwhistler.pageturner.animation.Animator;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
@@ -50,15 +51,10 @@ import org.htmlcleaner.TagNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -78,6 +74,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -114,7 +111,8 @@ public class BookView extends ScrollView {
 	private int lineSpacing = 0;
 	
 	private Bitmap backgroundBitmap;
-	private int pixelsToDraw;
+		
+	private Animator currentAnimator;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 	
@@ -138,25 +136,9 @@ public class BookView extends ScrollView {
 			
 			protected void onDraw(Canvas canvas) {
 				super.onDraw(canvas);
-				if ( backgroundBitmap != null ) {
-					
-					Rect source = new Rect( getHorizontalMargin(),							
-							getVerticalMargin() + pixelsToDraw,
-							backgroundBitmap.getWidth() - horizontalMargin,
-							backgroundBitmap.getHeight() - verticalMargin );
-					
-					Rect dest = new Rect( 0, pixelsToDraw, 
-							backgroundBitmap.getWidth() - (2*horizontalMargin), 
-							backgroundBitmap.getHeight() - (2*verticalMargin) );					
-					
-					canvas.drawBitmap(backgroundBitmap, source, dest, null);
-					
-					Paint paint = new Paint();
-					paint.setColor(Color.GRAY);
-					paint.setStyle(Paint.Style.STROKE);
-					
-					canvas.drawLine(0, dest.top, dest.right, dest.top, paint);
-				}	
+				if ( currentAnimator != null ) {
+					currentAnimator.draw(canvas);
+				}
 			}
 			
 		};  
@@ -213,18 +195,13 @@ public class BookView extends ScrollView {
 		this.spanner.setStripExtraWhiteSpace(stripWhiteSpace);
 	}
 	
-	public void setBackgroundBitmap(Bitmap backgroundBitmap) {
-		this.backgroundBitmap = backgroundBitmap;			
+	public void setCurrentAnimator(Animator currentAnimator) {
+		this.currentAnimator = currentAnimator;
 	}
 	
-	public Bitmap getBackgroundBitmap() {
-		return backgroundBitmap;
+	public Animator getCurrentAnimator() {
+		return currentAnimator;
 	}
-	
-	public void setPixelsToDraw(int pixelsToDraw) {
-		this.pixelsToDraw = pixelsToDraw;
-		invalidate();
-	}	
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {

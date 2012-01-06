@@ -20,7 +20,7 @@
     <string name="quick_guide">Quick guide</string>
     <string name="help">PageTurner only reads EPUB files. Change pages by swiping horizontally or using the volume buttons. Please check the Preferences page.</string>
     <string name="show_toc">Show TOC</string>   
-    <string name="rolling_blind">Rolling blind mode</string>
+    <string name="rolling_blind">Auto-scroll</string>
         
     <string-array name="library_ordering">
         <item>Most recently read</item>

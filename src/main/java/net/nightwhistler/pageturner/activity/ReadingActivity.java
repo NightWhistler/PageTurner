@@ -24,8 +24,10 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
-import net.nightwhistler.pageturner.Animations;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.animation.Animations;
+import net.nightwhistler.pageturner.animation.Animator;
+import net.nightwhistler.pageturner.animation.RollingBlindAnimator;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;
@@ -530,7 +532,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     
     private boolean isRollingBlind() {
-    	return bookView.getBackgroundBitmap() != null;
+    	Animator anim = bookView.getCurrentAnimator();
+    	return anim != null && anim instanceof RollingBlindAnimator;
     }
     
     private void doRollingBlind() {
@@ -538,9 +541,14 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	bookView.setKeepScreenOn(true);
     	
     	Bitmap bitmap = getBookViewSnapshot();
-    	this.bookView.setBackgroundBitmap(bitmap);
+    	RollingBlindAnimator anim = new RollingBlindAnimator(bookView.getHorizontalMargin(),
+    			bookView.getVerticalMargin());
+    	anim.setAnimationSpeed( settings.getInt("blind_speed", 20) );
+    	anim.setStepSize(2);
     	
-    	bookView.setPixelsToDraw(0);
+    	anim.setBackgroundBitmap(bitmap);
+    	
+    	bookView.setCurrentAnimator(anim);
     	bookView.pageDown();    	
     	
     	bookView.setEnableScrolling(false);
@@ -549,40 +557,37 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     }
     
     private class RollerRunnable implements Runnable {
-    	
-    	private int count = 0;
-    	
     	@Override
     	public void run() {
-    		count += 1;
-    		
-    		if ( count < bookView.getHeight() &&
-    				bookView.getBackgroundBitmap() != null ) {
-    			
-    			bookView.setPixelsToDraw( count );
-    			
-    			int speed = settings.getInt("blind_speed", 75);
-    			
-    			long delay = (-10 * speed) + 1000l;
-    			
-    			handler.postDelayed(this, delay);
-    			
-    			LOG.debug( "Updating rolling blind position to " + count );
-    		} else if ( bookView.getBackgroundBitmap() != null ) {
-    			doRollingBlind();
-    			LOG.debug( "Finished a full round of blind rolling. Restarting." );
-    		} else {
-    			LOG.debug( "BookView no longer has a backing bitmap. Aborting rolling blind." );
+    		    		
+    		if ( bookView.getCurrentAnimator() == null ) {
+    			LOG.debug( "BookView no longer has an animator. Aborting rolling blind." );
     			stopRollingBlind();
-    		}
+    		} else {
+    			
+    			Animator anim = bookView.getCurrentAnimator();
+    			
+    			if ( anim.isFinished() ) {
+    				doRollingBlind();
+    			} else {    			
+    				anim.advanceOneFrame();
+    				bookView.invalidate();
+    				
+    				int delay = 1000 / anim.getAnimationSpeed();
+    			
+    				handler.postDelayed(this, delay);
+    			} 
+    		}    		
     	}
     }
     
     private void stopRollingBlind() {
-    	this.bookView.setBackgroundBitmap(null);
-    	this.bookView.setPixelsToDraw(0);
+    	
+    	this.bookView.setCurrentAnimator(null);
+    	this.bookView.invalidate();
+    	
     	bookView.setEnableScrolling( settings.getBoolean("scrolling", false));
-    	Toast.makeText(this, "Rolling blind mode stopped.", Toast.LENGTH_SHORT);
+    	
     	bookView.setKeepScreenOn(false);
     }
     

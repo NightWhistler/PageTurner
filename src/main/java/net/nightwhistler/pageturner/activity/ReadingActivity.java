@@ -28,6 +28,7 @@ import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.animation.Animations;
 import net.nightwhistler.pageturner.animation.Animator;
 import net.nightwhistler.pageturner.animation.PageCurlAnimator;
+import net.nightwhistler.pageturner.animation.PageTimer;
 import net.nightwhistler.pageturner.animation.RollingBlindAnimator;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.BookProgress;
@@ -286,7 +287,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         bookView.setHorizontalMargin(marginH);
         bookView.setVerticalMargin(marginV);
         
-        if ( ! isRollingBlind() ) {
+        if ( ! isAnimating() ) {
         	bookView.setEnableScrolling(settings.getBoolean("scrolling", false));
         }
         
@@ -503,8 +504,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 		int action = event.getAction();
 	    int keyCode = event.getKeyCode();
 	    
-	    if ( isRollingBlind() ) {
-	    	stopRollingBlind();
+	    if ( isAnimating() ) {
+	    	stopAnimating();
 	    	return true;
 	    }
 	    
@@ -549,12 +550,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     }   
     
     
-    private boolean isRollingBlind() {
+    private boolean isAnimating() {
     	Animator anim = dummyView.getAnimator();
-    	return anim != null && anim instanceof RollingBlindAnimator;
+    	return anim != null;
     }
     
-    private void doRollingBlind() {
+    private void startAutoScroll() {
     	
     	if ( viewSwitcher.getCurrentView() == this.dummyView ) {
     		viewSwitcher.showNext();
@@ -562,25 +563,44 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	
     	bookView.setKeepScreenOn(true);
     	
+    	String style = settings.getString("scroll_style", "rolling_blind");
+    	
+    	if ( "rolling_blind".equals(style) ) {
+    		prepareRollingBlind();
+    	} else {
+    		preparePageTimer();
+    	}    	
+    	
+    	viewSwitcher.showNext();
+    	
+    	handler.post( new AutoScrollRunnable() );    	
+    }
+    
+    private void prepareRollingBlind() {
+    	
     	Bitmap before = getBookViewSnapshot();
     	
     	bookView.pageDown();
-    	
-    	Bitmap after = getBookViewSnapshot();    	
-    	
+    	Bitmap after = getBookViewSnapshot();
+    	    	
     	RollingBlindAnimator anim = new RollingBlindAnimator();
-    	anim.setAnimationSpeed( settings.getInt("blind_speed", 20) );
-    	anim.setStepSize(2);
-    	
+    	anim.setAnimationSpeed( settings.getInt("scroll_speed", 20) );
+    	    	
     	anim.setBackgroundBitmap(before);
-    	anim.setForegroudBitmap(after);
+    	anim.setForegroundBitmap(after);
     	
     	dummyView.setAnimator(anim);
-    	viewSwitcher.showNext();
+    }
+    
+    private void preparePageTimer() {
+    	bookView.pageDown();
+    	Bitmap after = getBookViewSnapshot();    	
     	
-    	bookView.setEnableScrolling(false);
+    	PageTimer timer = new PageTimer();
+    	timer.setBackgroundImage(after);
+    	timer.setSpeed( settings.getInt("scroll_speed", 20) );
     	
-    	handler.post( new RollerRunnable() );    	
+    	dummyView.setAnimator(timer);
     }
     
     private void doPageCurl(boolean flipRight) {
@@ -652,40 +672,36 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	}
     }   
     
-    private class RollerRunnable implements Runnable {
+    private class AutoScrollRunnable implements Runnable {
     	@Override
     	public void run() {
     		    		
     		if ( dummyView.getAnimator() == null ) {
     			LOG.debug( "BookView no longer has an animator. Aborting rolling blind." );
-    			stopRollingBlind();
+    			stopAnimating();
     		} else {
     			
     			Animator anim = dummyView.getAnimator();
     			
     			if ( anim.isFinished() ) {
-    				doRollingBlind();
+    				startAutoScroll();
     			} else {    			
     				anim.advanceOneFrame();
-    				dummyView.invalidate();
-    				
-    				int delay = 1000 / anim.getAnimationSpeed();
+    				dummyView.invalidate();   				
     			
-    				handler.postDelayed(this, delay);
+    				handler.postDelayed(this, anim.getAnimationSpeed() * 2);
     			} 
     		}    		
     	}
     }
     
-    private void stopRollingBlind() {
+    private void stopAnimating() {
     	
     	this.dummyView.setAnimator(null);
     	
     	if ( viewSwitcher.getCurrentView() == this.dummyView ) {
     		viewSwitcher.showNext();
-    	}
-    	
-    	bookView.setEnableScrolling( settings.getBoolean("scrolling", false));
+    	}    	
     	
     	bookView.setKeepScreenOn(false);    	
     }
@@ -738,7 +754,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     private void pageDown(Orientation o) {
     	
-    	stopRollingBlind();
+    	stopAnimating();
     	
     	String animH = settings.getString("h_animation", "curl");
     	String animV = settings.getString("v_animation", "slide");
@@ -765,7 +781,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     private void pageUp(Orientation o) {
     	
-    	stopRollingBlind();
+    	stopAnimating();
 
     	String animH = settings.getString("h_animation", "curl");
     	String animV = settings.getString("v_animation", "slide");
@@ -939,7 +955,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         	return true;  	
         	
         case R.id.rolling_blind:
-        	doRollingBlind();
+        	startAutoScroll();
         	return true;
         	
         default:
@@ -1192,7 +1208,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	public boolean onVerifiedFling(MotionEvent e1, MotionEvent e2,
     			float velocityX, float velocityY) {
     		
-    		stopRollingBlind();
+    		stopAnimating();
     		
     		boolean swipeH = settings.getBoolean("nav_swipe_h", true);
     		boolean swipeV = settings.getBoolean("nav_swipe_v", true) && ! settings.getBoolean("scrolling", true);
@@ -1217,7 +1233,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	@Override
     	public boolean onSingleTapConfirmed(MotionEvent e) {
     		
-    		stopRollingBlind();
+    		stopAnimating();
     		
         	boolean tapH = settings.getBoolean("nav_tap_h", true);
         	boolean tapV = settings.getBoolean("nav_tap_v", true);

@@ -35,13 +35,13 @@ import android.graphics.Rect;
 public class RollingBlindAnimator implements Animator {
 
 	private Bitmap backgroundBitmap;
-	private Bitmap foregroudBitmap;
+	private Bitmap foregroundBitmap;
 	
-	private int count;
-	
-	private int stepSize = 1;
-	
+	private int count;	
+		
 	private int animationSpeed;
+	
+	private static final int MAX_STEPS = 500;
 		
 	@Override
 	public void advanceOneFrame() {
@@ -52,11 +52,13 @@ public class RollingBlindAnimator implements Animator {
 	public void draw(Canvas canvas) {
 		if ( backgroundBitmap != null ) {
 			
-			int pixelsToDraw = count * stepSize;		
+			float percentage = (float) count / (float) MAX_STEPS;
+			
+			int pixelsToDraw = (int) (backgroundBitmap.getHeight() * percentage); 	
 			
 			Rect top = new Rect( 0, 0, backgroundBitmap.getWidth(), pixelsToDraw );
 						
-			canvas.drawBitmap(foregroudBitmap, top, top, null);
+			canvas.drawBitmap(foregroundBitmap, top, top, null);
 			
 			Rect bottom = new Rect( 0, pixelsToDraw, backgroundBitmap.getWidth(), backgroundBitmap.getHeight() );
 			
@@ -73,7 +75,7 @@ public class RollingBlindAnimator implements Animator {
 	@Override
 	public boolean isFinished() {
 		return backgroundBitmap == null
-			|| (count * stepSize) >= backgroundBitmap.getHeight(); 
+			|| count >= MAX_STEPS; 
 	}
 	
 	@Override
@@ -85,13 +87,9 @@ public class RollingBlindAnimator implements Animator {
 		this.backgroundBitmap = backgroundBitmap;
 	}
 	
-	public void setForegroudBitmap(Bitmap foregroudBitmap) {
-		this.foregroudBitmap = foregroudBitmap;
-	}
-	
-	public void setStepSize(int stepSize) {
-		this.stepSize = stepSize;
-	}
+	public void setForegroundBitmap(Bitmap foregroundBitmap) {
+		this.foregroundBitmap = foregroundBitmap;
+	}	
 	
 	public void setAnimationSpeed(int animationSpeed) {
 		this.animationSpeed = animationSpeed;

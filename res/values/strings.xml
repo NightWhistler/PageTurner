@@ -61,6 +61,16 @@
         <item>Don\'t lock orientation</item>
         <item>Portrait</item>
         <item>Landscape</item>
-    </string-array>   
+    </string-array>  
+    
+    <string-array name="autoscroll">
+        <item>rolling_blind</item>
+        <item>timer</item>
+    </string-array>
+    
+    <string-array name="autoscrollLabels">
+        <item>Rolling blind</item>
+        <item>Page change timer</item>
+    </string-array>
         
 </resources>

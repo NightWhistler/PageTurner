@@ -2,6 +2,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" 
 	android:key="PageTurnerState">
 	
+	<PreferenceCategory
+                android:title="Sync settings"> 
+                 
 	<EditTextPreference
 	            android:key="email"
 	            android:title="E-mail address"
@@ -18,15 +21,31 @@
 	            android:dialogMessage="Please enter a name for this device."
 	            android:dependency="email"   
 	            />
+	</PreferenceCategory>
+
+	<PreferenceCategory
+                android:title="Autoscroll settings">  		
+
+ <ListPreference
+     		android:key="scroll_style"
+            android:title="Autoscroll style"
+            android:summary="Rolling blind or timer"            
+        	android:defaultValue="rolling_blind"
+        	android:entries="@array/autoscrollLabels"
+        	android:entryValues="@array/autoscroll" />           
+	
+
 
 	<com.hlidskialf.android.preference.SeekBarPreference
-				android:key="blind_speed"
+				android:key="scroll_speed"
 				android:title="Autoscrolling speed"
-				android:summary="For rolling blind mode."
+				android:summary="How many seconds a page will be displayed."
 				android:dialogTitle="Scroll speed"								
-				android:defaultValue="75"
-				android:max="99"				
+				android:defaultValue="30"
+				android:max="300"				
 				/>
+				
+	</PreferenceCategory>
 
 	<PreferenceCategory
                 android:title="Visual settings">  		

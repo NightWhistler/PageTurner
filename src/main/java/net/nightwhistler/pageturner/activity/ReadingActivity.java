@@ -504,10 +504,11 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 		int action = event.getAction();
 	    int keyCode = event.getKeyCode();
 	    
-	    if ( isAnimating() ) {
+	    if ( isAnimating() && action == KeyEvent.ACTION_DOWN) {
 	    	stopAnimating();
 	    	return true;
 	    }
+	    
 	    
 	    switch (keyCode) {
 	    
@@ -604,42 +605,42 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     }
     
     private void doPageCurl(boolean flipRight) {
-    	
-    	if ( this.dummyView.getAnimator() == null ) {
-    		
-    		if ( viewSwitcher.getCurrentView() == this.dummyView ) {
-        		viewSwitcher.showNext();
-        	}
-        	
-    		Bitmap before = getBookViewSnapshot();
-    		
-    		PageCurlAnimator animator = new PageCurlAnimator(flipRight);    
-    		animator.setBackgroundColor(getBackgroundColor());    		
-    		
-    		if ( flipRight ) {
-    			bookView.pageDown();
-    			Bitmap after = getBookViewSnapshot();
-    			animator.setBackgroundBitmap(after);
-        		animator.setForegroundBitmap(before);
-    		} else {
-    			bookView.pageUp();
-    			Bitmap after = getBookViewSnapshot();
-    			animator.setBackgroundBitmap(before);
-        		animator.setForegroundBitmap(after);
-    		}    		
-    		
 
-    		dummyView.setAnimator(animator);
-    		
-        	this.viewSwitcher.showNext();
 
-        	handler.post( new PageCurlRunnable() );
-    	} 
-    	
+    	this.viewSwitcher.setInAnimation(null);
+    	this.viewSwitcher.setOutAnimation(null);
+
+    	if ( viewSwitcher.getCurrentView() == this.dummyView ) {
+    		viewSwitcher.showNext();
+    	}
+
+    	Bitmap before = getBookViewSnapshot();
+
+    	PageCurlAnimator animator = new PageCurlAnimator(flipRight);    
+    	animator.setBackgroundColor(getBackgroundColor());    		
+
+    	if ( flipRight ) {
+    		bookView.pageDown();
+    		Bitmap after = getBookViewSnapshot();
+    		animator.setBackgroundBitmap(after);
+    		animator.setForegroundBitmap(before);
+    	} else {
+    		bookView.pageUp();
+    		Bitmap after = getBookViewSnapshot();
+    		animator.setBackgroundBitmap(before);
+    		animator.setForegroundBitmap(after);
+    	}    		
+
+
+    	dummyView.setAnimator(animator);
+
+    	this.viewSwitcher.showNext();
+
+    	handler.post( new PageCurlRunnable() );
+
     	dummyView.invalidate();    	
-    	    	
-    }
-    
+
+    }    
     
     private class PageCurlRunnable implements Runnable {
     	@Override
@@ -703,7 +704,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     		viewSwitcher.showNext();
     	}    	
     	
-    	bookView.setKeepScreenOn(false);    	
+    	bookView.setKeepScreenOn(false);
+    	 	
     }
     
     private Bitmap getBookViewSnapshot() {

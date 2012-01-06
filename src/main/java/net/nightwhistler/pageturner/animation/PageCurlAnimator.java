@@ -90,6 +90,7 @@ public class PageCurlAnimator implements Animator {
 	
 	public PageCurlAnimator(boolean flipRight) {
 		this.bFlipRight = flipRight;
+		//this.drawDebugEnabled = true;
 		init();
 	}
 	

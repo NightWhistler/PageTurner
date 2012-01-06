@@ -157,19 +157,24 @@
     
     <PreferenceCategory
                 android:title="Animations">
-                
-        <CheckBoxPreference			
-            android:key="animate_h"
-            android:title="Horizontal sliding"
-            android:summary="Enables horizontal sliding page change animations"
-            android:defaultValue="true" /> 
         
-        <CheckBoxPreference			
-            android:key="animate_v"
-            android:title="Vertical sliding"
-            android:summary="Enables vertical sliding page change animations"
-            android:defaultValue="true"
-            />         
+         <ListPreference
+     		android:key="h_animation"
+            android:title="Horizontal animations"
+            android:summary="Horizontal page change animations"            
+        	android:defaultValue="curl"
+        	android:entries="@array/h_animLabels"
+        	android:entryValues="@array/h_anim" />
+                    
+
+         <ListPreference
+     		android:key="h_animation"
+            android:title="Vertical animations"
+            android:summary="Vertical page change animations"            
+        	android:defaultValue="slide"
+        	android:entries="@array/v_animLabels"
+        	android:entryValues="@array/v_anim" />               
+     
                 
     </PreferenceCategory>
                 

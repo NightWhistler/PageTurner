@@ -78,17 +78,15 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -503,8 +501,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 	    	case KeyEvent.KEYCODE_DPAD_RIGHT:
 	            
 	        	if (action == KeyEvent.ACTION_DOWN) {
-	                //pageDown(Orientation.HORIZONTAL);
-	        		doPageCurl(true);
+	                pageDown(Orientation.HORIZONTAL);	        		
 	            }
 	        	
 	        	return true;	 
@@ -515,8 +512,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 
 	        case KeyEvent.KEYCODE_DPAD_LEFT:	
 	            if (action == KeyEvent.ACTION_DOWN) {
-	               //pageUp(Orientation.HORIZONTAL);
-	            	doPageCurl(false);
+	               pageUp(Orientation.HORIZONTAL);	            	
 	            }
 	            
 	            return true;	
@@ -601,26 +597,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         	this.viewSwitcher.showNext();
 
         	handler.post( new PageCurlRunnable() );
-    	} else {
-    		/*
-    		dummyView.getAnimator().advanceOneFrame();
-    		
-    		Animator anim = dummyView.getAnimator();
-			
-			if ( anim.isFinished() ) {
-				 				
-				if ( viewSwitcher.getCurrentView() == dummyView ) {
-					viewSwitcher.showNext();    					
-				}
-				
-				dummyView.setAnimator(null);   				
-				
-			}
-			*/
-    	}
+    	} 
     	
-    	dummyView.invalidate();
-    	
+    	dummyView.invalidate();    	
     	    	
     }
     
@@ -744,36 +723,53 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	
     	stopRollingBlind();
     	
-    	boolean animateH = settings.getBoolean("animate_h", true);
-    	boolean animateV = settings.getBoolean("animate_v", true);
+    	String animH = settings.getString("h_animation", "curl");
+    	String animV = settings.getString("v_animation", "slide");
     	
-    	if ( o == Orientation.HORIZONTAL && animateH ) {
-    		prepareSlide(Animations.inFromRightAnimation(), Animations.outToLeftAnimation());
-    		this.viewSwitcher.showNext();
-    	} else if ( animateV ){
+    	if ( o == Orientation.HORIZONTAL  ) {
+    		
+    		if ( "curl".equals(animH) ) {
+    			doPageCurl(true);
+    		} else if ("slide".equals(animH) ) {
+    			prepareSlide(Animations.inFromRightAnimation(), Animations.outToLeftAnimation());
+        		this.viewSwitcher.showNext();
+        		bookView.pageDown();
+    		} else {
+    			bookView.pageDown();
+    		}
+    		
+    	} else if ( "slide".equals(animV) ){
     		prepareSlide(Animations.inFromBottomAnimation(), Animations.outToTopAnimation() );    		
     		this.viewSwitcher.showNext();
-    	}    	
-    	
-		bookView.pageDown();
+    		bookView.pageDown();
+    	}    	    	
+		
     }
     
     private void pageUp(Orientation o) {
     	
     	stopRollingBlind();
+
+    	String animH = settings.getString("h_animation", "curl");
+    	String animV = settings.getString("v_animation", "slide");
     	
-    	boolean animateH = settings.getBoolean("animate_h", true);
-    	boolean animateV = settings.getBoolean("animate_v", true);
-    	
-    	if ( o == Orientation.HORIZONTAL && animateH) {
-    		prepareSlide(Animations.inFromLeftAnimation(), Animations.outToRightAnimation());    		
-        	this.viewSwitcher.showNext();
-    	} else if ( animateV ){
+    	if ( o == Orientation.HORIZONTAL  ) {
+    		
+    		if ( "curl".equals(animH) ) {
+    			doPageCurl(false);
+    		} else if ("slide".equals(animH) ) {
+    			prepareSlide(Animations.inFromLeftAnimation(), Animations.outToRightAnimation()); 
+        		this.viewSwitcher.showNext();
+        		bookView.pageUp();
+    		} else {
+    			bookView.pageUp();
+    		}
+    		
+    	} else if ( "slide".equals(animV) ){
     		prepareSlide(Animations.inFromTopAnimation(), Animations.outToBottomAnimation());    		
     		this.viewSwitcher.showNext();
-    	}    	    	
-    	
-		bookView.pageUp();
+    		bookView.pageUp();
+    	}    	
     }
     
     @Override

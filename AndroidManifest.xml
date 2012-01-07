@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.nightwhistler.pageturner"
       android:versionCode="1"
-      android:versionName="0.2.11">
+      android:versionName="0.2.12">
     
     <uses-sdk android:minSdkVersion="7" />
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -10,9 +10,10 @@
     
     <application android:label="@string/app_name" 
         android:icon="@drawable/page_turner"
-        android:description="@string/app_desc">
+        android:description="@string/app_desc"
+        android:name="net.nightwhistler.pageturner.PageTurner">
 
-        <activity android:name="ReadingActivity"
+        <activity android:name=".activity.ReadingActivity"
                   android:label="@string/app_name"> 
                   
             <intent-filter>
@@ -42,13 +43,14 @@
  
         </activity>
         
-        <activity android:name="PageTurnerPrefsActivity"
+        <activity android:name=".activity.PageTurnerPrefsActivity"
                   android:label="PageTurner preferences" /> 
                   
                
-        <activity android:name="LibraryActivity"
+        <activity android:name=".activity.LibraryActivity"
                   android:label="PageTurner Library" />                 
           
+<<<<<<< HEAD
         <activity android:name="BookDetailsActivity"
                   android:label="Book details" />   
                   
@@ -60,6 +62,10 @@
             </intent-filter>
  
             </activity>
+=======
+        <activity android:name=".activity.BookDetailsActivity"
+                  android:label="Book details" />           
+>>>>>>> master
         
         
     </application>

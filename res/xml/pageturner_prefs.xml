@@ -2,6 +2,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" 
 	android:key="PageTurnerState">
 	
+	<PreferenceCategory
+                android:title="Sync settings"> 
+                 
 	<EditTextPreference
 	            android:key="email"
 	            android:title="E-mail address"
@@ -9,15 +12,40 @@
 	            android:dialogTitle="E-mail address"
 	            android:dialogMessage="Please enter a valid e-mail address"   
 	            />
+	
+	<EditTextPreference
+	            android:key="device_name"
+	            android:title="Device name"
+	            android:summary="Unique name for this device, for conflict resolution."
+	            android:dialogTitle="Device name"
+	            android:dialogMessage="Please enter a name for this device."
+	            android:dependency="email"   
+	            />
+	</PreferenceCategory>
+
+	<PreferenceCategory
+                android:title="Autoscroll settings">  		
+
+ <ListPreference
+     		android:key="scroll_style"
+            android:title="Autoscroll style"
+            android:summary="Rolling blind or timer"            
+        	android:defaultValue="rolling_blind"
+        	android:entries="@array/autoscrollLabels"
+        	android:entryValues="@array/autoscroll" />           
+	
+
 
 	<com.hlidskialf.android.preference.SeekBarPreference
-				android:key="blind_speed"
+				android:key="scroll_speed"
 				android:title="Autoscrolling speed"
-				android:summary="For rolling blind mode."
+				android:summary="How many seconds a page will be displayed."
 				android:dialogTitle="Scroll speed"								
-				android:defaultValue="75"
-				android:max="99"				
+				android:defaultValue="30"
+				android:max="300"				
 				/>
+				
+	</PreferenceCategory>
 
 	<PreferenceCategory
                 android:title="Visual settings">  		
@@ -27,6 +55,14 @@
             android:title="Full screen"
             android:summary="Hides all status bars."
             android:defaultValue="false" />
+            
+    <ListPreference
+     	android:title="Screen orientation"
+        android:summary="Allows you to lock the screen orientation"
+        android:key="screen_orientation"
+        android:defaultValue="no_lock"
+        android:entries="@array/orientationLabels"
+        android:entryValues="@array/orientation" />
             
    <CheckBoxPreference
 			android:key="set_brightness"
@@ -120,6 +156,11 @@
     			android:summary="For day mode"
     			android:defaultValue="-1" />     		
     		    		
+			<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="day_link"
+    			android:title="Link colour"
+    			android:summary="For day mode"
+    			android:defaultValue="-16776961" />  
 			 		    		
     		
              <net.nightwhistler.pageturner.prefs.ColourChooserPref
@@ -133,6 +174,12 @@
     			android:title="Background colour"
     			android:summary="For night mode"
     			android:defaultValue="-16777216" />  
+    			
+    		<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="night_link"
+    			android:title="Link colour"
+    			android:summary="For night mode"
+    			android:defaultValue="-23296" />  
     		
     	
     					
@@ -140,19 +187,24 @@
     
     <PreferenceCategory
                 android:title="Animations">
-                
-        <CheckBoxPreference			
-            android:key="animate_h"
-            android:title="Horizontal sliding"
-            android:summary="Enables horizontal sliding page change animations"
-            android:defaultValue="true" /> 
         
-        <CheckBoxPreference			
-            android:key="animate_v"
-            android:title="Vertical sliding"
-            android:summary="Enables vertical sliding page change animations"
-            android:defaultValue="true"
-            />         
+         <ListPreference
+     		android:key="h_animation"
+            android:title="Horizontal animations"
+            android:summary="Horizontal page change animations"            
+        	android:defaultValue="curl"
+        	android:entries="@array/h_animLabels"
+        	android:entryValues="@array/h_anim" />
+                    
+
+         <ListPreference
+     		android:key="h_animation"
+            android:title="Vertical animations"
+            android:summary="Vertical page change animations"            
+        	android:defaultValue="slide"
+        	android:entries="@array/v_animLabels"
+        	android:entryValues="@array/v_anim" />               
+     
                 
     </PreferenceCategory>
                 

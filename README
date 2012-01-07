@@ -2,6 +2,10 @@ PageTurner Synchronizing e-book reader for Android.
 
 In short, PageTurner is an epub reader that allows you to keep your reading progress synchronized across multuple devices. This means you can read a few pages on your phone, than grab your tablet and continue where you left off.
 
+<<<<<<< HEAD
 See http://www.nightwhistler.net/pageturner/ for more info and some screenshots.
+=======
+See http://www.pageturner-reader.org/ for more info and some screenshots.
+>>>>>>> master
 
 It is licensed under the GPL-V3 license.

@@ -18,30 +18,29 @@
  */
 package net.nightwhistler.pageturner.sync;
 
-public class BookProgress {
+import java.util.List;
 
-	String fileName;
+public interface ProgressService {
+
+	/**
+	 * Stores the progress for the given book.
+	 * @param userId
+	 * @param fileName
+	 * @param progress
+	 */
+	public void storeProgress( String fileName, int index, int progress, int percentage );
 	
-	int index;
+	/**
+	 * Returns the progress, or -1 of it wasn't found.
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public List<BookProgress> getProgress( String fileName );
 	
-	private int progress;
+	public void setEmail(String email);
 	
-	public BookProgress( String fileName, int index, int progress ) {
-		this.fileName = fileName;
-		this.index = index;
-		this.progress = progress;
-	}
+	public void setDeviceName( String deviceName );
 	
-	public String getFileName() {
-		return fileName;
-	}
-	
-	public int getIndex() {
-		return index;
-	}
-	
-	public int getProgress() {
-		return progress;
-	}
 	
 }

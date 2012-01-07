@@ -59,14 +59,31 @@ public interface PageChangeStrategy {
 	/** Simple way to differentiate without instanceof **/
 	public boolean isScrolling();
 	
+	/**
+	 * Clears all text held in this strategy's buffer.
+	 */
 	public void clearText();
 	
+	/**
+	 * Clears the stored position in this strategy.
+	 */
 	public void clearStoredPosition();
 	
+	/**
+	 * Updates all fields to reflect a new configuration.
+	 */
 	public void updatePosition();
 	
+	/**
+	 * Clears both the buffer and stored position.
+	 */
 	public void reset();
 	
+	/**
+	 * Gets the text held in this strategy's buffer.
+	 * 
+	 * @return the text
+	 */
 	public Spanned getText();
 	
 }

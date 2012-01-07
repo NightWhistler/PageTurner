@@ -51,9 +51,10 @@
 	        android:layout_height="fill_parent"
 	        />
      
-    <ImageView android:layout_width="fill_parent"
-        android:layout_height="fill_parent" 
-        android:id="@+id/dummyView" />
+	    <net.nightwhistler.pageturner.view.AnimatedImageView
+    	     android:layout_width="fill_parent"
+        	android:layout_height="fill_parent" 
+        	android:id="@+id/dummyView" />
     
     </ViewSwitcher>        
 

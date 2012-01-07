@@ -31,12 +31,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.nightwhistler.pageturner.R;
+import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.htmlspanner.TagNodeHandler;
+import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
-import net.nightwhistler.pageturner.html.CleanHtmlParser;
-import net.nightwhistler.pageturner.html.TagNodeHandler;
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.MediaType;
@@ -46,8 +46,6 @@ import nl.siegmann.epublib.epub.EpubReader;
 import nl.siegmann.epublib.service.MediatypeService;
 import nl.siegmann.epublib.util.StringUtil;
 
-import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,11 +53,6 @@ import org.slf4j.LoggerFactory;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -92,9 +85,7 @@ public class BookView extends ScrollView {
 	
 	private Set<BookViewListener> listeners;
 	
-	private HtmlCleaner htmlCleaner;
-	private CleanHtmlParser parser;
-	
+	private HtmlSpanner spanner;		
 	private TableHandler tableHandler;
 	
 	private OnTouchListener touchListener;
@@ -116,9 +107,6 @@ public class BookView extends ScrollView {
 	private int verticalMargin = 0;
 	private int lineSpacing = 0;
 	
-	private Bitmap backgroundBitmap;
-	private int pixelsToDraw;
-	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 	
 	public BookView(Context context, AttributeSet attributes) {
@@ -137,30 +125,7 @@ public class BookView extends ScrollView {
 			
 			public boolean dispatchKeyEvent(KeyEvent event) {
 				return BookView.this.dispatchKeyEvent(event);
-			}	
-			
-			protected void onDraw(Canvas canvas) {
-				super.onDraw(canvas);
-				if ( backgroundBitmap != null ) {
-					
-					Rect source = new Rect( getHorizontalMargin(),							
-							getVerticalMargin() + pixelsToDraw,
-							backgroundBitmap.getWidth() - horizontalMargin,
-							backgroundBitmap.getHeight() - verticalMargin );
-					
-					Rect dest = new Rect( 0, pixelsToDraw, 
-							backgroundBitmap.getWidth() - (2*horizontalMargin), 
-							backgroundBitmap.getHeight() - (2*verticalMargin) );					
-					
-					canvas.drawBitmap(backgroundBitmap, source, dest, null);
-					
-					Paint paint = new Paint();
-					paint.setColor(Color.GRAY);
-					paint.setStyle(Paint.Style.STROKE);
-					
-					canvas.drawLine(0, dest.top, dest.right, dest.top, paint);
-				}	
-			}
+			}			
 			
 		};  
 		
@@ -178,26 +143,26 @@ public class BookView extends ScrollView {
         }  
         
         this.setSmoothScrollingEnabled(false);        
-        this.addView(childView);
-        
-        this.htmlCleaner = createHtmlCleaner();   
-        this.parser = new CleanHtmlParser();
-        parser.registerHandler("img", new ImageTagHandler() );
-        parser.registerHandler("a", new AnchorHandler(new LinkTagHandler()) );
-        
-        parser.registerHandler("h1", new AnchorHandler(parser.getHandlerFor("h1") ));
-        parser.registerHandler("h2", new AnchorHandler(parser.getHandlerFor("h2") ));
-        parser.registerHandler("h3", new AnchorHandler(parser.getHandlerFor("h3") ));
-        parser.registerHandler("h4", new AnchorHandler(parser.getHandlerFor("h4") ));
-        parser.registerHandler("h5", new AnchorHandler(parser.getHandlerFor("h5") ));
-        parser.registerHandler("h6", new AnchorHandler(parser.getHandlerFor("h6") ));
-        
-        parser.registerHandler("p", new AnchorHandler(parser.getHandlerFor("p") ));
-
-        this.tableHandler = new TableHandler(parser);
-        parser.registerHandler("table", tableHandler);
+        this.addView(childView);        
         
         this.anchors = new HashMap<String, Integer>();
+        this.tableHandler = new TableHandler();
+	}	
+	
+	public void setSpanner(HtmlSpanner spanner) {
+		this.spanner = spanner;
+        spanner.registerHandler("img", new ImageTagHandler() );
+        spanner.registerHandler("a", new AnchorHandler(new LinkTagHandler()) );
+        
+        spanner.registerHandler("h1", new AnchorHandler(spanner.getHandlerFor("h1") ));
+        spanner.registerHandler("h2", new AnchorHandler(spanner.getHandlerFor("h2") ));
+        spanner.registerHandler("h3", new AnchorHandler(spanner.getHandlerFor("h3") ));
+        spanner.registerHandler("h4", new AnchorHandler(spanner.getHandlerFor("h4") ));
+        spanner.registerHandler("h5", new AnchorHandler(spanner.getHandlerFor("h5") ));
+        spanner.registerHandler("h6", new AnchorHandler(spanner.getHandlerFor("h6") ));
+        
+        spanner.registerHandler("p", new AnchorHandler(spanner.getHandlerFor("p") ));
+        spanner.registerHandler("table", tableHandler);
 	}	
 	
 	public void setFileName(String fileName) {
@@ -213,20 +178,7 @@ public class BookView extends ScrollView {
 	}
 	
 	public void setStripWhiteSpace(boolean stripWhiteSpace) {
-		this.parser.setStripExtraWhiteSpace(stripWhiteSpace);
-	}
-	
-	public void setBackgroundBitmap(Bitmap backgroundBitmap) {
-		this.backgroundBitmap = backgroundBitmap;			
-	}
-	
-	public Bitmap getBackgroundBitmap() {
-		return backgroundBitmap;
-	}
-	
-	public void setPixelsToDraw(int pixelsToDraw) {
-		this.pixelsToDraw = pixelsToDraw;
-		invalidate();
+		this.spanner.setStripExtraWhiteSpace(stripWhiteSpace);
 	}	
 	
 	@Override
@@ -234,8 +186,7 @@ public class BookView extends ScrollView {
 		
 		if ( this.touchListener != null ) {
 			this.touchListener.onTouch(this, ev);
-		}
-		
+		}	
 		
 		return super.onTouchEvent(ev);					
 	}	
@@ -268,6 +219,10 @@ public class BookView extends ScrollView {
 				strategy.updatePosition();
 			}
 		}		
+	}
+	
+	public void setLinkColor(int color) {
+		this.childView.setLinkTextColor(color);
 	}
 	
 	public void setVerticalMargin(int verticalMargin) {
@@ -329,7 +284,7 @@ public class BookView extends ScrollView {
 	}
 	
 	public void setTypeface(Typeface typeFace) {
-		this.childView.setTypeface( typeFace );
+		this.childView.setTypeface( typeFace );		
 		this.tableHandler.setTypeFace(typeFace);
 	}	
 	
@@ -454,6 +409,20 @@ public class BookView extends ScrollView {
 			new LoadTextTask().execute(href);
 		}
 	}	
+	
+	public void navigateTo( int index, int position ) {
+		
+		this.prevIndex = this.getIndex();
+		this.prevPos = this.getPosition();
+		
+		this.storedIndex = index;
+		this.strategy.clearText();
+		this.strategy.setPosition(position);
+				
+		this.spine.navigateByIndex(index);
+		
+		loadText();
+	}
 	
 	public List<TocEntry> getTableOfContents() {
 		if ( this.book == null ) {
@@ -694,9 +663,7 @@ public class BookView extends ScrollView {
 		
 		if ( this.childView != null ) {
 			this.childView.setBackgroundColor(color);
-		}
-		
-		this.tableHandler.setBackgroundColor(color);
+		}		
 	}
 	
 	public void setTextColor( int color ) {
@@ -723,31 +690,6 @@ public class BookView extends ScrollView {
 		public String getTitle() {
 			return title;
 		}
-	}
-	
-	private TagNode processHtml(Resource resource) throws IOException {		
-		return this.htmlCleaner.clean(resource.getReader());
-	}
-	
-	private static HtmlCleaner createHtmlCleaner() {
-		HtmlCleaner result = new HtmlCleaner();
-		CleanerProperties cleanerProperties = result.getProperties();
-		
-		cleanerProperties.setAdvancedXmlEscape(true);
-		
-		cleanerProperties.setOmitXmlDeclaration(true);
-		cleanerProperties.setOmitDoctypeDeclaration(false);		
-		
-		cleanerProperties.setTranslateSpecialEntities(true);
-		cleanerProperties.setTransResCharsToNCR(true);
-		cleanerProperties.setRecognizeUnicodeChars(true);
-		
-		cleanerProperties.setIgnoreQuestAndExclam(true);
-		cleanerProperties.setUseEmptyElementTags(false);
-		
-		cleanerProperties.setPruneTags("script,style,title");
-		
-		return result;
 	}	
 	
 	/**
@@ -841,8 +783,6 @@ public class BookView extends ScrollView {
 			
 			if ( text != null && text.length() > 0 ) {
 				this.strategy.loadText(text);
-			} else {
-				loadText();
 			}
 		}
 	}
@@ -921,7 +861,7 @@ public class BookView extends ScrollView {
 			}			
 			
 			try {
-				Spanned result = parser.fromTagNode( processHtml(resource) );
+				Spanned result = spanner.fromHtml(resource.getReader());
 				loader.load(); //Load all image resources.
 				return result;
 			} catch (IOException io ) {

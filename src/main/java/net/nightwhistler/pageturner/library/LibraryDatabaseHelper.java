@@ -20,6 +20,10 @@ package net.nightwhistler.pageturner.library;
 
 import java.util.Date;
 
+import roboguice.inject.ContextScoped;
+
+import com.google.inject.Inject;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -27,6 +31,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.BitmapFactory;
 
+@ContextScoped
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	public enum Field { file_name, title, a_first_name, a_last_name,
@@ -47,7 +52,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DB_NAME = "PageTurnerLibrary";
 	private static final int VERSION = 2;
 
-	
+	@Inject
 	public LibraryDatabaseHelper(Context context) {
 		super(context, DB_NAME, null, VERSION);		
 	}

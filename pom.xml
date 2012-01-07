@@ -8,14 +8,27 @@
     <version>0.2.12-SNAPSHOT</version>
     <packaging>apk</packaging>
     <name>PageTurner</name>
-
-    <dependencies>
+    
+   <dependencies>
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
             <version>2.1.2</version>
             <scope>provided</scope>
         </dependency>
+    
+    <dependency>
+    	<groupId>org.roboguice</groupId>
+        <artifactId>roboguice</artifactId>
+        <version>1.1</version>
+    </dependency>
+        
+    <dependency>
+            <groupId>com.google.code.guice</groupId>
+            <artifactId>guice</artifactId>
+            <version>2.0-no_aop</version>
+    </dependency>
+        
 	<dependency>
 		<groupId>nl.siegmann.epublib</groupId>
 		<artifactId>epublib-core</artifactId>
@@ -66,18 +79,25 @@
          <scope>provided</scope>
      </dependency>
      
+     <dependency>
+         <groupId>net.nightwhistler.htmlspanner</groupId>
+         <artifactId>htmlspanner</artifactId>
+         <version>0.1-SNAPSHOT</version>
+         <scope>compile</scope>
+     </dependency>
+     
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-android</artifactId>
          <version>1.6.1-RC1</version>
          <scope>compile</scope>
      </dependency>
- 
+     
+    
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
-        <sourceDirectory>src</sourceDirectory>
+        <finalName>${project.artifactId}</finalName>        
         <pluginManagement>
             <plugins>
                 <plugin>

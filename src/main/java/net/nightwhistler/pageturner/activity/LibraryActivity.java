@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
-package net.nightwhistler.pageturner;
+package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,11 +26,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.QueryResult;
 import net.nightwhistler.pageturner.library.QueryResultAdapter;
-import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 import nl.siegmann.epublib.service.MediatypeService;
@@ -38,8 +38,9 @@ import nl.siegmann.epublib.service.MediatypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import roboguice.activity.RoboListActivity;
+import roboguice.inject.InjectResource;
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -67,8 +68,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class LibraryActivity extends ListActivity implements OnItemSelectedListener {
+import com.google.inject.Inject;
+
+public class LibraryActivity extends RoboListActivity implements OnItemSelectedListener {
 	
+	@Inject 
 	private LibraryService libraryService;
 	
 	private BookAdapter bookAdapter;
@@ -80,6 +84,7 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 	private ProgressDialog waitDialog;
 	private ProgressDialog importDialog;
 		
+	@InjectResource(R.drawable.river_diary)
 	private Drawable backupCover;
 	
 	private int lastPosition;
@@ -95,8 +100,6 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		
 		super.onCreate(savedInstanceState);
 		
-		this.libraryService = new SqlLiteLibraryService(this);
-		
 		this.bookAdapter = new BookAdapter(this);
 		this.menuAdapter = new ArrayAdapter<String>(this, R.layout.menu_row, 
 				R.id.bookTitle, MENU_ITEMS);
@@ -108,8 +111,6 @@ public class LibraryActivity extends ListActivity implements OnItemSelectedListe
 		
 		this.importDialog = new ProgressDialog(this);
 		this.importDialog.setOwnerActivity(this);
-		
-		this.backupCover = getResources().getDrawable(R.drawable.river_diary );
 		
 		registerForContextMenu(getListView());		
 	}

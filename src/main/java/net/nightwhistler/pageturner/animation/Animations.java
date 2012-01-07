@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
-package net.nightwhistler.pageturner;
+package net.nightwhistler.pageturner.animation;
 
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;

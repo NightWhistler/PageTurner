@@ -20,13 +20,57 @@
     <string name="quick_guide">Quick guide</string>
     <string name="help">PageTurner only reads EPUB files. Change pages by swiping horizontally or using the volume buttons. Please check the Preferences page.</string>
     <string name="show_toc">Show TOC</string>   
-    <string name="rolling_blind">Rolling blind mode</string>
+    <string name="rolling_blind">Auto-scroll</string>
         
     <string-array name="library_ordering">
         <item>Most recently read</item>
         <item>Most recently added</item>
         <item>Title</item>
     </string-array>
-        
     
+    <string-array name="v_anim">
+        <item>slide</item>
+        <item>none</item>        
+    </string-array>
+    
+    <string-array name="h_anim">
+        <item>curl</item>
+        <item>slide</item>
+        <item>none</item>
+    </string-array>
+        
+    <string-array name="v_animLabels">
+        <item>Slide</item>
+        <item>None</item>        
+    </string-array>
+    
+    <string-array name="h_animLabels">
+        <item>Page flip</item>
+        <item>Slide</item>
+        <item>None</item>
+    </string-array>
+        
+        
+    <string-array name="orientation">
+        <item>no_lock</item>
+        <item>portrait</item>
+        <item>landscape</item>
+    </string-array>
+        
+    <string-array name="orientationLabels">
+        <item>Don\'t lock orientation</item>
+        <item>Portrait</item>
+        <item>Landscape</item>
+    </string-array>  
+    
+    <string-array name="autoscroll">
+        <item>rolling_blind</item>
+        <item>timer</item>
+    </string-array>
+    
+    <string-array name="autoscrollLabels">
+        <item>Rolling blind</item>
+        <item>Page change timer</item>
+    </string-array>
+        
 </resources>

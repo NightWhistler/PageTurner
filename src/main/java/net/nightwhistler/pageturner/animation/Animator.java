@@ -1,3 +1,5 @@
+package net.nightwhistler.pageturner.animation;
+
 /*
  * Copyright (C) 2011 Alex Kuiper
  * 
@@ -16,19 +18,41 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
+import android.graphics.Canvas;
 
-package net.nightwhistler.pageturner;
+/**
+ * Interface for animated transitions for a textview.
+ * 
+ * @author Alex Kuiper
+ *
+ */
+public interface Animator {
 
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
-
-public class PageTurnerPrefsActivity extends PreferenceActivity {
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.xml.pageturner_prefs);
-		
-	}
+	/**
+	 * Returns the speed of this animation in FPS.
+	 * 
+	 * @return
+	 */
+	int getAnimationSpeed();
+	
+	/**
+	 * Advances the animation by 1 frame.
+	 */
+	void advanceOneFrame();
+	
+	
+	/**
+	 * Draw an animation frame on the given Canvas.
+	 * 
+	 * @param canvas
+	 */
+	void draw( Canvas canvas );
+	
+	/**
+	 * Checks if this Animator is done animating.
+	 * 
+	 * @return
+	 */
+	boolean isFinished();
 	
 }

@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-    <GridView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/bookCaseGrid"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:numColumns="auto_fit"
-        android:horizontalSpacing="0px"
-        android:verticalSpacing="-1px">
-                
-    </GridView>
-
+<ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/bookCaseViewSwitcher"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+       
+       <ImageView			
+            android:id="@+id/bookCaseImage"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            />
+       
+       <ImageView			
+            android:id="@+id/bookCaseDummy"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            />
+       
+ </ViewSwitcher>

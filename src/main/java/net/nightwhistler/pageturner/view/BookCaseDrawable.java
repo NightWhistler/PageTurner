@@ -20,6 +20,8 @@ public class BookCaseDrawable extends Drawable {
 	private static final int WIDTH = 150;
 	private static final int HEIGHT = 150;
 	
+	private boolean drawBooks = true;
+	
 	public BookCaseDrawable(QueryResult<LibraryBook> books) {
 		this.books = books;		
 	}
@@ -28,7 +30,9 @@ public class BookCaseDrawable extends Drawable {
 	public void draw(Canvas canvas) {
 		drawBackGround(canvas);
 		drawShelves(canvas);
-		//drawBooks(canvas, startOffset);			
+		if ( this.drawBooks ) {
+			drawBooks(canvas, startOffset);
+		}
 	}
 	
 	@Override
@@ -42,11 +46,19 @@ public class BookCaseDrawable extends Drawable {
 		
 	}
 	
+	public void setDrawBooks(boolean drawBooks) {
+		this.drawBooks = drawBooks;
+	}
+	
 	@Override
 	public void setColorFilter(ColorFilter cf) {
 		// TODO Auto-generated method stub
 		
 	}	
+	
+	public QueryResult<LibraryBook> getBooks() {
+		return books;
+	}
 	
 	public int getWidth() {
 		return this.getBounds().width();
@@ -109,6 +121,10 @@ public class BookCaseDrawable extends Drawable {
 	
 	private void drawBooks(Canvas canvas, int startOffset) {
 		
+		if ( this.books.getSize() == 0 ) {
+			return;
+		}
+		
 		int numberOfSlots = getBooksPerRow();
 		int slotWidth = getWidth() / numberOfSlots;
 		
@@ -126,13 +142,20 @@ public class BookCaseDrawable extends Drawable {
 					LibraryBook book = books.getItemAt(count);
 										
 					Drawable bitMapDrawable = getCover(book);
-					double ratio = (double) bitMapDrawable.getIntrinsicWidth() / (double) bitMapDrawable.getIntrinsicHeight();						
+					double ratio = (double) bitMapDrawable.getIntrinsicHeight() / (double) bitMapDrawable.getIntrinsicWidth();						
 						
 					int leftOfSlot = i * slotWidth;
-					int widthOfBook = (int) (WIDTH * ratio);
+					int widthOfBook = WIDTH;
+					int heightOfBook = (int) (widthOfBook * ratio);
+					
+					if ( heightOfBook > HEIGHT ) {
+						heightOfBook = HEIGHT;
+						widthOfBook = (int) ( heightOfBook * (1/ratio));
+					}
+					
 					int leftOfBook = leftOfSlot + ( slotWidth / 2 ) - ( widthOfBook / 2 );
 						
-					bitMapDrawable.setBounds(leftOfBook, top, leftOfBook + widthOfBook, top + HEIGHT );
+					bitMapDrawable.setBounds(leftOfBook, top, leftOfBook + widthOfBook, top + heightOfBook );
 					bitMapDrawable.draw(canvas);					
 
 					count++;

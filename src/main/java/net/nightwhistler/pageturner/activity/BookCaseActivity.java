@@ -1,42 +1,71 @@
 package net.nightwhistler.pageturner.activity;
 
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.animation.Animations;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
-import net.nightwhistler.pageturner.library.QueryResultAdapter;
+import net.nightwhistler.pageturner.library.QueryResult;
+import net.nightwhistler.pageturner.view.BookCaseDrawable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import roboguice.activity.RoboActivity;
+import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.Display;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.GestureDetector;
+import android.view.KeyEvent;
+import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.GridView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ImageView;
+import android.widget.ViewSwitcher;
 
+import com.globalmentor.android.widget.VerifiedFlingListener;
 import com.google.inject.Inject;
 
 public class BookCaseActivity extends RoboActivity {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookCaseActivity.class);
 	
-	@InjectView(R.id.bookCaseGrid)
-	private GridView bookCaseView;
+	@InjectView(R.id.bookCaseImage)
+	private ImageView bookCaseView;
 	
-	//private GestureDetector gestureDetector;
-	private View.OnTouchListener touchListener;
+	@InjectView(R.id.bookCaseDummy)
+	private ImageView dummyCaseView;	
+	
+	@InjectView(R.id.bookCaseViewSwitcher)
+	private ViewSwitcher viewSwitcher;
+	
+	@InjectResource(R.drawable.pine)
+	private Drawable background;
+	
+	@InjectResource(R.drawable.shelf)
+	private Drawable shelf;
+	
+	@InjectResource(R.drawable.river_diary)
+	private Drawable fallBackCover;
+	
+	private GestureDetector gestureDetector;
+		
+	private BookCaseDrawable bookCaseDrawable;
+	private View.OnTouchListener gestureListener;
 	
 	@Inject
 	private LibraryService libraryService;
 	
-	//private QueryResult<LibraryBook> result;	
-	
+	private LibraryBook selectedBook;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,137 +73,187 @@ public class BookCaseActivity extends RoboActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.bookcase);
 		
-		this.bookCaseView.setOnTouchListener(touchListener);
+			
+		QueryResult<LibraryBook> books = this.libraryService.findAllByTitle();
+		this.bookCaseDrawable = new BookCaseDrawable(books);
+		this.bookCaseDrawable.setBackground(background);
+		this.bookCaseDrawable.setShelf(shelf);
+		this.bookCaseDrawable.setFallBackCover(fallBackCover);
 		
-		//Drawable background = getBookCaseDrawable();
-		//bookCaseView.setBackgroundDrawable(background);
-						
-		//bookCaseView.setNumColumns(3);
+		this.bookCaseView.setImageDrawable(bookCaseDrawable);
 		
-		Display display = getWindowManager().getDefaultDisplay(); 
-		int width = display.getWidth();
-
+		//this.bookCaseView.setImageDrawable(this.bookCaseDrawable);	
 		
-		//int columns = (width / 150) + 1;
-		//bookCaseView.setNumColumns(columns);
-		//bookCaseView.setPadding(0, 0, 0, 0);
-		//bookCaseView.setStretchMode(GridView.NO_STRETCH);
+		this.gestureDetector = new GestureDetector(this, new ClickListener());
+        this.gestureListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+            	LOG.debug("Got touch event: " + event );
+                return gestureDetector.onTouchEvent(event);
+            }
+        };   
+        
+        
+    	this.viewSwitcher.setOnTouchListener(gestureListener);
+    	this.dummyCaseView.setOnTouchListener(gestureListener);
+    	this.bookCaseView.setOnTouchListener(gestureListener);	
+    	
+    	registerForContextMenu(viewSwitcher);
+    	registerForContextMenu(dummyCaseView);
+    	registerForContextMenu(bookCaseView);
 		
-		BookGridAdapter adapter = new BookGridAdapter();
-		bookCaseView.setAdapter( adapter );		
-		
-		adapter.setResult( this.libraryService.findAllByTitle() );
 	}
 	
+	@Override
+    public boolean onTouchEvent(MotionEvent event) {    	
+    	return this.gestureDetector.onTouchEvent(event);
+    }
 	
-	
-	/*
-	private BookCaseDrawable getBookCaseDrawable() {
-		BookCaseDrawable drawable  = new BookCaseDrawable(result);
-		drawable.setBackground( getResources().getDrawable(R.drawable.pine) );
-		drawable.setShelf( getResources().getDrawable(R.drawable.shelf) );
-		drawable.setFallBackCover( getResources().getDrawable(R.drawable.river_diary) );
-
-		//drawable.setBounds( 0, 0, bookCaseView.getWidth(), bookCaseView.getHeight() );
-		
-		return drawable;
-	}
-	*/	
-	
-	private class BookGridAdapter extends QueryResultAdapter<LibraryBook> {
-		@Override
-		public View getView(int index, LibraryBook object, View convertView,
-				ViewGroup parent) {
-			
-			ImageView imageView;
-			
-			if ( convertView != null ) {
-				imageView = (ImageView) convertView;
-			} else {
-				imageView = new ImageView(BookCaseActivity.this);
-			}			
-			
-			Drawable drawable;
-			if ( object.getCoverImage() != null ) {
-				drawable = new BitmapDrawable( Bitmap.createScaledBitmap(object.getCoverImage(), 150, 200, false));
-				//drawable = getResources().getDrawable(R.drawable.river_diary);
-			} else {
-				imageView.setImageBitmap(null);
-				return imageView;
-				//drawable = getResources().getDrawable(R.drawable.river_diary);
-			}
-			
-			
-			float ratio = (float) drawable.getIntrinsicHeight() / (float) drawable.getIntrinsicWidth();
-			
-			int width = 150;
-			int height = (int) (width * ratio);
-			
-			drawable.setBounds( 0, 0, width, height );
-			imageView.setImageDrawable(drawable);
-			
-			
-			return imageView;
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		if ( event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN 
+				&& event.getAction() == KeyEvent.ACTION_DOWN ) {
+			switchPage(true);
+			return true;
 		}
+		
+		if ( event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP 
+				&& event.getAction() == KeyEvent.ACTION_DOWN ) {
+			switchPage(false);
+			return true;
+		}
+		
+		return false;
 	}
 	
-	/*
+	public void switchPage( boolean right ) {
+		
+		int currentView = viewSwitcher.getDisplayedChild();		
+		int otherView = Math.abs( currentView - 1 );
+		
+		int newOffset = 0;
+		
+		if (right ) {	
+			viewSwitcher.setInAnimation( Animations.inFromRightAnimation() );
+			viewSwitcher.setOutAnimation(Animations.outToLeftAnimation() );				
+			
+			newOffset = bookCaseDrawable.getStartOffset()
+				+ bookCaseDrawable.getAmountOfBooks();
+			
+			if ( newOffset >= ( bookCaseDrawable.getBooks().getSize() -1) ) {
+				newOffset = 0;
+			}
+		} else {
+			viewSwitcher.setInAnimation(Animations.inFromLeftAnimation());
+			viewSwitcher.setOutAnimation(Animations.outToRightAnimation() );
+			
+			newOffset = bookCaseDrawable.getStartOffset()
+				- bookCaseDrawable.getCapacity();
+			
+			if ( newOffset < 0 ) {
+				newOffset = (bookCaseDrawable.getBooks().getSize() -1) - newOffset;
+			}
+		}	
+		
+		ImageView imageView = (ImageView) viewSwitcher.getChildAt(otherView);
+		imageView.setImageBitmap(null);
+		imageView.setImageDrawable(null);
+		
+		BookCaseDrawable oldDrawable = this.bookCaseDrawable;
+		oldDrawable.setDrawBooks(false);
+		oldDrawable.getBooks().close();
+		
+		this.bookCaseDrawable = new BookCaseDrawable(libraryService.findAllByTitle());
+		this.bookCaseDrawable.setBackground(background);
+		this.bookCaseDrawable.setShelf(shelf);
+		this.bookCaseDrawable.setFallBackCover(fallBackCover);
+		this.bookCaseDrawable.setStartOffset(newOffset);
+
+		Bitmap bitmap = Bitmap.createBitmap( bookCaseView.getWidth(),
+				bookCaseView.getHeight(), Config.ARGB_8888 );
+		Canvas canvas = new Canvas(bitmap);
+		this.bookCaseDrawable.setBounds( 0, 0, bookCaseView.getWidth(), bookCaseView.getHeight() );
+		this.bookCaseDrawable.draw(canvas);
+		
+		imageView.setImageBitmap(bitmap);
+		
+		
+		viewSwitcher.showNext();
+	}	
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {		
+		
+		MenuItem detailsItem = menu.add( "View details");
+		
+		detailsItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				Intent intent = new Intent( BookCaseActivity.this, BookDetailsActivity.class );
+				intent.putExtra("book", selectedBook.getFileName() );				
+				startActivity(intent);					
+				return true;
+			}
+		});
+		/*
+		MenuItem deleteItem = menu.add("Delete from library");
+		
+		deleteItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				libraryService.deleteBook( selectedBook.getFileName() );
+				new LoadBooksTask().execute(lastPosition);
+				return true;					
+			}
+		});				
+		*/
+	}	
+	
+	
 	private class ClickListener extends VerifiedFlingListener {
 		
-		public ClickListener(Context context) {
-			super(context);
+		public ClickListener() {
+			super(BookCaseActivity.this);
 		}
 		
 		@Override
-		public boolean onSingleTapUp(MotionEvent e) {
+		public void onLongPress(MotionEvent e) {
+			selectedBook = bookCaseDrawable.findBookAtLocation(e.getX(), e.getY());
+			openContextMenu(viewSwitcher);
+		}		
+		
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+			LibraryBook book = bookCaseDrawable.findBookAtLocation(e.getX(), e.getY());
 			
-			//LOG.debug("Single tap confirmed.");
-			//bookCaseView.fireClick(e.getX(), e.getY() );
-			return true;
+			if ( book != null ) {
+				Intent intent = new Intent(BookCaseActivity.this, ReadingActivity.class);
+			
+				intent.setData( Uri.parse(book.getFileName()));
+				setResult(RESULT_OK, intent);
+				
+				startActivityIfNeeded(intent, 99);
+			
+				return true;
+			}
+			
+			return false;
 		}
 		
 		@Override
 		public boolean onVerifiedFling(MotionEvent e1, MotionEvent e2,
 				float velocityX, float velocityY) {
-			
-			int displayed = bookCaseView.getDisplayedChild();
-			int otherIndex = Math.abs( displayed - 1 );
-			
-			if ( velocityX < 0 ) {	
-				bookCaseView.setInAnimation( Animations.inFromRightAnimation() );
-				bookCaseView.setOutAnimation(Animations.outToLeftAnimation() );				
-				
-				int newOffset = bookCaseViews.get(displayed).getStartOffset()
-					+ bookCaseViews.get(displayed).getAmountOfBooks();
-				
-				if ( newOffset >= ( result.getSize() -1) ) {
-					newOffset = 0;
-				}
-				 
-				bookCaseViews.get(otherIndex).setStartOffset(newOffset);
-				
-				bookCaseView.showNext();
-				return true;
-			} else {
-				bookCaseView.setInAnimation(Animations.inFromLeftAnimation());
-				bookCaseView.setOutAnimation(Animations.outToRightAnimation() );
-				
-				int newOffset = bookCaseViews.get(displayed).getStartOffset()
-					- bookCaseViews.get(displayed).getCapacity();
-				
-				if ( newOffset < 0 ) {
-					newOffset = (result.getSize() -1) - newOffset;
-				}
-				
-				bookCaseViews.get(otherIndex).setStartOffset(newOffset);
-				
-				bookCaseView.showPrevious();
-				return true;
-			}			
 						
+			LOG.debug("Fling confirmed.");
+			
+			switchPage( velocityX < 0 );
+			
+			return true;
 		}
 		
 	}
-	*/
+	
 	
 }

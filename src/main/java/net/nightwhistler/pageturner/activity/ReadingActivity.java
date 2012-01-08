@@ -665,7 +665,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     				anim.advanceOneFrame();
     				dummyView.invalidate();
     				
-    				int delay = 1000 / anim.getAnimationSpeed();
+    				//int delay = 1000 / anim.getAnimationSpeed();
+    				int delay = 1500;
     			
     				handler.postDelayed(this, delay);
     			} 
@@ -732,6 +733,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     private void prepareSlide(Animation inAnim, Animation outAnim) {
     	    	    	    	
     	dummyView.setVisibility(View.VISIBLE);
+    	dummyView.setImageBitmap(null);
     	
     	Bitmap bitmap = getBookViewSnapshot();
     	

@@ -1,39 +1,41 @@
-package net.nightwhistler.pageturner;
+package net.nightwhistler.pageturner.activity;
 
+import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
-import net.nightwhistler.pageturner.library.QueryResult;
 import net.nightwhistler.pageturner.library.QueryResultAdapter;
-import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
-import net.nightwhistler.pageturner.view.BookCaseDrawable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.app.Activity;
-import android.app.ListActivity;
+import roboguice.activity.RoboActivity;
+import roboguice.inject.InjectView;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-public class BookCaseActivity extends Activity {
+import com.google.inject.Inject;
+
+public class BookCaseActivity extends RoboActivity {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookCaseActivity.class);
 	
+	@InjectView(R.id.bookCaseGrid)
 	private GridView bookCaseView;
 	
-	private GestureDetector gestureDetector;
+	//private GestureDetector gestureDetector;
 	private View.OnTouchListener touchListener;
 	
+	@Inject
 	private LibraryService libraryService;
 	
-	private QueryResult<LibraryBook> result;	
+	//private QueryResult<LibraryBook> result;	
 	
 	
 	@Override
@@ -41,20 +43,32 @@ public class BookCaseActivity extends Activity {
 				
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.bookcase);
-		this.bookCaseView = (GridView) findViewById(R.id.bookCaseGrid);
-		bookCaseView.setOnTouchListener(touchListener);
+		
+		this.bookCaseView.setOnTouchListener(touchListener);
 		
 		//Drawable background = getBookCaseDrawable();
 		//bookCaseView.setBackgroundDrawable(background);
 						
-		bookCaseView.setNumColumns(3);
-		BookGridAdapter adapter = new BookGridAdapter();
-		bookCaseView.setAdapter( adapter );
+		//bookCaseView.setNumColumns(3);
 		
-		this.libraryService = new SqlLiteLibraryService(this);
+		Display display = getWindowManager().getDefaultDisplay(); 
+		int width = display.getWidth();
+
+		
+		//int columns = (width / 150) + 1;
+		//bookCaseView.setNumColumns(columns);
+		//bookCaseView.setPadding(0, 0, 0, 0);
+		//bookCaseView.setStretchMode(GridView.NO_STRETCH);
+		
+		BookGridAdapter adapter = new BookGridAdapter();
+		bookCaseView.setAdapter( adapter );		
+		
 		adapter.setResult( this.libraryService.findAllByTitle() );
 	}
 	
+	
+	
+	/*
 	private BookCaseDrawable getBookCaseDrawable() {
 		BookCaseDrawable drawable  = new BookCaseDrawable(result);
 		drawable.setBackground( getResources().getDrawable(R.drawable.pine) );
@@ -64,7 +78,8 @@ public class BookCaseActivity extends Activity {
 		//drawable.setBounds( 0, 0, bookCaseView.getWidth(), bookCaseView.getHeight() );
 		
 		return drawable;
-	}	
+	}
+	*/	
 	
 	private class BookGridAdapter extends QueryResultAdapter<LibraryBook> {
 		@Override
@@ -81,15 +96,23 @@ public class BookCaseActivity extends Activity {
 			
 			Drawable drawable;
 			if ( object.getCoverImage() != null ) {
-				drawable = new BitmapDrawable(object.getCoverImage());
+				drawable = new BitmapDrawable( Bitmap.createScaledBitmap(object.getCoverImage(), 150, 200, false));
+				//drawable = getResources().getDrawable(R.drawable.river_diary);
 			} else {
-				drawable = getResources().getDrawable(R.drawable.river_diary);
+				imageView.setImageBitmap(null);
+				return imageView;
+				//drawable = getResources().getDrawable(R.drawable.river_diary);
 			}
 			
-			drawable.setBounds( 0, 0, 150, 150 );
+			
+			float ratio = (float) drawable.getIntrinsicHeight() / (float) drawable.getIntrinsicWidth();
+			
+			int width = 150;
+			int height = (int) (width * ratio);
+			
+			drawable.setBounds( 0, 0, width, height );
 			imageView.setImageDrawable(drawable);
 			
-			//imageView.setBackgroundResource(R.drawable.pine);
 			
 			return imageView;
 		}

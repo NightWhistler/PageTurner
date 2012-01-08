@@ -50,11 +50,10 @@
         <activity android:name=".activity.LibraryActivity"
                   android:label="PageTurner Library" />                 
           
-<<<<<<< HEAD
-        <activity android:name="BookDetailsActivity"
+        <activity android:name=".activity.BookDetailsActivity"
                   android:label="Book details" />   
                   
-        <activity android:name="BookCaseActivity"
+        <activity android:name=".activity.BookCaseActivity"
             	android:label="Book case" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -62,11 +61,7 @@
             </intent-filter>
  
             </activity>
-=======
-        <activity android:name=".activity.BookDetailsActivity"
-                  android:label="Book details" />           
->>>>>>> master
-        
+     
         
     </application>
 </manifest> 

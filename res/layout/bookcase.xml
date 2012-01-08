@@ -5,9 +5,9 @@
         android:id="@+id/bookCaseGrid"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:numColumns="3"
-        android:horizontalSpacing="20px"
-        android:verticalSpacing="10px"
-        android:background="@drawable/wallpaper_lay" >        
+        android:numColumns="auto_fit"
+        android:horizontalSpacing="0px"
+        android:verticalSpacing="-1px">
+                
     </GridView>
 

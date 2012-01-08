@@ -99,7 +99,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		content.put( Field.date_last_read.toString(), new Date().getTime() );
 		
 		getDataBase().update("lib_books", content, whereClause, args);		
-	}
+	}	
 	
 	public void storeNewBook(String fileName, String authorFirstName,
 			String authorLastName, String title, String description,
@@ -137,7 +137,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		findBook.close();
 		
 		return result;
-	}
+	}	
 	
 	public QueryResult<LibraryBook> findByField( Field fieldName, String fieldValue,
 			Field orderField, Order ordering) {

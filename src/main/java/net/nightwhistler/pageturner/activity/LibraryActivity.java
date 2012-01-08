@@ -139,7 +139,7 @@ public class LibraryActivity extends RoboListActivity implements OnItemSelectedL
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 				Intent intent = new Intent( LibraryActivity.this, BookDetailsActivity.class );
-				intent.putExtra("book", selectedBook);				
+				intent.putExtra("book", selectedBook.getFileName());				
 				startActivity(intent);					
 				return true;
 			}

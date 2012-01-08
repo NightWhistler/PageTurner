@@ -22,11 +22,14 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import com.google.inject.Inject;
+
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.R.drawable;
 import net.nightwhistler.pageturner.R.id;
 import net.nightwhistler.pageturner.R.layout;
 import net.nightwhistler.pageturner.library.LibraryBook;
+import net.nightwhistler.pageturner.library.LibraryService;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectExtra;
 import roboguice.inject.InjectView;
@@ -43,7 +46,7 @@ public class BookDetailsActivity extends RoboActivity {
 	private ImageView coverView;
 	
 	@InjectExtra("book")
-	private LibraryBook book;
+	private String book;
 	
 	@InjectView(R.id.titleField) 
 	private TextView titleView;
@@ -60,28 +63,36 @@ public class BookDetailsActivity extends RoboActivity {
 	@InjectView(R.id.bookDescription)
 	private TextView descriptionView;
 	
+	@Inject
+	private LibraryService libraryService;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);		
 		setContentView(R.layout.book_details);
 		
-		if ( book.getCoverImage() != null ) {			
-			coverView.setImageBitmap( BitmapFactory.decodeByteArray(book.getCoverImage(),
-					0, book.getCoverImage().length));
-		} else {			
-			coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
+		LibraryBook libraryBook = libraryService.getBook(this.book);
+		
+		if ( libraryBook != null ) {
+
+			if ( libraryBook.getCoverImage() != null ) {			
+				coverView.setImageBitmap( BitmapFactory.decodeByteArray(libraryBook.getCoverImage(),
+						0, libraryBook.getCoverImage().length));
+			} else {			
+				coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
+			}
+
+			titleView.setText(libraryBook.getTitle());		
+			authorView.setText( "by " + libraryBook.getAuthor().getFirstName() + " " + libraryBook.getAuthor().getLastName() );
+
+			if (libraryBook.getLastRead() != null && ! libraryBook.getLastRead().equals(new Date(0))) {			
+				lastRead.setText("Last read: " + DATE_FORMAT.format(libraryBook.getLastRead()) );
+			}
+
+			added.setText( "Added to library: " + DATE_FORMAT.format(libraryBook.getAddedToLibrary()) );
+			descriptionView.setText(libraryBook.getDescription());
 		}
-		
-		titleView.setText(book.getTitle());		
-		authorView.setText( "by " + book.getAuthor().getFirstName() + " " + book.getAuthor().getLastName() );
-		
-		if (book.getLastRead() != null && ! book.getLastRead().equals(new Date(0))) {			
-			lastRead.setText("Last read: " + DATE_FORMAT.format(book.getLastRead()) );
-		}
-		
-		added.setText( "Added to library: " + DATE_FORMAT.format(book.getAddedToLibrary()) );
-		descriptionView.setText(book.getDescription());
 	}
 	
 }

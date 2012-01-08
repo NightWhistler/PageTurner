@@ -35,6 +35,8 @@ public interface LibraryService {
 	
 	public QueryResult<LibraryBook> findUnread();
 	
+	public LibraryBook getBook( String fileName );
+	
 	public boolean hasBook( String fileName );
 	
 	public void deleteBook( String fileName );

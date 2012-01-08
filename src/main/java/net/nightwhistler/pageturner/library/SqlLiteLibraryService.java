@@ -20,7 +20,9 @@ package net.nightwhistler.pageturner.library;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
+import net.nightwhistler.pageturner.library.LibraryDatabaseHelper.Order;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Metadata;
 import roboguice.inject.ContextScoped;
@@ -96,6 +98,23 @@ public class SqlLiteLibraryService implements LibraryService {
 				LibraryDatabaseHelper.Order.ASC);
 				
 	}	
+	
+	@Override
+	public LibraryBook getBook(String fileName) {
+		QueryResult<LibraryBook> booksByFile = 
+			helper.findByField(LibraryDatabaseHelper.Field.file_name,
+					fileName, null, Order.ASC);
+
+		switch ( booksByFile.getSize() ) {
+		case 0:
+			return null;
+		case 1:
+			return booksByFile.getItemAt(0);
+		default:
+			throw new IllegalStateException("Non unique file-name: " + fileName );
+		}
+
+	}
 	
 	@Override
 	public QueryResult<LibraryBook> findAllByLastRead() {		

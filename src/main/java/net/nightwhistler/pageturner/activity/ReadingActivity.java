@@ -243,8 +243,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	this.bookView.setFileName(fileName);
     	this.bookView.setPosition(lastPos);
     	this.bookView.setIndex(lastIndex);
-    	    	
-    	//Slightly hacky
+    	
+        //Slightly hacky
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("last_file", fileName);
         editor.commit();    

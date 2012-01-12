@@ -73,8 +73,7 @@ public class BookDetailsActivity extends RoboActivity {
 		if ( libraryBook != null ) {
 
 			if ( libraryBook.getCoverImage() != null ) {			
-				coverView.setImageBitmap( BitmapFactory.decodeByteArray(libraryBook.getCoverImage(),
-						0, libraryBook.getCoverImage().length));
+				coverView.setImageBitmap( libraryBook.getCoverImage() );
 			} else {			
 				coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
 			}

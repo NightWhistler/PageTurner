@@ -22,10 +22,11 @@ public class BookCaseDrawable extends Drawable {
 	
 	private boolean drawBooks = true;
 	
-	public BookCaseDrawable(QueryResult<LibraryBook> books) {
-		this.books = books;		
+
+	public void setBooks(QueryResult<LibraryBook> books) {
+		this.books = books;
 	}
-	
+
 	@Override
 	public void draw(Canvas canvas) {
 		drawBackGround(canvas);
@@ -112,6 +113,10 @@ public class BookCaseDrawable extends Drawable {
 	 */
 	public int getAmountOfBooks() {
 		
+		if ( books == null ) {
+			return 0;
+		}
+		
 		int capacity = getCapacity();
 		
 		int leftInSet = (books.getSize() -1) - this.startOffset;
@@ -121,7 +126,7 @@ public class BookCaseDrawable extends Drawable {
 	
 	private void drawBooks(Canvas canvas, int startOffset) {
 		
-		if ( this.books.getSize() == 0 ) {
+		if ( this.books == null || this.books.getSize() == 0 ) {
 			return;
 		}
 		
@@ -207,6 +212,11 @@ public class BookCaseDrawable extends Drawable {
 	}
 	
 	public LibraryBook findBookAtLocation( float x, float y ) {
+		
+		if ( books == null ) {
+			return null;
+		}
+		
 		int index = findIndexAt(x, y);
 		return this.books.getItemAt(index);
 	}

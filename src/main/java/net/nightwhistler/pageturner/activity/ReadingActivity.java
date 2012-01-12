@@ -665,9 +665,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     				anim.advanceOneFrame();
     				dummyView.invalidate();
     				
-    				//int delay = 1000 / anim.getAnimationSpeed();
-    				int delay = 1500;
-    			
+    				int delay = 1000 / anim.getAnimationSpeed();
+    				
     				handler.postDelayed(this, delay);
     			} 
     		}    		

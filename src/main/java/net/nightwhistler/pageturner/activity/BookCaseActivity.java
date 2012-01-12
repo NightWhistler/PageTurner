@@ -13,12 +13,14 @@ import org.slf4j.LoggerFactory;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -28,7 +30,6 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ImageView;
 import android.widget.ViewSwitcher;
 
@@ -60,6 +61,8 @@ public class BookCaseActivity extends RoboActivity {
 	private GestureDetector gestureDetector;
 		
 	private BookCaseDrawable bookCaseDrawable;
+	private BookCaseDrawable emptyBookCase;
+	
 	private View.OnTouchListener gestureListener;
 	
 	@Inject
@@ -67,22 +70,27 @@ public class BookCaseActivity extends RoboActivity {
 	
 	private LibraryBook selectedBook;
 	
+	private ProgressDialog waitDialog;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 				
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.bookcase);
 		
-			
-		QueryResult<LibraryBook> books = this.libraryService.findAllByTitle();
-		this.bookCaseDrawable = new BookCaseDrawable(books);
+		this.bookCaseDrawable = new BookCaseDrawable();
 		this.bookCaseDrawable.setBackground(background);
 		this.bookCaseDrawable.setShelf(shelf);
 		this.bookCaseDrawable.setFallBackCover(fallBackCover);
 		
-		this.bookCaseView.setImageDrawable(bookCaseDrawable);
+		this.emptyBookCase = new BookCaseDrawable();
+		this.emptyBookCase.setBackground(background);
+		this.emptyBookCase.setShelf(shelf);
+		this.emptyBookCase.setFallBackCover(fallBackCover);
 		
-		//this.bookCaseView.setImageDrawable(this.bookCaseDrawable);	
+		this.bookCaseView.setImageDrawable(bookCaseDrawable);
+		this.bookCaseView.setBackgroundDrawable(emptyBookCase);
+		this.dummyCaseView.setBackgroundDrawable(emptyBookCase);
 		
 		this.gestureDetector = new GestureDetector(this, new ClickListener());
         this.gestureListener = new View.OnTouchListener() {
@@ -92,6 +100,8 @@ public class BookCaseActivity extends RoboActivity {
             }
         };   
         
+        this.waitDialog = new ProgressDialog(this);
+        waitDialog.setOwnerActivity(this);
         
     	this.viewSwitcher.setOnTouchListener(gestureListener);
     	this.dummyCaseView.setOnTouchListener(gestureListener);
@@ -100,6 +110,8 @@ public class BookCaseActivity extends RoboActivity {
     	registerForContextMenu(viewSwitcher);
     	registerForContextMenu(dummyCaseView);
     	registerForContextMenu(bookCaseView);
+    	
+    	new LoadBooksTask().execute(3);
 		
 	}
 	
@@ -152,30 +164,31 @@ public class BookCaseActivity extends RoboActivity {
 			if ( newOffset < 0 ) {
 				newOffset = (bookCaseDrawable.getBooks().getSize() -1) - newOffset;
 			}
-		}	
+		}		
 		
 		ImageView imageView = (ImageView) viewSwitcher.getChildAt(otherView);
 		imageView.setImageBitmap(null);
 		imageView.setImageDrawable(null);
-		
-		BookCaseDrawable oldDrawable = this.bookCaseDrawable;
-		oldDrawable.setDrawBooks(false);
-		oldDrawable.getBooks().close();
-		
-		this.bookCaseDrawable = new BookCaseDrawable(libraryService.findAllByTitle());
-		this.bookCaseDrawable.setBackground(background);
-		this.bookCaseDrawable.setShelf(shelf);
-		this.bookCaseDrawable.setFallBackCover(fallBackCover);
-		this.bookCaseDrawable.setStartOffset(newOffset);
 
-		Bitmap bitmap = Bitmap.createBitmap( bookCaseView.getWidth(),
-				bookCaseView.getHeight(), Config.ARGB_8888 );
-		Canvas canvas = new Canvas(bitmap);
-		this.bookCaseDrawable.setBounds( 0, 0, bookCaseView.getWidth(), bookCaseView.getHeight() );
-		this.bookCaseDrawable.draw(canvas);
+		this.bookCaseDrawable.getBooks().close();
+		this.bookCaseDrawable.setBooks( libraryService.findAllByTitle() );
+		this.bookCaseDrawable.setStartOffset(newOffset);
 		
-		imageView.setImageBitmap(bitmap);
-		
+		try {
+			
+			Bitmap bitmap = Bitmap.createBitmap( bookCaseView.getWidth(),
+					bookCaseView.getHeight(), Config.ARGB_8888 );
+			Canvas canvas = new Canvas(bitmap);
+			this.bookCaseDrawable.setBounds( 0, 0, bookCaseView.getWidth(), bookCaseView.getHeight() );
+			this.bookCaseDrawable.draw(canvas);
+
+			imageView.setImageBitmap(bitmap);
+		} catch (OutOfMemoryError err) {
+			( (ImageView) viewSwitcher.getChildAt(currentView) ).setImageDrawable(null);
+			( (ImageView) viewSwitcher.getChildAt(currentView) ).setImageBitmap(null);
+			imageView.setImageBitmap(null);
+			imageView.setImageDrawable(bookCaseDrawable);	
+		}		
 		
 		viewSwitcher.showNext();
 	}	
@@ -183,32 +196,38 @@ public class BookCaseActivity extends RoboActivity {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {		
-		
-		MenuItem detailsItem = menu.add( "View details");
-		
-		detailsItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				Intent intent = new Intent( BookCaseActivity.this, BookDetailsActivity.class );
-				intent.putExtra("book", selectedBook.getFileName() );				
-				startActivity(intent);					
-				return true;
-			}
-		});
-		/*
-		MenuItem deleteItem = menu.add("Delete from library");
-		
-		deleteItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				libraryService.deleteBook( selectedBook.getFileName() );
-				new LoadBooksTask().execute(lastPosition);
-				return true;					
-			}
-		});				
-		*/
+
+		if ( this.selectedBook != null ) {
+			MenuItem detailsItem = menu.add( "View details");
+
+			final String fileName = this.selectedBook.getFileName();
+
+			detailsItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+					Intent intent = new Intent( BookCaseActivity.this, BookDetailsActivity.class );
+					intent.putExtra("book", fileName );				
+					startActivity(intent);					
+					return true;
+				}
+			});
+
+			MenuItem deleteItem = menu.add("Delete from library");
+
+			deleteItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+					libraryService.deleteBook( fileName );
+					new LoadBooksTask().execute(3);
+					return true;					
+				}
+			});
+
+			this.selectedBook = null;
+		}
+
 	}	
 	
 	
@@ -255,5 +274,43 @@ public class BookCaseActivity extends RoboActivity {
 		
 	}
 	
+	private class LoadBooksTask extends AsyncTask<Integer, Integer, QueryResult<LibraryBook>> {		
+		
+		@Override
+		protected void onPreExecute() {
+			
+			bookCaseDrawable.setDrawBooks(false);
+			bookCaseView.setImageDrawable(bookCaseDrawable);
+			viewSwitcher.setDisplayedChild(0);
+			
+			waitDialog.setTitle("Loading library...");
+			waitDialog.show();
+		}
+		
+		@Override
+		protected QueryResult<LibraryBook> doInBackground(Integer... params) {
+			switch ( params[0] ) {			
+			case 1:
+				return libraryService.findAllByLastAdded();
+			case 2:
+				return libraryService.findUnread();
+			case 3:
+				return libraryService.findAllByTitle();
+			case 4:
+				return libraryService.findAllByAuthor();
+			default:
+				return libraryService.findAllByLastRead();
+			}			
+		}
+		
+		@Override
+		protected void onPostExecute(QueryResult<LibraryBook> result) {
+			bookCaseDrawable.setBooks(result);
+			bookCaseDrawable.setDrawBooks(true);
+			viewSwitcher.invalidate();
+			waitDialog.hide();			
+		}
+		
+	}	
 	
 }

@@ -562,6 +562,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     		viewSwitcher.showNext();
     	}
     	
+    	this.viewSwitcher.setInAnimation(null);
+    	this.viewSwitcher.setOutAnimation(null);
+    	
     	bookView.setKeepScreenOn(true);
     	
     	String style = settings.getString("scroll_style", "rolling_blind");

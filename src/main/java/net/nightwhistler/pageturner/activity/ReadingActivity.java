@@ -331,9 +331,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     private void updateTypeFace() {
     	String fontFace = settings.getString("font_face", "gen_book_bas");
     	
-    	Typeface face = Typeface.createFromAsset(getAssets(), "gen_bk_bas.ttf");
+    	Typeface face = Typeface.SERIF;
     	
-    	if ( "gen_bk_bas".equals(fontFace) ) {
+    	if ( "gen_book_bas".equals(fontFace) ) {
     		face = Typeface.createFromAsset(getAssets(), "gen_bk_bas.ttf");
     	} else if ("gen_bas".equals(fontFace)) {
     		face = Typeface.createFromAsset(getAssets(), "gen_bas.ttf");

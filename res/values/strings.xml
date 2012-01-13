@@ -72,5 +72,21 @@
         <item>Rolling blind</item>
         <item>Page change timer</item>
     </string-array>
+    
+    <string-array name="fonts">
+        <item>gen_book_bas</item>
+        <item>gen_bas</item>
+        <item>serif</item>
+        <item>sans</item>
+        <item>mono</item>
+    </string-array>
+    
+    <string-array name="fontLabels">
+        <item>Gentium Book Basic</item>
+        <item>Gentium Basic</item>
+        <item>Droid Serif</item>
+        <item>Droid Sans</item>
+        <item>Droid Sans Mono</item>        
+    </string-array>
         
 </resources>

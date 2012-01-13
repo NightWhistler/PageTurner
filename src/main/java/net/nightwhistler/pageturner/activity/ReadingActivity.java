@@ -275,14 +275,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	this.progressService.setEmail( settings.getString("email", "") );
     	this.progressService.setDeviceName( settings.getString("device_name", Build.MODEL));
     	
-    	Typeface face = Typeface.createFromAsset(getAssets(), "gen_bk_bas.ttf");
-        this.bookView.setTypeface(face);
-                
         int userTextSize = settings.getInt("itext_size", 16);                
         bookView.setTextSize( userTextSize );
         
         int marginH = settings.getInt("margin_h", 15);
         int marginV = settings.getInt("margin_v", 15);
+        
+        updateTypeFace();
         
         bookView.setHorizontalMargin(marginH);
         bookView.setVerticalMargin(marginV);
@@ -327,7 +326,28 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         }
 
-    }        
+    }     
+    
+    private void updateTypeFace() {
+    	String fontFace = settings.getString("font_face", "gen_book_bas");
+    	
+    	Typeface face = Typeface.createFromAsset(getAssets(), "gen_bk_bas.ttf");
+    	
+    	if ( "gen_bk_bas".equals(fontFace) ) {
+    		face = Typeface.createFromAsset(getAssets(), "gen_bk_bas.ttf");
+    	} else if ("gen_bas".equals(fontFace)) {
+    		face = Typeface.createFromAsset(getAssets(), "gen_bas.ttf");
+    	} else if ("sans".equals(fontFace) ) {
+    		face = Typeface.SANS_SERIF;
+    	} else if ("serif".equals(fontFace)) {
+    		face = Typeface.SERIF;
+    	} else if ("mono".equals(fontFace)) {
+    		face = Typeface.MONOSPACE;
+    	}    	
+    	
+        this.bookView.setTypeface(face);
+    	
+    }
     
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {

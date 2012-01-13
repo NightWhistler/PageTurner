@@ -97,6 +97,15 @@
 	<PreferenceCategory
                 android:title="Text display settings">
                 
+     <ListPreference
+     		android:key="font_face"
+            android:title="Font face"
+            android:summary="Main font for text display"            
+        	android:defaultValue="gen_book_bas"
+        	android:entries="@array/fontLabels"
+        	android:entryValues="@array/fonts" />
+                    
+                
      <CheckBoxPreference
 				android:key="strip_whitespace"
 				android:title="Strip whitespace"

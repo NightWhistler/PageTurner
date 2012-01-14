@@ -38,8 +38,9 @@ import nl.siegmann.epublib.service.MediatypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import roboguice.activity.RoboListActivity;
+import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectResource;
+import roboguice.inject.InjectView;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -66,32 +67,33 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class LibraryActivity extends RoboListActivity implements OnItemSelectedListener {
+public class LibraryActivity extends RoboActivity implements OnItemSelectedListener  {
 	
 	@Inject 
 	private LibraryService libraryService;
 	
-	private BookAdapter bookAdapter;
+	@InjectView(R.id.librarySpinner)
+	private Spinner spinner;
 	
-	private ArrayAdapter<String> menuAdapter;
-		
-	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH);
+	@InjectView(R.id.libraryList)
+	private ListView listView;
 	
-	private ProgressDialog waitDialog;
-	private ProgressDialog importDialog;
-		
 	@InjectResource(R.drawable.river_diary)
 	private Drawable backupCover;
+		
+	private BookAdapter bookAdapter;
+		
+	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG);
+	
+	private ProgressDialog waitDialog;
+	private ProgressDialog importDialog;	
 	
 	private int lastPosition;
-	
-	private static final String[] MENU_ITEMS = {
-		"Most recently read books", "Most recently added books", "Unread books", "All books by title", "All books by author" 
-	};	
 	
 	private static final Logger LOG = LoggerFactory.getLogger(LibraryActivity.class); 
 	
@@ -99,35 +101,44 @@ public class LibraryActivity extends RoboListActivity implements OnItemSelectedL
 	protected void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.library_menu);
 		
 		this.bookAdapter = new BookAdapter(this);
-		this.menuAdapter = new ArrayAdapter<String>(this, R.layout.menu_row, 
-				R.id.bookTitle, MENU_ITEMS);
-				
-		setListAdapter(menuAdapter);
-				
+		this.listView.setAdapter(bookAdapter);
+		
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+		            this, R.array.libraryQueries, android.R.layout.simple_spinner_item);
+		
+		spinner.setAdapter(adapter);
+		spinner.setOnItemSelectedListener(new MenuSelectionListener());
+						
 		this.waitDialog = new ProgressDialog(this);
 		this.waitDialog.setOwnerActivity(this);
 		
 		this.importDialog = new ProgressDialog(this);
 		this.importDialog.setOwnerActivity(this);
 		
-		registerForContextMenu(getListView());		
+		registerForContextMenu(this.listView);	
+		
+		new LoadBooksTask().execute(0);
 	}
 	
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int pos,
-			long id) {
+			long id) {		
 		
+		LibraryBook book = this.bookAdapter.getResultAt(pos);
+		Intent intent = new Intent(this, ReadingActivity.class);
+		
+		intent.setData( Uri.parse(book.getFileName()));
+		this.setResult(RESULT_OK, intent);
+				
+		startActivityIfNeeded(intent, 99);
 	}
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
-		
-		if ( this.getListAdapter() == this.menuAdapter ) {
-			return;
-		}
 		
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 		final LibraryBook selectedBook = bookAdapter.getResultAt(info.position);
@@ -158,7 +169,6 @@ public class LibraryActivity extends RoboListActivity implements OnItemSelectedL
 		});				
 		
 	}	
-	
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -214,11 +224,7 @@ public class LibraryActivity extends RoboListActivity implements OnItemSelectedL
 	
 	@Override
 	public void onBackPressed() {
-		if ( getListAdapter() == this.bookAdapter ) {			
-			setListAdapter(this.menuAdapter);
-		} else {
-			finish();
-		}	
+		finish();			
 	}	
 	
 	@Override
@@ -233,11 +239,10 @@ public class LibraryActivity extends RoboListActivity implements OnItemSelectedL
 	
 	@Override
 	protected void onResume() {
-		super.onResume();		
+		super.onResume();				
 		
-		if ( getListAdapter() == this.bookAdapter ) {
-			new LoadBooksTask().execute(this.lastPosition);
-		}
+		spinner.setSelection(this.lastPosition);
+		new LoadBooksTask().execute(this.lastPosition);		
 	}
 	
 	/**
@@ -291,36 +296,25 @@ public class LibraryActivity extends RoboListActivity implements OnItemSelectedL
 			return rowView;
 		}	
 	
-	}
+	}	
 
 	
-	
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		
-		if ( getListAdapter() == menuAdapter ) {
-			handleMenuClick(position);
-		} else {
-		
-			LibraryBook book = this.bookAdapter.getResultAt(position);
-		
-			Intent intent = new Intent(this, ReadingActivity.class);
-		
-			intent.setData( Uri.parse(book.getFileName()));
-			this.setResult(RESULT_OK, intent);
-				
-			startActivityIfNeeded(intent, 99);
+	private class MenuSelectionListener implements OnItemSelectedListener {
+		@Override
+		public void onItemSelected(AdapterView<?> arg0, View arg1, int pos,
+				long arg3) {
+			
+			lastPosition = pos;
+			bookAdapter.clear();		
+						
+			new LoadBooksTask().execute(pos);
 		}
-
-	}
-	
-	private void handleMenuClick(int position) {
-		this.lastPosition = position;
-		this.bookAdapter.clear();		
 		
-		this.setListAdapter(bookAdapter);
-		new LoadBooksTask().execute(position);
-	}
+		@Override
+		public void onNothingSelected(AdapterView<?> arg0) {
+						
+		}
+	}	
 	
 	private class ImportBooksTask extends AsyncTask<File, Integer, Void> {	
 		
@@ -339,8 +333,8 @@ public class LibraryActivity extends RoboListActivity implements OnItemSelectedL
 			importDialog.setMessage("Scanning for EPUB files.");
 			importDialog.show();
 			
-			this.oldKeepScreenOn = getListView().getKeepScreenOn();
-			getListView().setKeepScreenOn(true);
+			this.oldKeepScreenOn = listView.getKeepScreenOn();
+			listView.setKeepScreenOn(true);
 		}		
 		
 		@Override
@@ -436,7 +430,7 @@ public class LibraryActivity extends RoboListActivity implements OnItemSelectedL
 				builder.show();
 			}
 			
-			getListView().setKeepScreenOn(oldKeepScreenOn);
+			listView.setKeepScreenOn(oldKeepScreenOn);
 			new LoadBooksTask().execute(1);
 		}
 	}

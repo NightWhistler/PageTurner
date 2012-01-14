@@ -88,5 +88,14 @@
         <item>Droid Sans</item>
         <item>Droid Sans Mono</item>        
     </string-array>
+    
+    <string-array name="libraryQueries">
+        <item>Most recently read books</item>
+        <item>Most recently added books</item>
+        <item>Unread books</item>
+        <item>All books by title</item>
+        <item>All books by author</item> 
+    </string-array>
+        
         
 </resources>

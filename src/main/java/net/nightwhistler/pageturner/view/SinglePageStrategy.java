@@ -37,7 +37,7 @@ public class SinglePageStrategy implements PageChangeStrategy {
 	private BookView bookView;
 	private TextView childView;
 	
-	private static final int MAX_PAGE_SIZE = 2048;
+	private static final int MAX_PAGE_SIZE = 5000;
 	
 	public SinglePageStrategy(BookView bookView) {
 		this.bookView = bookView;

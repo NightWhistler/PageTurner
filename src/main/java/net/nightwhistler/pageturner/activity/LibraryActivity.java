@@ -24,7 +24,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.LibraryBook;
@@ -63,6 +62,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -72,7 +72,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class LibraryActivity extends RoboActivity implements OnItemSelectedListener  {
+public class LibraryActivity extends RoboActivity implements OnItemClickListener  {
 	
 	@Inject 
 	private LibraryService libraryService;
@@ -105,7 +105,8 @@ public class LibraryActivity extends RoboActivity implements OnItemSelectedListe
 		
 		this.bookAdapter = new BookAdapter(this);
 		this.listView.setAdapter(bookAdapter);
-		
+		this.listView.setOnItemClickListener(this);
+				
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
 		            this, R.array.libraryQueries, android.R.layout.simple_spinner_item);
 		
@@ -124,8 +125,7 @@ public class LibraryActivity extends RoboActivity implements OnItemSelectedListe
 	}
 	
 	@Override
-	public void onItemSelected(AdapterView<?> parent, View view, int pos,
-			long id) {		
+	public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
 		
 		LibraryBook book = this.bookAdapter.getResultAt(pos);
 		Intent intent = new Intent(this, ReadingActivity.class);
@@ -216,11 +216,6 @@ public class LibraryActivity extends RoboActivity implements OnItemSelectedListe
 		this.importDialog.dismiss();
 		super.onStop();
 	}
-	
-	@Override
-	public void onNothingSelected(AdapterView<?> arg0) {
-				
-	}	
 	
 	@Override
 	public void onBackPressed() {

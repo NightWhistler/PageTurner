@@ -624,12 +624,15 @@ public class BookView extends ScrollView {
 					int targetWidth = screenWidth - 1;
 					int targetHeight = screenHeight - 1;
 					
-					if ( originalWidth > originalHeight ) {
-						double ratio = (double) targetWidth / (double) originalWidth;
-						targetHeight = (int) (originalHeight * ratio);
-					} else {
-						double ratio = (double) targetHeight / (double) originalHeight;
-						targetWidth = (int) ( originalWidth * ratio );
+					double ratio = (double) originalHeight / (double) originalWidth;
+					
+					if ( originalWidth > targetWidth ) {												
+						targetHeight = (int) (targetWidth * ratio);
+					} 
+					
+					if ( targetHeight > screenHeight -1 ) {
+						targetHeight = screenHeight -1;
+						targetWidth = (int) ( targetHeight * (1/ratio) );
 					}
 					
 					LOG.debug("Rescaling from " + originalWidth + "x" + originalHeight + " to " + targetWidth + "x" + targetHeight );

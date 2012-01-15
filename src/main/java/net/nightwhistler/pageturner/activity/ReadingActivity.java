@@ -19,6 +19,7 @@
 
 package net.nightwhistler.pageturner.activity;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -1116,7 +1117,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	protected Void doInBackground(Book... params) {
     		
     		Book book = params[0];		
-        	libraryService.storeBook(fileName, book, true );
+    		boolean copy = settings.getBoolean("copy_to_library", true);
+        	try {
+        		libraryService.storeBook(fileName, book, true, copy );
+        	} catch (IOException io) {
+        		LOG.error("Copy to library failed.", io);
+        	}
     		
     		return null;
     	}

@@ -37,6 +37,7 @@ public class SinglePageStrategy implements PageChangeStrategy {
 	private BookView bookView;
 	private TextView childView;
 	
+	//FIXME: This should really be dynamically calculated based on screen size.
 	private static final int MAX_PAGE_SIZE = 5000;
 	
 	public SinglePageStrategy(BookView bookView) {

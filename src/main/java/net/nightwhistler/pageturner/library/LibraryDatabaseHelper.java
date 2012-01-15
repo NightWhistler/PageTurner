@@ -49,7 +49,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	private static final String DROP_TABLE = "drop table lib_books;";
 	
 	private static final String DB_NAME = "PageTurnerLibrary";
-	private static final int VERSION = 2;
+	private static final int VERSION = 3;
 
 	@Inject
 	public LibraryDatabaseHelper(Context context) {
@@ -92,8 +92,8 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	public void updateLastRead( String fileName ) {
 		
-		String whereClause = Field.file_name.toString() + " = ?";
-		String[] args = { fileName };
+		String whereClause = Field.file_name.toString() + " like ?";
+		String[] args = { "%" + fileName };
 		
 		ContentValues content = new ContentValues();
 		content.put( Field.date_last_read.toString(), new Date().getTime() );
@@ -126,9 +126,9 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	public boolean hasBook( String fileName ) {
 		Field[] fields = { Field.file_name };
-		String[] args = { fileName };
+		String[] args = { "%" + fileName };
 		
-		String whereClause = Field.file_name.toString() + " = ?";
+		String whereClause = Field.file_name.toString() + " like ?";
 		
 		Cursor findBook = getDataBase().query( "lib_books", fieldsAsString(fields), whereClause,
 				args, null, null, null );

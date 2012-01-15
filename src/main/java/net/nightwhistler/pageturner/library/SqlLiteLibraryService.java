@@ -19,7 +19,11 @@
 package net.nightwhistler.pageturner.library;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 import net.nightwhistler.pageturner.library.LibraryDatabaseHelper.Order;
 import nl.siegmann.epublib.domain.Book;
@@ -45,17 +49,19 @@ public class SqlLiteLibraryService implements LibraryService {
 	}
 	
 	@Override
-	public void storeBook(String fileName, Book book, boolean updateLastRead) {
+	public void storeBook(String fileName, Book book, boolean updateLastRead, boolean copyFile) throws IOException {
 		
-		boolean hasBook = hasBook(fileName);
+		File bookFile = new File(fileName);
+		
+		boolean hasBook = hasBook(bookFile.getName());
 		
 		if ( hasBook && !updateLastRead ) {
 			return;
 		} else if ( hasBook ) {
-			helper.updateLastRead(fileName);
+			helper.updateLastRead(bookFile.getName());
 			return;
-		}
-				
+		}				
+		
 		Metadata metaData = book.getMetadata();
     	
     	String authorFirstName = "Unknown author";
@@ -83,10 +89,60 @@ public class SqlLiteLibraryService implements LibraryService {
     		description = metaData.getDescriptions().get(0);
     	}
     	
-		this.helper.storeNewBook(fileName, authorFirstName, 
-				authorLastName, book.getTitle(), description, 
-				thumbNail, updateLastRead);    	
+		if ( copyFile ) {			
+			bookFile = copyToLibrary(fileName, authorLastName + ", " + authorFirstName, book.getTitle() );			
+		}
+    	
+		this.helper.storeNewBook(bookFile.getAbsolutePath(),
+				authorFirstName, authorLastName, book.getTitle(),
+				description, thumbNail, updateLastRead);    	
 		
+	}
+	
+	private String cleanUp(String input) {
+		
+		char[] illegalChars = {
+				':', '/', '\\', '?', '<', '>', '\"', '*', '&'
+		};
+		
+		String output = input;
+		for ( char c: illegalChars ) {
+			output = output.replace(c, '_');
+		}
+		
+		return output;		
+	}
+	
+	private File copyToLibrary( String fileName, String author, String title) throws IOException {
+
+		File baseFile = new File(fileName);
+
+		File targetFolder = new File(BASE_LIB_PATH
+				+ cleanUp(author) + "/" + cleanUp(title) );
+
+		targetFolder.mkdirs();				
+
+		FileChannel source = null;
+		FileChannel destination = null;
+		
+		File targetFile = new File(targetFolder, baseFile.getName());
+		targetFile.createNewFile();
+				
+		try {
+			source = new FileInputStream(baseFile).getChannel();
+			destination = new FileOutputStream(targetFile).getChannel();
+			destination.transferFrom(source, 0, source.size());
+		}
+		finally {
+			if(source != null) {
+				source.close();
+			}
+			if(destination != null) {
+				destination.close();
+			}
+		}
+
+		return targetFile;
 	}
 	
 	@Override
@@ -150,7 +206,20 @@ public class SqlLiteLibraryService implements LibraryService {
 	
 	@Override
 	public void deleteBook(String fileName) {
-		this.helper.delete( fileName );		
+		this.helper.delete( fileName );	
+		
+		//Only delete files we manage
+		if ( fileName.startsWith(BASE_LIB_PATH) ) {
+			File bookFile = new File(fileName);
+			File parentFolder = bookFile.getParentFile();
+			
+			bookFile.delete();
+			
+			while (parentFolder.list() == null || parentFolder.list().length == 0 ) {
+				parentFolder.delete();
+				parentFolder = parentFolder.getParentFile();
+			}			
+		}
 	}	
 	
 	@Override

@@ -3,8 +3,8 @@
     <string name="app_name">Page Turner</string>
     <string name="app_desc">Page Turner is a syncing e-book reader that allows you to sync your reading progress over multiple devices.</string>
     <string name="browse">Browse...</string>
-    <string name="open_file">Open book</string>
-    <string name="open_library">Open Library</string>
+    <string name="open_file">Open ePub file</string>
+    <string name="open_library">My Books</string>
     <string name="choose_book">Please choose a file to open</string>
     <string name="pref_key">PageTurnerState</string>    
     <string name="night_mode">Night mode</string>

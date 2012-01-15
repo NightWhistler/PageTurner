@@ -18,12 +18,25 @@
  */
 package net.nightwhistler.pageturner.library;
 
+import java.io.IOException;
+
 import nl.siegmann.epublib.domain.Book;
 
 
 public interface LibraryService {
 	
-	public void storeBook( String fileName, Book book, boolean updateLastRead );
+	public static final String BASE_LIB_PATH = "/sdcard/PageTurner/Books/";
+	
+	/**
+	 * Adds a new book to the library database, optionally copying it.
+	 * 
+	 * @param fileName
+	 * @param book
+	 * @param updateLastRead
+	 * @param copyFile
+	 * @throws IOException
+	 */
+	public void storeBook( String fileName, Book book, boolean updateLastRead, boolean copyFile ) throws IOException;
 	
 	public QueryResult<LibraryBook> findAllByLastRead();
 	

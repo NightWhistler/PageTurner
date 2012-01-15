@@ -4,11 +4,11 @@
  
 	<item android:id="@+id/open_file"          
           android:title="@string/open_file"
-          android:icon="@drawable/book" />
+          android:icon="@drawable/file" />
           
     <item android:id="@+id/open_library"          
           android:title="@string/open_library"
-          android:icon="@drawable/library" />
+          android:icon="@drawable/book_star" />
            
     <item android:id="@+id/profile_day"          
           android:title="@string/profile_day"
@@ -32,5 +32,5 @@
           
 	<item android:id="@+id/manual_sync"          
           android:title="@string/manual_sync"
-          android:icon="@drawable/loop" />       
+          android:icon="@drawable/subnet2_refresh" />       
 </menu>

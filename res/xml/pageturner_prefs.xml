@@ -46,6 +46,18 @@
 				/>
 				
 	</PreferenceCategory>
+	
+	<PreferenceCategory
+                android:title="My Books settings">
+                
+              <CheckBoxPreference
+				android:key="copy_to_library"
+				android:title="Copy to library folder"
+				android:summary="Should PageTurner copy files to its own library folder"
+				android:defaultValue="true"
+				/>  
+                
+    </PreferenceCategory>
 
 	<PreferenceCategory
                 android:title="Visual settings">  		

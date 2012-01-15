@@ -621,19 +621,15 @@ public class BookView extends ScrollView {
 				//We scale to screen width for the cover or if the image is too wide.
 				if ( originalWidth > screenWidth || originalHeight > screenHeight || spine.isCover() ) {
 					
-					int targetWidth = screenWidth - 1;
+					float ratio = (float) originalWidth / (float) originalHeight;
+					
 					int targetHeight = screenHeight - 1;
+					int targetWidth = (int)(targetHeight * ratio);					
 					
-					double ratio = (double) originalHeight / (double) originalWidth;
-					
-					if ( originalWidth > targetWidth ) {												
-						targetHeight = (int) (targetWidth * ratio);
-					} 
-					
-					if ( targetHeight > screenHeight -1 ) {
-						targetHeight = screenHeight -1;
-						targetWidth = (int) ( targetHeight * (1/ratio) );
-					}
+					if ( targetWidth > screenWidth - 1 ) {
+						targetWidth = screenWidth - 1;
+						targetHeight = (int) (targetWidth * (1/ratio));
+					}				
 					
 					LOG.debug("Rescaling from " + originalWidth + "x" + originalHeight + " to " + targetWidth + "x" + targetHeight );
 					

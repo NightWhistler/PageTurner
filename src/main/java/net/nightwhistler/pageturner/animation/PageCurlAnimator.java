@@ -49,7 +49,7 @@ public class PageCurlAnimator implements Animator {
 	private int mCurlSpeed;
 	
 	/** Fixed update time used to create a smooth curl animation */
-	private int mUpdateRate;
+	//private int mUpdateRate;
 	
 	/** The initial offset for x and y axis movements */
 	private int mInitialEdgeOffset;	
@@ -299,8 +299,7 @@ public class PageCurlAnimator implements Animator {
 		mCurlEdgePaint.setShadowLayer(10, -5, 5, 0x99000000);
 		
 		// Set the default props, those come from an XML :D
-		mCurlSpeed = 30;
-		mUpdateRate = 33;
+		mCurlSpeed = 30;		
 		mInitialEdgeOffset = 20;
 		
 	}
@@ -354,28 +353,7 @@ public class PageCurlAnimator implements Animator {
 	public int GetCurlSpeed()
 	{
 		return mCurlSpeed;
-	}
-	
-	/**
-	 * Set the update rate for the curl animation
-	 * @param updateRate - Fixed animation update rate in fps
-	 * @throws IllegalArgumentException if updateRate < 1
-	 */
-	public void SetUpdateRate(int updateRate)
-	{
-		if ( updateRate < 1 )
-			throw new IllegalArgumentException("updateRate must be greated than 0");
-		mUpdateRate = updateRate;
-	}
-	
-	/**
-	 * Get the current animation update rate
-	 * @return int - Fixed animation update rate in fps
-	 */
-	public int GetUpdateRate()
-	{
-		return mUpdateRate;
-	}
+	}	
 	
 	/**
 	 * Set the initial pixel offset for the curl edge
@@ -566,7 +544,7 @@ public class PageCurlAnimator implements Animator {
 	
 	@Override
 	public int getAnimationSpeed() {
-		return 1000 / mUpdateRate;
+		return 30;
 	}
 	
 	@Override

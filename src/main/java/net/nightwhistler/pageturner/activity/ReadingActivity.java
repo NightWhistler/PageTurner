@@ -644,6 +644,11 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	Bitmap before = getBookViewSnapshot();
 
     	PageCurlAnimator animator = new PageCurlAnimator(flipRight);    
+    	
+    	//Pagecurls should only take a few frames. When the screen gets
+    	//bigger, so do the frames.
+    	animator.SetCurlSpeed( bookView.getWidth() / 12 );    	
+    	
     	animator.setBackgroundColor(getBackgroundColor());    		
 
     	if ( flipRight ) {

@@ -574,7 +574,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     private boolean isAnimating() {
     	Animator anim = dummyView.getAnimator();
-    	return anim != null;
+    	return anim != null && ! anim.isFinished();
     }
     
     private void startAutoScroll() {
@@ -630,7 +630,10 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     private void doPageCurl(boolean flipRight) {
 
-
+    	if ( isAnimating() ) {
+    		return;
+    	}
+    	
     	this.viewSwitcher.setInAnimation(null);
     	this.viewSwitcher.setOutAnimation(null);
 
@@ -660,41 +663,41 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 
     	this.viewSwitcher.showNext();
 
-    	handler.post( new PageCurlRunnable() );
+    	handler.post( new PageCurlRunnable(animator) );
 
     	dummyView.invalidate();    	
 
     }    
     
     private class PageCurlRunnable implements Runnable {
+
+    	private PageCurlAnimator animator;
+
+    	public PageCurlRunnable(PageCurlAnimator animator) {
+    		this.animator = animator;
+    	}
+
     	@Override
     	public void run() {
-    		    		
-    		if ( dummyView.getAnimator() == null ) {
-    			LOG.debug( "BookView no longer has an animator. Aborting rolling blind." );
-    			//stopRollingBlind();
-    		} else {
-    			
-    			Animator anim = dummyView.getAnimator();
-    			
-    			if ( anim.isFinished() ) {
-    				 				
-    				if ( viewSwitcher.getCurrentView() == dummyView ) {
-    					viewSwitcher.showNext();    					
-    				}
-    				
-    				dummyView.setAnimator(null);   				
-    				
-    			} else {    			
-    				anim.advanceOneFrame();
-    				dummyView.invalidate();
-    				
-    				int delay = 1000 / anim.getAnimationSpeed();
-    			
-    				handler.postDelayed(this, delay);
-    			} 
-    		}    		
-    	}
+
+    		if ( this.animator.isFinished() ) {
+
+    			if ( viewSwitcher.getCurrentView() == dummyView ) {
+    				viewSwitcher.showNext();    					
+    			}
+
+    			dummyView.setAnimator(null);   				
+
+    		} else {    			
+    			this.animator.advanceOneFrame();
+    			dummyView.invalidate();
+
+    			int delay = 1000 / this.animator.getAnimationSpeed();
+
+    			handler.postDelayed(this, delay);
+    		} 
+    	}    		
+
     }   
     
     private class AutoScrollRunnable implements Runnable {
@@ -722,7 +725,10 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     private void stopAnimating() {
     	
-    	this.dummyView.setAnimator(null);
+    	if ( dummyView.getAnimator() != null ) {
+    		dummyView.getAnimator().stop();
+    		this.dummyView.setAnimator(null);
+    	}
     	
     	if ( viewSwitcher.getCurrentView() == this.dummyView ) {
     		viewSwitcher.showNext();

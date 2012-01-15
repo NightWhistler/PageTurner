@@ -79,6 +79,11 @@ public class RollingBlindAnimator implements Animator {
 	}
 	
 	@Override
+	public void stop() {
+		this.backgroundBitmap = null;		
+	}
+	
+	@Override
 	public int getAnimationSpeed() {
 		return this.animationSpeed;
 	}	

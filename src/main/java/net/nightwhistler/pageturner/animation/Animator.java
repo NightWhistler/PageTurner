@@ -55,4 +55,9 @@ public interface Animator {
 	 */
 	boolean isFinished();
 	
+	/**
+	 * Stop the animation.
+	 */
+	void stop();
+	
 }

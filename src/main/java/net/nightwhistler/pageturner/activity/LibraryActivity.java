@@ -121,8 +121,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		            this, R.array.libraryQueries, android.R.layout.simple_spinner_item);
 		
 		spinner.setAdapter(adapter);
-		spinner.setOnItemSelectedListener(new MenuSelectionListener());
-		spinner.setSelection(lastSelection.ordinal());
+		spinner.setOnItemSelectedListener(new MenuSelectionListener());		
 						
 		this.waitDialog = new ProgressDialog(this);
 		this.waitDialog.setOwnerActivity(this);
@@ -343,7 +342,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	
 	private class ImportBooksTask extends AsyncTask<File, Integer, Void> implements OnCancelListener {	
 		
-		private boolean hadError = false;
+		private List<String> errors = new ArrayList<String>();
 		
 		private static final int UPDATE_FOLDER = 1;
 		private static final int UPDATE_IMPORT = 2;
@@ -392,7 +391,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 						importBook( book.getAbsolutePath() );
 					}					
 				} catch (OutOfMemoryError oom ) {
-					hadError = true;
+					errors.add(book.getName() + ": Out of memory.");
 					return null;
 				}
 				
@@ -409,6 +408,10 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			if ( folder == null || folder.getAbsolutePath().startsWith(LibraryService.BASE_LIB_PATH) ) {
 				return;
 			}			
+			
+			if ( ! keepRunning ) {
+				return;
+			}		
 			
 			if ( folder.isDirectory() && folder.listFiles() != null) {
 				
@@ -437,7 +440,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	        	libraryService.storeBook(file, importedBook, false, copy);	        		        	
 				
 			} catch (Exception io ) {
-				hadError = true;
+				errors.add( file + ": " + io.getMessage() );
 				LOG.error("Error while reading book: " + file, io); 
 			}
 		}
@@ -457,18 +460,22 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			
 			importDialog.hide();			
 			
+			OnClickListener dismiss = new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();						
+				}
+			};
+			
 			//If the user cancelled the import, don't bug him/her with alerts.
-			if ( hadError && keepRunning ) {
+			if ( (! errors.isEmpty()) && keepRunning ) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
-				builder.setTitle("Error while importing books.");
-				builder.setMessage( "Could not import all books. Please try again." );
-				builder.setNeutralButton("OK", new OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();						
-					}
-				});
+				builder.setTitle("Some files had errors while importing:");
+				
+				builder.setItems( errors.toArray(new String[errors.size()]), null );				
+				
+				builder.setNeutralButton("OK", dismiss );
 				
 				builder.show();
 			}
@@ -482,13 +489,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 				AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
 				builder.setTitle("No books found.");
 				builder.setMessage( "No books were found on your device.\nYou can download books at gutenberg.org or feedbooks.com" );
-				builder.setNeutralButton("OK", new OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();						
-					}
-				});
+				builder.setNeutralButton("OK",dismiss);
 				
 				builder.show();
 			}

@@ -99,19 +99,21 @@ public class PageCurlAnimator implements Animator {
 	}
 
 	@Override
-	public void advanceOneFrame() {
+	public synchronized void advanceOneFrame() {
 		
 		started = true;
 		
-		if ( finished )
+		if ( finished || mOrigin == null ) {
 			return;
+		}
 		
 		int width = getWidth();
 				
 		// Handle speed
 		float curlSpeed = mCurlSpeed;
-		if ( !bFlipRight )
+		if ( !bFlipRight ) {
 			curlSpeed *= -1;
+		}
 		
 		// Move us
 		mMovement.x += curlSpeed;
@@ -605,7 +607,8 @@ public class PageCurlAnimator implements Animator {
 		public Vector2D sub(Vector2D b) {
             return new Vector2D(x-b.x,y-b.y);
 		}  
-	    public float distanceSquared(Vector2D other) {
+	    public float distanceSquared(Vector2D other) {    	
+	    	
 	    	float dx = other.x - x;
 	    	float dy = other.y - y;
 
@@ -628,6 +631,11 @@ public class PageCurlAnimator implements Animator {
 		public Vector2D mult(float scalar) {
 	            return new Vector2D(x*scalar,y*scalar);
 	    }
+	}
+	
+	@Override
+	public void stop() {
+		this.finished = true;		
 	}
 	
 }

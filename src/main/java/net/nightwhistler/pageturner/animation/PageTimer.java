@@ -46,6 +46,11 @@ public class PageTimer implements Animator {
 	}
 	
 	@Override
+	public void stop() {
+		count = MAX_STEP + 1;		
+	}
+	
+	@Override
 	public int getAnimationSpeed() {
 		return speed;
 	}

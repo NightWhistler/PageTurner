@@ -6,20 +6,12 @@
     <string name="browse">Browse...</string>
     <string name="open_file">Open ePub file</string>
     <string name="open_library">My Books</string>
-    <string name="choose_book">Please choose a file to open</string>
-    <string name="pref_key">PageTurnerState</string>    
-    <string name="night_mode">Night mode</string>
-    <string name="full_screen">Full screen</string>
-    <string name="settings">Reading settings</string>
-    <string name="textSize">Text size</string>  
-    <string name="enable_scroll">Enable scrolling</string>  
-    <string name="email_header">E-mail address (for sync)</string>    
+
     <string name="profile_day">Switch to day mode</string>  
     <string name="profile_night">Switch to night mode</string>
     <string name="manual_sync">Sync reading progress</string>
     <string name="prefs">Preferences</string>
-    <string name="quick_guide">Quick guide</string>
-    <string name="help">PageTurner only reads EPUB files. Change pages by swiping horizontally or using the volume buttons. Please check the Preferences page.</string>
+    
     <string name="show_toc">Show TOC</string>   
     <string name="rolling_blind">Auto-scroll</string>
     <string name="about">About PageTurner</string>
@@ -62,12 +54,6 @@
     <string name="no_bks_fnd_text">No books were found on your device.\nYou can download books at gutenberg.org or feedbooks.com</string>
     <string name="loading_library">Loading library...</string>
     <string name="scan_bks_question">There are no books in your library.\nWould you like to scan your device for books?</string>    
-        
-    <string-array name="library_ordering">
-        <item>Most recently read</item>
-        <item>Most recently added</item>
-        <item>Title</item>
-    </string-array>  
         
     <string-array name="v_animLabels">
         <item>Slide</item>

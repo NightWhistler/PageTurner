@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="pref_key">PageTurnerState</string>
+    
     <string-array name="v_anim">
         <item>slide</item>
         <item>none</item>

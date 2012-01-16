@@ -32,5 +32,10 @@
           
 	<item android:id="@+id/manual_sync"          
           android:title="@string/manual_sync"
-          android:icon="@drawable/subnet2_refresh" />       
+          android:icon="@drawable/cloud_refresh" /> 
+          
+    <item android:id="@+id/about"          
+          android:title="@string/about"
+          android:icon="@drawable/info" />  
+               
 </menu>

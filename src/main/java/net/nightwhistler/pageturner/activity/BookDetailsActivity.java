@@ -20,7 +20,6 @@ package net.nightwhistler.pageturner.activity;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.LibraryBook;
@@ -37,7 +36,7 @@ import com.google.inject.Inject;
 
 public class BookDetailsActivity extends RoboActivity {
 	
-	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG, Locale.ENGLISH);
+	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG);
 	
 	@InjectView(R.id.coverImage)
 	private ImageView coverView;
@@ -80,14 +79,21 @@ public class BookDetailsActivity extends RoboActivity {
 				coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
 			}
 
-			titleView.setText(libraryBook.getTitle());		
-			authorView.setText( "by " + libraryBook.getAuthor().getFirstName() + " " + libraryBook.getAuthor().getLastName() );
+			titleView.setText(libraryBook.getTitle());
+			String authorText = String.format( getString(R.string.book_by),
+					 libraryBook.getAuthor().getFirstName() + " " 
+					 + libraryBook.getAuthor().getLastName() );
+			authorView.setText( authorText );
 
-			if (libraryBook.getLastRead() != null && ! libraryBook.getLastRead().equals(new Date(0))) {			
-				lastRead.setText("Last read: " + DATE_FORMAT.format(libraryBook.getLastRead()) );
+			if (libraryBook.getLastRead() != null && ! libraryBook.getLastRead().equals(new Date(0))) {
+				String lastReadText = String.format(getString(R.string.last_read),
+						DATE_FORMAT.format(libraryBook.getLastRead()));
+				lastRead.setText( lastReadText );
 			}
 
-			added.setText( "Added to library: " + DATE_FORMAT.format(libraryBook.getAddedToLibrary()) );
+			String addedText = String.format( getString(R.string.added_to_lib),
+					DATE_FORMAT.format(libraryBook.getAddedToLibrary()));
+			added.setText( addedText );
 			descriptionView.setText(libraryBook.getDescription());
 		}
 	}

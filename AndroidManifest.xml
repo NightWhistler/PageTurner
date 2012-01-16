@@ -44,14 +44,14 @@
         </activity>
         
         <activity android:name=".activity.PageTurnerPrefsActivity"
-                  android:label="PageTurner preferences" /> 
+                  android:label="@string/prefs" /> 
                   
                
         <activity android:name=".activity.LibraryActivity"
-                  android:label="PageTurner Library" />                 
+                  android:label="@string/library" />
           
         <activity android:name=".activity.BookDetailsActivity"
-                  android:label="Book details" />           
+                  android:label="@string/book_details" />           
         
         
     </application>

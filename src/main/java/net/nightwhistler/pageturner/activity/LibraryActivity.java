@@ -151,7 +151,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 		final LibraryBook selectedBook = bookAdapter.getResultAt(info.position);
 		
-		MenuItem detailsItem = menu.add( "View details");
+		MenuItem detailsItem = menu.add( R.string.view_details);
 		
 		detailsItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
@@ -164,7 +164,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			}
 		});
 		
-		MenuItem deleteItem = menu.add("Delete from library");
+		MenuItem deleteItem = menu.add(R.string.delete);
 		
 		deleteItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
@@ -181,7 +181,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		
-		MenuItem prefs = menu.add("Preferences");
+		MenuItem prefs = menu.add(R.string.prefs);
 		prefs.setIcon( getResources().getDrawable(R.drawable.cog) );
 		
 		prefs.setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -195,7 +195,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			}
 		});
 		
-		MenuItem item = menu.add("Scan for books");
+		MenuItem item = menu.add(R.string.scan_books);
 		item.setIcon( getResources().getDrawable(R.drawable.book_refresh) );
 		
 		item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -303,10 +303,15 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			
 			ImageView imageView = (ImageView) rowView.findViewById(R.id.bookCover);
 						
-			authorView.setText("by " + book.getAuthor().getFirstName() + " " + book.getAuthor().getLastName() );
+			String authorText = String.format(getString(R.string.book_by),
+					book.getAuthor().getFirstName() + " " + book.getAuthor().getLastName() );
+			
+			authorView.setText(authorText);
 			titleView.setText(book.getTitle());
 			
-			dateView.setText( "Added on " + DATE_FORMAT.format(book.getAddedToLibrary()));
+			String dateText = String.format(getString(R.string.added_to_lib),
+					DATE_FORMAT.format(book.getAddedToLibrary()));
+			dateView.setText( dateText );
 			
 			if ( book.getCoverImage() != null ) {
 				byte[] cover = book.getCoverImage();
@@ -319,7 +324,6 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		}	
 	
 	}	
-
 	
 	private class MenuSelectionListener implements OnItemSelectedListener {
 		@Override
@@ -355,8 +359,8 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		
 		@Override
 		protected void onPreExecute() {
-			importDialog.setTitle("Importing books...");
-			importDialog.setMessage("Scanning for EPUB files.");
+			importDialog.setTitle(R.string.importing_books);
+			importDialog.setMessage(getString(R.string.scanning_epub));
 			importDialog.setOnCancelListener(this);
 			importDialog.show();			
 			
@@ -434,7 +438,8 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 				// read epub file
 		        EpubReader epubReader = new EpubReader();
 		        				
-				Book importedBook = epubReader.readEpubLazy(file, "UTF-8", Arrays.asList(MediatypeService.mediatypes));								
+				Book importedBook = epubReader.readEpubLazy(file, "UTF-8", 
+						Arrays.asList(MediatypeService.mediatypes));								
 				
 				boolean copy = settings.getBoolean("copy_to_library", true);
 	        	libraryService.storeBook(file, importedBook, false, copy);	        		        	
@@ -449,9 +454,11 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		protected void onProgressUpdate(Integer... values) {
 			
 			if ( values[0] == UPDATE_IMPORT ) {
-				importDialog.setMessage("Importing " + values[1] + " / " + values[2]);
+				String importing = String.format(getString(R.string.importing), values[1], values[2]);
+				importDialog.setMessage(importing);
 			} else {
-				importDialog.setMessage("Scanning for EPUB files.\nFolders scanned: " + values[1] );
+				String message = String.format(getString(R.string.scan_folders), values[1]);
+				importDialog.setMessage(message);
 			}
 		}
 		
@@ -471,11 +478,11 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			//If the user cancelled the import, don't bug him/her with alerts.
 			if ( (! errors.isEmpty()) && keepRunning ) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
-				builder.setTitle("Some files had errors while importing:");
+				builder.setTitle(R.string.import_errors);
 				
 				builder.setItems( errors.toArray(new String[errors.size()]), null );				
 				
-				builder.setNeutralButton("OK", dismiss );
+				builder.setNeutralButton(android.R.string.ok, dismiss );
 				
 				builder.show();
 			}
@@ -484,12 +491,16 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			
 			if ( booksImported > 0 ) {			
 				//Switch to the "recently added" view.
-				spinner.setSelection(Selections.LAST_ADDED.ordinal());				
+				if ( spinner.getSelectedItemPosition() == Selections.LAST_ADDED.ordinal() ) {
+					new LoadBooksTask().execute(Selections.LAST_ADDED);
+				} else {
+					spinner.setSelection(Selections.LAST_ADDED.ordinal());
+				}
 			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
-				builder.setTitle("No books found.");
-				builder.setMessage( "No books were found on your device.\nYou can download books at gutenberg.org or feedbooks.com" );
-				builder.setNeutralButton("OK",dismiss);
+				builder.setTitle(R.string.no_books_found);
+				builder.setMessage( getString(R.string.no_bks_fnd_text) );
+				builder.setNeutralButton(android.R.string.ok, dismiss);
 				
 				builder.show();
 			}
@@ -502,7 +513,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		
 		@Override
 		protected void onPreExecute() {
-			waitDialog.setTitle("Loading library...");
+			waitDialog.setTitle(R.string.loading_library);
 			waitDialog.show();
 		}
 		
@@ -533,9 +544,9 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			if ( sel == Selections.LAST_ADDED && result.getSize() == 0 ) {
 				
 				AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
-				builder.setTitle("No books found.");
-				builder.setMessage( "There are no books in your library.\nWould you like to scan your device for books?" );
-				builder.setPositiveButton("Yes", new OnClickListener() {
+				builder.setTitle(R.string.no_books_found);
+				builder.setMessage( getString(R.string.scan_bks_question) );
+				builder.setPositiveButton(android.R.string.yes, new OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -544,7 +555,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 					}
 				});
 				
-				builder.setNegativeButton("Not right now", new OnClickListener() {
+				builder.setNegativeButton(android.R.string.no, new OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {

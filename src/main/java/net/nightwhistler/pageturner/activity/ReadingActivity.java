@@ -49,15 +49,16 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -65,12 +66,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.text.Layout.Alignment;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.SpannedString;
-import android.text.style.AlignmentSpan;
-import android.text.style.ImageSpan;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
@@ -211,7 +208,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	updateFileName(savedInstanceState, file); 
     	
     	if ( "".equals( fileName ) ) {        	
-        	bookView.setText( getWelcomeText() );
+        	
+    		Intent intent = new Intent(this, LibraryActivity.class);
+        	startActivity(intent);
+        	finish();
+        	return;
+        	
         } else {        
         	String email = settings.getString("email", "").trim();
         	
@@ -383,7 +385,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	if ( this.selectedWord != null ) {
     		
     		final CharSequence word = this.selectedWord;
-    		menu.setHeaderTitle("You selected '" + selectedWord + "'");
+    		
+    		String header = String.format(getString(R.string.word_select), selectedWord);    		
+    		menu.setHeaderTitle(header);
     		
     		final Intent intent = new Intent(PICK_RESULT_ACTION);
         	intent.putExtra(EXTRA_QUERY, word.toString()); //Search Query
@@ -393,7 +397,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         	intent.putExtra(EXTRA_MARGIN_LEFT, 100);
         	
         	if ( isIntentAvailable(this, intent)) {
-        		MenuItem item = menu.add("Look up in Dictionary");
+        		MenuItem item = menu.add(getString(R.string.dictionary_lookup));
         		item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 					
 					@Override
@@ -404,12 +408,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 				});
         	}
         	        
-        	MenuItem newItem = menu.add("Search on Wikipedia");
+        	MenuItem newItem = menu.add(getString(R.string.wikipedia_lookup));
         	newItem.setOnMenuItemClickListener(new BrowserSearchMenuItem(
 					"http://en.wikipedia.org/wiki/Special:Search?search="
         			+ URLEncoder.encode( word.toString() )));
 		            
-        	MenuItem newItem2 = menu.add("Search on Google");
+        	MenuItem newItem2 = menu.add(getString(R.string.google_lookup));
         	newItem2.setOnMenuItemClickListener(new BrowserSearchMenuItem(
 					"http://www.google.com/search?q="
         			+ URLEncoder.encode( word.toString() )));
@@ -493,7 +497,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     @Override
     public void errorOnBookOpening(String errorMessage) {    	
     	this.waitDialog.hide();    	
-    	String message = "Error opening book: " + errorMessage;
+    	String message = String.format(getString(R.string.error_open_bk),  errorMessage);
         bookView.setText(new SpannedString(message));    	
     }
     
@@ -515,7 +519,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	this.viewSwitcher.setBackgroundDrawable(null);
     	restoreColorProfile();
     	
-    	this.waitDialog.setTitle("Loading, please wait");
+    	this.waitDialog.setTitle(getString(R.string.loading_wait));
     	this.waitDialog.show();
     }    
     
@@ -528,8 +532,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 	    if ( isAnimating() && action == KeyEvent.ACTION_DOWN) {
 	    	stopAnimating();
 	    	return true;
-	    }
-	    
+	    }	    
 	    
 	    switch (keyCode) {
 	    
@@ -903,7 +906,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     }
     
     private void loadNewBook( String fileName ) {
-    	setTitle("PageTurner");
+    	setTitle(R.string.app_name);
     	this.tocDialog = null;
     	this.bookTitle = null;
     	this.titleBase = null;
@@ -920,7 +923,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 
        if ( this.bookView != null ) {
     	   progressService.storeProgress(this.fileName,
-    			   this.bookView.getIndex(), this.bookView.getPosition(), this.progressPercentage );
+    			   this.bookView.getIndex(), this.bookView.getPosition(), 
+    			   this.progressPercentage );
     	   
     	   // We need an Editor object to make preference changes.
     	   // All objects are from android.context.Context    	   
@@ -995,10 +999,49 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         	startAutoScroll();
         	return true;
         	
+        case R.id.about:
+        	showAboutDialog();
+        	return true;
+        	
         default:
             return super.onOptionsItemSelected(item);
         }
     }
+    
+    private void showAboutDialog() {
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.about);
+		builder.setIcon(R.drawable.page_turner);
+		
+		String html = "<h2>" + getString(R.string.app_name) + " " +  getVersion() + "</h2>";
+		html += getString(R.string.about_gpl);
+		html += "<br/><a href='http://pageturner-reader.org'>http://pageturner-reader.org</a>";
+		
+		builder.setMessage( Html.fromHtml(html));
+		
+		builder.setNeutralButton(getString(android.R.string.ok), 
+				new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();				
+			}
+		});
+		
+		builder.show();
+    }
+    
+    private String getVersion() {
+ 
+        try {
+            return getPackageManager().getPackageInfo(
+            		getPackageName(), 0).versionName;
+        } catch (NameNotFoundException e) {
+            // Huh? Really?
+        }
+        
+        return null;
+    }
+
     
     private void launchFileManager() {
     	Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -1010,7 +1053,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
                 startActivityForResult(intent, REQUEST_CODE_GET_CONTENT);
         } catch (ActivityNotFoundException e) {
                 // No compatible file manager was found.
-                Toast.makeText(this, "Please install OI File Manager from the Android Market.", 
+                Toast.makeText(this, getString(R.string.install_oi), 
                                 Toast.LENGTH_SHORT).show();
         }
     }
@@ -1023,10 +1066,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     private void showPickProgressDialog( final List<BookProgress> results ) {
 
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setTitle("Stored sync points");    	
+    	builder.setTitle(getString(R.string.cloud_bm));    	
     	
-    	ProgressListAdapter adapter = new ProgressListAdapter(results);
-    	
+    	ProgressListAdapter adapter = new ProgressListAdapter(results);    	
     	builder.setAdapter(adapter, adapter);
 
     	AlertDialog dialog = builder.create();
@@ -1097,7 +1139,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	}
 
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setTitle("Table of contents");
+    	builder.setTitle(R.string.toc_label);
 
     	builder.setItems(items, new DialogInterface.OnClickListener() {
     		public void onClick(DialogInterface dialog, int item) {
@@ -1114,7 +1156,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     protected void onSaveInstanceState(Bundle outState) {
     	if ( this.bookView != null ) {
     		progressService.storeProgress(this.fileName,
-     			   this.bookView.getIndex(), this.bookView.getPosition(), this.progressPercentage);
+     			   this.bookView.getIndex(), this.bookView.getPosition(), 
+     			   this.progressPercentage);
      	   
     		outState.putInt(POS_KEY, this.bookView.getPosition() );  
     		outState.putInt(IDX_KEY, this.bookView.getIndex());
@@ -1143,7 +1186,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	
     	@Override
     	protected void onPreExecute() {
-    		waitDialog.setTitle("Syncing progress...");
+    		waitDialog.setTitle(R.string.syncing);
     		waitDialog.show();
     	}
     	
@@ -1158,11 +1201,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     		
     		if ( progress == null ) {
     			
-    		    AlertDialog alertDialog = new AlertDialog.Builder(ReadingActivity.this).create();
-   		        alertDialog.setTitle("Sync failed");
-   		        alertDialog.setMessage("Could not connect to the sync server.");
-
-   		        alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+    		    AlertDialog.Builder alertDialog = new AlertDialog.Builder(ReadingActivity.this);
+    		    
+   		        alertDialog.setTitle(R.string.sync_failed);
+   		        alertDialog.setMessage(R.string.connection_fail);
+   		        
+   		        alertDialog.setNeutralButton(android.R.string.ok, new OnClickListener() {
 	              public void onClick(DialogInterface dialog, int which) {
 	            	  dialog.dismiss();
     		      } });
@@ -1179,7 +1223,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	    	    	
     	@Override
     	protected void onPreExecute() {
-    		waitDialog.setTitle("Syncing progress...");
+    		waitDialog.setTitle(R.string.syncing);
     		waitDialog.show();
     	}
     	
@@ -1215,30 +1259,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
             
             bookView.restore();            
     	}
-    }
-    
-    private Spanned getWelcomeText() {
-    	SpannableStringBuilder builder = new SpannableStringBuilder();
-    	
-    	builder.append( Html.fromHtml("<h1>Welcome to PageTurner</h1>"));
-    	builder.append("\uFFFC");
-    	Drawable logo = getResources().getDrawable(R.drawable.page_turner);
-    	
-    	logo.setBounds(0, 0, logo.getIntrinsicWidth(), logo.getIntrinsicHeight() );
-    	builder.setSpan(new ImageSpan(logo), 
-    			builder.length() -1, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    	builder.setSpan(new AlignmentSpan() {
-    		@Override
-    		public Alignment getAlignment() {
-    			return Alignment.ALIGN_CENTER;
-    		}
-    	}, builder.length() -1, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    	
-    	builder.append("\n\nPlease select \"Open book\" from the menu to start reading.");
-    	
-    	return builder;
-    }
-    
+    }    
     
     private class SwipeListener extends VerifiedFlingListener {
     	

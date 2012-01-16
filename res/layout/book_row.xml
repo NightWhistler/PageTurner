@@ -23,7 +23,7 @@
             android:id="@+id/bookTitle"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Title"
+            android:text="@string/title"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
@@ -36,7 +36,7 @@
             android:id="@+id/addedToLibrary"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Never"
+            android:text="@string/never_read"
             android:textSize="10sp" />
 
     </LinearLayout>

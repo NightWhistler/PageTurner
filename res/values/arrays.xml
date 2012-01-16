@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="v_anim">
+        <item>slide</item>
+        <item>none</item>
+    </string-array>
+    
+    <string-array name="h_anim">
+        <item>curl</item>
+        <item>slide</item>
+        <item>none</item>
+    </string-array>
+    
+    <string-array name="orientation">
+        <item>no_lock</item>
+        <item>portrait</item>
+        <item>landscape</item>
+    </string-array>
+
+   <string-array name="autoscroll">
+        <item>rolling_blind</item>
+        <item>timer</item>
+    </string-array>
+ 
+   <string-array name="fonts">
+        <item>gen_book_bas</item>
+        <item>gen_bas</item>
+        <item>serif</item>
+        <item>sans</item>
+        <item>mono</item>
+    </string-array>
+    
+    <string-array name="fontLabels">
+        <item>Gentium Book Basic</item>
+        <item>Gentium Basic</item>
+        <item>Droid Serif</item>
+        <item>Droid Sans</item>
+        <item>Droid Sans Mono</item>        
+    </string-array>
+ 
+</resources>

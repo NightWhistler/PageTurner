@@ -7,9 +7,9 @@
                  
 	<EditTextPreference
 	            android:key="email"
-	            android:title="E-mail addres"
+	            android:title="E-mail adres"
 	            android:summary="Voor het koppelen van apparaten. Laat leeg om synchronisatie uit te schakelen."
-	            android:dialogTitle="E-mail addres"
+	            android:dialogTitle="E-mail adres"
 	            android:dialogMessage="Voer aub een gelding e-mail adres in"   
 	            />
 	

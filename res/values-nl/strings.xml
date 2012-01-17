@@ -39,7 +39,7 @@
     
     <string name="book_by">Door %s</string>
     <string name="last_read">Laatst gelezen: %s</string>
-    <string name="added_to_lib">Toegevoegd aan bibliotheek: %s</string>
+    <string name="added_to_lib">Toegevoegd: %s</string>
     
     <string name="view_details">Bekijk details</string>
     <string name="delete">Verwijderen uit bibliotheek</string>
@@ -53,7 +53,7 @@
     <string name="no_books_found">Geen boeken gevonden.</string>
     <string name="no_bks_fnd_text">Er zijn geen boeken gevonden op het apparaat.\nGa naar gutenberg.org of feedbooks.com om gratis boeken te downloaden.</string>
     <string name="loading_library">Bezig met laden van de bibliotheek...</string>
-    <string name="scan_bks_question">De bibliotheek is leeg.\nWil je het automatisch zoeken naar boeken?</string>    
+    <string name="scan_bks_question">De bibliotheek is leeg.\nWil je automatisch zoeken naar boeken?</string>    
     
     <string-array name="v_animLabels">
         <item>Glijdende tekst</item>

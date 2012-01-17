@@ -256,7 +256,8 @@ public class PageTurnerSpine {
 		return (int) (progress * 100);		
 	}
 	
-	private Resource createCoverResource(Book book) {		
+	private Resource createCoverResource(Book book) {	
+				
 		Resource res = new Resource(generateCoverPage(book).getBytes(), COVER_HREF);
 		res.setTitle("Cover");
 		

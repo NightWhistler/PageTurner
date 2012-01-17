@@ -41,7 +41,7 @@
 				android:title="Velocità scorrimento automatico"
 				android:summary="Per quanti secondi ogni pagina sarà visualizzata."
 				android:dialogTitle="Velocità scorrimento"								
-				android:defaultValue="30"
+				android:defaultValue="60"
 				android:max="300"				
 				/>
 				

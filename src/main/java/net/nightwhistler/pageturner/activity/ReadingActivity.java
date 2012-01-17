@@ -1287,17 +1287,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
             
             bookView.restore();            
     	}
-    }    
-    
-    
+    } 
     
     private class SwipeListener extends VerifiedFlingListener {
     	
     	public SwipeListener() {
     		super(ReadingActivity.this);
-		}    	
-    	
-    	
+		}    	    	
       
     	@Override
     	public boolean onVerifiedFling(MotionEvent e1, MotionEvent e2,

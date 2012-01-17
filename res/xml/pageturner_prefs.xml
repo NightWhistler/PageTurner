@@ -41,7 +41,7 @@
 				android:title="Autoscrolling speed"
 				android:summary="How many seconds a page will be displayed."
 				android:dialogTitle="Scroll speed"								
-				android:defaultValue="30"
+				android:defaultValue="60"
 				android:max="300"				
 				/>
 				

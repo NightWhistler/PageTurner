@@ -18,8 +18,18 @@
  */
 package net.nightwhistler.pageturner.view;
 
+import net.nightwhistler.pageturner.R;
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.Layout;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.Layout.Alignment;
+import android.text.style.AlignmentSpan;
+import android.text.style.ClickableSpan;
+import android.text.style.ImageSpan;
+import android.view.View;
 import android.widget.TextView;
 
 
@@ -32,9 +42,12 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	
 	private Spanned text;
 	
-	public ScrollingStrategy(BookView bookView) {
+	private Context context;
+	
+	public ScrollingStrategy(BookView bookView, Context context) {
 		this.bookView = bookView;
 		this.childView = bookView.getInnerView();		
+		this.context = context;
 	}
 
 	@Override
@@ -49,10 +62,41 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	}
 	
 	@Override
-	public void loadText(Spanned text) {		
-		childView.setText(text);
+	public void loadText(Spanned text) {	
+		
+		childView.setText(addEndTag(text));
 		this.text = text;
 		updatePosition();
+	}
+	
+	private Spanned addEndTag(Spanned text) {
+		SpannableStringBuilder builder = new SpannableStringBuilder(text);
+		
+		int length = builder.length();
+		builder.append("\uFFFC");
+		builder.append("\n");
+		builder.append("End of section. Click here to continue.");
+		//If not, consider it an internal nav link.			
+		ClickableSpan span = new ClickableSpan() {
+				
+			@Override
+			public void onClick(View widget) {
+				pageDown();					
+			}
+		};
+		
+		Drawable img = context.getResources().getDrawable(R.drawable.gateway);
+		img.setBounds(0, 0, img.getIntrinsicWidth(), img.getIntrinsicHeight() );
+		builder.setSpan(new ImageSpan(img), length, length+1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		builder.setSpan(span, length, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		builder.setSpan(new AlignmentSpan() {
+			@Override
+			public Alignment getAlignment() {
+				return Alignment.ALIGN_CENTER;
+			}
+		}, length, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		
+		return builder;		
 	}
 	
 	@Override

@@ -37,6 +37,7 @@ import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.view.AnimatedImageView;
 import net.nightwhistler.pageturner.view.BookView;
 import net.nightwhistler.pageturner.view.BookViewListener;
+import net.nightwhistler.pageturner.view.PinchZoomListener;
 import nl.siegmann.epublib.domain.Book;
 
 import org.slf4j.Logger;
@@ -178,8 +179,17 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         this.waitDialog.setOwnerActivity(this);               
         
         this.gestureDetector = new GestureDetector(new SwipeListener());
+        
+        final PinchZoomListener pinch = new PinchZoomListener(
+        		new PinchZoomListener.FloatAdapter() {
+        			
+			@Override public void setValue(float value) { updateTextSize(value); }			
+			@Override public float getValue() {	return bookView.getTextSize(); }
+		});
+        
         this.gestureListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
+            	pinch.onTouch(v, event);
                 return gestureDetector.onTouchEvent(event);
             }
         };   
@@ -224,7 +234,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         	}
         }
     	
-    }
+    }    
     
     private void updateFileName(Bundle savedInstanceState, String fileName) {
     	
@@ -252,8 +262,26 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         editor.putString("last_file", fileName);
         editor.commit();    
 
-    }        
-   
+    }           
+    
+    /**
+     * Immediately updates the text size in the BookView,
+     * and saves the preference in the background.
+     * 
+     * @param textSize
+     */
+    private void updateTextSize( final float textSize ) {
+    	bookView.setTextSize(textSize);
+    	handler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				SharedPreferences.Editor editor = settings.edit();
+		        editor.putInt("itext_size", (int) textSize);
+		        editor.commit();    
+			}
+		});
+    }
     
     @Override
     public void progressUpdate(int progressPercentage) {
@@ -1261,11 +1289,15 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	}
     }    
     
+    
+    
     private class SwipeListener extends VerifiedFlingListener {
     	
     	public SwipeListener() {
     		super(ReadingActivity.this);
 		}    	
+    	
+    	
       
     	@Override
     	public boolean onVerifiedFling(MotionEvent e1, MotionEvent e2,

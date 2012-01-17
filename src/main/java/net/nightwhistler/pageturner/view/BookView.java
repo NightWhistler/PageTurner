@@ -693,6 +693,7 @@ public class BookView extends ScrollView {
 	
 	/**
 	 * Sets the given text to be displayed, overriding the book.
+	 * 
 	 * @param text
 	 */
 	public void setText(Spanned text) {
@@ -771,7 +772,7 @@ public class BookView extends ScrollView {
 			}			
 
 			if ( enableScrolling ) {
-				this.strategy = new ScrollingStrategy(this);
+				this.strategy = new ScrollingStrategy(this, this.getContext());
 			} else {
 				this.strategy = new SinglePageStrategy(this);
 			}

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Page Turner</string>
+    <string name="title">Titolo</string>
+    <string name="app_desc">Page Turner è un lettore di e-book con sincronizzazione, che permette di sincronizzare il punto in cui si sta leggendo su più di un apparecchio.</string>
+    <string name="browse">Sfoglia...</string>
+    <string name="open_file">Apri file ePub</string>
+    <string name="open_library">I miei libri</string>
+
+    <string name="profile_day">Passa a modalità diurna</string>  
+    <string name="profile_night">Passa a modalità notturna</string>
+    <string name="manual_sync">Sincronizza punto di lettura</string>
+    <string name="prefs">Preferenze</string>
+    
+    <string name="show_toc">Mostra indice</string>   
+    <string name="rolling_blind">Scorrimento automatico</string>
+    <string name="about">Info su PageTurner</string>
+    <string name="about_gpl">PageTurner è software libero sotto licenza GPLv3.</string>
+    <string name="error_open_bk">Errore nell\'apertura del libro: %s</string>
+    
+    <string name="dictionary_lookup">Cerca nel dizionario</string>
+    <string name="wikipedia_lookup">Cerca su Wikipedia</string>
+    <string name="google_lookup">Cerca su Google</string>    
+    <string name="word_select">"Hai selezionato '%s'</string>    
+        
+    <string name="loading_wait">Caricamento in corso, attendere</string>
+    <string name="install_oi">È necessario installare OI File Manager dal Market di Android.</string>    
+    
+    <string name="cloud_bm">Segnalibri "cloud"</string>
+    <string name="toc_label">Indice</string>
+    <string name="syncing">"Sincronizzazione in corso..."</string>
+    <string name="sync_failed">Sincronizzazione fallita</string>
+    <string name="connection_fail">Impossibile connettersi al server di sincronizzazione.</string>    
+    
+    <string name="never_read">Mai</string>
+        
+    <string name="library">Libreria</string>
+    <string name="book_details">Dettagli libro</string>
+    
+    <string name="book_by">Di %s</string>
+    <string name="last_read">Ultima lettura: %s</string>
+    <string name="added_to_lib">Aggiunto alla libreria: %s</string>
+    
+    <string name="view_details">Mostra dettagli</string>
+    <string name="delete">Rimuovi dalla libreria</string>
+    <string name="scan_books">Scansiona libri</string>    
+    
+    <string name="importing_books">Importazione libri...</string>
+    <string name="scanning_epub">Scansione file ePub.</string>
+    <string name="importing">Importazione %1$d di %2$d</string>
+    <string name="scan_folders">Scansione file ePub.\nCartelle scansionate: %d</string>
+    <string name="import_errors">Trovati errori in alcuni file durante l\'importazione:</string>
+    <string name="no_books_found">Nessun libro trovato.</string>
+    <string name="no_bks_fnd_text">Non sono stati trovati libri sull\'apparecchio.\nSi possono scaricare libri su gutenberg.org o feedbooks.com</string>
+    <string name="loading_library">Caricamento libreria...</string>
+    <string name="scan_bks_question">Non ci sono libri nella libreria.\nEffettuare una scansione dei file per trovare libri?</string>    
+        
+    <string-array name="v_animLabels">
+        <item>Scorri</item>
+        <item>Niente</item>        
+    </string-array>
+    
+    <string-array name="h_animLabels">
+        <item>Gira pagina</item>
+        <item>Scorri</item>
+        <item>Niente</item>
+    </string-array>
+        
+    <string-array name="orientationLabels">
+        <item>Non bloccare l\'orientamento</item>
+        <item>Verticale</item>
+        <item>Orizzontale</item>
+    </string-array>  
+   
+    <string-array name="autoscrollLabels">
+        <item>Scorrimento continuo</item>
+        <item>Timer cambiamento pagina</item>
+    </string-array>    
+        
+    <string-array name="libraryQueries">
+        <item>Libri letti di recente</item>
+        <item>Libri aggiunti di recente</item>
+        <item>Libri non letti</item>
+        <item>Tutti i libri per titolo</item>
+        <item>Tutti i libri per autore</item> 
+    </string-array>
+        
+        
+</resources>

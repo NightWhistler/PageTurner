@@ -1363,11 +1363,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         @Override
         public void onLongPress(MotionEvent e) {
         	CharSequence word = bookView.getWordAt(e.getX(), e.getY() );
-        	selectedWord = word;
+        	
+        	if ( word != null ) {
+        		selectedWord = word;
 
-        	openContextMenu(bookView);
-        }
-        
+        		openContextMenu(bookView);
+        	}
+        }     
         
 	}
 

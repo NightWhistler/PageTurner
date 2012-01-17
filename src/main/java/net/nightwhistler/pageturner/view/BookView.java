@@ -365,7 +365,11 @@ public class BookView extends ScrollView {
 			end = word.length() - 1;
 		}
 		
-		return word.subSequence(start, end );
+		if ( start > 0 && start < word.length() && end < word.length() ) {
+			return word.subSequence(start, end );
+		} 
+		
+		return null;
 	}
 	
 	private static boolean isBoundaryCharacter( char c ) {

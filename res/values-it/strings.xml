@@ -7,8 +7,8 @@
     <string name="open_file">Apri file ePub</string>
     <string name="open_library">I miei libri</string>
 
-    <string name="profile_day">Passa a modalità diurna</string>  
-    <string name="profile_night">Passa a modalità notturna</string>
+    <string name="profile_day">Modalità diurna</string>  
+    <string name="profile_night">Modalità notturna</string>
     <string name="manual_sync">Sincronizza punto di lettura</string>
     <string name="prefs">Preferenze</string>
     

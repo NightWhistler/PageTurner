@@ -15,7 +15,7 @@
 	
 	<EditTextPreference
 	            android:key="device_name"
-	            android:title="Device name"
+	            android:title="Nome apparecchio"
 	            android:summary="Nome univoco di questo apparecchio, per risoluzione conflitti."
 	            android:dialogTitle="Nome apparecchio"
 	            android:dialogMessage="Inserire un nome per questo apparecchio."
@@ -41,7 +41,7 @@
 				android:title="Velocità scorrimento automatico"
 				android:summary="Per quanti secondi ogni pagina sarà visualizzata."
 				android:dialogTitle="Velocità scorrimento"								
-				android:defaultValue="60"
+				android:defaultValue="30"
 				android:max="300"				
 				/>
 				
@@ -64,7 +64,7 @@
 
 	<CheckBoxPreference			
             android:key="full_screen"
-            android:title="Schermo interno"
+            android:title="Schermo intero"
             android:summary="Nasconde tutte le barre di stato."
             android:defaultValue="false" />
             
@@ -211,8 +211,8 @@
         
          <ListPreference
      		android:key="h_animation"
-            android:title="Animazioni orizzontali"
-            android:summary="Animazioni cambiamento pagina orizzontale"            
+            android:title="Animazione orizzontale"
+            android:summary="Animazione cambiamento pagina orizzontale"            
         	android:defaultValue="curl"
         	android:entries="@array/h_animLabels"
         	android:entryValues="@array/h_anim" />
@@ -220,8 +220,8 @@
 
          <ListPreference
      		android:key="h_animation"
-            android:title="Animazioni verticali"
-            android:summary="Animazioni cambiamento pagina verticale"            
+            android:title="Animazione verticale"
+            android:summary="Animazione cambiamento pagina verticale"            
         	android:defaultValue="slide"
         	android:entries="@array/v_animLabels"
         	android:entryValues="@array/v_anim" />               
@@ -248,26 +248,26 @@
             
      <CheckBoxPreference			
             android:key="nav_swipe_h"
-            android:title="Abilita trascinamento orizzontale"
+            android:title="Trascinamento orizzontale"
             android:summary="Trascinare a destra/sinistra per cambiare pagina."
             android:defaultValue="true" /> 
             
      <CheckBoxPreference			
             android:key="nav_swipe_v"
-            android:title="Abilita trascinamento verticale"
+            android:title="Trascinamento verticale"
             android:summary="Trascina in alto/basso per cambiare pagina."
             android:defaultValue="true" 
             android:dependency="scrolling"/> 
             
      <CheckBoxPreference			
             android:key="nav_tap_h"
-            android:title="Abilita colpetto sui lati"
+            android:title="Colpetto sui lati"
             android:summary="Toccare il lato sinistro/destro dello schermo per cambiare pagina."
             android:defaultValue="true" />       
      
      <CheckBoxPreference			
             android:key="nav_tap_v"
-            android:title="Abilita colpetto in alto/basso"
+            android:title="Colpetto in alto/basso"
             android:summary="Toccare il bordo in alto/basso dello schermo per cambiare pagina."
             android:defaultValue="true" />           
                 

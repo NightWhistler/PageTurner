@@ -23,12 +23,12 @@
     <string name="google_lookup">Zoeken op Google</string>    
     <string name="word_select">"Selectie van '%s'</string>    
         
-    <string name="loading_wait">Laden, even geduld aub</string>
+    <string name="loading_wait">Boek wordt geladen\nEven geduld aub</string>
     <string name="install_oi">Installeer aub de OI File Manager uit de Android Market.</string>    
     
     <string name="cloud_bm">Online bladwijzers</string>
     <string name="toc_label">Inhoudsopgave</string>
-    <string name="syncing">"Voortgang synchroniseren..."</string>
+    <string name="syncing">"Bezig met synchroniseren..."</string>
     <string name="sync_failed">Synchronisatie mislukt</string>
     <string name="connection_fail">Kon geen verbinding maken met de synchronisatie server</string>    
     

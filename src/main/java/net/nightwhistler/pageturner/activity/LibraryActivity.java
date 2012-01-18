@@ -99,6 +99,10 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	private ProgressDialog waitDialog;
 	private ProgressDialog importDialog;	
 	
+	private AlertDialog importQuestion;
+	
+	private boolean askedUserToImport;
+	
 	private SharedPreferences settings;
 	
 	private Selections lastSelection = Selections.LAST_ADDED;
@@ -110,6 +114,10 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.library_menu);
+		
+		if ( savedInstanceState != null ) {
+			this.askedUserToImport = savedInstanceState.getBoolean("import_q", false);
+		}
 		
 		this.bookAdapter = new BookAdapter(this);
 		this.listView.setAdapter(bookAdapter);
@@ -234,6 +242,11 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	}	
 	
 	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putBoolean("import_q", askedUserToImport);
+	}
+	
+	@Override
 	protected void onStop() {		
 		this.libraryService.close();	
 		this.waitDialog.dismiss();
@@ -325,6 +338,36 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	
 	}	
 	
+	private void buildImportQuestionDialog() {
+		
+		if ( importQuestion != null ) {
+			return;
+		}
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
+		builder.setTitle(R.string.no_books_found);
+		builder.setMessage( getString(R.string.scan_bks_question) );
+		builder.setPositiveButton(android.R.string.yes, new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();		
+				new ImportBooksTask().execute(new File("/sdcard"));
+			}
+		});
+		
+		builder.setNegativeButton(android.R.string.no, new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();						
+				importQuestion = null;
+			}
+		});				
+		
+		this.importQuestion = builder.create();
+	}
+	
 	private class MenuSelectionListener implements OnItemSelectedListener {
 		@Override
 		public void onItemSelected(AdapterView<?> arg0, View arg1, int pos,
@@ -342,7 +385,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		public void onNothingSelected(AdapterView<?> arg0) {
 						
 		}
-	}	
+	}		
 	
 	private class ImportBooksTask extends AsyncTask<File, Integer, Void> implements OnCancelListener {	
 		
@@ -541,29 +584,10 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			bookAdapter.setResult(result);
 			waitDialog.hide();			
 			
-			if ( sel == Selections.LAST_ADDED && result.getSize() == 0 ) {
-				
-				AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
-				builder.setTitle(R.string.no_books_found);
-				builder.setMessage( getString(R.string.scan_bks_question) );
-				builder.setPositiveButton(android.R.string.yes, new OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();		
-						new ImportBooksTask().execute(new File("/sdcard"));
-					}
-				});
-				
-				builder.setNegativeButton(android.R.string.no, new OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();						
-					}
-				});				
-				
-				builder.show();
+			if ( sel == Selections.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
+				askedUserToImport = true;
+				buildImportQuestionDialog();
+				importQuestion.show();
 			}
 		}
 		

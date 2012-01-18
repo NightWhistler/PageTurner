@@ -8,12 +8,24 @@
     <version>0.2.12-SNAPSHOT</version>
     <packaging>apk</packaging>
     <name>PageTurner</name>
-    
+   
+   
+   <!-- This is the Ostara repository which contains all PageTurner
+        dependencies for easier building. It uses HTTPS with a self-signed
+        certificate. Use trust.jks to connect. 
+        --> 
+   <repositories>
+        <repository>
+            <id>Ostara</id>
+            <url>https://ostara.nightwhistler.net/repository</url>
+        </repository>
+   </repositories>
+   
    <dependencies>
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
-            <version>2.1.2</version>
+            <version>2.2.1</version>
             <scope>provided</scope>
         </dependency>
     
@@ -117,7 +129,7 @@
                         <debug>true</debug>
                     </run>
                     <sdk>
-                        <platform>7</platform>
+                        <platform>8</platform>
                     </sdk>
                     <emulator>
                         <avd>Telefoon</avd>

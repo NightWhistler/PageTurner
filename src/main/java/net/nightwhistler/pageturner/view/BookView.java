@@ -34,6 +34,7 @@ import java.util.Set;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
+import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
@@ -151,7 +152,11 @@ public class BookView extends ScrollView {
 	
 	public void setSpanner(HtmlSpanner spanner) {
 		this.spanner = spanner;
-        spanner.registerHandler("img", new ImageTagHandler() );
+		
+		ImageTagHandler imgHandler = new ImageTagHandler();
+        spanner.registerHandler("img", imgHandler );
+        spanner.registerHandler("image", imgHandler );
+        
         spanner.registerHandler("a", new AnchorHandler(new LinkTagHandler()) );
         
         spanner.registerHandler("h1", new AnchorHandler(spanner.getHandlerFor("h1") ));
@@ -606,6 +611,11 @@ public class BookView extends ScrollView {
 				Drawable drawable = new BitmapDrawable( bitmap );
 				drawable.setBounds(0,0, bitmap.getWidth() - 1, bitmap.getHeight() - 1);
 				builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				
+				if ( spine.isCover() ) {
+					builder.setSpan(new CenterSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				}
+				
 			}
 						
 		}
@@ -653,6 +663,13 @@ public class BookView extends ScrollView {
 				int start, int end) {						
 			String src = node.getAttributeByName("src");
 			
+			if ( src == null ) {
+				src = node.getAttributeByName("href");
+			} 
+			
+			if ( src == null ) {
+				src = node.getAttributeByName("xlink:href");
+			}
 	        builder.append("\uFFFC");
 	        
 	        loader.registerCallback(src, new ImageCallback(builder, start, builder.length()));

@@ -257,6 +257,10 @@ public class PageTurnerSpine {
 	}
 	
 	private Resource createCoverResource(Book book) {	
+		
+		if ( book.getCoverPage() != null && book.getCoverPage().getSize() > 0 ) {
+			return book.getCoverPage();
+		}
 				
 		Resource res = new Resource(generateCoverPage(book).getBytes(), COVER_HREF);
 		res.setTitle("Cover");
@@ -284,7 +288,7 @@ public class PageTurnerSpine {
 			centerpiece = "<img src='" + book.getCoverImage().getHref() + "'>";
 		}		
 		
-		return "<html><body><center>" + centerpiece + "</center></body></html>";
+		return "<html><body>" + centerpiece + "</body></html>";
 	}
 	
 	private class SpineEntry {

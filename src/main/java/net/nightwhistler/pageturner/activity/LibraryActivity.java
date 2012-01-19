@@ -135,7 +135,10 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		this.waitDialog.setOwnerActivity(this);
 		
 		this.importDialog = new ProgressDialog(this);
+		
 		this.importDialog.setOwnerActivity(this);
+		importDialog.setTitle(R.string.importing_books);
+		importDialog.setMessage(getString(R.string.scanning_epub));
 		
 		registerForContextMenu(this.listView);	
 	}
@@ -402,8 +405,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		
 		@Override
 		protected void onPreExecute() {
-			importDialog.setTitle(R.string.importing_books);
-			importDialog.setMessage(getString(R.string.scanning_epub));
+			
 			importDialog.setOnCancelListener(this);
 			importDialog.show();			
 			

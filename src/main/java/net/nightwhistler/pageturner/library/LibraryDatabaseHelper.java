@@ -33,24 +33,46 @@ import android.database.sqlite.SQLiteOpenHelper;
 @ContextScoped
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
-	public enum Field { file_name, title, a_first_name, a_last_name,
-		date_added, date_last_read, description, cover_image
+	public enum Field { 
+		file_name("text primary key"),title("text"), a_first_name("text"),
+		a_last_name("text"), date_added("integer"), date_last_read("integer"), 
+		description("text"), cover_image("blob");
+		
+		private String fieldDef;
+	
+		private Field(String fieldDef) { this.fieldDef = fieldDef; }		
 	}	
 	
 	private SQLiteDatabase database;
 	
-	public enum Order { ASC, DESC };
-	
-	private static final String CREATE_TABLE =
-		"create table lib_books ( file_name text primary key, title text, " +
-		"a_first_name text, a_last_name text, date_added integer, " +
-		"date_last_read integer, description text, cover_image blob );";
-	
+	public enum Order { ASC, DESC };	
+		
 	private static final String DROP_TABLE = "drop table lib_books;";
 	
 	private static final String DB_NAME = "PageTurnerLibrary";
 	private static final int VERSION = 3;
 
+	private static String getCreateTableString() {
+		String create = "create table lib_books ( ";
+		
+		boolean first = true;
+		
+		for ( Field f: Field.values() ) {
+			
+			if ( first ) {
+				first = false;
+			} else {
+				create += ",";
+			}
+			
+			create += (" " + f.name() + " " + f.fieldDef);
+		}
+		
+		create += " );";
+		
+		return create;
+	}
+	
 	@Inject
 	public LibraryDatabaseHelper(Context context) {
 		super(context, DB_NAME, null, VERSION);		
@@ -66,14 +88,13 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL(CREATE_TABLE);		
+		db.execSQL(getCreateTableString());		
 	}
 	
 	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		//Nothing to do yet :)		
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {		
 		db.execSQL(DROP_TABLE);
-		db.execSQL(CREATE_TABLE);
+		db.execSQL(getCreateTableString());
 	}	
 	
 	public void delete( String fileName ) {

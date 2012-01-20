@@ -54,6 +54,7 @@
     <string name="no_bks_fnd_text">No books were found on your device.\nYou can download books at gutenberg.org or feedbooks.com</string>
     <string name="loading_library">Loading library...</string>
     <string name="scan_bks_question">There are no books in your library.\nWould you like to scan your device for books?</string>    
+    <string name="brightness">Brightness</string>    
         
     <string-array name="v_animLabels">
         <item>Slide</item>

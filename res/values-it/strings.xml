@@ -53,7 +53,8 @@
     <string name="no_books_found">Nessun libro trovato.</string>
     <string name="no_bks_fnd_text">Non sono stati trovati libri sull\'apparecchio.\nSi possono scaricare libri su gutenberg.org o feedbooks.com</string>
     <string name="loading_library">Caricamento libreria...</string>
-    <string name="scan_bks_question">Non ci sono libri nella libreria.\nEffettuare una scansione dei file per trovare libri?</string>    
+    <string name="scan_bks_question">Non ci sono libri nella libreria.\nEffettuare una scansione dei file per trovare libri?</string>   
+    <string name="brightness">Luminosità</string> 
         
     <string-array name="v_animLabels">
         <item>Scorri</item>

@@ -341,6 +341,10 @@ public class BookView extends ScrollView {
 		
 		int offset = layout.getOffsetForHorizontal(line, x);
 		
+		if ( offset < 0 || offset > text.length() -1 ) {
+			return null;
+		}		
+		
 		if ( isBoundaryCharacter(text.charAt(offset)) ) {
 			return null;
 		}

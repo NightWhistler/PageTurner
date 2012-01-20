@@ -25,6 +25,10 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.Configuration.AnimationStyle;
+import net.nightwhistler.pageturner.Configuration.ColourProfile;
+import net.nightwhistler.pageturner.Configuration.ScrollStyle;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.animation.Animations;
 import net.nightwhistler.pageturner.animation.Animator;
@@ -52,20 +56,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
@@ -94,16 +94,14 @@ import android.widget.ViewSwitcher;
 import com.globalmentor.android.widget.VerifiedFlingListener;
 import com.google.inject.Inject;
 
-public class ReadingActivity extends RoboActivity implements BookViewListener 
-{
-		
+public class ReadingActivity extends RoboActivity implements BookViewListener {
+
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
-			
+
 	protected static final int REQUEST_CODE_GET_CONTENT = 2;
 	
-	public static final String PICK_RESULT_ACTION = "colordict.intent.action.PICK_RESULT";
-	
+	public static final String PICK_RESULT_ACTION = "colordict.intent.action.PICK_RESULT";	
 	public static final String SEARCH_ACTION = "colordict.intent.action.SEARCH";
 	public static final String EXTRA_QUERY = "EXTRA_QUERY";
 	public static final String EXTRA_FULLSCREEN = "EXTRA_FULLSCREEN";
@@ -123,6 +121,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 	@Inject 
 	private LibraryService libraryService;
 	
+	@Inject
+	private Configuration config;    
+	
 	@InjectView(R.id.mainContainer) 
 	private ViewSwitcher viewSwitcher;	
 	
@@ -141,14 +142,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
 		
-	private SharedPreferences settings;	
-    
+	
     private GestureDetector gestureDetector;
 	private View.OnTouchListener gestureListener;
 		
 	private String bookTitle;
 	private String titleBase;
-	private String colourProfile;	
+		
 	private String fileName;
 	private int progressPercentage;
 	
@@ -168,7 +168,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         super.onCreate(savedInstanceState);
         
         // Restore preferences
-        this.settings = PreferenceManager.getDefaultSharedPreferences(this);
+        // this.config = new Configuration(PreferenceManager.getDefaultSharedPreferences(this) );
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
         setContentView(R.layout.read_book);
@@ -199,8 +199,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	this.bookView.addListener(this);
     	this.bookView.setSpanner(getInjector().getInstance(HtmlSpanner.class));
     	
-    	this.oldBrightness = settings.getBoolean("set_brightness", false);
-    	this.oldStripWhiteSpace = settings.getBoolean("strip_whitespace", false);
+    	this.oldBrightness = config.isBrightnessControlEnabled();
+    	this.oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
     	
     	registerForContextMenu(bookView);
     	
@@ -211,7 +211,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         }
         
         if ( file == null ) {
-        	file = settings.getString("last_file", "");
+        	file = config.getLastOpenedFile();
         }
         
         updateFromPrefs();
@@ -225,7 +225,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         	return;
         	
         } else {        
-        	String email = settings.getString("email", "").trim();
+        	String email = config.getSynchronizationEmail();
         	
         	if ( savedInstanceState == null &&  email.length() != 0 ) {
         		new DownloadProgressTask().execute();
@@ -240,13 +240,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	
     	this.fileName = fileName;
     	
-    	int lastPos = -1;
-    	int lastIndex = 0;        
-
-    	if ( settings != null ) {
-    		lastPos = settings.getInt(POS_KEY + fileName, -1 );
-    		lastIndex = settings.getInt(IDX_KEY + fileName, -1 );    		
-    	}   
+    	int lastPos = config.getLastPosition(fileName);
+    	int lastIndex = config.getLastIndex(fileName);
 
     	if (savedInstanceState != null ) {
     		lastPos = savedInstanceState.getInt(POS_KEY, -1);
@@ -257,11 +252,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	this.bookView.setPosition(lastPos);
     	this.bookView.setIndex(lastIndex);
     	
-        //Slightly hacky
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString("last_file", fileName);
-        editor.commit();    
-
+    	config.setLastOpenedFile(fileName);
     }           
     
     /**
@@ -276,9 +267,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 			
 			@Override
 			public void run() {
-				SharedPreferences.Editor editor = settings.edit();
-		        editor.putInt("itext_size", (int) textSize);
-		        editor.commit();    
+				config.setTextSize( (int) textSize );
 			}
 		});
     }
@@ -303,30 +292,27 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     private void updateFromPrefs() {
     	    	
-    	this.progressService.setEmail( settings.getString("email", "") );
-    	this.progressService.setDeviceName( settings.getString("device_name", Build.MODEL));
-    	
-        int userTextSize = settings.getInt("itext_size", 16);                
-        bookView.setTextSize( userTextSize );
+    	this.progressService.setEmail( config.getSynchronizationEmail() );
+    	this.progressService.setDeviceName( config.getDeviceName() );
+    	                      
+        bookView.setTextSize( config.getTextSize() );
         
-        int marginH = settings.getInt("margin_h", 15);
-        int marginV = settings.getInt("margin_v", 15);
+        int marginH = config.getHorizontalMargin();
+        int marginV = config.getVerticalMargin();
         
-        updateTypeFace();
+        this.bookView.setTypeface(config.getTypeface());
         
         bookView.setHorizontalMargin(marginH);
         bookView.setVerticalMargin(marginV);
         
         if ( ! isAnimating() ) {
-        	bookView.setEnableScrolling(settings.getBoolean("scrolling", false));
+        	bookView.setEnableScrolling(config.isScrollingEnabled());
         }
         
-        bookView.setStripWhiteSpace(settings.getBoolean("strip_whitespace", true));
-        
-        int lineSpacing = settings.getInt("line_spacing", 0);
-        bookView.setLineSpacing(lineSpacing);             
+        bookView.setStripWhiteSpace(config.isStripWhiteSpaceEnabled()); 
+        bookView.setLineSpacing(config.getLineSpacing());             
 
-        if ( settings.getBoolean("full_screen", false)) {
+        if ( config.isFullScreenEnabled() ) {
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
             this.titleBarLayout.setVisibility(View.GONE);
@@ -339,45 +325,26 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         restoreColorProfile();
         
         //Check if we need a restart
-        if ( settings.getBoolean("set_brightness", false) != oldBrightness
-        		|| settings.getBoolean("strip_whitespace", false) != oldStripWhiteSpace ) {
+        if ( config.isBrightnessControlEnabled() != oldBrightness
+        		|| config.isStripWhiteSpaceEnabled() != oldStripWhiteSpace ) {
         	Intent intent = new Intent(this, ReadingActivity.class);
         	intent.setData(Uri.parse(this.fileName));
         	startActivity(intent);
         	finish();
         }
         
-        String orientation = settings.getString("screen_orientation", "no_lock");
+        Configuration.OrientationLock orientation = config.getScreenOrientation(); 
         
-        if ( "portrait".equals(orientation) ) {
+        switch ( orientation ) {
+        case PORTRAIT:
         	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        } else if ( "landscape".endsWith(orientation) ) {
+        	break;
+        case LANDSCAPE:
         	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else {
+        	break;
+        default:
         	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         }
-
-    }     
-    
-    private void updateTypeFace() {
-    	String fontFace = settings.getString("font_face", "gen_book_bas");
-    	
-    	Typeface face = Typeface.SERIF;
-    	
-    	if ( "gen_book_bas".equals(fontFace) ) {
-    		face = Typeface.createFromAsset(getAssets(), "gen_bk_bas.ttf");
-    	} else if ("gen_bas".equals(fontFace)) {
-    		face = Typeface.createFromAsset(getAssets(), "gen_bas.ttf");
-    	} else if ("sans".equals(fontFace) ) {
-    		face = Typeface.SANS_SERIF;
-    	} else if ("serif".equals(fontFace)) {
-    		face = Typeface.SERIF;
-    	} else if ("mono".equals(fontFace)) {
-    		face = Typeface.MONOSPACE;
-    	}    	
-    	
-        this.bookView.setTypeface(face);
-    	
     }
     
     @Override
@@ -476,51 +443,25 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     private void restoreColorProfile() {
 
-    	int brightness = 50;
+    	this.bookView.setBackgroundColor(config.getBackgroundColor());
+    	this.viewSwitcher.setBackgroundColor(config.getBackgroundColor());
+    	this.bookView.setTextColor(config.getTextColor());   
+    	this.bookView.setLinkColor(config.getLinkColor());
 
-    	if ( settings.getBoolean("night_mode", false)) {
-    		this.colourProfile = "night";
-    		brightness = settings.getInt("night_bright", 50);
-    	} else {
-    		this.colourProfile = "day";
-    		brightness = settings.getInt("day_bright", 50);
-    	}
-
-    	this.bookView.setBackgroundColor(getBackgroundColor());
-    	this.viewSwitcher.setBackgroundColor(getBackgroundColor());
-    	this.bookView.setTextColor(getTextColor());   
-    	this.bookView.setLinkColor(getLinkColor());
-
-    	if ( settings.getBoolean("set_brightness", false)) {
-    		WindowManager.LayoutParams lp = getWindow().getAttributes();
-    		lp.screenBrightness = (float) brightness / 100f;
-    		getWindow().setAttributes(lp);
+    	int brightness = config.getBrightNess();
+    	
+    	if ( config.isBrightnessControlEnabled() ) {
+    		setScreenBrightnessLevel(brightness);
     	}  
+    }    
+    
+    private void setScreenBrightnessLevel( int level ) {
+    	WindowManager.LayoutParams lp = getWindow().getAttributes();
+		lp.screenBrightness = (float) level / 100f;
+		getWindow().setAttributes(lp);
     }
     
-    private int getBackgroundColor() {
-    	if ( "night".equals(this.colourProfile) ) {   
-    		return settings.getInt("night_bg", Color.BLACK);
-    	} else {
-    		return settings.getInt("day_bg", Color.WHITE);
-    	}
-    }
-    
-    private int getTextColor() {
-    	if ( "night".equals(this.colourProfile) ) {   
-    		return settings.getInt("night_text", Color.GRAY);
-    	} else {
-    		return settings.getInt("day_text", Color.BLACK);
-    	}
-    }
-    
-    private int getLinkColor() {
-    	if ( "night".equals(this.colourProfile) ) {   
-    		return settings.getInt("night_link", Color.rgb(255, 165, 0));
-    	} else {
-    		return settings.getInt("day_link", Color.BLUE );
-    	}
-    }
+  
     
     @Override
     public void errorOnBookOpening(String errorMessage) {    	
@@ -566,7 +507,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 	    
 	    	case KeyEvent.KEYCODE_VOLUME_DOWN:
 	    		//Yes, this is nasty: if the setting is true, we fall through to the next case.
-	    		if (! settings.getBoolean("nav_vol", false) ) { return false; }	    		
+	    		if (! config.isVolumeKeyNavEnabled() ) { return false; }	    		
 	        
 	    	case KeyEvent.KEYCODE_DPAD_RIGHT:
 	            
@@ -578,7 +519,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
 
 	        case KeyEvent.KEYCODE_VOLUME_UP:
 		        //Same dirty trick.
-	    		if (! settings.getBoolean("nav_vol", false) ) { return false; } 
+	    		if (! config.isVolumeKeyNavEnabled() ) { return false; } 
 
 	        case KeyEvent.KEYCODE_DPAD_LEFT:	
 	            if (action == KeyEvent.ACTION_DOWN) {
@@ -619,9 +560,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	
     	bookView.setKeepScreenOn(true);
     	
-    	String style = settings.getString("scroll_style", "rolling_blind");
+    	ScrollStyle style = config.getAutoScrollStyle();
     	
-    	if ( "rolling_blind".equals(style) ) {
+    	if ( style == ScrollStyle.ROLLING_BLIND ) {
     		prepareRollingBlind();
     	} else {
     		preparePageTimer();
@@ -640,7 +581,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	Bitmap after = getBookViewSnapshot();
     	    	
     	RollingBlindAnimator anim = new RollingBlindAnimator();
-    	anim.setAnimationSpeed( settings.getInt("scroll_speed", 20) );
+    	anim.setAnimationSpeed( config.getScrollSpeed() );
     	    	
     	anim.setBackgroundBitmap(before);
     	anim.setForegroundBitmap(after);
@@ -654,7 +595,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	
     	PageTimer timer = new PageTimer();
     	timer.setBackgroundImage(after);
-    	timer.setSpeed( settings.getInt("scroll_speed", 20) );
+    	timer.setSpeed( config.getScrollSpeed() );
     	
     	dummyView.setAnimator(timer);
     }
@@ -680,7 +621,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	//bigger, so do the frames.
     	animator.SetCurlSpeed( bookView.getWidth() / 12 );    	
     	
-    	animator.setBackgroundColor(getBackgroundColor());    		
+    	animator.setBackgroundColor(config.getBackgroundColor());    		
 
     	if ( flipRight ) {
     		bookView.pageDown();
@@ -789,7 +730,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     		}
     		
     	} catch (OutOfMemoryError out) {
-    		restoreBackgroundColour();	
+    		viewSwitcher.setBackgroundColor(config.getBackgroundColor());	
     	}	
     	
     	return null;
@@ -810,28 +751,19 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	
 		this.viewSwitcher.setInAnimation(inAnim);
 		this.viewSwitcher.setOutAnimation(outAnim);		
-    }
-    
-    private void restoreBackgroundColour() {    	
-		if ( this.colourProfile.equals("day") ) {
-			this.viewSwitcher.setBackgroundColor(settings.getInt("day_bg", Color.WHITE));
-		} else {
-			this.viewSwitcher.setBackgroundColor(settings.getInt("night_bg", Color.BLACK));
-		}
-    }
+    }   
     
     private void pageDown(Orientation o) {
     	
-    	stopAnimating();
-    	
-    	String animH = settings.getString("h_animation", "curl");
-    	String animV = settings.getString("v_animation", "slide");
+    	stopAnimating();    
     	
     	if ( o == Orientation.HORIZONTAL  ) {
     		
-    		if ( "curl".equals(animH) ) {
+    		AnimationStyle animH = config.getHorizontalAnim();
+    		
+    		if ( animH == AnimationStyle.CURL ) {
     			doPageCurl(true);
-    		} else if ("slide".equals(animH) ) {
+    		} else if (animH == AnimationStyle.SLIDE ) {
     			prepareSlide(Animations.inFromRightAnimation(), Animations.outToLeftAnimation());
         		this.viewSwitcher.showNext();
         		bookView.pageDown();
@@ -839,7 +771,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     			bookView.pageDown();
     		}
     		
-    	} else if ( "slide".equals(animV) ){
+    	} else if ( config.getVerticalAnim() == AnimationStyle.SLIDE ){
     		prepareSlide(Animations.inFromBottomAnimation(), Animations.outToTopAnimation() );    		
     		this.viewSwitcher.showNext();
     		bookView.pageDown();
@@ -849,16 +781,15 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     private void pageUp(Orientation o) {
     	
-    	stopAnimating();
-
-    	String animH = settings.getString("h_animation", "curl");
-    	String animV = settings.getString("v_animation", "slide");
+    	stopAnimating();   	
     	
     	if ( o == Orientation.HORIZONTAL  ) {
     		
-    		if ( "curl".equals(animH) ) {
+    		AnimationStyle animH = config.getHorizontalAnim();
+    		
+    		if ( animH == AnimationStyle.CURL ) {
     			doPageCurl(false);
-    		} else if ("slide".equals(animH) ) {
+    		} else if ( animH == AnimationStyle.SLIDE ) {
     			prepareSlide(Animations.inFromLeftAnimation(), Animations.outToRightAnimation()); 
         		this.viewSwitcher.showNext();
         		bookView.pageUp();
@@ -866,7 +797,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     			bookView.pageUp();
     		}
     		
-    	} else if ( "slide".equals(animV) ){
+    	} else if ( config.getVerticalAnim() == AnimationStyle.SLIDE ){
     		prepareSlide(Animations.inFromTopAnimation(), Animations.outToBottomAnimation());    		
     		this.viewSwitcher.showNext();
     		bookView.pageUp();
@@ -887,15 +818,24 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	MenuItem sync = menu.findItem(R.id.manual_sync );
     	
     	showToc.setEnabled( this.tocDialog != null );
-    	sync.setEnabled( ! "".equals( settings.getString("email", "")) );
+    	sync.setEnabled( ! "".equals( config.getSynchronizationEmail() ));
     	
-    	if ( this.colourProfile.equals("day") ) {
+    	if ( config.getColourProfile() == ColourProfile.DAY ) {
     		dayMode.setVisible(false);
     		nightMode.setVisible(true);
     	} else {
     		dayMode.setVisible(true);
     		nightMode.setVisible(false);
-    	}    
+    	}  
+    	
+    	//Only show open file item if we have a file manager installed
+    	Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+    	intent.setType("file/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        
+        if (! isIntentAvailable(this, intent)) {
+        	menu.findItem(R.id.open_file).setVisible(false);
+        }
     	
     	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
     	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -906,9 +846,10 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     @Override
     public void onOptionsMenuClosed(Menu menu) {
-    	if ( settings.getBoolean("full_screen", false)) {
+    	if ( config.isFullScreenEnabled() ) {
         	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
-                                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        			WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        	
         	this.titleBarLayout.setVisibility(View.GONE);
         }
     }
@@ -950,18 +891,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
        super.onStop();
 
        if ( this.bookView != null ) {
-    	   progressService.storeProgress(this.fileName,
-    			   this.bookView.getIndex(), this.bookView.getPosition(), 
-    			   this.progressPercentage );
     	   
-    	   // We need an Editor object to make preference changes.
-    	   // All objects are from android.context.Context    	   
-    	   SharedPreferences.Editor editor = settings.edit();
-    	   editor.putInt(POS_KEY + this.fileName, this.bookView.getPosition());
-    	   editor.putInt(IDX_KEY + this.fileName, this.bookView.getIndex());    	   
-
-    	   // Commit the edits!
-    	   editor.commit();
+    	   progressService.storeProgress(this.fileName, this.bookView.getIndex(), 
+    			   this.bookView.getPosition(), this.progressPercentage );
+    	   
+    	   config.setLastPosition(this.fileName, this.bookView.getPosition() );
+    	   config.setLastIndex(this.fileName, this.bookView.getIndex() );    	   
        }
        
        this.waitDialog.dismiss();
@@ -973,16 +908,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         inflater.inflate(R.menu.reading_menu, menu);        
         
         return true;
-    }   
-    
-    private void setProfile(String profileName) {    	
-    	        
-        SharedPreferences.Editor editor = this.settings.edit();
-    	editor.putBoolean("night_mode", ! this.colourProfile.equals("night"));
-    	editor.commit();   
-    	
-        this.restoreColorProfile();    	
-    }    
+    }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -991,11 +917,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         switch (item.getItemId()) {
      
         case R.id.profile_night:
-        	setProfile("night");            
+        	config.setColourProfile(ColourProfile.NIGHT);   
+        	this.restoreColorProfile();  
             return true;
             
         case R.id.profile_day:
-        	setProfile("day");            
+        	config.setColourProfile(ColourProfile.DAY);   
+        	this.restoreColorProfile();  
             return true;
             
         case R.id.manual_sync:
@@ -1003,9 +931,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
         	return true;
         	
         case R.id.preferences:
-        	
-        	oldBrightness = settings.getBoolean("set_brightness", false);
-        	oldStripWhiteSpace = settings.getBoolean("strip_whitespace", false);
+        	//Cache old settings to check if we'll need a restart later
+        	oldBrightness = config.isBrightnessControlEnabled();
+        	oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
         	
         	Intent i = new Intent(this, PageTurnerPrefsActivity.class);
         	startActivity(i);
@@ -1198,10 +1126,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     	@Override
     	protected Void doInBackground(Book... params) {
     		
-    		Book book = params[0];		
-    		boolean copy = settings.getBoolean("copy_to_library", true);
+    		Book book = params[0];		    		
         	try {
-        		libraryService.storeBook(fileName, book, true, copy );
+        		libraryService.storeBook(fileName, book, true, config.isCopyToLibrayEnabled() );
         	} catch (IOException io) {
         		LOG.error("Copy to library failed.", io);
         	}
@@ -1291,18 +1218,68 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     
     private class SwipeListener extends VerifiedFlingListener {
     	
+    	private Toast toast;
+    	
     	public SwipeListener() {
     		super(ReadingActivity.this);
 		}    	    	
       
     	@Override
+    	public boolean onScroll(MotionEvent e1, MotionEvent e2,
+    			float distanceX, float distanceY) {
+    		
+    		final int TAP_RANGE_H = bookView.getWidth() / 5;
+    		
+    		if ( e1.getX() < TAP_RANGE_H && config.isBrightnessControlEnabled() ) {
+    			
+    			int baseBrightness = config.getBrightNess();
+    			
+    			float delta = (e1.getY() - e2.getY()) / (bookView.getHeight() *2);
+    			
+    			LOG.debug("Got a delta of " + delta );
+    			
+    			int brightnessLevel = (int) (100 * delta); 
+    			
+    			brightnessLevel = Math.min(99, brightnessLevel + baseBrightness);
+    			brightnessLevel = Math.max(1, brightnessLevel);
+    			
+    			final int level = brightnessLevel;
+    			
+    			String brightness = getString(R.string.brightness);
+    			setScreenBrightnessLevel(level);
+    			
+    			if ( toast == null ) {    				
+    				toast = Toast.makeText(ReadingActivity.this, brightness + ": " + brightnessLevel, Toast.LENGTH_SHORT);
+    			} else {
+    				toast.setText(brightness + ": " + brightnessLevel + " - " + delta );
+    			}
+    			
+    			toast.show();
+    			
+    			handler.post(new Runnable() {
+					
+					@Override
+					public void run() {
+						config.setBrightness(level);					
+					}
+				});
+    			
+    			return true;
+    		}
+    		
+    		return super.onScroll(e1, e2, distanceX, distanceY);
+    	}
+    	
+    	@Override
     	public boolean onVerifiedFling(MotionEvent e1, MotionEvent e2,
     			float velocityX, float velocityY) {
     		
-    		stopAnimating();
+    		stopAnimating();    	
     		
-    		boolean swipeH = settings.getBoolean("nav_swipe_h", true);
-    		boolean swipeV = settings.getBoolean("nav_swipe_v", true) && ! settings.getBoolean("scrolling", true);
+    		final int TAP_RANGE_H = bookView.getWidth() / 5;
+    		
+    		boolean swipeH = config.isHorizontalSwipeEnabled();
+    		boolean swipeV = config.isVerticalSwipeEnabled() && ! config.isScrollingEnabled();
     		
     		if ( swipeH && velocityX > 0 ) {
     			pageUp(Orientation.HORIZONTAL);
@@ -1310,10 +1287,10 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     		} else if ( swipeH && velocityX < 0 ) {
     			pageDown(Orientation.HORIZONTAL);
     			return true;
-    		} else if ( swipeV && velocityY < 0 ) {
+    		} else if ( swipeV && velocityY < 0 && e1.getX() > TAP_RANGE_H ) {
     			pageDown( Orientation.VERTICAL );
     			return true;
-    		} else if ( swipeV && velocityY > 0 ) {
+    		} else if ( swipeV && velocityY > 0 && e1.getX() > TAP_RANGE_H ) {
     			pageUp( Orientation.VERTICAL );
     			return true;
     		}
@@ -1326,8 +1303,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener
     		
     		stopAnimating();
     		
-        	boolean tapH = settings.getBoolean("nav_tap_h", true);
-        	boolean tapV = settings.getBoolean("nav_tap_v", true);
+        	boolean tapH = config.isHorizontalTappingEnabled();
+        	boolean tapV = config.isVerticalTappingEnabled();
         	
         	final int TAP_RANGE_H = bookView.getWidth() / 5;
         	final int TAP_RANGE_V = bookView.getHeight() / 5;

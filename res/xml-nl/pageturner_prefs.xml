@@ -219,7 +219,7 @@
                     
 
          <ListPreference
-     		android:key="h_animation"
+     		android:key="v_animation"
             android:title="Verticale animaties"
             android:summary="Animaties bij verticale pagina wisseling"            
         	android:defaultValue="slide"

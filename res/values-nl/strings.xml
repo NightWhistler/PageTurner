@@ -54,6 +54,7 @@
     <string name="no_bks_fnd_text">Er zijn geen boeken gevonden op het apparaat.\nGa naar gutenberg.org of feedbooks.com om gratis boeken te downloaden.</string>
     <string name="loading_library">Bezig met laden van de bibliotheek...</string>
     <string name="scan_bks_question">De bibliotheek is leeg.\nWil je automatisch zoeken naar boeken?</string>    
+    <string name="brightness">Helderheid</string> 
     
     <string-array name="v_animLabels">
         <item>Glijdende tekst</item>

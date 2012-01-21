@@ -70,6 +70,7 @@ import android.os.HandlerThread;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
+import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
@@ -185,7 +186,10 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         
         this.gestureDetector = new GestureDetector(new SwipeListener());
         
-        final PinchZoomListener pinch = new PinchZoomListener(
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        
+        final PinchZoomListener pinch = new PinchZoomListener( metrics,
         		new PinchZoomListener.FloatAdapter() {
         			
 			@Override public void setValue(float value) { updateTextSize(value); }			

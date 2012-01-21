@@ -330,11 +330,15 @@ public class BookView extends ScrollView {
 	 */
 	public CharSequence getWordAt( float x, float y ) {
 		
+		if ( childView == null || childView.getLayout() == null ) {
+			return null;
+		}
+		
 		CharSequence text = this.childView.getText();
 		
 		if ( text.length() == 0 ) {
 			return null;
-		}
+		}		
 		
 		Layout layout = this.childView.getLayout();
 		int line = layout.getLineForVertical( (int) y);

@@ -105,7 +105,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	
 	private SharedPreferences settings;
 	
-	private Selections lastSelection = Selections.LAST_ADDED;
+	private Selections lastSelection = Selections.BY_LAST_READ;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(LibraryActivity.class); 
 	

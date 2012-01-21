@@ -170,7 +170,6 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         super.onCreate(savedInstanceState);
         
         // Restore preferences
-        // this.config = new Configuration(PreferenceManager.getDefaultSharedPreferences(this) );
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
         setContentView(R.layout.read_book);
@@ -1222,10 +1221,10 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     private class SwipeListener extends VerifiedFlingListener {
     	
     	private Toast toast;
-    	
+    	    		
     	public SwipeListener() {
     		super(ReadingActivity.this);
-		}    	    	
+    	}    	    	
       
     	@Override
     	public boolean onScroll(MotionEvent e1, MotionEvent e2,
@@ -1254,7 +1253,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     			if ( toast == null ) {    				
     				toast = Toast.makeText(ReadingActivity.this, brightness + ": " + brightnessLevel, Toast.LENGTH_SHORT);
     			} else {
-    				toast.setText(brightness + ": " + brightnessLevel + " - " + delta );
+    				toast.setText(brightness + ": " + brightnessLevel);
     			}
     			
     			toast.show();

@@ -66,6 +66,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
@@ -159,7 +160,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	
 	private CharSequence selectedWord = null;
 	
-	private Handler handler;
+	private Handler uiHandler;
+	private Handler backgroundHandler;
 	
     /** Called when the activity is first created. */
     @Override
@@ -173,7 +175,11 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         
         setContentView(R.layout.read_book);
         
-        this.handler = new Handler();
+        this.uiHandler = new Handler();
+        
+        HandlerThread bgThread = new HandlerThread("background");
+        bgThread.start();
+        this.backgroundHandler = new Handler(bgThread.getLooper());
         
         this.waitDialog = new ProgressDialog(this);
         this.waitDialog.setOwnerActivity(this);               
@@ -263,7 +269,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
      */
     private void updateTextSize( final float textSize ) {
     	bookView.setTextSize(textSize);
-    	handler.post(new Runnable() {
+    	backgroundHandler.post(new Runnable() {
 			
 			@Override
 			public void run() {
@@ -361,13 +367,25 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     }
     
     @Override
-    public void bookOpened(Book book) {
+    public void bookOpened(final Book book) {
     	
     	this.bookTitle = book.getTitle();
     	this.titleBase = this.bookTitle;
     	setTitle( titleBase );  
     	
-    	new AddBookToLibraryTask().execute(book);
+    	backgroundHandler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+						    		
+	        	try {
+	        		libraryService.storeBook(fileName, book, true, config.isCopyToLibrayEnabled() );
+	        	} catch (IOException io) {
+	        		LOG.error("Copy to library failed.", io);
+	        	}	
+			}
+		});    	
+    	
     }
     
     @Override
@@ -570,7 +588,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	
     	viewSwitcher.showNext();
     	
-    	handler.post( new AutoScrollRunnable() );    	
+    	uiHandler.post( new AutoScrollRunnable() );    	
     }
     
     private void prepareRollingBlind() {
@@ -640,7 +658,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 
     	this.viewSwitcher.showNext();
 
-    	handler.post( new PageCurlRunnable(animator) );
+    	uiHandler.post( new PageCurlRunnable(animator) );
 
     	dummyView.invalidate();    	
 
@@ -671,7 +689,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 
     			int delay = 1000 / this.animator.getAnimationSpeed();
 
-    			handler.postDelayed(this, delay);
+    			uiHandler.postDelayed(this, delay);
     		} 
     	}    		
 
@@ -694,7 +712,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     				anim.advanceOneFrame();
     				dummyView.invalidate();   				
     			
-    				handler.postDelayed(this, anim.getAnimationSpeed() * 2);
+    				uiHandler.postDelayed(this, anim.getAnimationSpeed() * 2);
     			} 
     		}    		
     	}
@@ -1120,22 +1138,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     		
     		this.libraryService.close();
     	}
-    }
-    
-    private class AddBookToLibraryTask extends AsyncTask<Book, Integer, Void> {
-    	@Override
-    	protected Void doInBackground(Book... params) {
-    		
-    		Book book = params[0];		    		
-        	try {
-        		libraryService.storeBook(fileName, book, true, config.isCopyToLibrayEnabled() );
-        	} catch (IOException io) {
-        		LOG.error("Copy to library failed.", io);
-        	}
-    		
-    		return null;
-    	}
-    }
+    }    
     
     private class ManualProgressSync extends AsyncTask<Void, Integer, List<BookProgress>> {
     	
@@ -1256,7 +1259,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     			
     			toast.show();
     			
-    			handler.post(new Runnable() {
+    			backgroundHandler.post(new Runnable() {
 					
 					@Override
 					public void run() {

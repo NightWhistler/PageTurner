@@ -21,7 +21,6 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
@@ -41,7 +40,9 @@ import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.view.AnimatedImageView;
 import net.nightwhistler.pageturner.view.BookView;
 import net.nightwhistler.pageturner.view.BookViewListener;
+import net.nightwhistler.pageturner.view.NavGestureDetector;
 import net.nightwhistler.pageturner.view.PinchZoomListener;
+import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import nl.siegmann.epublib.domain.Book;
 
 import org.slf4j.Logger;
@@ -76,18 +77,15 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -142,8 +140,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	private AnimatedImageView dummyView;
 	
 	private ProgressDialog waitDialog;
-	private AlertDialog tocDialog;
-		
+	private AlertDialog tocDialog;		
 	
     private GestureDetector gestureDetector;
 	private View.OnTouchListener gestureListener;
@@ -164,6 +161,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	private Handler uiHandler;
 	private Handler backgroundHandler;
 	
+	private Toast brightnessToast;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -171,8 +170,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         super.onCreate(savedInstanceState);
         
         // Restore preferences
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        
+        requestWindowFeature(Window.FEATURE_NO_TITLE);        
         setContentView(R.layout.read_book);
         
         this.uiHandler = new Handler();
@@ -184,11 +182,11 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         this.waitDialog = new ProgressDialog(this);
         this.waitDialog.setOwnerActivity(this);               
         
-        this.gestureDetector = new GestureDetector(new SwipeListener());
-        
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         
+        this.gestureDetector = new GestureDetector(new NavGestureDetector(bookView, this, metrics));
+                        
         final PinchZoomListener pinch = new PinchZoomListener( metrics,
         		new PinchZoomListener.FloatAdapter() {
         			
@@ -891,8 +889,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     				loadNewBook(filePath);  
     			}
     		}
-    	}	
-    	
+    	}    	
     }
     
     private void loadNewBook( String fileName ) {
@@ -1019,6 +1016,127 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         return null;
     }
 
+    @Override
+    public boolean onSwipeDown() {
+    	if ( config.isVerticalSwipeEnabled() ) {
+    		pageDown(Orientation.VERTICAL);
+    		return true;
+    	}
+    	
+    	return false;
+    }
+    
+    @Override
+    public boolean onSwipeUp() {
+    	if ( config.isVerticalSwipeEnabled() ) {
+    		pageUp(Orientation.VERTICAL);
+    		return true;
+    	}
+    	
+    	return false;
+    }
+    
+    @Override
+    public void onScreenTap() {
+    	stopAnimating();
+    }
+    
+    @Override
+    public boolean onSwipeLeft() {    			
+    	if ( config.isHorizontalSwipeEnabled() ) {    		
+    		pageDown(Orientation.HORIZONTAL);
+    		return true;
+    	}
+    	
+    	return false;
+    }
+    
+    @Override
+    public boolean onSwipeRight() {
+    	if ( config.isHorizontalSwipeEnabled() ) {    		
+    		pageUp(Orientation.HORIZONTAL);
+    		return true;
+    	}
+    	
+    	return false;
+    }   
+    
+    @Override
+    public boolean onTapLeftEdge() {
+    	if ( config.isHorizontalTappingEnabled() ) {
+    		pageUp(Orientation.HORIZONTAL);
+    		return true;
+    	}
+    		
+    	return false;
+    }
+    
+    @Override
+    public boolean onTapRightEdge() {
+    	if ( config.isHorizontalTappingEnabled() ) {
+    		pageDown(Orientation.HORIZONTAL);
+    		return true;
+    	}
+    		
+    	return false;
+    }
+    
+    @Override
+    public boolean onTapTopEdge() {
+    	if ( config.isVerticalTappingEnabled() ) {
+    		pageUp(Orientation.VERTICAL);
+    		return true;
+    	}
+    		
+    	return false;
+    }
+    
+    @Override
+    public boolean onTopBottomEdge() {
+    	if ( config.isVerticalTappingEnabled() ) {
+    		pageDown(Orientation.VERTICAL);
+    		return true;
+    	}
+    		
+    	return false;
+    }
+    
+    @Override
+    public void onLeftEdgeSwipe(int value) {
+    	if ( config.isBrightnessControlEnabled() ) {
+    		int baseBrightness = config.getBrightNess();
+    		
+    		int brightnessLevel = Math.min(99, value + baseBrightness);
+			brightnessLevel = Math.max(1, brightnessLevel);
+			
+			final int level = brightnessLevel;
+			
+			String brightness = getString(R.string.brightness);
+			setScreenBrightnessLevel(brightnessLevel);
+			
+			if ( brightnessToast == null ) {    				
+				brightnessToast = Toast.makeText(ReadingActivity.this, brightness + ": " + brightnessLevel, Toast.LENGTH_SHORT);
+			} else {
+				brightnessToast.setText(brightness + ": " + brightnessLevel);
+			}
+			
+			brightnessToast.show();
+			
+			backgroundHandler.post(new Runnable() {
+				
+				@Override
+				public void run() {
+					config.setBrightness(level);					
+				}
+			});
+    	}    	
+    }
+    
+    @Override
+    public void onWordLongPressed(CharSequence word) {
+    	this.selectedWord = word;
+		openContextMenu(bookView);
+    }
     
     private void launchFileManager() {
     	Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -1045,57 +1163,15 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setTitle(getString(R.string.cloud_bm));    	
     	
-    	ProgressListAdapter adapter = new ProgressListAdapter(results);    	
+    	ProgressListAdapter adapter = new ProgressListAdapter(this, 
+    			bookView, results);    	
     	builder.setAdapter(adapter, adapter);
 
     	AlertDialog dialog = builder.create();
     	dialog.setOwnerActivity(this);
     	dialog.show();
-    }
+    } 
     
-    private class ProgressListAdapter extends ArrayAdapter<BookProgress> implements 
-    	DialogInterface.OnClickListener {
-    	
-    	private List<BookProgress> books;
-    	
-    	public ProgressListAdapter(List<BookProgress> books) {
-    		super(ReadingActivity.this, R.id.deviceName, books);
-    		this.books = books;
-		}
-    	
-    	@Override
-    	public void onClick(DialogInterface dialog, int which) {
-    		BookProgress progress = books.get(which);
-			bookView.navigateTo(progress.getIndex(), progress.getProgress() );    		
-    	}
-    	
-    	@Override
-    	public View getView(int position, View convertView, ViewGroup parent) {
-    		
-    		View rowView;
-    		
-    		if ( convertView == null ) {
-    			LayoutInflater inflater = (LayoutInflater) 
-    				getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    			
-    			rowView = inflater.inflate(R.layout.progress_row, parent, false);
-    		} else {
-    			rowView = convertView;
-    		}
-    		
-    		TextView deviceView = (TextView) rowView.findViewById(R.id.deviceName);
-    		TextView dateView = (TextView) rowView.findViewById(R.id.timeStamp );
-    		
-    		BookProgress progress = books.get(position);
-    		
-    		deviceView.setTextColor( Color.BLACK );
-    		deviceView.setText( progress.getDeviceName() + " - " + progress.getPercentage() + "%" );
-    		dateView.setText( new SimpleDateFormat().format(progress.getTimeStamp()) );
-    		
-    		return rowView;
-    		
-    	}
-    }
     
     private void initTocDialog() {
 
@@ -1126,7 +1202,6 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 
     	this.tocDialog = builder.create();
     	this.tocDialog.setOwnerActivity(this);
-
     }
     
     @Override
@@ -1220,136 +1295,5 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
             
             bookView.restore();            
     	}
-    } 
-    
-    private class SwipeListener extends VerifiedFlingListener {
-    	
-    	private Toast toast;
-    	    		
-    	public SwipeListener() {
-    		super(ReadingActivity.this);
-    	}    	    	
-      
-    	@Override
-    	public boolean onScroll(MotionEvent e1, MotionEvent e2,
-    			float distanceX, float distanceY) {
-    		
-    		final int TAP_RANGE_H = bookView.getWidth() / 5;
-    		
-    		if ( e1.getX() < TAP_RANGE_H && config.isBrightnessControlEnabled() ) {
-    			
-    			int baseBrightness = config.getBrightNess();
-    			
-    			float delta = (e1.getY() - e2.getY()) / (bookView.getHeight() *2);
-    			
-    			LOG.debug("Got a delta of " + delta );
-    			
-    			int brightnessLevel = (int) (100 * delta); 
-    			
-    			brightnessLevel = Math.min(99, brightnessLevel + baseBrightness);
-    			brightnessLevel = Math.max(1, brightnessLevel);
-    			
-    			final int level = brightnessLevel;
-    			
-    			String brightness = getString(R.string.brightness);
-    			setScreenBrightnessLevel(level);
-    			
-    			if ( toast == null ) {    				
-    				toast = Toast.makeText(ReadingActivity.this, brightness + ": " + brightnessLevel, Toast.LENGTH_SHORT);
-    			} else {
-    				toast.setText(brightness + ": " + brightnessLevel);
-    			}
-    			
-    			toast.show();
-    			
-    			backgroundHandler.post(new Runnable() {
-					
-					@Override
-					public void run() {
-						config.setBrightness(level);					
-					}
-				});
-    			
-    			return true;
-    		}
-    		
-    		return super.onScroll(e1, e2, distanceX, distanceY);
-    	}
-    	
-    	@Override
-    	public boolean onVerifiedFling(MotionEvent e1, MotionEvent e2,
-    			float velocityX, float velocityY) {
-    		
-    		stopAnimating();    	
-    		
-    		final int TAP_RANGE_H = bookView.getWidth() / 5;
-    		
-    		boolean swipeH = config.isHorizontalSwipeEnabled();
-    		boolean swipeV = config.isVerticalSwipeEnabled() && ! config.isScrollingEnabled();
-    		
-    		if ( swipeH && velocityX > 0 ) {
-    			pageUp(Orientation.HORIZONTAL);
-    			return true;
-    		} else if ( swipeH && velocityX < 0 ) {
-    			pageDown(Orientation.HORIZONTAL);
-    			return true;
-    		} else if ( swipeV && velocityY < 0 && e1.getX() > TAP_RANGE_H ) {
-    			pageDown( Orientation.VERTICAL );
-    			return true;
-    		} else if ( swipeV && velocityY > 0 && e1.getX() > TAP_RANGE_H ) {
-    			pageUp( Orientation.VERTICAL );
-    			return true;
-    		}
-    		
-    		return false;
-    	}
-        
-    	@Override
-    	public boolean onSingleTapConfirmed(MotionEvent e) {
-    		
-    		stopAnimating();
-    		
-        	boolean tapH = config.isHorizontalTappingEnabled();
-        	boolean tapV = config.isVerticalTappingEnabled();
-        	
-        	final int TAP_RANGE_H = bookView.getWidth() / 5;
-        	final int TAP_RANGE_V = bookView.getHeight() / 5;
-        	if ( tapH ) {
-        		if ( e.getX() < TAP_RANGE_H ) {
-        			pageUp(Orientation.HORIZONTAL);
-        			return true;
-        		} else if (e.getX() > bookView.getWidth() - TAP_RANGE_H ) {
-        			pageDown(Orientation.HORIZONTAL);
-        			return true;
-        		}
-        	}
-        	
-        	int yBase = bookView.getScrollY();        	
-        	
-        	if ( tapV ) {
-        		if ( e.getY() < TAP_RANGE_V + yBase ) {
-        			pageUp(Orientation.VERTICAL);
-        			return true;
-        		} else if ( e.getY() > (yBase + bookView.getHeight()) - TAP_RANGE_V ) {
-        			pageDown(Orientation.VERTICAL);
-        			return true;
-        		}
-        	}
-        	
-        	return false;        	
-        }
-        
-        @Override
-        public void onLongPress(MotionEvent e) {
-        	CharSequence word = bookView.getWordAt(e.getX(), e.getY() );
-        	
-        	if ( word != null ) {
-        		selectedWord = word;
-
-        		openContextMenu(bookView);
-        	}
-        }     
-        
-	}
-
+    }    
 }

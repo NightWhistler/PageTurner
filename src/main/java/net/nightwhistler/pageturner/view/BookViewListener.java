@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Alex Kuiper
+ * Copyright (C) 2012 Alex Kuiper
  * 
  * This file is part of PageTurner
  *
@@ -63,4 +63,81 @@ public interface BookViewListener {
 	/** Indicates how far we've progressed in the book **/
 	void progressUpdate( int progressPercentage );
 	
+	/**
+	 * Generated when the user long-presses on a word in the text
+	 * 
+	 * @param word the selected word.
+	 */
+	void onWordLongPressed( CharSequence word );
+	
+	/**
+	 * Generated when the user swipes upward.
+	 * 
+	 * @return true if the event was handled.
+	 */
+	boolean onSwipeUp();
+	
+	/**
+	 * Generated when the user swipes downward.
+	 * 
+	 * @return true if the event was handled.
+	 */
+	boolean onSwipeDown();
+	
+	/**
+	 * Generated when the user from right to left.
+	 * 
+	 * @return true if the event was handled.
+	 */
+	boolean onSwipeLeft();
+	
+	/**
+	 * Generated when the user swipes from left to right.
+	 * 
+	 * @return true if the event was handled.
+	 */
+	boolean onSwipeRight();
+	
+	/**
+	 * Generated when the user taps left edge of the screen.
+	 * 
+	 * @return true if the event was handled.
+	 */
+	boolean onTapLeftEdge();
+	
+	/**
+	 * Generated when the user taps the right edge of the screen.
+	 * 
+	 * @return true if the event was handled.
+	 */
+	boolean onTapRightEdge();
+	
+	/**
+	 * Generated when the user taps the top edge of the screen.
+	 * 
+	 * @return true if the event was handled.
+	 */
+	boolean onTapTopEdge();
+	
+	/**
+	 * Generated when the user taps the bottom edge of the screen.
+	 * 
+	 * @return true if the event was handled.
+	 */
+	boolean onTopBottomEdge();
+	
+	/**
+	 * Generated when the user slides a finger along the screen's left edge.
+	 * 
+	 * @param value how far the user has slid.
+	 */
+	void onLeftEdgeSwipe( int value );
+	
+	/**
+	 * Called when the user touches the screen.
+	 * 
+	 * This will always be called when the user taps the screen, even
+	 * when an edge is tapped.
+	 */
+	void onScreenTap();
 }

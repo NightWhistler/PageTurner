@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" 
+	android:key="PageTurnerState">
+	
+	<PreferenceCategory
+                android:title="Synchronisation"> 
+                 
+	<EditTextPreference
+	            android:key="email"
+	            android:title="E-Mailadresse"
+	            android:summary="Wird zum Synchronisieren des Lesefortschritts verwendet. Leer lassen um diese Funktion nicht zu nutzen."
+	            android:dialogTitle="E-Mailadresse"
+	            android:dialogMessage="Bitte eine gültige E-Mailadresse eingeben."   
+	            />
+	
+	<EditTextPreference
+	            android:key="device_name"
+	            android:title="Gerätename"
+	            android:summary="Eindeutiger Gerätename, um Synchronisationskonflikte zu beheben."
+	            android:dialogTitle="Gerätename"
+	            android:dialogMessage="Bitte einen eindeutigen Gerätename eingeben."
+	            android:dependency="email"   
+	            />
+	</PreferenceCategory>
+
+	<PreferenceCategory
+                android:title="Autorollen">  		
+
+ <ListPreference
+     		android:key="scroll_style"
+            android:title="Autorollen Stil"
+            android:summary="Blindes Rollen oder zeitgesteuert"            
+        	android:defaultValue="rolling_blind"
+        	android:entries="@array/autoscrollLabels"
+        	android:entryValues="@array/autoscroll" />           
+	
+
+
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="scroll_speed"
+				android:title="Autorollen Geschwindigkeit"
+				android:summary="Wie lange wird eine Seite angezeigt."
+				android:dialogTitle="Rollgeschwindigkeit"								
+				android:defaultValue="30"
+				android:max="300"				
+				/>
+				
+	</PreferenceCategory>
+	
+	<PreferenceCategory
+                android:title="Meine Bücher">
+                
+              <CheckBoxPreference
+				android:key="copy_to_library"
+				android:title="In Buchregal kopieren"
+				android:summary="Soll PageTurner die Buchdateien in seinen eigenen Buchregal Ordner kopieren?"
+				android:defaultValue="true"
+				/>  
+                
+    </PreferenceCategory>
+
+	<PreferenceCategory
+                android:title="Darstellung">  		
+
+	<CheckBoxPreference			
+            android:key="full_screen"
+            android:title="Vollbild"
+            android:summary="Statusbalken werden ausgeblendet."
+            android:defaultValue="false" />
+            
+    <ListPreference
+     	android:title="Bildschirmausrichtung"
+        android:summary="Bildschirmausrichtung darf fixiert werden"
+        android:key="screen_orientation"
+        android:defaultValue="no_lock"
+        android:entries="@array/orientationLabels"
+        android:entryValues="@array/orientation" />
+            
+   <CheckBoxPreference
+			android:key="set_brightness"
+			android:title="Helligkeit"
+			android:summary="PageTurner darf die Bildschirmhelligkeit ändern"
+			android:defaultValue="false"
+			/>
+   
+   <com.hlidskialf.android.preference.SeekBarPreference
+				android:key="day_bright"
+				android:title="Bildschirmhelligkeit"
+				android:summary="Für den Tagmodus"
+				android:dialogTitle="Bildschirmhelligkeit"								
+				android:defaultValue="50"
+				android:max="100"
+				android:dependency="set_brightness"
+				/>   
+	
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="night_bright"
+				android:title="Bildschirmhelligkeit"
+				android:summary="Fuer den Nachtmodus"
+				android:dialogTitle="Bildschirmhelligkeit"								
+				android:defaultValue="50"
+				android:max="100"
+				android:dependency="set_brightness"
+				/>  
+	            
+	
+	</PreferenceCategory>
+	
+	<PreferenceCategory
+                android:title="Textdarstellung">
+                
+     <ListPreference
+     		android:key="font_face"
+            android:title="Schriftart"
+            android:summary="Hauptschriftart für die Textdarstellung"            
+        	android:defaultValue="gen_book_bas"
+        	android:entries="@array/fontLabels"
+        	android:entryValues="@array/fonts" />
+                    
+                
+     <CheckBoxPreference
+				android:key="strip_whitespace"
+				android:title="Zeilenumbrüche entfernen"
+				android:summary="Entferne unnötige Zeilenumbrüche."
+				android:defaultValue="true"
+				/>  		
+	
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="itext_size"
+				android:title="Schriftgröße"
+				android:dialogTitle="Schriftgröße"
+				android:summary="Die Schriftgröße für den Buchinhalt."				
+				android:defaultValue="16"
+				android:max="48"
+				/>	
+				
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="margin_h"
+				android:title="Horizontaler Seitenrand"
+				android:summary="Rand rechts und links vom Buchtext."
+				android:dialogTitle="Randgröße"								
+				android:defaultValue="15"
+				android:max="150"				
+				/>    					
+	
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="margin_v"
+				android:title="Vertikaler Seitenrand"
+				android:summary="Rand oben und unten vom Buchtext."
+				android:dialogTitle="Randgröße"								
+				android:defaultValue="15"
+				android:max="150"				
+				/>  
+	<com.hlidskialf.android.preference.SeekBarPreference
+				android:key="line_spacing"
+				android:title="Zeilenabstand"
+				android:summary="Vergrößere den Zeilenabstand."
+				android:dialogTitle="Zeilenabstand"								
+				android:defaultValue="0"
+				android:max="50"				
+				/>
+	
+	</PreferenceCategory>		
+			
+	<PreferenceCategory
+                android:title="Farben">
+        
+        	<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="day_text"
+    			android:title="Schriftfarbe"
+    			android:summary="Für den Tagmodus"
+    			android:defaultValue="-16777216" />
+    			
+    		<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="day_bg"
+    			android:title="Hintergrundfarbe"
+    			android:summary="Für den Nachtmodus"
+    			android:defaultValue="-1" />     		
+    		    		
+			<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="day_link"
+    			android:title="Linkfarbe"
+    			android:summary="Für den Tagmodus"
+    			android:defaultValue="-16776961" />  
+			 		    		
+    		
+             <net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="night_text"
+    			android:title="Schriftfarbe"
+    			android:summary="Für den Nachtmodus"
+    			android:defaultValue="-7829368" />
+    				
+    		<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="night_bg"
+    			android:title="Hintergrundfarbe"
+    			android:summary="Für den Nachtmodus"
+    			android:defaultValue="-16777216" />  
+    			
+    		<net.nightwhistler.pageturner.prefs.ColourChooserPref
+    			android:key="night_link"
+    			android:title="Linkfarbe"
+    			android:summary="Für den Nachtmodus"
+    			android:defaultValue="-23296" />  
+    		
+    	
+    					
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+                android:title="Animationen">
+        
+         <ListPreference
+     		android:key="h_animation"
+            android:title="Horizontale Animationen"
+            android:summary="Animationen für den horizontalen Seitenwechsel"            
+        	android:defaultValue="curl"
+        	android:entries="@array/h_animLabels"
+        	android:entryValues="@array/h_anim" />
+                    
+
+         <ListPreference
+     		android:key="h_animation"
+            android:title="Vertikale Animationen"
+            android:summary="Animationen für den vertikalen Seitenwechsel"            
+        	android:defaultValue="slide"
+        	android:entries="@array/v_animLabels"
+        	android:entryValues="@array/v_anim" />               
+     
+                
+    </PreferenceCategory>
+                
+	
+	<PreferenceCategory
+                android:title="Navigation">
+               
+     <CheckBoxPreference			
+            android:key="scrolling"
+            android:title="Rollen"
+            android:summary="Rollen wie im Browser aktivieren"
+            android:defaultValue="false"
+            android:disableDependentsState="true" />       
+     
+            
+     <CheckBoxPreference			
+            android:key="nav_vol"
+            android:title="Lautstärketasten benutzen"
+            android:summary="Benutze die Lautstärketasten zum Rollen."
+            android:defaultValue="false" />
+            
+     <CheckBoxPreference			
+            android:key="nav_swipe_h"
+            android:title="Horizontales Streichen aktivieren"
+            android:summary="Streiche nach Rechts oder Links über den Bildschirm um Seiten zu wechseln."
+            android:defaultValue="true" /> 
+            
+     <CheckBoxPreference			
+            android:key="nav_swipe_v"
+            android:title="Vertikales Streichen aktivieren"
+            android:summary="Streiche nach oben oder unten um die Seiten zu wechseln."
+            android:defaultValue="true" 
+            android:dependency="scrolling"/> 
+            
+     <CheckBoxPreference			
+            android:key="nav_tap_h"
+            android:title="Antippen rechte/links aktivieren"
+            android:summary="Tippe auf den rechten oder linken Rand um die Seite zu wechseln."
+            android:defaultValue="true" />
+     
+     <CheckBoxPreference			
+            android:key="nav_tap_v"
+            android:title="Antippen oben/unten aktivieren"
+            android:summary="Tippe auf den oberen oder unteren Rand um die Seite zu wechseln."
+            android:defaultValue="true" />           
+                
+    </PreferenceCategory>
+    
+
+</PreferenceScreen>

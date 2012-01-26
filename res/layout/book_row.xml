@@ -39,6 +39,13 @@
             android:text="@string/never_read"
             android:textSize="10sp" />
 
+        <TextView
+            android:id="@+id/readingProgress"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="10sp" />
+        
     </LinearLayout>
 
 </LinearLayout>

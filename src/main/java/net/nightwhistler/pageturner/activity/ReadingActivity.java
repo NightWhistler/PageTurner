@@ -1230,22 +1230,21 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     @Override
     protected void onSaveInstanceState(final Bundle outState) {
     	if ( this.bookView != null ) {
-    	
+
     		outState.putInt(POS_KEY, this.bookView.getPosition() );  
     		outState.putInt(IDX_KEY, this.bookView.getIndex());
-    	
+
     		backgroundHandler.post(new Runnable() {
-				
-				@Override
-				public void run() {
-					progressService.storeProgress(fileName,
-			     		   bookView.getIndex(), bookView.getPosition(), 
-			     		   progressPercentage);			     	   
-			    		
-			    	libraryService.updateReadingProgress(fileName, progressPercentage);			    		
-			    	libraryService.close();					
-				}
-			});    		
+    			@Override
+    			public void run() {
+    				progressService.storeProgress(fileName,
+    	    				bookView.getIndex(), bookView.getPosition(), 
+    	    				progressPercentage);			     	   
+
+    	    		libraryService.updateReadingProgress(fileName, progressPercentage);			    		
+    	    		libraryService.close();
+    			}
+    		});    							
     	}
     }    
     

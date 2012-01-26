@@ -316,6 +316,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			TextView titleView = (TextView) rowView.findViewById(R.id.bookTitle);
 			TextView authorView = (TextView) rowView.findViewById(R.id.bookAuthor);
 			TextView dateView = (TextView) rowView.findViewById(R.id.addedToLibrary);
+			TextView progressView = (TextView) rowView.findViewById(R.id.readingProgress);
 			
 			ImageView imageView = (ImageView) rowView.findViewById(R.id.bookCover);
 						
@@ -324,6 +325,12 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			
 			authorView.setText(authorText);
 			titleView.setText(book.getTitle());
+			
+			if ( book.getProgress() > 0 ) {
+				progressView.setText( "" + book.getProgress() + "%");
+			} else {
+				progressView.setText("");
+			}			
 			
 			String dateText = String.format(getString(R.string.added_to_lib),
 					DATE_FORMAT.format(book.getAddedToLibrary()));

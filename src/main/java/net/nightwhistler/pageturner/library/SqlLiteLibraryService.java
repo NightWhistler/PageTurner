@@ -49,6 +49,11 @@ public class SqlLiteLibraryService implements LibraryService {
 	}
 	
 	@Override
+	public void updateReadingProgress(String fileName, int progress) {
+		helper.updateLastRead(new File(fileName).getName(), progress);		
+	}
+	
+	@Override
 	public void storeBook(String fileName, Book book, boolean updateLastRead, boolean copyFile) throws IOException {
 		
 		File bookFile = new File(fileName);
@@ -58,7 +63,7 @@ public class SqlLiteLibraryService implements LibraryService {
 		if ( hasBook && !updateLastRead ) {
 			return;
 		} else if ( hasBook ) {
-			helper.updateLastRead(bookFile.getName());
+			helper.updateLastRead(bookFile.getName(), -1);
 			return;
 		}				
 		

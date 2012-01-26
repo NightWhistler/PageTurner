@@ -89,6 +89,9 @@ public class BookDetailsActivity extends RoboActivity {
 				String lastReadText = String.format(getString(R.string.last_read),
 						DATE_FORMAT.format(libraryBook.getLastRead()));
 				lastRead.setText( lastReadText );
+			} else {
+				String lastReadText = String.format(getString(R.string.last_read), getString(R.string.never_read));
+				lastRead.setText( lastReadText );
 			}
 
 			String addedText = String.format( getString(R.string.added_to_lib),

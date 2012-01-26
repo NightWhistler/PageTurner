@@ -36,7 +36,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	public enum Field { 
 		file_name("text primary key"),title("text"), a_first_name("text"),
 		a_last_name("text"), date_added("integer"), date_last_read("integer"), 
-		description("text"), cover_image("blob");
+		description("text"), cover_image("blob"), progress("integer");
 		
 		private String fieldDef;
 	
@@ -46,11 +46,9 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	private SQLiteDatabase database;
 	
 	public enum Order { ASC, DESC };	
-		
-	private static final String DROP_TABLE = "drop table lib_books;";
 	
 	private static final String DB_NAME = "PageTurnerLibrary";
-	private static final int VERSION = 3;
+	private static final int VERSION = 4;
 
 	private static String getCreateTableString() {
 		String create = "create table lib_books ( ";
@@ -93,8 +91,10 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {		
-		db.execSQL(DROP_TABLE);
-		db.execSQL(getCreateTableString());
+		
+		if ( oldVersion == 3 ) {
+			db.execSQL("ALTER TABLE lib_books ADD COLUMN progress integer" );
+		}
 	}	
 	
 	public void delete( String fileName ) {
@@ -111,13 +111,17 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		}
 	}
 	
-	public void updateLastRead( String fileName ) {
+	public void updateLastRead( String fileName, int progress ) {
 		
 		String whereClause = Field.file_name.toString() + " like ?";
 		String[] args = { "%" + fileName };
 		
 		ContentValues content = new ContentValues();
 		content.put( Field.date_last_read.toString(), new Date().getTime() );
+		
+		if ( progress != -1 ) {
+			content.put(Field.progress.toString(), progress );
+		}
 		
 		getDataBase().update("lib_books", content, whereClause, args);		
 	}	
@@ -134,7 +138,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		content.put(Field.a_last_name.toString(), authorLastName );
 		content.put(Field.cover_image.toString(), coverImage );
 		content.put(Field.description.toString(), description );
-		
+				
 		if ( setLastRead ) {
 			content.put(Field.date_last_read.toString(), new Date().getTime() );
 		}		
@@ -219,6 +223,8 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 			
 			newBook.setCoverImage( cursor.getBlob(Field.cover_image.ordinal() ) );			
 			newBook.setFileName( cursor.getString(Field.file_name.ordinal()));
+			
+			newBook.setProgress(cursor.getInt(Field.progress.ordinal()));
 			
 			return newBook;
 		}

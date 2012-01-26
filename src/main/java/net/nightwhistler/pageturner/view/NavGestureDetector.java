@@ -32,20 +32,15 @@ import android.view.MotionEvent;
  */
 public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener {
 
-	private static final int SWIPE_MIN_DISTANCE = 90;	
-	private static final int SWIPE_THRESHOLD_VELOCITY = 150;
-	
-	private static final int SCROLL_MIN_DISTANCE = 40;
 	
 	//Distance to scroll 1 unit on edge slide.
-	private static final int SCROLL_FACTOR = 20;
+	private static final int SCROLL_FACTOR = 50;
 	
 	private BookViewListener bookViewListener;
 	private BookView bookView;
 	private DisplayMetrics metrics;
 	
-	private boolean newEvent = true;
-
+	
 	public NavGestureDetector( BookView bookView, BookViewListener navListener, 
 			DisplayMetrics metrics ) {
 		this.bookView = bookView;
@@ -54,11 +49,8 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 	}	
 	
 	@Override
-	public boolean onDown(MotionEvent e) {
-		
-		this.bookViewListener.onScreenTap();
-		
-		newEvent = true;
+	public boolean onDown(MotionEvent e) {		
+		this.bookViewListener.onScreenTap();	
 		return false;
 	}
 	
@@ -91,16 +83,7 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 	public boolean onScroll(MotionEvent e1, MotionEvent e2,
 			float distanceX, float distanceY) {
 		
-		float minScrollDist = metrics.density * SCROLL_MIN_DISTANCE;
-		float scrollUnitSize = SCROLL_FACTOR * metrics.density;
-		
-		float dist = e1.getY() - e2.getY();
-		
-		if ( newEvent && Math.abs(dist) < minScrollDist ) {			
-			return false;
-		}
-		
-		this.newEvent = false; //Signal we've started measuring an event
+		float scrollUnitSize = SCROLL_FACTOR * metrics.density;			
 		
 		final int TAP_RANGE_H = bookView.getWidth() / 5;
 		float delta = (e1.getY() - e2.getY()) / scrollUnitSize;			
@@ -123,24 +106,13 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 	}
 
 	@Override
-	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-		
-		float swipeMinDistance = SWIPE_MIN_DISTANCE * metrics.density;
-		float swipeThresholdVelocity = SWIPE_THRESHOLD_VELOCITY * metrics.density;		
-
-		//Check speed first.
-		if ( Math.abs(velocityX) < swipeThresholdVelocity && Math.abs(velocityY) < swipeThresholdVelocity ) {
-			return false;
-		}
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {		
 
 		float distanceX = e2.getX() - e1.getX();
 		float distanceY = e2.getY() - e1.getY();
 
-		if ( Math.abs(distanceX) < swipeMinDistance && Math.abs(distanceY) < swipeMinDistance ) {
-			return false;
-		}
-
-		if ( Math.abs(velocityX) > swipeThresholdVelocity && Math.abs(distanceX) > Math.abs(distanceY) ) {
+	
+		if (  Math.abs(distanceX) > Math.abs(distanceY) ) {
 
 			if ( distanceX > 0 ) {
 				bookViewListener.onSwipeRight();
@@ -150,7 +122,7 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 
 			return true;
 
-		} else if ( Math.abs(velocityY) > swipeThresholdVelocity && Math.abs(distanceY) > Math.abs(distanceX) ) {
+		} else if (Math.abs(distanceY) > Math.abs(distanceX) ) {
 			if ( distanceY > 0 ) {
 				bookViewListener.onSwipeUp();
 			} else {

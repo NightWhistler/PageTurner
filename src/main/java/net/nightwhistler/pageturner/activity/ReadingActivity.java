@@ -730,8 +730,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     		viewSwitcher.showNext();
     	}    	
     	
-    	bookView.setKeepScreenOn(false);
-    	 	
+    	bookView.setKeepScreenOn(false);    	 	
     }
     
     private Bitmap getBookViewSnapshot() {
@@ -1103,7 +1102,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     
     @Override
     public void onLeftEdgeSlide(int value) {
-    	if ( config.isBrightnessControlEnabled() ) {
+    	
+    	if ( config.isBrightnessControlEnabled() && value != 0 ) {
     		int baseBrightness = config.getBrightNess();
     		
     		int brightnessLevel = Math.min(99, value + baseBrightness);

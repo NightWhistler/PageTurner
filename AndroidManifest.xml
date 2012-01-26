@@ -55,6 +55,12 @@
         <activity android:name=".activity.BookDetailsActivity"
                   android:label="@string/book_details" />           
         
+        <activity android:name="org.acra.CrashReportDialog"
+        	android:theme="@android:style/Theme.Dialog"
+        	android:launchMode="singleInstance"
+        	android:excludeFromRecents="true"
+        	android:finishOnTaskLaunch="true" />
+        
         
     </application>
 </manifest> 

@@ -19,6 +19,12 @@
             <id>Ostara</id>
             <url>https://ostara.nightwhistler.net/repository</url>
         </repository>
+        
+        <repository>
+        	<id>acra-releases</id>
+        	<url>http://acra.googlecode.com/svn/repository/releases</url>
+    	</repository>
+        
    </repositories>
    
    <dependencies>
@@ -105,6 +111,12 @@
          <scope>compile</scope>
      </dependency>
      
+      <dependency>
+         <groupId>org.acra</groupId>
+         <artifactId>acra</artifactId>
+         <version>4.2.3</version>
+         <scope>compile</scope>
+     </dependency>
     
     </dependencies>
 

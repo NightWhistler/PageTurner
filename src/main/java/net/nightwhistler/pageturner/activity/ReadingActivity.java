@@ -956,7 +956,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         	startActivity(i);
         	return true;
         	
-        case R.id.show_toc:        	
+        case R.id.show_toc:   
         	this.tocDialog.show();
         	return true;
         	
@@ -1134,25 +1134,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     
     @Override
     public void onRightEdgeSlide(int value) {
-    	/*
-    	float currentSize = bookView.getTextSize();
-    	float newSize = currentSize + value;    
     	
-    	newSize = Math.max(newSize, 8f);
-    	newSize = Math.min(newSize, 50f);
-    	
-    	String textSize = "Text size";
-    	
-    	if ( brightnessToast == null ) {    				
-			brightnessToast = Toast.makeText(ReadingActivity.this, textSize + ": " + (int) newSize, Toast.LENGTH_SHORT);
-		} else {
-			brightnessToast.setText(textSize + ": " + (int) newSize );
-		}
-		
-		brightnessToast.show();
-    	
-    	updateTextSize(newSize);    
-    	*/	
     }
     
     @Override

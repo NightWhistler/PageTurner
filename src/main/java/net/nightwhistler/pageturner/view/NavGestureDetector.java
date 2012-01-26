@@ -32,12 +32,19 @@ import android.view.MotionEvent;
  */
 public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener {
 
-	private static final int SWIPE_MIN_DISTANCE = 120;	
-	private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-
+	private static final int SWIPE_MIN_DISTANCE = 90;	
+	private static final int SWIPE_THRESHOLD_VELOCITY = 150;
+	
+	private static final int SCROLL_MIN_DISTANCE = 40;
+	
+	//Distance to scroll 1 unit on edge slide.
+	private static final int SCROLL_FACTOR = 20;
+	
 	private BookViewListener bookViewListener;
 	private BookView bookView;
 	private DisplayMetrics metrics;
+	
+	private boolean newEvent = true;
 
 	public NavGestureDetector( BookView bookView, BookViewListener navListener, 
 			DisplayMetrics metrics ) {
@@ -45,6 +52,17 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 		this.bookViewListener = navListener;
 		this.metrics = metrics;
 	}	
+	
+	@Override
+	public boolean onDown(MotionEvent e) {
+		
+		this.bookViewListener.onScreenTap();
+		
+		newEvent = true;
+		return false;
+	}
+	
+	
 
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
@@ -73,22 +91,33 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 	public boolean onScroll(MotionEvent e1, MotionEvent e2,
 			float distanceX, float distanceY) {
 		
-		final int TAP_RANGE_H = bookView.getWidth() / 5;
+		float minScrollDist = metrics.density * SCROLL_MIN_DISTANCE;
+		float scrollUnitSize = SCROLL_FACTOR * metrics.density;
 		
-		if ( e1.getX() < TAP_RANGE_H  ) {
+		float dist = e1.getY() - e2.getY();
+		
+		if ( newEvent && Math.abs(dist) < minScrollDist ) {			
+			return false;
+		}
+		
+		this.newEvent = false; //Signal we've started measuring an event
+		
+		final int TAP_RANGE_H = bookView.getWidth() / 5;
+		float delta = (e1.getY() - e2.getY()) / scrollUnitSize;			
+		int level = (int) delta;
+		
+		if ( e1.getX() < TAP_RANGE_H ) {
 			
-			float delta = (e1.getY() - e2.getY()) / (bookView.getHeight() *2);
-			
-			//LOG.debug("Got a delta of " + delta );
-			
-			int brightnessLevel = (int) (100 * delta); 			
-			
-			final int level = brightnessLevel;
-			
-			this.bookViewListener.onLeftEdgeSwipe(level);
+			this.bookViewListener.onLeftEdgeSlide(level);
 			
 			return true;
+		} else if ( e1.getX() > bookView.getWidth() - TAP_RANGE_H ) {
+			
+			this.bookViewListener.onRightEdgeSlide(level);			
+			return true;
+			
 		}
+		
 		
 		return super.onScroll(e1, e2, distanceX, distanceY);
 	}

@@ -91,7 +91,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
-import com.globalmentor.android.widget.VerifiedFlingListener;
 import com.google.inject.Inject;
 
 public class ReadingActivity extends RoboActivity implements BookViewListener {
@@ -185,14 +184,16 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         
-        this.gestureDetector = new GestureDetector(new NavGestureDetector(bookView, this, metrics));
-                        
-        final PinchZoomListener pinch = new PinchZoomListener( metrics,
+        this.gestureDetector = new GestureDetector(new NavGestureDetector(
+        		bookView, this, metrics));         
+        
+        final PinchZoomListener pinch = new PinchZoomListener( this,
         		new PinchZoomListener.FloatAdapter() {
         			
 			@Override public void setValue(float value) { updateTextSize(value); }			
 			@Override public float getValue() {	return bookView.getTextSize(); }
 		});
+		
         
         this.gestureListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
@@ -479,7 +480,6 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 		lp.screenBrightness = (float) level / 100f;
 		getWindow().setAttributes(lp);
     }
-    
   
     
     @Override
@@ -1102,7 +1102,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     }
     
     @Override
-    public void onLeftEdgeSwipe(int value) {
+    public void onLeftEdgeSlide(int value) {
     	if ( config.isBrightnessControlEnabled() ) {
     		int baseBrightness = config.getBrightNess();
     		
@@ -1130,6 +1130,29 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 				}
 			});
     	}    	
+    }
+    
+    @Override
+    public void onRightEdgeSlide(int value) {
+    	/*
+    	float currentSize = bookView.getTextSize();
+    	float newSize = currentSize + value;    
+    	
+    	newSize = Math.max(newSize, 8f);
+    	newSize = Math.min(newSize, 50f);
+    	
+    	String textSize = "Text size";
+    	
+    	if ( brightnessToast == null ) {    				
+			brightnessToast = Toast.makeText(ReadingActivity.this, textSize + ": " + (int) newSize, Toast.LENGTH_SHORT);
+		} else {
+			brightnessToast.setText(textSize + ": " + (int) newSize );
+		}
+		
+		brightnessToast.show();
+    	
+    	updateTextSize(newSize);    
+    	*/	
     }
     
     @Override
@@ -1205,16 +1228,24 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     }
     
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(final Bundle outState) {
     	if ( this.bookView != null ) {
-    		progressService.storeProgress(this.fileName,
-     			   this.bookView.getIndex(), this.bookView.getPosition(), 
-     			   this.progressPercentage);
-     	   
+    	
     		outState.putInt(POS_KEY, this.bookView.getPosition() );  
     		outState.putInt(IDX_KEY, this.bookView.getIndex());
-    		
-    		this.libraryService.close();
+    	
+    		backgroundHandler.post(new Runnable() {
+				
+				@Override
+				public void run() {
+					progressService.storeProgress(fileName,
+			     		   bookView.getIndex(), bookView.getPosition(), 
+			     		   progressPercentage);			     	   
+			    		
+			    	libraryService.updateReadingProgress(fileName, progressPercentage);			    		
+			    	libraryService.close();					
+				}
+			});    		
     	}
     }    
     

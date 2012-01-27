@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/importHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Import books"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/importSubText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You can either scan your entire SD-Card, or specify a folder to search."
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <RadioButton
+        android:id="@+id/radioImportAll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan my SD-Card" />
+
+    <RadioButton
+        android:id="@+id/radioImportFolder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan a specific folder" />
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+		android:text="/sdcard/eBooks">
+        <requestFocus />
+    </EditText>
+
+    <CheckBox
+        android:id="@+id/checkBox1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Copy books to my library folder" />
+
+</LinearLayout>

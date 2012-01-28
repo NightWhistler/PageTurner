@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.activity.LibraryActivity;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 import nl.siegmann.epublib.service.MediatypeService;
@@ -14,11 +13,9 @@ import nl.siegmann.epublib.service.MediatypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
-import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 
 public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCancelListener {	
@@ -26,6 +23,8 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	private Context context;
 	private LibraryService libraryService;
 	private ImportCallback callBack;	
+	
+	private boolean copyToLibrary;
 	
 	private List<String> errors = new ArrayList<String>();
 	
@@ -37,23 +36,18 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	private int foldersScanned = 0;
 	private int booksImported = 0;
 	
-	private boolean oldKeepScreenOn;
-	private boolean keepRunning;	
-	
-	@Override
-	protected void onPreExecute() {
-		
-		importDialog.setOnCancelListener(this);
-		importDialog.show();			
-		
-				
-		this.oldKeepScreenOn = listView.getKeepScreenOn();
-		listView.setKeepScreenOn(true);
+	public ImportTask( Context context, LibraryService libraryService,
+			ImportCallback callBack, boolean copyToLibrary ) {
+		this.context = context;
+		this.libraryService = libraryService;
+		this.callBack = callBack;
+		this.copyToLibrary = copyToLibrary;
 	}		
 	
 	@Override
 	public void onCancel(DialogInterface dialog) {
-		LOG.debug("User aborted import.");		
+		LOG.debug("User aborted import.");	
+		this.cancel(true);
 	}
 	
 	@Override
@@ -65,7 +59,7 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 		int total = books.size();
 		int i = 0;			
         
-		while ( i < books.size() && keepRunning ) {
+		while ( i < books.size() && ! isCancelled() ) {
 			
 			File book = books.get(i);
 			
@@ -119,10 +113,9 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	        EpubReader epubReader = new EpubReader();
 	        				
 			Book importedBook = epubReader.readEpubLazy(file, "UTF-8", 
-					Arrays.asList(MediatypeService.mediatypes));								
+					Arrays.asList(MediatypeService.mediatypes));							
 			
-			boolean copy = settings.getBoolean("copy_to_library", true);
-        	libraryService.storeBook(file, importedBook, false, copy);	        		        	
+        	libraryService.storeBook(file, importedBook, false, this.copyToLibrary);	        		        	
 			
 		} catch (Exception io ) {
 			errors.add( file + ": " + io.getMessage() );
@@ -133,56 +126,21 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	@Override
 	protected void onProgressUpdate(Integer... values) {
 		
+		String message;
+		
 		if ( values[0] == UPDATE_IMPORT ) {
-			String importing = String.format(getString(R.string.importing), values[1], values[2]);
-			importDialog.setMessage(importing);
+			message = String.format(context.getString(R.string.importing), values[1], values[2]);			
 		} else {
-			String message = String.format(getString(R.string.scan_folders), values[1]);
-			importDialog.setMessage(message);
+			message = String.format(context.getString(R.string.scan_folders), values[1]);			
 		}
+		
+		callBack.importStatusUpdate(message);
 	}
 	
 	@Override
 	protected void onPostExecute(Void result) {
-		
-		importDialog.hide();			
-		
-		OnClickListener dismiss = new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();						
-			}
-		};
-		
-		//If the user cancelled the import, don't bug him/her with alerts.
-		if ( (! errors.isEmpty()) && ! isCancelled() ) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
-			builder.setTitle(R.string.import_errors);
-			
-			builder.setItems( errors.toArray(new String[errors.size()]), null );				
-			
-			builder.setNeutralButton(android.R.string.ok, dismiss );
-			
-			builder.show();
-		}
-		
-		listView.setKeepScreenOn(oldKeepScreenOn);
-		
-		if ( booksImported > 0 ) {			
-			//Switch to the "recently added" view.
-			if ( spinner.getSelectedItemPosition() == Selections.LAST_ADDED.ordinal() ) {
-				new LoadBooksTask().execute(Selections.LAST_ADDED);
-			} else {
-				spinner.setSelection(Selections.LAST_ADDED.ordinal());
-			}
-		} else {
-			AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
-			builder.setTitle(R.string.no_books_found);
-			builder.setMessage( getString(R.string.no_bks_fnd_text) );
-			builder.setNeutralButton(android.R.string.ok, dismiss);
-			
-			builder.show();
-		}
+		if ( ! isCancelled() ) {
+			this.callBack.importComplete(booksImported, errors);
+		}		
 	}
 }

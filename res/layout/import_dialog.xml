@@ -18,17 +18,24 @@
         android:text="You can either scan your entire SD-Card, or specify a folder to search."
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <RadioButton
-        android:id="@+id/radioImportAll"
+    <RadioGroup
+        android:id="@+id/radioGroup1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scan my SD-Card" />
+        android:layout_height="wrap_content" >
 
-    <RadioButton
-        android:id="@+id/radioImportFolder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scan a specific folder" />
+        <RadioButton
+            android:id="@+id/radioScanSD"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Scan my entire SD Card" />
+
+        <RadioButton
+            android:id="@+id/radioScanFolder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scan a specific folder" />
+    </RadioGroup>
 
     <EditText
         android:id="@+id/editText1"

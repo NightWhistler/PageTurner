@@ -20,18 +20,15 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.library.ImportCallback;
+import net.nightwhistler.pageturner.library.ImportTask;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.QueryResult;
 import net.nightwhistler.pageturner.library.QueryResultAdapter;
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.epub.EpubReader;
-import nl.siegmann.epublib.service.MediatypeService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +41,6 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -74,7 +70,8 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class LibraryActivity extends RoboActivity implements OnItemClickListener  {
+public class LibraryActivity extends RoboActivity implements OnItemClickListener,
+	ImportCallback {
 	
 	@Inject 
 	private LibraryService libraryService;
@@ -102,6 +99,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	private AlertDialog importQuestion;
 	
 	private boolean askedUserToImport;
+	private boolean oldKeepScreenOn;
 	
 	private SharedPreferences settings;
 	
@@ -189,6 +187,18 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		
 	}	
 	
+	private void startImport(File startFolder) {
+		boolean copy = settings.getBoolean("copy_to_library", true);
+		ImportTask importTask = new ImportTask(this, libraryService, this, copy);
+		importDialog.setOnCancelListener(importTask);
+		importDialog.show();		
+				
+		this.oldKeepScreenOn = listView.getKeepScreenOn();
+		listView.setKeepScreenOn(true);
+		
+		importTask.execute(startFolder);
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		
@@ -218,7 +228,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 				try {
 					startActivityForResult(intent, 1);
 				} catch (ActivityNotFoundException e) {
-					new ImportBooksTask().execute(new File("/sdcard"));  
+					startImport(new File("/sdcard"));  
 				}
 
 				return true;
@@ -238,7 +248,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
     		if (fileUri != null) {
     			String filePath = fileUri.getPath();
     			if (filePath != null) {
-    				new ImportBooksTask().execute(new File(filePath));    				
+    				startImport(new File(filePath));    				
     			}
     		}
     	}	
@@ -282,6 +292,75 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			new LoadBooksTask().execute(this.lastSelection);
 		}
 	}
+	
+	@Override
+	public void importCancelled() {
+		
+		listView.setKeepScreenOn(oldKeepScreenOn);
+		
+		//Switch to the "recently added" view.
+		if ( spinner.getSelectedItemPosition() == Selections.LAST_ADDED.ordinal() ) {
+			new LoadBooksTask().execute(Selections.LAST_ADDED);
+		} else {
+			spinner.setSelection(Selections.LAST_ADDED.ordinal());
+		}
+	}
+	
+	@Override
+	public void importComplete(int booksImported, List<String> errors) {
+		
+		importDialog.hide();			
+		
+		OnClickListener dismiss = new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();						
+			}
+		};
+		
+		//If the user cancelled the import, don't bug him/her with alerts.
+		if ( (! errors.isEmpty()) ) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
+			builder.setTitle(R.string.import_errors);
+			
+			builder.setItems( errors.toArray(new String[errors.size()]), null );				
+			
+			builder.setNeutralButton(android.R.string.ok, dismiss );
+			
+			builder.show();
+		}
+		
+		listView.setKeepScreenOn(oldKeepScreenOn);
+		
+		if ( booksImported > 0 ) {			
+			//Switch to the "recently added" view.
+			if ( spinner.getSelectedItemPosition() == Selections.LAST_ADDED.ordinal() ) {
+				new LoadBooksTask().execute(Selections.LAST_ADDED);
+			} else {
+				spinner.setSelection(Selections.LAST_ADDED.ordinal());
+			}
+		} else {
+			AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
+			builder.setTitle(R.string.no_books_found);
+			builder.setMessage( getString(R.string.no_bks_fnd_text) );
+			builder.setNeutralButton(android.R.string.ok, dismiss);
+			
+			builder.show();
+		}
+	}	
+	
+	
+	@Override
+	public void importFailed(String reason) {
+		
+	}
+	
+	@Override
+	public void importStatusUpdate(String update) {
+		importDialog.setMessage(update);
+	}
+	
 	
 	/**
 	 * Based on example found here:
@@ -362,7 +441,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();		
-				new ImportBooksTask().execute(new File("/sdcard"));
+				startImport(new File("/sdcard"));
 			}
 		});
 		

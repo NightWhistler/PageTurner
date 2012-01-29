@@ -24,9 +24,8 @@ public class bookshop extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.bookshop);
         ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+        actionBar.setTitle("Revive Bookshop");
         actionBar.addAction(new ActionBar.IntentAction(this, review(),
-                R.drawable.book_refresh));
-        actionBar.addAction(new ActionBar.IntentAction(this, bookshop(),
                 R.drawable.book_refresh));
         actionBar.setHomeAction(new ActionBar.IntentAction(this, home(),
                 com.revive.R.drawable.book_refresh));
@@ -37,12 +36,7 @@ public class bookshop extends Activity {
         // intent.putExtra(Intent.EXTRA_TEXT, "Shared from the ActionBar widget.");
         return (intent);
     }
-    private Intent bookshop() {
-        final Intent intent = new Intent();
-        intent.setClass(this, bookshop.class);
-        // intent.putExtra(Intent.EXTRA_TEXT, "Shared from the ActionBar widget.");
-        return (intent);
-    }
+
     private Intent home() {
         final Intent intent = new Intent();
         intent.setClass(this, LibraryActivity.class);

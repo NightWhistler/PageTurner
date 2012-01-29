@@ -110,6 +110,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.library_menu);
         ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+        actionBar.setTitle("Your Books");
         actionBar.addAction(new ActionBar.IntentAction(this, review(),
                 R.drawable.book_refresh));
         actionBar.addAction(new ActionBar.IntentAction(this, bookshop(),

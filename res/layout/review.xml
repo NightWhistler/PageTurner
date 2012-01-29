@@ -25,7 +25,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="50dp"
             android:layout_marginLeft="10dp"
-            android:text="Record" />
+            android:text="Record Audio" />
 
     <Button
             android:id="@+id/button1"

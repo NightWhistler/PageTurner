@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import android.view.*;
 import android.widget.*;
 import com.markupartist.android.widget.ActionBar;
 import com.revive.R;
@@ -59,14 +60,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -112,7 +107,8 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	protected void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.library_menu);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.library_menu);
         ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
         actionBar.addAction(new ActionBar.IntentAction(this, review(),
                 R.drawable.book_refresh));

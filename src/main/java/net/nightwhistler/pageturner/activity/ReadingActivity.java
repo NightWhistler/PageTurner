@@ -907,11 +907,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     protected void onStop(){
        super.onStop();
 
-       if ( this.bookView != null ) {
-    	   
-    	   progressService.storeProgress(this.fileName, this.bookView.getIndex(), 
-    			   this.bookView.getPosition(), this.progressPercentage );
-    	   
+       if ( this.bookView != null ) {    	   
+    	  
     	   config.setLastPosition(this.fileName, this.bookView.getPosition() );
     	   config.setLastIndex(this.fileName, this.bookView.getIndex() );    	   
        }
@@ -1224,8 +1221,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     			public void run() {
     				progressService.storeProgress(fileName,
     	    				bookView.getIndex(), bookView.getPosition(), 
-    	    				progressPercentage);			     	   
-
+    	    				progressPercentage);
     			}
     		});
     	}

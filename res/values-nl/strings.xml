@@ -23,7 +23,7 @@
     <string name="google_lookup">Zoeken op Google</string>    
     <string name="word_select">"Selectie van '%s'</string>    
         
-    <string name="loading_wait">Boek wordt geladen\nEven geduld aub</string>
+    <string name="loading_wait">Boek wordt geladen... Even geduld aub.</string>
     <string name="install_oi">Installeer aub de OI File Manager uit de Android Market.</string>    
     
     <string name="cloud_bm">Online bladwijzers</string>
@@ -57,20 +57,20 @@
     <string name="brightness">Helderheid</string> 
     
     <string-array name="v_animLabels">
-        <item>Glijdende tekst</item>
+        <item>Schuivende tekst</item>
         <item>Geen</item>        
     </string-array>
     
     <string-array name="h_animLabels">
         <item>Pagina omslaan</item>
-        <item>Glijdende tekst</item>
+        <item>Schuivende tekst</item>
         <item>Geen</item>
     </string-array>
         
     <string-array name="orientationLabels">
         <item>Niet vergrendelen</item>
-        <item>Portrait</item>
-        <item>Landscape</item>
+        <item>Staand</item>
+        <item>Liggend</item>
     </string-array>  
    
     <string-array name="autoscrollLabels">

@@ -19,12 +19,13 @@
 
 package net.nightwhistler.pageturner.activity;
 
-import net.nightwhistler.pageturner.R;
+//import net.nightwhistler.pageturner.R;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import com.revive.R;
 
 public class PageTurnerPrefsActivity extends PreferenceActivity {
 

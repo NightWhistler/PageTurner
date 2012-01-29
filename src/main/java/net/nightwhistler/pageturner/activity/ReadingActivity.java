@@ -23,12 +23,16 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
 
+import com.markupartist.android.widget.ActionBar;
+import com.revive.R;
+import com.revive.bookshop;
+import com.revive.review;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.AnimationStyle;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
 import net.nightwhistler.pageturner.Configuration.ScrollStyle;
-import net.nightwhistler.pageturner.R;
+//import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.animation.Animations;
 import net.nightwhistler.pageturner.animation.Animator;
 import net.nightwhistler.pageturner.animation.PageCurlAnimator;
@@ -129,11 +133,11 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	@InjectView(R.id.bookView) 
 	private BookView bookView;
 	
-	@InjectView(R.id.myTitleBarTextView) 
-	private TextView titleBar;
+	//@InjectView(R.id.myTitleBarTextView)
+	//private TextView titleBar;
 	
-	@InjectView(R.id.myTitleBarLayout) 
-	private LinearLayout titleBarLayout;
+	//@InjectView(R.id.myTitleBarLayout)
+	//private LinearLayout titleBarLayout;
 	
 	@InjectView(R.id.dummyView)
 	private AnimatedImageView dummyView;
@@ -171,7 +175,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         // Restore preferences
         requestWindowFeature(Window.FEATURE_NO_TITLE);        
         setContentView(R.layout.read_book);
-        
+        ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+        actionBar.addAction(new ActionBar.IntentAction(this, review(),
+                com.revive.R.drawable.book_refresh));
+        actionBar.addAction(new ActionBar.IntentAction(this, bookshop(),
+                com.revive.R.drawable.book_refresh));
+        actionBar.setHomeAction(new ActionBar.IntentAction(this, home(),
+                com.revive.R.drawable.book_refresh));
         this.uiHandler = new Handler();
         
         HandlerThread bgThread = new HandlerThread("background");
@@ -282,6 +292,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     
     @Override
     public void progressUpdate(int progressPercentage) {
+        ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
     	if ( titleBase == null ) {
     		return;
     	}
@@ -293,9 +304,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	SpannableStringBuilder spannedTitle = new SpannableStringBuilder();
     	spannedTitle.append(title);
     	spannedTitle.append(" " + progressPercentage + "%");
-    	    	
-    	this.titleBar.setTextColor(Color.WHITE);
-    	this.titleBar.setText(spannedTitle);
+        actionBar.setTitle(spannedTitle);
+    	//this.titleBar.setTextColor(Color.WHITE);
+    	//this.titleBar.setText(spannedTitle);
     }
     
     private void updateFromPrefs() {
@@ -323,11 +334,11 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         if ( config.isFullScreenEnabled() ) {
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-            this.titleBarLayout.setVisibility(View.GONE);
+           // this.titleBarLayout.setVisibility(View.GONE);
         } else {    
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        	this.titleBarLayout.setVisibility(View.VISIBLE);
+        	//this.titleBarLayout.setVisibility(View.VISIBLE);
     	}
         
         restoreColorProfile();
@@ -858,7 +869,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	
     	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
     	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    	this.titleBarLayout.setVisibility(View.VISIBLE);
+    	//this.titleBarLayout.setVisibility(View.VISIBLE);
     	
     	return super.onPrepareOptionsMenu(menu);
     }
@@ -869,7 +880,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
         			WindowManager.LayoutParams.FLAG_FULLSCREEN);
         	
-        	this.titleBarLayout.setVisibility(View.GONE);
+        	//this.titleBarLayout.setVisibility(View.GONE);
         }
     }
     
@@ -1325,5 +1336,23 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
             
             bookView.restore();            
     	}
-    }    
+    }
+    private Intent review() {
+        final Intent intent = new Intent();
+        intent.setClass(this, review.class);
+        // intent.putExtra(Intent.EXTRA_TEXT, "Shared from the ActionBar widget.");
+        return (intent);
+    }
+    private Intent bookshop() {
+        final Intent intent = new Intent();
+        intent.setClass(this, bookshop.class);
+        // intent.putExtra(Intent.EXTRA_TEXT, "Shared from the ActionBar widget.");
+        return (intent);
+    }
+    private Intent home() {
+        final Intent intent = new Intent();
+        intent.setClass(this, LibraryActivity.class);
+        // intent.putExtra(Intent.EXTRA_TEXT, "Shared from the ActionBar widget.");
+        return (intent);
+    }
 }

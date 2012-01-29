@@ -25,8 +25,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import net.nightwhistler.pageturner.R;
+//import net.nightwhistler.pageturner.R;
 
+import com.revive.R;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;

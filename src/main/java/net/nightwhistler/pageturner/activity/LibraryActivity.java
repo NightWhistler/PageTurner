@@ -24,7 +24,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.nightwhistler.pageturner.R;
+import android.view.*;
+import android.widget.*;
+import com.markupartist.android.widget.ActionBar;
+import com.revive.R;
+//import net.nightwhistler.pageturner.R;
+import com.revive.bookshop;
+import com.revive.review;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.QueryResult;
@@ -54,23 +60,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.google.inject.Inject;
 
@@ -113,12 +107,18 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	protected void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.library_menu);
-		
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.library_menu);
+        ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+        actionBar.addAction(new ActionBar.IntentAction(this, review(),
+                R.drawable.book_refresh));
+        actionBar.addAction(new ActionBar.IntentAction(this, bookshop(),
+                R.drawable.book_refresh));
+        actionBar.setHomeAction(new ExampleAction());
 		if ( savedInstanceState != null ) {
 			this.askedUserToImport = savedInstanceState.getBoolean("import_q", false);
 		}
-		
+
 		this.bookAdapter = new BookAdapter(this);
 		this.listView.setAdapter(bookAdapter);
 		this.listView.setOnItemClickListener(this);
@@ -142,19 +142,34 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		
 		registerForContextMenu(this.listView);	
 	}
-	
+
+
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
-		
+
 		LibraryBook book = this.bookAdapter.getResultAt(pos);
 		Intent intent = new Intent(this, ReadingActivity.class);
-		
+
 		intent.setData( Uri.parse(book.getFileName()));
 		this.setResult(RESULT_OK, intent);
 				
 		startActivityIfNeeded(intent, 99);
 	}
-	
+
+
+    private Intent review() {
+        final Intent intent = new Intent();
+        intent.setClass(this, review.class);
+       // intent.putExtra(Intent.EXTRA_TEXT, "Shared from the ActionBar widget.");
+        return (intent);
+    }
+    private Intent bookshop() {
+        final Intent intent = new Intent();
+        intent.setClass(this, bookshop.class);
+        // intent.putExtra(Intent.EXTRA_TEXT, "Shared from the ActionBar widget.");
+        return (intent);
+    }
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
@@ -599,9 +614,21 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 				importQuestion.show();
 			}
 		}
-		
+
 	}
-	
-	
+
+    private class ExampleAction extends ActionBar.AbstractAction {
+
+        public ExampleAction() {
+            super(R.drawable.book_refresh);
+        }
+
+        @Override
+        public void performAction(View view) {
+            Toast.makeText(LibraryActivity.this,
+                    "We are here", Toast.LENGTH_SHORT).show();
+        }
+
+    }
 	
 }

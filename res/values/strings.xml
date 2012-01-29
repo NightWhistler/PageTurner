@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Page Turner</string>
+    <string name="app_name">Revive Reader</string>
     <string name="title">Title</string>
-    <string name="app_desc">Page Turner is a syncing e-book reader that allows you to sync your reading progress over multiple devices.</string>
+    <string name="app_desc">Revive Reader is a syncing e-book reader that allows you to sync your reading progress over multiple devices.</string>
     <string name="browse">Browse...</string>
     <string name="open_file">Open ePub file</string>
     <string name="open_library">My Books</string>
@@ -14,8 +14,8 @@
     
     <string name="show_toc">Show TOC</string>   
     <string name="rolling_blind">Auto-scroll</string>
-    <string name="about">About PageTurner</string>
-    <string name="about_gpl">PageTurner is free software under the GPL v3.</string>
+    <string name="about">About ReviveReader</string>
+    <string name="about_gpl">ReviveReader is based on pagetuner a free software under the GPL v3.</string>
     <string name="error_open_bk">Error opening book: %s</string>
     
     <string name="dictionary_lookup">Look up in Dictionary</string>

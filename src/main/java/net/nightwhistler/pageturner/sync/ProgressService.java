@@ -24,7 +24,7 @@ public interface ProgressService {
 
 	/**
 	 * Stores the progress for the given book.
-	 * @param userId
+	 * @param index
 	 * @param fileName
 	 * @param progress
 	 */

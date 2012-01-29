@@ -380,7 +380,7 @@ public class PageCurlAnimator implements Animator {
 	 * Make sure we never move too much, and make sure that if we 
 	 * move too much to add a displacement so that the movement will 
 	 * be still in our radius.
-	 * @param radius - radius form the flip origin
+	 * @param point - radius form the flip origin
 	 * @param bMaintainMoveDir - Cap movement but do not change the
 	 * current movement direction
 	 * @return Corrected point

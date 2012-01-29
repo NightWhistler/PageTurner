@@ -22,7 +22,8 @@ package net.nightwhistler.pageturner.view;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import net.nightwhistler.pageturner.R;
+//import net.nightwhistler.pageturner.R;
+import com.revive.R;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import android.content.Context;
 import android.content.DialogInterface;

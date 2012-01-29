@@ -18,7 +18,7 @@
  */
 package net.nightwhistler.pageturner.view;
 
-import net.nightwhistler.pageturner.R;
+//import net.nightwhistler.pageturner.R;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.Layout;
@@ -31,6 +31,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.view.View;
 import android.widget.TextView;
+import com.revive.R;
 
 
 public class ScrollingStrategy implements PageChangeStrategy {

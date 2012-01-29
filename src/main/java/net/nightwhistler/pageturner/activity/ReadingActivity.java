@@ -23,12 +23,13 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
 
+import com.revive.R;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.AnimationStyle;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
 import net.nightwhistler.pageturner.Configuration.ScrollStyle;
-import net.nightwhistler.pageturner.R;
+//import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.animation.Animations;
 import net.nightwhistler.pageturner.animation.Animator;
 import net.nightwhistler.pageturner.animation.PageCurlAnimator;

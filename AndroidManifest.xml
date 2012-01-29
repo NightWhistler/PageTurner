@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="net.nightwhistler.pageturner"
+      package="com.revive"
       android:versionCode="1"
       android:versionName="0.2.13_1"
       android:installLocation="auto">
@@ -15,7 +15,7 @@
         android:name="net.nightwhistler.pageturner.PageTurner"
         >
 
-        <activity android:name=".activity.ReadingActivity"
+        <activity android:name="net.nightwhistler.pageturner.activity.ReadingActivity"
                   android:label="@string/app_name"> 
                   
             <intent-filter>
@@ -45,16 +45,20 @@
  
         </activity>
         
-        <activity android:name=".activity.PageTurnerPrefsActivity"
+        <activity android:name="net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity"
                   android:label="@string/prefs" /> 
                   
                
-        <activity android:name=".activity.LibraryActivity"
-                  android:label="@string/library" />
+        <activity android:name="net.nightwhistler.pageturner.activity.LibraryActivity"
+                  android:label="@string/library"
+                android:theme="@android:style/Theme.NoTitleBar"/>
           
-        <activity android:name=".activity.BookDetailsActivity"
-                  android:label="@string/book_details" />           
-        
-        
+        <activity android:name="net.nightwhistler.pageturner.activity.BookDetailsActivity"
+                  android:label="@string/book_details" />
+        <activity android:name=".bookshop"
+                  android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name=".review"
+                  android:theme="@android:style/Theme.NoTitleBar"/>
+
     </application>
 </manifest> 

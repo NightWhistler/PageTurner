@@ -1,6 +1,6 @@
 package yuku.ambilwarna;
 
-import net.nightwhistler.pageturner.R;
+//import net.nightwhistler.pageturner.R;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import com.revive.R;
 
 public class AmbilWarnaDialog {
 	public interface OnAmbilWarnaListener {

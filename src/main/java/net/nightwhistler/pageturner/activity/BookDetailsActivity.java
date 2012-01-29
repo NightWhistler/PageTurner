@@ -21,7 +21,8 @@ package net.nightwhistler.pageturner.activity;
 import java.text.DateFormat;
 import java.util.Date;
 
-import net.nightwhistler.pageturner.R;
+import com.revive.R;
+//import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import roboguice.activity.RoboActivity;
@@ -44,7 +45,7 @@ public class BookDetailsActivity extends RoboActivity {
 	@InjectExtra("book")
 	private String book;
 	
-	@InjectView(R.id.titleField) 
+	@InjectView(R.id.titleField)
 	private TextView titleView;
 	
 	@InjectView(R.id.authorField)

@@ -548,13 +548,14 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	            return true;	
 	            
 	        case KeyEvent.KEYCODE_BACK:
-	        	if ( action == KeyEvent.ACTION_DOWN && 
-	        			bookView.hasPrevPosition() ) {
-	        		bookView.goBackInHistory();
+	        	if ( action == KeyEvent.ACTION_DOWN ) { 
+	        		if ( bookView.hasPrevPosition() ) {
+	        			bookView.goBackInHistory();
 	        		
-	        		return true;
-	        	} else {
-	        		this.finish();
+	        			return true;
+	        		} else {
+	        			this.finish();
+	        		}
 	        	}
 	        
 	    }

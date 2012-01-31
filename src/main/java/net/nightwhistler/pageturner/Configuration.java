@@ -110,7 +110,8 @@ public class Configuration {
 	}
 	
 	public boolean isVerticalSwipeEnabled() {
-		return settings.getBoolean(KEY_NAV_SWIPE_V, true);
+		return settings.getBoolean(KEY_NAV_SWIPE_V, true)
+			&& ! isScrollingEnabled();
 	}
 	
 	public int getLastPosition(String fileName) {

@@ -39,8 +39,7 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 	private BookViewListener bookViewListener;
 	private BookView bookView;
 	private DisplayMetrics metrics;
-	
-	
+		
 	public NavGestureDetector( BookView bookView, BookViewListener navListener, 
 			DisplayMetrics metrics ) {
 		this.bookView = bookView;
@@ -99,18 +98,23 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 			this.bookViewListener.onRightEdgeSlide(level);			
 			return true;
 			
-		}
-		
+		}		
 		
 		return super.onScroll(e1, e2, distanceX, distanceY);
 	}
 
 	@Override
-	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {		
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {	
+		
+		final int TAP_RANGE_H = bookView.getWidth() / 5;
+		
+		//We ignore flings in the tap area
+		if ( e1.getX() < TAP_RANGE_H || e1.getX() > (bookView.getWidth() - TAP_RANGE_H) ) {
+			return false;
+		}
 
 		float distanceX = e2.getX() - e1.getX();
 		float distanceY = e2.getY() - e1.getY();
-
 	
 		if (  Math.abs(distanceX) > Math.abs(distanceY) ) {
 

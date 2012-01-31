@@ -548,13 +548,14 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	            return true;	
 	            
 	        case KeyEvent.KEYCODE_BACK:
-	        	if ( action == KeyEvent.ACTION_DOWN && 
-	        			bookView.hasPrevPosition() ) {
-	        		bookView.goBackInHistory();
+	        	if ( action == KeyEvent.ACTION_DOWN ) { 
+	        		if ( bookView.hasPrevPosition() ) {
+	        			bookView.goBackInHistory();
 	        		
-	        		return true;
-	        	} else {
-	        		this.finish();
+	        			return true;
+	        		} else {
+	        			this.finish();
+	        		}
 	        	}
 	        
 	    }
@@ -907,11 +908,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     protected void onStop(){
        super.onStop();
 
-       if ( this.bookView != null ) {
-    	   
-    	   progressService.storeProgress(this.fileName, this.bookView.getIndex(), 
-    			   this.bookView.getPosition(), this.progressPercentage );
-    	   
+       if ( this.bookView != null ) {    	   
+    	  
     	   config.setLastPosition(this.fileName, this.bookView.getPosition() );
     	   config.setLastIndex(this.fileName, this.bookView.getIndex() );    	   
        }
@@ -1216,17 +1214,17 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     		outState.putInt(POS_KEY, this.bookView.getPosition() );  
     		outState.putInt(IDX_KEY, this.bookView.getIndex());
 
+    		libraryService.updateReadingProgress(fileName, progressPercentage);			    		
+    		libraryService.close();
+    		
     		backgroundHandler.post(new Runnable() {
     			@Override
     			public void run() {
     				progressService.storeProgress(fileName,
     	    				bookView.getIndex(), bookView.getPosition(), 
-    	    				progressPercentage);			     	   
-
-    	    		libraryService.updateReadingProgress(fileName, progressPercentage);			    		
-    	    		libraryService.close();
+    	    				progressPercentage);
     			}
-    		});    							
+    		});
     	}
     }    
     

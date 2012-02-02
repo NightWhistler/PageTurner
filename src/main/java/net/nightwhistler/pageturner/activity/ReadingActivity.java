@@ -200,10 +200,11 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
             	pinch.onTouch(v, event);
                 return gestureDetector.onTouchEvent(event);
             }
-        };   
+        };           
         
     	this.viewSwitcher.setOnTouchListener(gestureListener);
     	this.bookView.setOnTouchListener(gestureListener);    	
+        
     	this.bookView.addListener(this);
     	this.bookView.setSpanner(getInjector().getInstance(HtmlSpanner.class));
     	
@@ -1099,7 +1100,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     }
     
     @Override
-    public void onLeftEdgeSlide(int value) {
+    public boolean onLeftEdgeSlide(int value) {
     	
     	if ( config.isBrightnessControlEnabled() && value != 0 ) {
     		int baseBrightness = config.getBrightNess();
@@ -1127,12 +1128,16 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 					config.setBrightness(level);					
 				}
 			});
-    	}    	
+			
+			return true;
+    	}
+    	
+    	return false;
     }
     
     @Override
-    public void onRightEdgeSlide(int value) {
-    	
+    public boolean onRightEdgeSlide(int value) {
+    	return false;
     }
     
     @Override

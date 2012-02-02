@@ -131,14 +131,14 @@ public interface BookViewListener {
 	 * 
 	 * @param value how far the user has slid.
 	 */
-	void onLeftEdgeSlide( int value );
+	boolean onLeftEdgeSlide( int value );
 	
 	/**
 	 * Generated when the user slides a finger along the screen's right edge.
 	 * 
 	 * @param value how far the user has slid.
 	 */
-	void onRightEdgeSlide( int value );
+	boolean onRightEdgeSlide( int value );
 	
 	/**
 	 * Called when the user touches the screen.

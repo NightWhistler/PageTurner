@@ -186,18 +186,18 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         
         this.gestureDetector = new GestureDetector(new NavGestureDetector(
         		bookView, this, metrics));         
-        
+        /*
         final PinchZoomListener pinch = new PinchZoomListener( this,
         		new PinchZoomListener.FloatAdapter() {
         			
 			@Override public void setValue(float value) { updateTextSize(value); }			
 			@Override public float getValue() {	return bookView.getTextSize(); }
 		});
-		
+		*/
         
         this.gestureListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
-            	pinch.onTouch(v, event);
+            	//pinch.onTouch(v, event);
                 return gestureDetector.onTouchEvent(event);
             }
         };           

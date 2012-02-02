@@ -49,6 +49,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -92,6 +93,10 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		 BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
 	}	
 	
+	private static final int[] ICONS = { R.drawable.book_binoculars,
+		R.drawable.book_add, R.drawable.book_star,
+		R.drawable.contract2, R.drawable.user };
+	
 	private BookAdapter bookAdapter;
 		
 	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG);
@@ -125,11 +130,15 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		
 		this.settings = PreferenceManager.getDefaultSharedPreferences(this); 
 				
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-		            this, R.array.libraryQueries, android.R.layout.simple_spinner_item);
+		//ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+		          // this, R.array.libraryQueries, android.R.layout.simple_spinner_item);		
+				
+		ArrayAdapter<String> adapter = new QueryMenuAdapter(this, 
+				getResources().getStringArray(R.array.libraryQueries));
 		
 		spinner.setAdapter(adapter);
-		spinner.setOnItemSelectedListener(new MenuSelectionListener());		
+		spinner.setOnItemSelectedListener(new MenuSelectionListener());	
+	
 						
 		this.waitDialog = new ProgressDialog(this);
 		this.waitDialog.setOwnerActivity(this);
@@ -347,6 +356,41 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		}	
 	
 	}	
+	
+	private class QueryMenuAdapter extends ArrayAdapter<String> {
+		
+		String[] strings;
+		
+		public QueryMenuAdapter(Context context, String[] strings) {
+			super(context, android.R.layout.simple_spinner_item, strings);	
+			this.strings = strings;
+		}
+		
+		@Override
+		public View getDropDownView(int position, View convertView,
+				ViewGroup parent) {
+			
+			View rowView;
+			
+			if ( convertView == null ) {			
+				LayoutInflater inflater = (LayoutInflater) getContext()
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				rowView = inflater.inflate(R.layout.menu_row, parent, false);
+			} else {
+				rowView = convertView;
+			}
+			
+			TextView textView = (TextView) rowView.findViewById(R.id.menuText);
+			textView.setText(strings[position]);
+			textView.setTextColor(Color.BLACK);
+			
+			ImageView img = (ImageView) rowView.findViewById(R.id.icon);
+			
+			img.setImageResource(ICONS[position]);
+			
+			return rowView;			
+		}
+	}
 	
 	private void buildImportQuestionDialog() {
 		

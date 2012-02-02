@@ -12,10 +12,13 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
-    <ListView
+    <GridView
         android:id="@+id/libraryList"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
+        android:layout_height="match_parent"
+        android:background="@drawable/background_shelf"
+        android:numColumns="auto_fit"
+>
+    </GridView>
 
 </LinearLayout>

@@ -77,7 +77,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	private Spinner spinner;
 	
 	@InjectView(R.id.libraryList)
-	private ListView listView;
+	private GridView listView;
 	
 	@InjectResource(R.drawable.river_diary)
 	private Drawable backupCover;

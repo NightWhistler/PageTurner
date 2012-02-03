@@ -35,6 +35,7 @@ import net.nightwhistler.pageturner.animation.PageCurlAnimator;
 import net.nightwhistler.pageturner.animation.PageTimer;
 import net.nightwhistler.pageturner.animation.RollingBlindAnimator;
 import net.nightwhistler.pageturner.library.LibraryService;
+import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.view.AnimatedImageView;
@@ -233,10 +234,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         	finish();
         	return;
         	
-        } else {        
-        	String email = config.getSynchronizationEmail();
+        } else { 
         	
-        	if ( savedInstanceState == null &&  email.length() != 0 ) {
+        	if ( savedInstanceState == null &&  config.isSyncEnabled() ) {
         		new DownloadProgressTask().execute();
         	} else {        	
         		bookView.restore();
@@ -301,8 +301,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     
     private void updateFromPrefs() {
     	    	
-    	this.progressService.setEmail( config.getSynchronizationEmail() );
-    	this.progressService.setDeviceName( config.getDeviceName() );
+    	this.progressService.setConfig(this.config);
     	                      
         bookView.setTextSize( config.getTextSize() );
         
@@ -838,7 +837,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	MenuItem sync = menu.findItem(R.id.manual_sync );
     	
     	showToc.setEnabled( this.tocDialog != null );
-    	sync.setEnabled( ! "".equals( config.getSynchronizationEmail() ));
+    	sync.setEnabled( config.isSyncEnabled() );
     	
     	if ( config.getColourProfile() == ColourProfile.DAY ) {
     		dayMode.setVisible(false);
@@ -1225,15 +1224,19 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     		backgroundHandler.post(new Runnable() {
     			@Override
     			public void run() {
-    				progressService.storeProgress(fileName,
+    				try {
+    					progressService.storeProgress(fileName,
     	    				bookView.getIndex(), bookView.getPosition(), 
     	    				progressPercentage);
+    				} catch (AccessException a) {}
     			}
     		});
     	}
     }    
     
     private class ManualProgressSync extends AsyncTask<Void, Integer, List<BookProgress>> {
+    	
+    	private boolean accessDenied = false;
     	
     	@Override
     	protected void onPreExecute() {
@@ -1242,8 +1245,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	}
     	
     	@Override
-    	protected List<BookProgress> doInBackground(Void... params) {    		
-    		return progressService.getProgress(fileName);    		
+    	protected List<BookProgress> doInBackground(Void... params) { 
+    		try {
+    			return progressService.getProgress(fileName);
+    		} catch (AccessException e) {
+    			accessDenied = true;
+    			return null;
+    		}
     	}
     	
     	@Override
@@ -1255,7 +1263,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     		    AlertDialog.Builder alertDialog = new AlertDialog.Builder(ReadingActivity.this);
     		    
    		        alertDialog.setTitle(R.string.sync_failed);
-   		        alertDialog.setMessage(R.string.connection_fail);
+   		        
+   		        if ( accessDenied ) {
+   		        	alertDialog.setMessage(R.string.access_denied);
+   		        } else {
+   		        	alertDialog.setMessage(R.string.connection_fail);
+   		        }
    		        
    		        alertDialog.setNeutralButton(android.R.string.ok, new OnClickListener() {
 	              public void onClick(DialogInterface dialog, int which) {
@@ -1279,12 +1292,14 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	}
     	
     	@Override
-    	protected BookProgress doInBackground(Void... params) {    		
-    		List<BookProgress> updates = progressService.getProgress(fileName);
-    		
-    		if ( updates != null && updates.size() > 0 ) {
-    			return updates.get(0);
-    		}
+    	protected BookProgress doInBackground(Void... params) {  
+    		try {
+    			List<BookProgress> updates = progressService.getProgress(fileName);
+    			
+    			if ( updates != null && updates.size() > 0 ) {
+        			return updates.get(0);
+        		}
+    		} catch (AccessException e) {}
     		
     		return null;
     	}

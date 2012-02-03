@@ -23,6 +23,16 @@
 	            />
 	</PreferenceCategory>
 
+	<EditTextPreference
+	            android:key="access_key"
+	            android:title="Access Key"
+	            android:summary="An access key is required to use the synchronization service. Visit the site to learn how to get a key."
+	            android:dialogTitle="Access key"
+	            android:dialogMessage="Please enter your access key."
+	            android:password="true"
+	            android:dependency="email"   
+	            />    
+	    
 	<PreferenceCategory
                 android:title="Impostazioni scorrimento automatico">  		
 

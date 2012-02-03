@@ -20,6 +20,8 @@ package net.nightwhistler.pageturner.sync;
 
 import java.util.List;
 
+import net.nightwhistler.pageturner.Configuration;
+
 public interface ProgressService {
 
 	/**
@@ -28,7 +30,7 @@ public interface ProgressService {
 	 * @param fileName
 	 * @param progress
 	 */
-	public void storeProgress( String fileName, int index, int progress, int percentage );
+	public void storeProgress( String fileName, int index, int progress, int percentage ) throws AccessException;
 	
 	/**
 	 * Returns the progress, or -1 of it wasn't found.
@@ -36,11 +38,9 @@ public interface ProgressService {
 	 * @param fileName
 	 * @return
 	 */
-	public List<BookProgress> getProgress( String fileName );
+	public List<BookProgress> getProgress( String fileName ) throws AccessException;
 	
-	public void setEmail(String email);
-	
-	public void setDeviceName( String deviceName );
+	public void setConfig( Configuration config );
 	
 	
 }

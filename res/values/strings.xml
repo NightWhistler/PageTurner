@@ -86,5 +86,6 @@
         <item>All books by author</item> 
     </string-array>
         
+    <string name="access_denied">Your access-key is invalid. Please visit pageturner-reader.org to obtain a valid access key."</string>
         
 </resources>

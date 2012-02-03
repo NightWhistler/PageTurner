@@ -90,6 +90,8 @@ public class Configuration {
 	public static final String KEY_H_ANIMATION = "h_animation";
 	public static final String KEY_V_ANIMATION = "v_animation";
 	
+	public static final String ACCESS_KEY = "access_key";
+	
 	
 	@Inject
 	public Configuration(Context context) {
@@ -136,6 +138,17 @@ public class Configuration {
 	
 	public String getSynchronizationEmail() {
 		return settings.getString(KEY_EMAIL, "").trim();
+	}
+	
+	public String getSynchronizationAccessKey() {
+		return settings.getString(ACCESS_KEY, "").trim();
+	}
+	
+	public boolean isSyncEnabled() {
+		String email = getSynchronizationEmail();
+		String accessKey = getSynchronizationAccessKey();
+		
+		return email.length() > 0 && accessKey.length() > 0;
 	}
 	
 	public boolean isFullScreenEnabled() {

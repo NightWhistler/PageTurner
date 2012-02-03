@@ -21,7 +21,6 @@
 	            android:dialogMessage="Inserire un nome per questo apparecchio."
 	            android:dependency="email"   
 	            />
-	</PreferenceCategory>
 
 	<EditTextPreference
 	            android:key="access_key"
@@ -33,6 +32,7 @@
 	            android:dependency="email"   
 	            />    
 	    
+	</PreferenceCategory>
 	<PreferenceCategory
                 android:title="Impostazioni scorrimento automatico">  		
 

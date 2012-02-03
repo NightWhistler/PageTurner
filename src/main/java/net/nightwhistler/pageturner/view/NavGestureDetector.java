@@ -102,14 +102,7 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 	
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {	
-		
-		final int TAP_RANGE_H = bookView.getWidth() / 5;
-		
-		//We ignore flings in the tap area
-		if ( e1.getX() < TAP_RANGE_H || e1.getX() > (bookView.getWidth() - TAP_RANGE_H) ) {
-			return false;
-		}
-
+				
 		float distanceX = e2.getX() - e1.getX();
 		float distanceY = e2.getY() - e1.getY();
 	

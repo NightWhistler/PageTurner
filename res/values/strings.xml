@@ -39,7 +39,7 @@
     
     <string name="book_by">By %s</string>
     <string name="last_read">Last read: %s</string>
-    <string name="added_to_lib">Added to library: %s</string>
+    <string name="added_to_lib">Added on: %s</string>
     
     <string name="view_details">View details</string>
     <string name="delete">Delete from library</string>

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import android.widget.*;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
@@ -63,15 +64,9 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.google.inject.Inject;
 
@@ -84,7 +79,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	private Spinner spinner;
 	
 	@InjectView(R.id.libraryList)
-	private ListView listView;
+	private GridView listView;
 	
 	@InjectResource(R.drawable.river_diary)
 	private Drawable backupCover;

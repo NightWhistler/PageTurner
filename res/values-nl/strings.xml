@@ -85,6 +85,7 @@
         <item>Alles gesorteerd op titel</item>
         <item>Alles gesorteerd op auteur</item> 
     </string-array>
-        
+      
+    <string name="access_denied">Uw toegangs-sleutel is ongeldig. Ga naar pageturner-reader.org om een geldige sleutel te verkrijgen."</string>
         
 </resources>

@@ -21,6 +21,17 @@
 	            android:dialogMessage="Voer aub een naam in voor dit apparaat"
 	            android:dependency="email"   
 	            />
+	
+	<EditTextPreference
+	            android:key="access_key"
+	            android:title="Toegangs sleutel"
+	            android:summary="Om de synchronisatie service te gebruiken is een toegangs-sleutel vereist. Ga naar de site om een sleutel te krijgen."
+	            android:dialogTitle="Toegangs sleutel"
+	            android:dialogMessage="Voer aub uw sleutel in."
+	            android:password="true"
+	            android:dependency="email"   
+	            />
+	
 	</PreferenceCategory>
 
 	<PreferenceCategory

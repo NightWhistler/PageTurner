@@ -88,56 +88,43 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 		float delta = (e1.getY() - e2.getY()) / scrollUnitSize;			
 		int level = (int) delta;
 		
-		if ( e1.getX() < TAP_RANGE_H ) {
-			
-			this.bookViewListener.onLeftEdgeSlide(level);
-			
-			return true;
+		if ( e1.getX() < TAP_RANGE_H ) {			
+			return this.bookViewListener.onLeftEdgeSlide(level);
 		} else if ( e1.getX() > bookView.getWidth() - TAP_RANGE_H ) {
 			
-			this.bookViewListener.onRightEdgeSlide(level);			
-			return true;
-			
+			return this.bookViewListener.onRightEdgeSlide(level);
 		}		
 		
 		return super.onScroll(e1, e2, distanceX, distanceY);
 	}
+	
 
+	
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {	
-		
-		final int TAP_RANGE_H = bookView.getWidth() / 5;
-		
-		//We ignore flings in the tap area
-		if ( e1.getX() < TAP_RANGE_H || e1.getX() > (bookView.getWidth() - TAP_RANGE_H) ) {
-			return false;
-		}
-
+				
 		float distanceX = e2.getX() - e1.getX();
 		float distanceY = e2.getY() - e1.getY();
 	
 		if (  Math.abs(distanceX) > Math.abs(distanceY) ) {
 
 			if ( distanceX > 0 ) {
-				bookViewListener.onSwipeRight();
+				return bookViewListener.onSwipeRight();
 			} else {
-				bookViewListener.onSwipeLeft();				
-			}
-
-			return true;
+				return bookViewListener.onSwipeLeft();				
+			}			
 
 		} else if (Math.abs(distanceY) > Math.abs(distanceX) ) {
 			if ( distanceY > 0 ) {
-				bookViewListener.onSwipeUp();
+				return bookViewListener.onSwipeUp();
 			} else {
-				bookViewListener.onSwipeDown();
-			}
-
-			return true;
+				return bookViewListener.onSwipeDown();
+			}			
 		}
 
 		return false;
 	}
+	
 	
 	@Override
     public void onLongPress(MotionEvent e) {

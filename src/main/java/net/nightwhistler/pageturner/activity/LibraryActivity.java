@@ -95,7 +95,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	
 	private static final int[] ICONS = { R.drawable.book_binoculars,
 		R.drawable.book_add, R.drawable.book_star,
-		R.drawable.contract2, R.drawable.user };
+		R.drawable.book, R.drawable.user };
 	
 	private BookAdapter bookAdapter;
 		

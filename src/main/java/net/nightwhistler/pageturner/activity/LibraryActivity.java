@@ -505,8 +505,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		
 		private void findEpubsInFolder( File folder, List<File> items) {
 			
-			if ( folder == null || folder.getAbsolutePath().startsWith(LibraryService.BASE_LIB_PATH)
-					|| folder.getName().startsWith(".") ) {
+			if ( folder == null || folder.getName().startsWith(".") ) {
 				return;
 			}			
 			
@@ -539,6 +538,8 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 						Arrays.asList(MediatypeService.mediatypes));								
 				
 				boolean copy = settings.getBoolean("copy_to_library", true);
+				//Never copy if the books is already in the library.
+				copy = copy && ! file.startsWith(LibraryService.BASE_LIB_PATH);
 	        	libraryService.storeBook(file, importedBook, false, copy);	        		        	
 				
 			} catch (Exception io ) {

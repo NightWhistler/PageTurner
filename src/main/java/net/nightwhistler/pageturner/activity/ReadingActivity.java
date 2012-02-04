@@ -375,19 +375,11 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	this.titleBase = this.bookTitle;
     	setTitle( titleBase );  
     	
-    	backgroundHandler.post(new Runnable() {
-			
-			@Override
-			public void run() {
-						    		
-	        	try {
-	        		libraryService.storeBook(fileName, book, true, config.isCopyToLibrayEnabled() );
-	        	} catch (IOException io) {
-	        		LOG.error("Copy to library failed.", io);
-	        	}	
-			}
-		});    	
-    	
+    	try {
+	    	libraryService.storeBook(fileName, book, true, config.isCopyToLibrayEnabled() );
+	    } catch (IOException io) {
+	    	LOG.error("Copy to library failed.", io);
+	    }		
     }
     
     @Override

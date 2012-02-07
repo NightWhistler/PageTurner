@@ -88,5 +88,6 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
         <item>Alle Bücher nach Author</item> 
     </string-array>
         
+    <string name="access_denied">Dein Zugangsschlüssel ist ungültig. Bitte gehe auf pageturner-reader.org um einen gültigen Schlüssel zu erhalten.</string>
         
 </resources>

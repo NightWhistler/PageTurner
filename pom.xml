@@ -5,15 +5,33 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.nightwhistler.pageturner</groupId>
     <artifactId>PageTurner</artifactId>
-    <version>0.2.12-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>apk</packaging>
     <name>PageTurner</name>
-    
+   
+   
+   <!-- This is the Ostara repository which contains all PageTurner
+        dependencies for easier building. It uses HTTPS with a self-signed
+        certificate. Use trust.jks to connect. 
+        --> 
+   <repositories>
+        <repository>
+            <id>Ostara</id>
+            <url>https://ostara.nightwhistler.net/repository</url>
+        </repository>
+        
+        <repository>
+        	<id>acra-releases</id>
+        	<url>http://acra.googlecode.com/svn/repository/releases</url>
+    	</repository>
+        
+   </repositories>
+   
    <dependencies>
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
-            <version>2.1.2</version>
+            <version>2.2.1</version>
             <scope>provided</scope>
         </dependency>
     
@@ -93,6 +111,12 @@
          <scope>compile</scope>
      </dependency>
      
+      <dependency>
+         <groupId>org.acra</groupId>
+         <artifactId>acra</artifactId>
+         <version>4.2.3</version>
+         <scope>compile</scope>
+     </dependency>
     
     </dependencies>
 
@@ -117,7 +141,7 @@
                         <debug>true</debug>
                     </run>
                     <sdk>
-                        <platform>7</platform>
+                        <platform>8</platform>
                     </sdk>
                     <emulator>
                         <avd>Telefoon</avd>

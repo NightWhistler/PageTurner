@@ -18,6 +18,8 @@
  */
 package net.nightwhistler.pageturner.animation;
 
+import org.acra.ErrorReporter;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -49,7 +51,7 @@ public class PageCurlAnimator implements Animator {
 	private int mCurlSpeed;
 	
 	/** Fixed update time used to create a smooth curl animation */
-	private int mUpdateRate;
+	//private int mUpdateRate;
 	
 	/** The initial offset for x and y axis movements */
 	private int mInitialEdgeOffset;	
@@ -99,19 +101,21 @@ public class PageCurlAnimator implements Animator {
 	}
 
 	@Override
-	public void advanceOneFrame() {
+	public synchronized void advanceOneFrame() {
 		
 		started = true;
 		
-		if ( finished )
+		if ( finished || mOrigin == null ) {
 			return;
+		}
 		
 		int width = getWidth();
 				
 		// Handle speed
 		float curlSpeed = mCurlSpeed;
-		if ( !bFlipRight )
+		if ( !bFlipRight ) {
 			curlSpeed *= -1;
+		}
 		
 		// Move us
 		mMovement.x += curlSpeed;
@@ -222,13 +226,8 @@ public class PageCurlAnimator implements Animator {
 	}
 	
 	@Override
-	public void draw(Canvas canvas) {
-		
-		
-		
-		// Translate the whole canvas
-		//canvas.translate(mCurrentLeft, mCurrentTop);
-		
+	public void draw(Canvas canvas) {			
+				
 		// We need to initialize all size data when we first draw the view
 		if ( !bViewDrawn ) {
 			bViewDrawn = true;
@@ -237,8 +236,7 @@ public class PageCurlAnimator implements Animator {
 		
 		canvas.drawColor(backgroundColor);
 		
-		// Curl pages
-		//DoPageCurl();
+		
 		
 		// TODO: This just scales the views to the current
 		// width and height. We should add some logic for:
@@ -256,8 +254,18 @@ public class PageCurlAnimator implements Animator {
 		
 	
 		// Draw our elements
-		drawForeground(canvas, rect, paint);
-		drawBackground(canvas, rect, paint);
+		try {
+			drawForeground(canvas, rect, paint);
+		} catch (Exception e ) {
+			ErrorReporter.getInstance().handleException(e);
+		}
+		
+		try {
+			drawBackground(canvas, rect, paint);
+		} catch (Exception e) {
+			ErrorReporter.getInstance().handleException(e);
+		}		
+		
 		drawCurlEdge(canvas);
 		
 		if ( this.drawDebugEnabled  ) {
@@ -297,8 +305,7 @@ public class PageCurlAnimator implements Animator {
 		mCurlEdgePaint.setShadowLayer(10, -5, 5, 0x99000000);
 		
 		// Set the default props, those come from an XML :D
-		mCurlSpeed = 30;
-		mUpdateRate = 33;
+		mCurlSpeed = 30;		
 		mInitialEdgeOffset = 20;
 		
 	}
@@ -352,28 +359,7 @@ public class PageCurlAnimator implements Animator {
 	public int GetCurlSpeed()
 	{
 		return mCurlSpeed;
-	}
-	
-	/**
-	 * Set the update rate for the curl animation
-	 * @param updateRate - Fixed animation update rate in fps
-	 * @throws IllegalArgumentException if updateRate < 1
-	 */
-	public void SetUpdateRate(int updateRate)
-	{
-		if ( updateRate < 1 )
-			throw new IllegalArgumentException("updateRate must be greated than 0");
-		mUpdateRate = updateRate;
-	}
-	
-	/**
-	 * Get the current animation update rate
-	 * @return int - Fixed animation update rate in fps
-	 */
-	public int GetUpdateRate()
-	{
-		return mUpdateRate;
-	}
+	}	
 	
 	/**
 	 * Set the initial pixel offset for the curl edge
@@ -495,7 +481,9 @@ public class PageCurlAnimator implements Animator {
 	 */
 	private void drawForeground( Canvas canvas, Rect rect, Paint paint ) {		
 		if ( ! finished || !bFlipRight ) {
-			canvas.drawBitmap(mForeground, null, rect, null);
+			if ( ! mForeground.isRecycled() ) {
+				canvas.drawBitmap(mForeground, null, rect, null);
+			}
 		}
 	}
 	
@@ -530,7 +518,11 @@ public class PageCurlAnimator implements Animator {
 		}
 		
 		if ( ! (finished && !bFlipRight) ) { 
-			canvas.drawBitmap(mBackground, null, rect, paint);
+			
+			if ( ! mBackground.isRecycled() ) {
+				canvas.drawBitmap(mBackground, null, rect, paint);
+			}
+			
 			canvas.restore();
 		}
 	}
@@ -564,7 +556,7 @@ public class PageCurlAnimator implements Animator {
 	
 	@Override
 	public int getAnimationSpeed() {
-		return 1000 / mUpdateRate;
+		return 30;
 	}
 	
 	@Override
@@ -605,7 +597,8 @@ public class PageCurlAnimator implements Animator {
 		public Vector2D sub(Vector2D b) {
             return new Vector2D(x-b.x,y-b.y);
 		}  
-	    public float distanceSquared(Vector2D other) {
+	    public float distanceSquared(Vector2D other) {    	
+	    	
 	    	float dx = other.x - x;
 	    	float dy = other.y - y;
 
@@ -628,6 +621,11 @@ public class PageCurlAnimator implements Animator {
 		public Vector2D mult(float scalar) {
 	            return new Vector2D(x*scalar,y*scalar);
 	    }
+	}
+	
+	@Override
+	public void stop() {
+		this.finished = true;		
 	}
 	
 }

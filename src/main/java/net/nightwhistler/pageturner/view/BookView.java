@@ -34,6 +34,7 @@ import java.util.Set;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
+import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
@@ -151,7 +152,11 @@ public class BookView extends ScrollView {
 	
 	public void setSpanner(HtmlSpanner spanner) {
 		this.spanner = spanner;
-        spanner.registerHandler("img", new ImageTagHandler() );
+		
+		ImageTagHandler imgHandler = new ImageTagHandler();
+        spanner.registerHandler("img", imgHandler );
+        spanner.registerHandler("image", imgHandler );
+        
         spanner.registerHandler("a", new AnchorHandler(new LinkTagHandler()) );
         
         spanner.registerHandler("h1", new AnchorHandler(spanner.getHandlerFor("h1") ));
@@ -325,16 +330,24 @@ public class BookView extends ScrollView {
 	 */
 	public CharSequence getWordAt( float x, float y ) {
 		
+		if ( childView == null || childView.getLayout() == null ) {
+			return null;
+		}
+		
 		CharSequence text = this.childView.getText();
 		
 		if ( text.length() == 0 ) {
 			return null;
-		}
+		}		
 		
 		Layout layout = this.childView.getLayout();
 		int line = layout.getLineForVertical( (int) y);
 		
 		int offset = layout.getOffsetForHorizontal(line, x);
+		
+		if ( offset < 0 || offset > text.length() -1 ) {
+			return null;
+		}		
 		
 		if ( isBoundaryCharacter(text.charAt(offset)) ) {
 			return null;
@@ -365,7 +378,11 @@ public class BookView extends ScrollView {
 			end = word.length() - 1;
 		}
 		
-		return word.subSequence(start, end );
+		if ( start > 0 && start < word.length() && end < word.length() ) {
+			return word.subSequence(start, end );
+		} 
+		
+		return null;
 	}
 	
 	private static boolean isBoundaryCharacter( char c ) {
@@ -602,6 +619,11 @@ public class BookView extends ScrollView {
 				Drawable drawable = new BitmapDrawable( bitmap );
 				drawable.setBounds(0,0, bitmap.getWidth() - 1, bitmap.getHeight() - 1);
 				builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				
+				if ( spine.isCover() ) {
+					builder.setSpan(new CenterSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				}
+				
 			}
 						
 		}
@@ -621,16 +643,15 @@ public class BookView extends ScrollView {
 				//We scale to screen width for the cover or if the image is too wide.
 				if ( originalWidth > screenWidth || originalHeight > screenHeight || spine.isCover() ) {
 					
-					int targetWidth = screenWidth - 1;
-					int targetHeight = screenHeight - 1;
+					float ratio = (float) originalWidth / (float) originalHeight;
 					
-					if ( originalWidth > originalHeight ) {
-						double ratio = (double) targetWidth / (double) originalWidth;
-						targetHeight = (int) (originalHeight * ratio);
-					} else {
-						double ratio = (double) targetHeight / (double) originalHeight;
-						targetWidth = (int) ( originalWidth * ratio );
-					}
+					int targetHeight = screenHeight - 1;
+					int targetWidth = (int)(targetHeight * ratio);					
+					
+					if ( targetWidth > screenWidth - 1 ) {
+						targetWidth = screenWidth - 1;
+						targetHeight = (int) (targetWidth * (1/ratio));
+					}				
 					
 					LOG.debug("Rescaling from " + originalWidth + "x" + originalHeight + " to " + targetWidth + "x" + targetHeight );
 					
@@ -650,6 +671,13 @@ public class BookView extends ScrollView {
 				int start, int end) {						
 			String src = node.getAttributeByName("src");
 			
+			if ( src == null ) {
+				src = node.getAttributeByName("href");
+			} 
+			
+			if ( src == null ) {
+				src = node.getAttributeByName("xlink:href");
+			}
 	        builder.append("\uFFFC");
 	        
 	        loader.registerCallback(src, new ImageCallback(builder, start, builder.length()));
@@ -694,6 +722,7 @@ public class BookView extends ScrollView {
 	
 	/**
 	 * Sets the given text to be displayed, overriding the book.
+	 * 
 	 * @param text
 	 */
 	public void setText(Spanned text) {
@@ -772,7 +801,7 @@ public class BookView extends ScrollView {
 			}			
 
 			if ( enableScrolling ) {
-				this.strategy = new ScrollingStrategy(this);
+				this.strategy = new ScrollingStrategy(this, this.getContext());
 			} else {
 				this.strategy = new SinglePageStrategy(this);
 			}

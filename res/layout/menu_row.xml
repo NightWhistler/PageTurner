@@ -4,28 +4,19 @@
     android:layout_height="wrap_content" >
 
     <ImageView
-        android:id="@+id/bookCover"
+        android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"        
-        android:src="@drawable/page_turner"
-        android:layout_marginLeft="4px"
-        android:layout_marginRight="10px"
-        android:layout_marginTop="4px" >
-    </ImageView>
+        android:src="@drawable/page_turner" />        
+    
 
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical" >
-
-        <TextView
-            android:id="@+id/bookTitle"
+      <TextView
+            android:id="@+id/menuText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Title"
-            android:textAppearance="?android:attr/textAppearanceMedium" />       
+            android:text="@string/title"
+            android:textAppearance="?android:attr/textAppearanceMedium" 
+            android:gravity="center_vertical"/>       
 
-    </LinearLayout>
 
 </LinearLayout>

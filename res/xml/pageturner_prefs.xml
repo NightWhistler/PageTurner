@@ -21,6 +21,17 @@
 	            android:dialogMessage="Please enter a name for this device."
 	            android:dependency="email"   
 	            />
+	
+	<EditTextPreference
+	            android:key="access_key"
+	            android:title="Access Key"
+	            android:summary="An access key is required to use the synchronization service. Visit the site to learn how to get a key."
+	            android:dialogTitle="Access key"
+	            android:dialogMessage="Please enter your access key."
+	            android:password="true"
+	            android:dependency="email"   
+	            />
+	
 	</PreferenceCategory>
 
 	<PreferenceCategory
@@ -41,11 +52,23 @@
 				android:title="Autoscrolling speed"
 				android:summary="How many seconds a page will be displayed."
 				android:dialogTitle="Scroll speed"								
-				android:defaultValue="30"
+				android:defaultValue="60"
 				android:max="300"				
 				/>
 				
 	</PreferenceCategory>
+	
+	<PreferenceCategory
+                android:title="My Books settings">
+                
+              <CheckBoxPreference
+				android:key="copy_to_library"
+				android:title="Copy to library folder"
+				android:summary="Should PageTurner copy files to its own library folder"
+				android:defaultValue="true"
+				/>  
+                
+    </PreferenceCategory>
 
 	<PreferenceCategory
                 android:title="Visual settings">  		
@@ -96,6 +119,15 @@
 	
 	<PreferenceCategory
                 android:title="Text display settings">
+                
+     <ListPreference
+     		android:key="font_face"
+            android:title="Font face"
+            android:summary="Main font for text display"            
+        	android:defaultValue="gen_book_bas"
+        	android:entries="@array/fontLabels"
+        	android:entryValues="@array/fonts" />
+                    
                 
      <CheckBoxPreference
 				android:key="strip_whitespace"
@@ -198,7 +230,7 @@
                     
 
          <ListPreference
-     		android:key="h_animation"
+     		android:key="v_animation"
             android:title="Vertical animations"
             android:summary="Vertical page change animations"            
         	android:defaultValue="slide"

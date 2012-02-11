@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.nightwhistler.pageturner"
-      android:versionCode="1"
-      android:versionName="0.2.12">
+      android:versionCode="3"
+      android:versionName="1.0.1"
+      android:installLocation="auto">
     
     <uses-sdk android:minSdkVersion="7" />
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -10,8 +11,9 @@
     
     <application android:label="@string/app_name" 
         android:icon="@drawable/page_turner"
-        android:description="@string/app_desc"
-        android:name="net.nightwhistler.pageturner.PageTurner">
+        android:description="@string/app_desc"        
+        android:name="net.nightwhistler.pageturner.PageTurner"
+        >
 
         <activity android:name=".activity.ReadingActivity"
                   android:label="@string/app_name"> 
@@ -44,11 +46,11 @@
         </activity>
         
         <activity android:name=".activity.PageTurnerPrefsActivity"
-                  android:label="PageTurner preferences" /> 
+                  android:label="@string/prefs" /> 
                   
                
         <activity android:name=".activity.LibraryActivity"
-                  android:label="PageTurner Library" />                 
+                  android:label="@string/library" />
           
         <activity android:name=".activity.BookDetailsActivity"
                   android:label="Book details" />   
@@ -62,6 +64,11 @@
  
             </activity>
      
+        <activity android:name="org.acra.CrashReportDialog"
+        	android:theme="@android:style/Theme.Dialog"
+        	android:launchMode="singleInstance"
+        	android:excludeFromRecents="true"
+        	android:finishOnTaskLaunch="true" />
         
     </application>
 </manifest> 

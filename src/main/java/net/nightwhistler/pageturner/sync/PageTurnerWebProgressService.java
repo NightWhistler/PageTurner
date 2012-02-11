@@ -18,13 +18,17 @@
  */
 package net.nightwhistler.pageturner.sync;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.security.KeyStore;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 
 import org.apache.http.HttpResponse;
@@ -45,6 +49,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,14 +65,15 @@ public class PageTurnerWebProgressService implements ProgressService {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(PageTurnerWebProgressService.class);	
 	
-	private String userId;
-	private String deviceId;
+	private Configuration config;
 	
 	private HttpClient client;
 	private HttpContext context;
 	
 	private static final String BASE_URL = "http://api.pageturner-reader.org/progress/";
+	
 	private static final int HTTP_SUCCESS = 200;
+	private static final int HTTP_FORBIDDEN = 403;
 	
 	private SimpleDateFormat dateFormat;
 	
@@ -82,16 +88,18 @@ public class PageTurnerWebProgressService implements ProgressService {
 
 	}	
 	
-	@Override
-	public void setEmail(String email) {
-		this.userId = email;	
+	public void setConfig(Configuration config) {
+		this.config = config;
 	}
 	
 	@Override
-	public List<BookProgress> getProgress(String fileName) {
+	public List<BookProgress> getProgress(String fileName) throws AccessException {
 		
-		if ( "".equals( this.userId) || "".equals(fileName) ) {
-			LOG.debug( "Empty username or filename. Aborting sync. (" + this.userId + " / " + fileName + ")" );
+		String userId = this.config.getSynchronizationEmail();
+		String accessKey = this.config.getSynchronizationAccessKey();
+		
+		if ( "".equals( userId ) || "".equals(fileName) ) {
+			LOG.debug( "Empty username or filename. Aborting sync. (" + userId + " / " + fileName + ")" );
 			return null;
 		}
 		
@@ -99,13 +107,18 @@ public class PageTurnerWebProgressService implements ProgressService {
 		
 		LOG.debug( "Doing progress query for key: " + key );
 		
-		HttpGet get = new HttpGet( BASE_URL + key );
+		
+		HttpGet get = new HttpGet( BASE_URL + key + "?accessKey=" + URLEncoder.encode(accessKey) );
 		
 		try {
 			HttpResponse response = client.execute(get);
 			
 			int statusCode = response.getStatusLine().getStatusCode();
 			LOG.debug( "Got status " + statusCode + " from server.");
+			
+			if ( statusCode == HTTP_FORBIDDEN ) {
+				throw new AccessException( EntityUtils.toString(response.getEntity()) );
+			}
 			
 			if ( statusCode != HTTP_SUCCESS ) {
 				return null;
@@ -134,17 +147,23 @@ public class PageTurnerWebProgressService implements ProgressService {
 			
 			return result;
 			
-		} catch (Exception e) {
+		} catch (IOException e) {
 			LOG.error( "Got error while querying server", e );
 			return null;
-		} 		
+		} catch (JSONException json ) {
+			LOG.error( "Error reading response", json );
+			return null;
+		} catch (ParseException p ) {
+			LOG.error( "Invalid date", p );
+			return null;
+		}
 		
 	}
 	
 	@Override
 	public void storeProgress(String fileName, int index, int progress, int percentage) {
 				
-		if ( "".equals( this.userId) ) {
+		if ( ! config.isSyncEnabled() ) {
 			return;
 		}	
 		
@@ -164,13 +183,18 @@ public class PageTurnerWebProgressService implements ProgressService {
 			pairs.add( new BasicNameValuePair("bookIndex", "" + index ) );
 			pairs.add(new BasicNameValuePair("progress", "" + progress ));
 			pairs.add(new BasicNameValuePair("title", Integer.toHexString( filePart.hashCode() )));
-			pairs.add(new BasicNameValuePair("deviceName", this.deviceId ));
+			pairs.add(new BasicNameValuePair("deviceName", this.config.getDeviceName() ));
 			pairs.add(new BasicNameValuePair("percentage", "" + percentage ));
-			pairs.add(new BasicNameValuePair("userId", Integer.toHexString( this.userId.hashCode() )));
+			pairs.add(new BasicNameValuePair("userId", Integer.toHexString( this.config.getSynchronizationEmail().hashCode() )));
+			pairs.add(new BasicNameValuePair("accessKey", this.config.getSynchronizationAccessKey()));
 			
 			post.setEntity( new UrlEncodedFormEntity(pairs) );			
 			
 			HttpResponse response = client.execute(post, this.context);
+			
+			if ( response.getStatusLine().getStatusCode() == HTTP_FORBIDDEN ) {
+				throw new AccessException( EntityUtils.toString(response.getEntity()) );
+			}
 			
 			LOG.debug("Got status " + response.getStatusLine().getStatusCode() + " from server.");
 			
@@ -179,12 +203,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 			//fail silently
 		}	
 		
-	}
-	
-	@Override
-	public void setDeviceName(String deviceName) {
-		this.deviceId = deviceName;		
-	}
+	}	
 	
 	private String computeKey( String fileName ) {		
 		
@@ -194,7 +213,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 			filePart = fileName.substring( fileName.lastIndexOf('/') );
 		}
 		
-		String plainTextKey = this.userId + ":" + filePart;
+		String plainTextKey = this.config.getSynchronizationEmail() + ":" + filePart;
 		
 		String hash = Integer.toHexString( plainTextKey.hashCode() );
 		

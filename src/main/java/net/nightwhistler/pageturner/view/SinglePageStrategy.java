@@ -37,7 +37,8 @@ public class SinglePageStrategy implements PageChangeStrategy {
 	private BookView bookView;
 	private TextView childView;
 	
-	private static final int MAX_PAGE_SIZE = 2048;
+	//FIXME: This should really be dynamically calculated based on screen size.
+	private static final int MAX_PAGE_SIZE = 5000;
 	
 	public SinglePageStrategy(BookView bookView) {
 		this.bookView = bookView;
@@ -98,9 +99,9 @@ public class SinglePageStrategy implements PageChangeStrategy {
 		
 		int endOffset = endOfPageOffset;
 		
-		endOffset = Math.max(0, endOffset);
 		endOffset = Math.min(this.text.length() -1, endOffset);
-				
+		endOffset = Math.max(0, endOffset);
+		
 		int start = Math.max(0, endOffset - MAX_PAGE_SIZE);
 		
 		CharSequence cutOff = this.text.subSequence(start, endOffset);		

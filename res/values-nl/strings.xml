@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PageTurner</string>
+    <string name="title">Titel</string>
+    <string name="app_desc">Page Turner is een synchroniserende e-book reader waarmee je je voortgang op meerdere apparaten in sync kan houden.</string>
+    <string name="browse">Bladeren...</string>
+    <string name="open_file">Open ePub bestand</string>
+    <string name="open_library">Mijn boeken</string>
+    
+    <string name="profile_day">Schakel naar dag stand</string>  
+    <string name="profile_night">Schakel naar nacht stand</string>
+    <string name="manual_sync">Synchroniseer voortgang</string>
+    <string name="prefs">Instellingen</string>
+    
+    <string name="show_toc">Inhoudsopgave</string>   
+    <string name="rolling_blind">Auto-scroll</string>
+    <string name="about">Over PageTurner</string>
+    <string name="about_gpl">PageTurner is vrije software onder de GPL v3.</string>
+    <string name="error_open_bk">Fout bij het openen van het boek: %s</string>
+    
+    <string name="dictionary_lookup">Opzoeken in woordenboek</string>
+    <string name="wikipedia_lookup">Zoeken op Wikipedia</string>
+    <string name="google_lookup">Zoeken op Google</string>    
+    <string name="word_select">"Selectie van '%s'</string>    
+        
+    <string name="loading_wait">Boek wordt geladen... Even geduld aub.</string>
+    <string name="install_oi">Installeer aub de OI File Manager uit de Android Market.</string>    
+    
+    <string name="cloud_bm">Online bladwijzers</string>
+    <string name="toc_label">Inhoudsopgave</string>
+    <string name="syncing">"Bezig met synchroniseren..."</string>
+    <string name="sync_failed">Synchronisatie mislukt</string>
+    <string name="connection_fail">Kon geen verbinding maken met de synchronisatie server</string>    
+    
+    <string name="never_read">Nooit</string>
+        
+    <string name="library">Bibliotheek</string>
+    <string name="book_details">Boek details</string>
+    
+    <string name="book_by">Door %s</string>
+    <string name="last_read">Laatst gelezen: %s</string>
+    <string name="added_to_lib">Toegevoegd: %s</string>
+    
+    <string name="view_details">Bekijk details</string>
+    <string name="delete">Verwijderen uit bibliotheek</string>
+    <string name="scan_books">Naar nieuwe boeken zoeken</string>    
+    
+    <string name="importing_books">Boeken aan het importeren...</string>
+    <string name="scanning_epub">Aan het zoeken naar ePub bestanden...</string>
+    <string name="importing">Bestand %1$d van %2$d aan het importeren.</string>
+    <string name="scan_folders">Bezig met zoeken naar ePub bestanden.\nAantal doorzochte mappen: %d</string>
+    <string name="import_errors">Niet alle boeken konden geimporteerd worden:</string>
+    <string name="no_books_found">Geen boeken gevonden.</string>
+    <string name="no_bks_fnd_text">Er zijn geen boeken gevonden op het apparaat.\nGa naar gutenberg.org of feedbooks.com om gratis boeken te downloaden.</string>
+    <string name="loading_library">Bezig met laden van de bibliotheek...</string>
+    <string name="scan_bks_question">De bibliotheek is leeg.\nWil je automatisch zoeken naar boeken?</string>    
+    <string name="brightness">Helderheid</string> 
+    
+    <string-array name="v_animLabels">
+        <item>Schuivende tekst</item>
+        <item>Geen</item>        
+    </string-array>
+    
+    <string-array name="h_animLabels">
+        <item>Pagina omslaan</item>
+        <item>Schuivende tekst</item>
+        <item>Geen</item>
+    </string-array>
+        
+    <string-array name="orientationLabels">
+        <item>Niet vergrendelen</item>
+        <item>Staand</item>
+        <item>Liggend</item>
+    </string-array>  
+   
+    <string-array name="autoscrollLabels">
+        <item>Rolling blind</item>
+        <item>Pagina wisseling timer</item>
+    </string-array>    
+        
+    <string-array name="libraryQueries">
+        <item>Recent gelezen boeken</item>
+        <item>Recent toegevoegde boeken</item>
+        <item>Ongelezen boeken</item>
+        <item>Alles gesorteerd op titel</item>
+        <item>Alles gesorteerd op auteur</item> 
+    </string-array>
+      
+    <string name="access_denied">Uw toegangs-sleutel is ongeldig. Ga naar pageturner-reader.org om een geldige sleutel te verkrijgen.</string>
+        
+</resources>

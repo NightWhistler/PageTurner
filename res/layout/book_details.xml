@@ -19,6 +19,7 @@
             	android:layout_width="250px"
             	android:layout_height="250px"/>
         </LinearLayout>
+        
         <ImageView    		
     		android:src="@android:drawable/divider_horizontal_dark"
     		android:layout_width="fill_parent"
@@ -57,7 +58,8 @@
             android:id="@+id/lastRead"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Last read: never"/>
+            android:text="Last read: never"/>    
+       
         
         <TextView
             android:id="@+id/addedToLibrary"

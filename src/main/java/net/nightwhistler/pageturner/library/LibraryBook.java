@@ -42,7 +42,9 @@ public class LibraryBook implements Serializable {
 	
 	private Date addedToLibrary;
 	
-	String description;
+	private String description;
+	
+	private int progress;
 	
 	public String getDescription() {
 		return description;
@@ -98,5 +100,13 @@ public class LibraryBook implements Serializable {
 	
 	public void setAddedToLibrary(Date addedToLibrary) {
 		this.addedToLibrary = addedToLibrary;
+	}
+	
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
+	
+	public int getProgress() {
+		return progress;
 	}
 }

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Page Turner</string>
+    <string name="title">Titel</string>
+    <string name="app_desc">Page Turner ist ein synchronisiertes E-Buch Programm. Es ermöglicht
+die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</string>
+    <string name="browse">Durchsuchen...</string>
+    <string name="open_file">EPUB Datei öffnen</string>
+    <string name="open_library">Meine Bücher</string>
+
+    <string name="profile_day">Tagesmodus</string>  
+    <string name="profile_night">Nachtmodus</string>
+    <string name="manual_sync">Lesefortschritt synchronisieren</string>
+    <string name="prefs">Einstellungen</string>
+    
+    <string name="show_toc">Inhaltsverzeichnis anzeigen</string>   
+    <string name="rolling_blind">Automatisches Blättern</string>
+    <string name="about">über PageTurner</string>
+    <string name="about_gpl">PageTurner ist freie Software unter der GPL v3.</string>
+    <string name="error_open_bk">Fehler beim Öffnen des Buchs: %s</string>
+    
+    <string name="dictionary_lookup">Im Wörter nachschlagen</string>
+    <string name="wikipedia_lookup">Bei Wikipedia suchen</string>
+    <string name="google_lookup">Bei Google suchen</string>    
+    <string name="word_select">\'%s\' wurde ausgewählt</string>    
+        
+    <string name="loading_wait">Lädt, bitte warten</string>
+    <string name="install_oi">Bitte installiere den OI File Manager aus dem Android Markt.</string>    
+    
+    <string name="cloud_bm">Internet Lesezeichen</string>
+    <string name="toc_label">Inhaltsverzeichnis</string>
+    <string name="syncing">"Synchronisiere..."</string>
+    <string name="sync_failed">Synchronisation fehlgeschlagen</string>
+    <string name="connection_fail">Konnte nicht mit Synchronisationsserver verbinden.</string>    
+    
+    <string name="never_read">Niemals</string>
+        
+    <string name="library">Buchregal</string>
+    <string name="book_details">Buchdetails</string>
+    
+    <string name="book_by">Von %s</string>
+    <string name="last_read">Zuletzt gelesen: %s</string>
+    <string name="added_to_lib">Zu Buchregal hinzugefügt: %s</string>
+    
+    <string name="view_details">Details</string>
+    <string name="delete">Von Buchregal lüschen</string>
+    <string name="scan_books">Nach Büchern suchen</string>    
+    
+    <string name="importing_books">Bücher importieren...</string>
+    <string name="scanning_epub">Nach EPUB Dateien suchen.</string>
+    <string name="importing">Importiere %1$d von %2$d</string>
+    <string name="scan_folders">Nach EPUB Dateien suchen.\n%d Ordner durchsucht</string>
+    <string name="import_errors">Einige Dateien verursachten Fehler beim Importieren:</string>
+    <string name="no_books_found">Keine Bücher gefunden.</string>
+    <string name="no_bks_fnd_text">Keine Bücher wurden auf Deinem Gerät gefunden.\nDu kannst Bücher bei gutenberg.org oder feedbooks.com herunterladen.</string>
+    <string name="loading_library">Bücherregal wird geladen...</string>
+    <string name="scan_bks_question">Es sind keine Bücher in Deinem Bücherregal.\nMöchtest Du Dein Gerät nach Büchern durchsuchen lassen?</string>    
+    
+    <string name="brightness">Helligkeit</string>
+        
+    <string-array name="v_animLabels">
+        <item>Slide</item>
+        <item>None</item>        
+    </string-array>
+    
+    <string-array name="h_animLabels">
+        <item>Seite blättern</item>
+        <item>Seite schieben</item>
+        <item>Keine</item>
+    </string-array>
+        
+    <string-array name="orientationLabels">
+        <item>Ausrichtung nicht fixieren</item>
+        <item>Hochformat</item>
+        <item>Querformat</item>
+    </string-array>  
+   
+    <string-array name="autoscrollLabels">
+        <item>Blindes Verschieben</item>
+        <item>Zeitgesteuertes Umblättern</item>
+    </string-array>    
+        
+    <string-array name="libraryQueries">
+        <item>Zuletzt gelesene Bücher</item>
+        <item>Zuletzt hinzugefügte Bücher</item>
+        <item>Ungelesene Bucher</item>
+        <item>Alle Bücher nach Titel</item>
+        <item>Alle Bücher nach Author</item> 
+    </string-array>
+        
+    <string name="access_denied">Dein Zugangsschlüssel ist ungültig. Bitte gehe auf pageturner-reader.org um einen gültigen Schlüssel zu erhalten.</string>
+        
+</resources>

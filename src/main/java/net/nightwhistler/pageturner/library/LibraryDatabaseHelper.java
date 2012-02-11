@@ -34,24 +34,44 @@ import android.graphics.BitmapFactory;
 @ContextScoped
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
-	public enum Field { file_name, title, a_first_name, a_last_name,
-		date_added, date_last_read, description, cover_image
+	public enum Field { 
+		file_name("text primary key"),title("text"), a_first_name("text"),
+		a_last_name("text"), date_added("integer"), date_last_read("integer"), 
+		description("text"), cover_image("blob"), progress("integer");
+		
+		private String fieldDef;
+	
+		private Field(String fieldDef) { this.fieldDef = fieldDef; }		
 	}	
 	
 	private SQLiteDatabase database;
 	
-	public enum Order { ASC, DESC };
-	
-	private static final String CREATE_TABLE =
-		"create table lib_books ( file_name text primary key, title text, " +
-		"a_first_name text, a_last_name text, date_added integer, " +
-		"date_last_read integer, description text, cover_image blob );";
-	
-	private static final String DROP_TABLE = "drop table lib_books;";
+	public enum Order { ASC, DESC };	
 	
 	private static final String DB_NAME = "PageTurnerLibrary";
-	private static final int VERSION = 2;
+	private static final int VERSION = 4;
 
+	private static String getCreateTableString() {
+		String create = "create table lib_books ( ";
+		
+		boolean first = true;
+		
+		for ( Field f: Field.values() ) {
+			
+			if ( first ) {
+				first = false;
+			} else {
+				create += ",";
+			}
+			
+			create += (" " + f.name() + " " + f.fieldDef);
+		}
+		
+		create += " );";
+		
+		return create;
+	}
+	
 	@Inject
 	public LibraryDatabaseHelper(Context context) {
 		super(context, DB_NAME, null, VERSION);		
@@ -67,14 +87,15 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL(CREATE_TABLE);		
+		db.execSQL(getCreateTableString());		
 	}
 	
 	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		//Nothing to do yet :)		
-		db.execSQL(DROP_TABLE);
-		db.execSQL(CREATE_TABLE);
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {		
+		
+		if ( oldVersion == 3 ) {
+			db.execSQL("ALTER TABLE lib_books ADD COLUMN progress integer" );
+		}
 	}	
 	
 	public void delete( String fileName ) {
@@ -91,13 +112,17 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		}
 	}
 	
-	public void updateLastRead( String fileName ) {
+	public void updateLastRead( String fileName, int progress ) {
 		
-		String whereClause = Field.file_name.toString() + " = ?";
-		String[] args = { fileName };
+		String whereClause = Field.file_name.toString() + " like ?";
+		String[] args = { "%" + fileName };
 		
 		ContentValues content = new ContentValues();
 		content.put( Field.date_last_read.toString(), new Date().getTime() );
+		
+		if ( progress != -1 ) {
+			content.put(Field.progress.toString(), progress );
+		}
 		
 		getDataBase().update("lib_books", content, whereClause, args);		
 	}	
@@ -114,7 +139,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		content.put(Field.a_last_name.toString(), authorLastName );
 		content.put(Field.cover_image.toString(), coverImage );
 		content.put(Field.description.toString(), description );
-		
+				
 		if ( setLastRead ) {
 			content.put(Field.date_last_read.toString(), new Date().getTime() );
 		}		
@@ -127,9 +152,9 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	public boolean hasBook( String fileName ) {
 		Field[] fields = { Field.file_name };
-		String[] args = { fileName };
+		String[] args = { "%" + fileName };
 		
-		String whereClause = Field.file_name.toString() + " = ?";
+		String whereClause = Field.file_name.toString() + " like ?";
 		
 		Cursor findBook = getDataBase().query( "lib_books", fieldsAsString(fields), whereClause,
 				args, null, null, null );
@@ -204,6 +229,8 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 			}
 			
 			newBook.setFileName( cursor.getString(Field.file_name.ordinal()));
+			
+			newBook.setProgress(cursor.getInt(Field.progress.ordinal()));
 			
 			return newBook;
 		}

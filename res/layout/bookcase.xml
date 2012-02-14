@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/bookCaseViewSwitcher"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-       
-       <ImageView			
-            android:id="@+id/bookCaseImage"
+<net.nightwhistler.pageturner.view.BookCaseView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/bookCaseView"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            />
+            android:numColumns="auto_fit"
+            android:verticalSpacing="22dip"
+            android:columnWidth="130dip"
+                        
+        	>
        
-       <ImageView			
-            android:id="@+id/bookCaseDummy"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            />
-       
- </ViewSwitcher>
+ </net.nightwhistler.pageturner.view.BookCaseView>

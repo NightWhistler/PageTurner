@@ -6,7 +6,6 @@ import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.QueryResult;
 import net.nightwhistler.pageturner.library.QueryResultAdapter;
 import net.nightwhistler.pageturner.view.BookCaseView;
-import net.nightwhistler.pageturner.view.BookCoverDrawable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -27,6 +27,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -55,10 +57,7 @@ public class BookCaseActivity extends RoboActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 				
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.bookcase);
-		
-		//this.bookCaseView.setShelf(this.shelf);
-		//this.bookCaseView.setBackground(this.background);		
+		setContentView(R.layout.bookcase);		
         
         this.waitDialog = new ProgressDialog(this);
         waitDialog.setOwnerActivity(this);
@@ -66,8 +65,11 @@ public class BookCaseActivity extends RoboActivity {
         this.adapter = new BookViewAdapter(this);
         bookCaseView.setAdapter(adapter);
         
-        adapter.setResult(libraryService.findAllByTitle());        
-    		
+        adapter.setResult(libraryService.findAllByTitle());   
+        
+        bookCaseView.setFocusable(true);
+        
+    		        
     	new LoadBooksTask().execute(3);		
 	}	
 	
@@ -75,6 +77,20 @@ public class BookCaseActivity extends RoboActivity {
 	public void onBackPressed() {
 		finish();
 	}
+	
+	public void onBookClicked( LibraryBook book ) {
+		Intent intent = new Intent(this, ReadingActivity.class);
+		
+		intent.setData( Uri.parse(book.getFileName()));
+		this.setResult(RESULT_OK, intent);
+				
+		startActivityIfNeeded(intent, 99);
+	}
+	
+	public boolean onBookLongClicked( LibraryBook book ) {
+		return false;
+	}	
+	
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
@@ -122,7 +138,7 @@ public class BookCaseActivity extends RoboActivity {
 		}
 		
 		@Override
-		public View getView(int index, LibraryBook object, View convertView,
+		public View getView(int index, final LibraryBook object, View convertView,
 				ViewGroup parent) {
 			
 			View result;
@@ -136,6 +152,22 @@ public class BookCaseActivity extends RoboActivity {
 			} else {
 				result = convertView;
 			}
+			
+			result.setOnClickListener( new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					onBookClicked(object);					
+				}
+			});
+			
+			result.setOnLongClickListener(new OnLongClickListener() {
+				
+				@Override
+				public boolean onLongClick(View v) {
+					return onBookLongClicked(object);
+				}
+			});
 			
 			ImageView image = (ImageView) result.findViewById(R.id.bookCover);
 			

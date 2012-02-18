@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+ 
+	<item android:id="@+id/shelves_view"          
+          android:title="@string/shelves_view"
+          android:icon="@drawable/shelves" />
+          
+   <item android:id="@+id/list_view"          
+          android:title="@string/list_view"
+          android:icon="@drawable/list" />
+    
+    <item android:id="@+id/preferences"          
+          android:title="@string/prefs" 
+          android:icon="@drawable/cog"/>
+    
+     <item android:id="@+id/scan_books"          
+          android:title="@string/scan_books" 
+          android:icon="@drawable/book_refresh"/>
+</menu>

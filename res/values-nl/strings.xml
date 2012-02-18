@@ -87,5 +87,12 @@
     </string-array>
       
     <string name="access_denied">Uw toegangs-sleutel is ongeldig. Ga naar pageturner-reader.org om een geldige sleutel te verkrijgen.</string>
+    <string name="import_books">Boeken importeren</string>
+    <string name="import_desc">Je kan je hele SD-kaart scannen of een specifieke map kiezen om te doorzoeken.</string>
+    <string name="scan_whole_card">Scan mijn hele SD kaart</string>
+    <string name="scan_folder">Scan een specifieke map</string>
+    <string name="copy_to_library">Boeken naar mijn bibliotheek kopieren</string>
+    <string name="no_such_folder">De map %s bestaat niet.</string>
+    <string name="import_failed">Import mislukt</string>
         
 </resources>

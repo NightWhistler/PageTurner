@@ -87,5 +87,16 @@
     </string-array>
         
     <string name="access_denied">Your access-key is invalid. Please visit pageturner-reader.org to obtain a valid access key.</string>
+    <string name="import_books">Import Books</string>
+    <string name="import_desc">You can either scan your entire SD-Card, or specify a folder to search.</string>
+    <string name="scan_whole_card">Scan my entire SD Card</string>
+    <string name="scan_folder">Scan a specific folder</string>
+    <string name="copy_to_library">Copy books to my library folder</string>
+    <string name="no_such_folder">The folder %s does not exist.</string>
+    <string name="import_failed">Import failed</string>
+    
+    <string name="list_view">Switch to list view</string>
+    
+	<string name="shelves_view">Switch to shelves view</string>
         
 </resources>

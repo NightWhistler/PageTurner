@@ -20,8 +20,6 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.nightwhistler.pageturner.Configuration;
@@ -34,9 +32,6 @@ import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.QueryResult;
 import net.nightwhistler.pageturner.library.QueryResultAdapter;
 import net.nightwhistler.pageturner.view.BookCaseView;
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.epub.EpubReader;
-import nl.siegmann.epublib.service.MediatypeService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,34 +41,34 @@ import roboguice.inject.InjectResource;
 import roboguice.inject.InjectView;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -123,8 +118,6 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 	private boolean askedUserToImport;
 	private boolean oldKeepScreenOn;
 	
-	private SharedPreferences settings;
-	
 	private Selections lastSelection = Selections.LAST_ADDED;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(LibraryActivity.class); 
@@ -148,10 +141,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 		} else {		
 			this.bookAdapter = new BookListAdapter(this);
 			this.listView.setAdapter(bookAdapter);
-		}
-				
-		this.settings = PreferenceManager.getDefaultSharedPreferences(this); 
-						
+		}			
+		
 		ArrayAdapter<String> adapter = new QueryMenuAdapter(this, 
 				getResources().getStringArray(R.array.libraryQueries));
 		
@@ -222,8 +213,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 		
 	}	
 	
-	private void startImport(File startFolder) {
-		boolean copy = settings.getBoolean("copy_to_library", true);
+	private void startImport(File startFolder, boolean copy) {		
 		ImportTask importTask = new ImportTask(this, libraryService, this, copy);
 		importDialog.setOnCancelListener(importTask);
 		importDialog.show();		
@@ -235,10 +225,12 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 	}
 	
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu) {		
 		
-		MenuItem item2 = menu.add("Switch view");
-		item2.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.library_menu, menu);        
+       		
+		OnMenuItemClickListener toggleListener = new OnMenuItemClickListener() {
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
@@ -257,10 +249,15 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 				new LoadBooksTask().execute(lastSelection);
 				return true;				
             }
-        });
+        };
+        
+        MenuItem shelves = menu.findItem(R.id.shelves_view);        
+        shelves.setOnMenuItemClickListener(toggleListener);
+        
+        MenuItem list = menu.findItem(R.id.list_view);        
+        list.setOnMenuItemClickListener(toggleListener);
 		
-        MenuItem prefs = menu.add(R.string.prefs);
-		prefs.setIcon( getResources().getDrawable(R.drawable.cog) );
+        MenuItem prefs = menu.findItem(R.id.preferences);		
 		
 		prefs.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
@@ -273,21 +270,16 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 			}
 		});
 		
-		MenuItem item = menu.add(R.string.scan_books);
-		item.setIcon( getResources().getDrawable(R.drawable.book_refresh) );
+		MenuItem scan = menu.findItem(R.id.scan_books);		
 		
-		item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		scan.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
 			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				Intent intent = new Intent("org.openintents.action.PICK_DIRECTORY");
-
-				try {
-					startActivityForResult(intent, 1);
-				} catch (ActivityNotFoundException e) {
-					startImport(new File("/sdcard"));  
-				}
-
+			public boolean onMenuItemClick(MenuItem item) {				
+				
+				AlertDialog dialog = showImportDialog();
+				dialog.show();				
+				
 				return true;
 			}
 		});		
@@ -296,19 +288,59 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 	}	
 	
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-
-    	if ( resultCode == RESULT_OK && data != null) {
-    		// obtain the filename
-    		Uri fileUri = data.getData();
-    		if (fileUri != null) {
-    			String filePath = fileUri.getPath();
-    			if (filePath != null) {
-    				startImport(new File(filePath));    				
-    			}
-    		}
-    	}	
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		
+		boolean bookCaseActive = switcher.getDisplayedChild() != 0;
+		
+		menu.findItem(R.id.shelves_view).setVisible(! bookCaseActive);
+		menu.findItem(R.id.list_view).setVisible(bookCaseActive);
+		
+		return true;
+	}
+	
+	private AlertDialog showImportDialog() {
+		AlertDialog.Builder builder;		
+		
+		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		final View layout = inflater.inflate(R.layout.import_dialog, null);
+		final RadioButton scanSpecific = (RadioButton) layout.findViewById(R.id.radioScanFolder);
+		final TextView folder = (TextView) layout.findViewById(R.id.folderToScan);
+		final CheckBox copyToLibrary = (CheckBox) layout.findViewById(R.id.copyToLib);
+		
+		folder.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				scanSpecific.setChecked(true);				
+			}
+		});			
+		
+		//Copy default setting from the prefs
+		copyToLibrary.setChecked( config.isCopyToLibrayEnabled() );
+		
+		builder = new AlertDialog.Builder(this);
+		builder.setView(layout);
+		
+		OnClickListener okListener = new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+				dialog.dismiss();
+				
+				if ( scanSpecific.isChecked() ) {
+					startImport(new File(folder.getText().toString()), copyToLibrary.isChecked() );
+				} else {
+					startImport(new File("/sdcard"), copyToLibrary.isChecked());
+				}				
+			}
+		};
+		
+		builder.setTitle(R.string.import_books);
+		builder.setPositiveButton(android.R.string.ok, okListener );
+		builder.setNegativeButton(android.R.string.cancel, null );
+		
+		return builder.create();
 	}	
 	
 	@Override
@@ -410,7 +442,12 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 	
 	@Override
 	public void importFailed(String reason) {
-		
+		importDialog.hide();
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.import_failed);
+		builder.setMessage(reason);
+		builder.setNeutralButton(android.R.string.ok, null);
+		builder.show();
 	}
 	
 	@Override
@@ -588,7 +625,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();		
-				startImport(new File("/sdcard"));
+				startImport(new File("/sdcard"), config.isCopyToLibrayEnabled());
 			}
 		});
 		

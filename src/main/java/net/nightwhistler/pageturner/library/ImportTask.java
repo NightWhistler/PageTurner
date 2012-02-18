@@ -36,6 +36,8 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	private int foldersScanned = 0;
 	private int booksImported = 0;
 	
+	private String importFailed = null;
+	
 	public ImportTask( Context context, LibraryService libraryService,
 			ImportCallback callBack, boolean copyToLibrary ) {
 		this.context = context;
@@ -53,6 +55,12 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	@Override
 	protected Void doInBackground(File... params) {
 		File parent = params[0];
+		
+		if ( ! parent.exists() ) {
+			importFailed = String.format( context.getString(R.string.no_such_folder), parent.getPath());			
+			return null;
+		}
+		
 		List<File> books = new ArrayList<File>();			
 		findEpubsInFolder(parent, books);
 		
@@ -139,7 +147,10 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	
 	@Override
 	protected void onPostExecute(Void result) {
-		if ( ! isCancelled() ) {
+		
+		if ( importFailed != null ) {
+			callBack.importFailed(importFailed);
+		} else if ( ! isCancelled() ) {
 			this.callBack.importComplete(booksImported, errors);
 		}		
 	}

@@ -95,8 +95,7 @@
     <string name="no_such_folder">The folder %s does not exist.</string>
     <string name="import_failed">Import failed</string>
     
-    <string name="list_view">Switch to list view</string>
-    
+    <string name="list_view">Switch to list view</string>    
 	<string name="shelves_view">Switch to shelves view</string>
         
 </resources>

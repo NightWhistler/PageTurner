@@ -94,5 +94,7 @@
     <string name="copy_to_library">Boeken naar mijn bibliotheek kopieren</string>
     <string name="no_such_folder">De map %s bestaat niet.</string>
     <string name="import_failed">Import mislukt</string>
-        
+    
+    <string name="list_view">Omschakelen naar lijstweergave</string>    
+	<string name="shelves_view">Omschakelen naar boekenplanken</string>
 </resources>

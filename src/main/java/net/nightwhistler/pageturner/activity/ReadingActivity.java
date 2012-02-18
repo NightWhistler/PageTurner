@@ -382,7 +382,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 						    		
 	        	try {
 	        		libraryService.storeBook(fileName, book, true, config.isCopyToLibrayEnabled() );
-	        	} catch (IOException io) {
+	        	} catch (Exception io) {
 	        		LOG.error("Copy to library failed.", io);
 	        	}	
 			}
@@ -694,7 +694,6 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     			uiHandler.postDelayed(this, delay);
     		} 
     	}    		
-
     }   
     
     private class AutoScrollRunnable implements Runnable {
@@ -758,6 +757,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     private void prepareSlide(Animation inAnim, Animation outAnim) {
     	    	    	    	
     	dummyView.setVisibility(View.VISIBLE);
+    	dummyView.setImageBitmap(null);
     	
     	Bitmap bitmap = getBookViewSnapshot();
     	

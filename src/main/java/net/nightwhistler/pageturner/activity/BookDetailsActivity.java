@@ -27,7 +27,6 @@ import net.nightwhistler.pageturner.library.LibraryService;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectExtra;
 import roboguice.inject.InjectView;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -73,8 +72,7 @@ public class BookDetailsActivity extends RoboActivity {
 		if ( libraryBook != null ) {
 
 			if ( libraryBook.getCoverImage() != null ) {			
-				coverView.setImageBitmap( BitmapFactory.decodeByteArray(libraryBook.getCoverImage(),
-						0, libraryBook.getCoverImage().length));
+				coverView.setImageBitmap( libraryBook.getCoverImage() );
 			} else {			
 				coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
 			}

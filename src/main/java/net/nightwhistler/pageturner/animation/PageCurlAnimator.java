@@ -18,6 +18,8 @@
  */
 package net.nightwhistler.pageturner.animation;
 
+import org.acra.ErrorReporter;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -224,13 +226,8 @@ public class PageCurlAnimator implements Animator {
 	}
 	
 	@Override
-	public void draw(Canvas canvas) {
-		
-		
-		
-		// Translate the whole canvas
-		//canvas.translate(mCurrentLeft, mCurrentTop);
-		
+	public void draw(Canvas canvas) {			
+				
 		// We need to initialize all size data when we first draw the view
 		if ( !bViewDrawn ) {
 			bViewDrawn = true;
@@ -239,8 +236,7 @@ public class PageCurlAnimator implements Animator {
 		
 		canvas.drawColor(backgroundColor);
 		
-		// Curl pages
-		//DoPageCurl();
+		
 		
 		// TODO: This just scales the views to the current
 		// width and height. We should add some logic for:
@@ -258,8 +254,18 @@ public class PageCurlAnimator implements Animator {
 		
 	
 		// Draw our elements
-		drawForeground(canvas, rect, paint);
-		drawBackground(canvas, rect, paint);
+		try {
+			drawForeground(canvas, rect, paint);
+		} catch (Exception e ) {
+			ErrorReporter.getInstance().handleException(e);
+		}
+		
+		try {
+			drawBackground(canvas, rect, paint);
+		} catch (Exception e) {
+			ErrorReporter.getInstance().handleException(e);
+		}		
+		
 		drawCurlEdge(canvas);
 		
 		if ( this.drawDebugEnabled  ) {
@@ -475,7 +481,9 @@ public class PageCurlAnimator implements Animator {
 	 */
 	private void drawForeground( Canvas canvas, Rect rect, Paint paint ) {		
 		if ( ! finished || !bFlipRight ) {
-			canvas.drawBitmap(mForeground, null, rect, null);
+			if ( ! mForeground.isRecycled() ) {
+				canvas.drawBitmap(mForeground, null, rect, null);
+			}
 		}
 	}
 	
@@ -510,7 +518,11 @@ public class PageCurlAnimator implements Animator {
 		}
 		
 		if ( ! (finished && !bFlipRight) ) { 
-			canvas.drawBitmap(mBackground, null, rect, paint);
+			
+			if ( ! mBackground.isRecycled() ) {
+				canvas.drawBitmap(mBackground, null, rect, paint);
+			}
+			
 			canvas.restore();
 		}
 	}

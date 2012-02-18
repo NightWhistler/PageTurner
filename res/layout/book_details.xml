@@ -3,6 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 <LinearLayout 
+    android:id="@+id/bookInfoContainer"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"> 
@@ -31,14 +32,14 @@
 
         <TextView
         	android:id="@+id/titleField"
-        	android:layout_width="wrap_content"
+        	android:layout_width="fill_parent"
         	android:layout_height="wrap_content"
         	android:text="Title of the book"
         	android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
             android:id="@+id/authorField"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="by Someone"
             android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -78,7 +79,7 @@
         
         <TextView
             android:id="@+id/bookDescription"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text=""/>
 

@@ -20,8 +20,12 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.Configuration.LibraryView;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.ImportCallback;
 import net.nightwhistler.pageturner.library.ImportTask;
@@ -29,6 +33,10 @@ import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.QueryResult;
 import net.nightwhistler.pageturner.library.QueryResultAdapter;
+import net.nightwhistler.pageturner.view.BookCaseView;
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.epub.EpubReader;
+import nl.siegmann.epublib.service.MediatypeService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +49,11 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -61,18 +70,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import com.google.inject.Inject;
 
-public class LibraryActivity extends RoboActivity implements OnItemClickListener,
-	ImportCallback {
+public class LibraryActivity extends RoboActivity implements ImportCallback {
 	
 	@Inject 
 	private LibraryService libraryService;
@@ -83,8 +91,17 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	@InjectView(R.id.libraryList)
 	private ListView listView;
 	
+	@InjectView(R.id.bookCaseView)
+	private BookCaseView bookCaseView;
+	
 	@InjectResource(R.drawable.river_diary)
 	private Drawable backupCover;
+	
+	@InjectView(R.id.libHolder)
+	private ViewSwitcher switcher;
+	
+	@Inject
+	private Configuration config;
 		
 	private static enum Selections {
 		 BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
@@ -92,9 +109,9 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	
 	private static final int[] ICONS = { R.drawable.book_binoculars,
 		R.drawable.book_add, R.drawable.book_star,
-		R.drawable.contract2, R.drawable.user };
+		R.drawable.book, R.drawable.user };
 	
-	private BookAdapter bookAdapter;
+	private QueryResultAdapter<LibraryBook> bookAdapter;
 		
 	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG);
 	
@@ -122,21 +139,24 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			this.askedUserToImport = savedInstanceState.getBoolean("import_q", false);
 		}
 		
-		this.bookAdapter = new BookAdapter(this);
-		this.listView.setAdapter(bookAdapter);
-		this.listView.setOnItemClickListener(this);
-		
+		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
+			this.bookAdapter = new BookCaseAdapter(this);
+			this.bookCaseView.setAdapter(bookAdapter);
+			if ( switcher.getDisplayedChild() == 0 ) {
+				switcher.showNext();
+			}
+		} else {		
+			this.bookAdapter = new BookListAdapter(this);
+			this.listView.setAdapter(bookAdapter);
+		}
+				
 		this.settings = PreferenceManager.getDefaultSharedPreferences(this); 
-				
-		//ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-		          // this, R.array.libraryQueries, android.R.layout.simple_spinner_item);		
-				
+						
 		ArrayAdapter<String> adapter = new QueryMenuAdapter(this, 
 				getResources().getStringArray(R.array.libraryQueries));
 		
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(new MenuSelectionListener());	
-	
 						
 		this.waitDialog = new ProgressDialog(this);
 		this.waitDialog.setOwnerActivity(this);
@@ -147,13 +167,11 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		importDialog.setTitle(R.string.importing_books);
 		importDialog.setMessage(getString(R.string.scanning_epub));
 		
-		registerForContextMenu(this.listView);	
-	}
+		registerForContextMenu(this.listView);		
+	}	
 	
-	@Override
-	public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
+	private void onBookClicked( LibraryBook book ) {
 		
-		LibraryBook book = this.bookAdapter.getResultAt(pos);
 		Intent intent = new Intent(this, ReadingActivity.class);
 		
 		intent.setData( Uri.parse(book.getFileName()));
@@ -166,8 +184,16 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-		final LibraryBook selectedBook = bookAdapter.getResultAt(info.position);
+		int pos;
+		
+		if ( menuInfo != null ) {		
+			AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+			pos = info.position;
+		} else {
+			pos = (Integer) v.getTag();
+		}
+		
+		final LibraryBook selectedBook = bookAdapter.getResultAt(pos);
 		
 		MenuItem detailsItem = menu.add( R.string.view_details);
 		
@@ -211,7 +237,29 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		
-		MenuItem prefs = menu.add(R.string.prefs);
+		MenuItem item2 = menu.add("Switch view");
+		item2.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				
+				if ( switcher.getDisplayedChild() == 0 ) {
+					bookAdapter = new BookCaseAdapter(LibraryActivity.this);
+					bookCaseView.setAdapter(bookAdapter);	
+					config.setLibraryView(LibraryView.BOOKCASE);
+				} else {
+					bookAdapter = new BookListAdapter(LibraryActivity.this);
+					listView.setAdapter(bookAdapter);
+					config.setLibraryView(LibraryView.LIST);
+				}
+				
+				switcher.showNext();
+				new LoadBooksTask().execute(lastSelection);
+				return true;				
+            }
+        });
+		
+        MenuItem prefs = menu.add(R.string.prefs);
 		prefs.setIcon( getResources().getDrawable(R.drawable.cog) );
 		
 		prefs.setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -378,17 +426,17 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 	 * @author work
 	 *
 	 */
-	private class BookAdapter extends QueryResultAdapter<LibraryBook> {	
+	private class BookListAdapter extends QueryResultAdapter<LibraryBook> {	
 		
 		private Context context;
 		
-		public BookAdapter(Context context) {
+		public BookListAdapter(Context context) {
 			this.context = context;
 		}		
 		
 		
 		@Override
-		public View getView(int index, LibraryBook book, View convertView,
+		public View getView(int index, final LibraryBook book, View convertView,
 				ViewGroup parent) {
 			
 			View rowView;
@@ -400,6 +448,13 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			} else {
 				rowView = convertView;
 			}
+			
+			rowView.setOnClickListener( new View.OnClickListener() {
+				
+				public void onClick(View v) {				
+					onBookClicked(book);					
+				}
+			});
 			
 			TextView titleView = (TextView) rowView.findViewById(R.id.bookTitle);
 			TextView authorView = (TextView) rowView.findViewById(R.id.bookAuthor);
@@ -424,9 +479,8 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 					DATE_FORMAT.format(book.getAddedToLibrary()));
 			dateView.setText( dateText );
 			
-			if ( book.getCoverImage() != null ) {
-				byte[] cover = book.getCoverImage();
-				imageView.setImageBitmap( BitmapFactory.decodeByteArray(cover, 0, cover.length ));
+			if ( book.getCoverImage() != null ) {				
+				imageView.setImageBitmap(book.getCoverImage());
 			} else {
 				imageView.setImageDrawable(backupCover);
 			}
@@ -435,6 +489,55 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		}	
 	
 	}	
+	
+	private class BookCaseAdapter extends QueryResultAdapter<LibraryBook> {
+		
+		private Context context;
+		
+		public BookCaseAdapter(Context context) {
+			this.context = context;
+		}
+		
+		@Override
+		public View getView(int index, final LibraryBook object, View convertView,
+				ViewGroup parent) {
+			
+			View result;
+		
+			if ( convertView == null ) {				
+				LayoutInflater inflater = (LayoutInflater) context.getSystemService(
+						Context.LAYOUT_INFLATER_SERVICE);
+				result = inflater.inflate(R.layout.bookcase_row, parent, false);
+				
+			} else {
+				result = convertView;
+			}
+			
+			registerForContextMenu(result);
+			
+			result.setTag(index);
+			
+			result.setOnClickListener( new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					onBookClicked(object);					
+				}
+			});	
+			
+			
+			ImageView image = (ImageView) result.findViewById(R.id.bookCover);				
+			Bitmap bitmap = object.getCoverImage();
+			
+			if ( bitmap != null ) {			
+				image.setImageBitmap( object.getCoverImage() );
+			} else {
+				image.setImageDrawable(backupCover);
+			}		
+			
+			return result;
+		}
+	}
 	
 	private class QueryMenuAdapter extends ArrayAdapter<String> {
 		
@@ -480,7 +583,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
 		builder.setTitle(R.string.no_books_found);
 		builder.setMessage( getString(R.string.scan_bks_question) );
-		builder.setPositiveButton(android.R.string.yes, new OnClickListener() {
+		builder.setPositiveButton(android.R.string.yes, new android.content.DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -489,7 +592,7 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 			}
 		});
 		
-		builder.setNegativeButton(android.R.string.no, new OnClickListener() {
+		builder.setNegativeButton(android.R.string.no, new android.content.DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -518,10 +621,8 @@ public class LibraryActivity extends RoboActivity implements OnItemClickListener
 		public void onNothingSelected(AdapterView<?> arg0) {
 						
 		}
-	}		
-	
-	
-	
+	}	
+
 	private class LoadBooksTask extends AsyncTask<Selections, Integer, QueryResult<LibraryBook>> {		
 		
 		private Selections sel;

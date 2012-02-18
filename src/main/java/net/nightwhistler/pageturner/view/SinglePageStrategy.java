@@ -99,9 +99,9 @@ public class SinglePageStrategy implements PageChangeStrategy {
 		
 		int endOffset = endOfPageOffset;
 		
-		endOffset = Math.max(0, endOffset);
 		endOffset = Math.min(this.text.length() -1, endOffset);
-				
+		endOffset = Math.max(0, endOffset);
+		
 		int start = Math.max(0, endOffset - MAX_PAGE_SIZE);
 		
 		CharSequence cutOff = this.text.subSequence(start, endOffset);		

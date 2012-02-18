@@ -21,6 +21,8 @@ package net.nightwhistler.pageturner.library;
 import java.io.Serializable;
 import java.util.Date;
 
+import android.graphics.Bitmap;
+
 public class LibraryBook implements Serializable {
 
 	/**
@@ -34,7 +36,7 @@ public class LibraryBook implements Serializable {
 	
 	private Author author;
 	
-	private byte[] coverImage;
+	private Bitmap coverImage;
 		
 	private Date lastRead;
 	
@@ -68,11 +70,11 @@ public class LibraryBook implements Serializable {
 		this.author = author;
 	}
 
-	public byte[] getCoverImage() {
+	public Bitmap getCoverImage() {
 		return coverImage;
 	}
 
-	public void setCoverImage(byte[] coverImage) {
+	public void setCoverImage(Bitmap coverImage) {
 		this.coverImage = coverImage;
 	}	
 

@@ -9,10 +9,25 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
-    <ListView
+    <ViewSwitcher android:id="@+id/libHolder"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        
+        <ListView
         android:id="@+id/libraryList"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" >
     </ListView>
+    
+   <net.nightwhistler.pageturner.view.BookCaseView
+      android:id="@+id/bookCaseView"
+      android:layout_width="fill_parent"
+      android:layout_height="fill_parent"
+      android:numColumns="auto_fit"
+      android:verticalSpacing="22dip"
+      android:columnWidth="130dip"                        
+    />
+   
+    </ViewSwitcher>
 
 </LinearLayout>

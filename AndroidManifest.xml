@@ -53,16 +53,8 @@
                   android:label="@string/library" />
           
         <activity android:name=".activity.BookDetailsActivity"
-                  android:label="Book details" />   
-                  
-        <activity android:name=".activity.BookCaseActivity"
-            	android:label="Book case" >
-           <!--  <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-  -->
-            </activity>
+                  android:label="Book details" />                   
+       
      
         <activity android:name="org.acra.CrashReportDialog"
         	android:theme="@android:style/Theme.Dialog"

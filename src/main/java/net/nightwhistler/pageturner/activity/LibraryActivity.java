@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.Configuration.LibraryView;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
@@ -63,7 +65,6 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -96,6 +97,9 @@ public class LibraryActivity extends RoboActivity {
 	
 	@InjectView(R.id.libHolder)
 	private ViewSwitcher switcher;
+	
+	@Inject
+	private Configuration config;
 		
 	private static enum Selections {
 		 BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
@@ -132,8 +136,16 @@ public class LibraryActivity extends RoboActivity {
 			this.askedUserToImport = savedInstanceState.getBoolean("import_q", false);
 		}
 		
-		this.bookAdapter = new BookListAdapter(this);
-		this.listView.setAdapter(bookAdapter);
+		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
+			this.bookAdapter = new BookCaseAdapter(this);
+			this.bookCaseView.setAdapter(bookAdapter);
+			if ( switcher.getDisplayedChild() == 0 ) {
+				switcher.showNext();
+			}
+		} else {		
+			this.bookAdapter = new BookListAdapter(this);
+			this.listView.setAdapter(bookAdapter);
+		}
 				
 		this.settings = PreferenceManager.getDefaultSharedPreferences(this); 
 						
@@ -152,8 +164,7 @@ public class LibraryActivity extends RoboActivity {
 		importDialog.setTitle(R.string.importing_books);
 		importDialog.setMessage(getString(R.string.scanning_epub));
 		
-		registerForContextMenu(this.listView);	
-		registerForContextMenu(this.bookCaseView);
+		registerForContextMenu(this.listView);		
 	}	
 	
 	private void onBookClicked( LibraryBook book ) {
@@ -170,8 +181,16 @@ public class LibraryActivity extends RoboActivity {
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-		final LibraryBook selectedBook = bookAdapter.getResultAt(info.position);
+		int pos;
+		
+		if ( menuInfo != null ) {		
+			AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+			pos = info.position;
+		} else {
+			pos = (Integer) v.getTag();
+		}
+		
+		final LibraryBook selectedBook = bookAdapter.getResultAt(pos);
 		
 		MenuItem detailsItem = menu.add( R.string.view_details);
 		
@@ -198,7 +217,8 @@ public class LibraryActivity extends RoboActivity {
 			}
 		});				
 		
-	}
+	}	
+	
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -211,10 +231,12 @@ public class LibraryActivity extends RoboActivity {
 				
 				if ( switcher.getDisplayedChild() == 0 ) {
 					bookAdapter = new BookCaseAdapter(LibraryActivity.this);
-					bookCaseView.setAdapter(bookAdapter);					
+					bookCaseView.setAdapter(bookAdapter);	
+					config.setLibraryView(LibraryView.BOOKCASE);
 				} else {
 					bookAdapter = new BookListAdapter(LibraryActivity.this);
 					listView.setAdapter(bookAdapter);
+					config.setLibraryView(LibraryView.LIST);
 				}
 				
 				switcher.showNext();
@@ -399,8 +421,7 @@ public class LibraryActivity extends RoboActivity {
 			
 			View result;
 		
-			if ( convertView == null ) {
-				
+			if ( convertView == null ) {				
 				LayoutInflater inflater = (LayoutInflater) context.getSystemService(
 						Context.LAYOUT_INFLATER_SERVICE);
 				result = inflater.inflate(R.layout.bookcase_row, parent, false);
@@ -408,6 +429,10 @@ public class LibraryActivity extends RoboActivity {
 			} else {
 				result = convertView;
 			}
+			
+			registerForContextMenu(result);
+			
+			result.setTag(index);
 			
 			result.setOnClickListener( new OnClickListener() {
 				
@@ -418,8 +443,7 @@ public class LibraryActivity extends RoboActivity {
 			});	
 			
 			
-			ImageView image = (ImageView) result.findViewById(R.id.bookCover);			
-			
+			ImageView image = (ImageView) result.findViewById(R.id.bookCover);				
 			Bitmap bitmap = object.getCoverImage();
 			
 			if ( bitmap != null ) {			

@@ -48,6 +48,8 @@ public class Configuration {
 	
 	public static enum ColourProfile { DAY, NIGHT }
 	
+	public static enum LibraryView { BOOKCASE, LIST }
+	
 	public static final String KEY_POS = "offset:";
 	public static final String KEY_IDX = "index:";
 	public static final String KEY_NAV_TAP_V = "nav_tap_v";
@@ -89,6 +91,8 @@ public class Configuration {
 	
 	public static final String KEY_H_ANIMATION = "h_animation";
 	public static final String KEY_V_ANIMATION = "v_animation";
+	
+	public static final String KEY_LIB_VIEW = "library_view";
 	
 	public static final String ACCESS_KEY = "access_key";
 	
@@ -320,5 +324,13 @@ public class Configuration {
 		return AnimationStyle.valueOf(animV.toUpperCase());
 	}
 
+	public LibraryView getLibraryView() {
+		String libView = settings.getString(KEY_LIB_VIEW, LibraryView.BOOKCASE.name().toLowerCase());
+		return LibraryView.valueOf(libView.toUpperCase());
+	}
 
+	public void setLibraryView(LibraryView viewStyle) {
+		String libView = viewStyle.name().toLowerCase();
+		updateValue(KEY_LIB_VIEW, libView);
+	}
 }

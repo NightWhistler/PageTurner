@@ -140,11 +140,21 @@ public class Configuration {
 	}
 	
 	public int getLastIndex(String fileName) {
-		return settings.getInt(KEY_IDX + fileName, -1 );
+		String bookHash = Integer.toHexString( fileName.hashCode() );
+		
+		int pos = settings.getInt(KEY_IDX + bookHash, -1);
+		
+		if ( pos != -1 ) {
+			return pos;
+		}
+		
+		//Fall-back for older settings.
+		return settings.getInt(KEY_IDX + fileName, -1 );		
 	}
 	
 	public void setLastIndex(String fileName, int index) {
-		updateValue(KEY_IDX + fileName, index);
+		String bookHash = Integer.toHexString( fileName.hashCode() );
+		updateValue(KEY_IDX + bookHash, index);
 	}
 
 	public boolean isVolumeKeyNavEnabled() {

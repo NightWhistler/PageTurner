@@ -19,14 +19,14 @@
 
 package net.nightwhistler.pageturner;
 
-import com.google.inject.Inject;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.preference.PreferenceManager;
+
+import com.google.inject.Inject;
 
 /**
  * Application configuration class which provides a friendly

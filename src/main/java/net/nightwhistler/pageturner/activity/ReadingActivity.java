@@ -19,7 +19,6 @@
 
 package net.nightwhistler.pageturner.activity;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -42,7 +41,6 @@ import net.nightwhistler.pageturner.view.AnimatedImageView;
 import net.nightwhistler.pageturner.view.BookView;
 import net.nightwhistler.pageturner.view.BookViewListener;
 import net.nightwhistler.pageturner.view.NavGestureDetector;
-import net.nightwhistler.pageturner.view.PinchZoomListener;
 import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import nl.siegmann.epublib.domain.Book;
 

@@ -21,15 +21,14 @@ package net.nightwhistler.pageturner.library;
 import java.util.Date;
 
 import roboguice.inject.ContextScoped;
-
-import com.google.inject.Inject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.BitmapFactory;
+
+import com.google.inject.Inject;
 
 @ContextScoped
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {

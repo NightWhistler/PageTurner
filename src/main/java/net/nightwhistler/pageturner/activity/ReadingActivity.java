@@ -790,9 +790,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     			bookView.pageDown();
     		}
     		
-    	} else if ( config.getVerticalAnim() == AnimationStyle.SLIDE ){
-    		prepareSlide(Animations.inFromBottomAnimation(), Animations.outToTopAnimation() );    		
-    		this.viewSwitcher.showNext();
+    	} else {
+    		if ( config.getVerticalAnim() == AnimationStyle.SLIDE ){    	
+    			prepareSlide(Animations.inFromBottomAnimation(), Animations.outToTopAnimation() );    		
+    			this.viewSwitcher.showNext();
+    		}
+    		
     		bookView.pageDown();
     	}    	    	
 		
@@ -816,9 +819,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     			bookView.pageUp();
     		}
     		
-    	} else if ( config.getVerticalAnim() == AnimationStyle.SLIDE ){
-    		prepareSlide(Animations.inFromTopAnimation(), Animations.outToBottomAnimation());    		
-    		this.viewSwitcher.showNext();
+    	} else {
+    		
+    		if ( config.getVerticalAnim() == AnimationStyle.SLIDE ){    	
+    			prepareSlide(Animations.inFromTopAnimation(), Animations.outToBottomAnimation());    		
+    			this.viewSwitcher.showNext();
+    		}
+    		
     		bookView.pageUp();
     	}    	
     }

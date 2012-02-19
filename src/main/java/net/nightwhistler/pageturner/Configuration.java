@@ -50,6 +50,10 @@ public class Configuration {
 	
 	public static enum LibraryView { BOOKCASE, LIST }
 	
+	public static enum LibrarySelection {
+		 BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
+	}	
+	
 	public static final String KEY_POS = "offset:";
 	public static final String KEY_IDX = "index:";
 	public static final String KEY_NAV_TAP_V = "nav_tap_v";
@@ -93,9 +97,9 @@ public class Configuration {
 	public static final String KEY_V_ANIMATION = "v_animation";
 	
 	public static final String KEY_LIB_VIEW = "library_view";
+	public static final String KEY_LIB_SEL = "library_selection";
 	
-	public static final String ACCESS_KEY = "access_key";
-	
+	public static final String ACCESS_KEY = "access_key";	
 	
 	@Inject
 	public Configuration(Context context) {
@@ -353,5 +357,14 @@ public class Configuration {
 	public void setLibraryView(LibraryView viewStyle) {
 		String libView = viewStyle.name().toLowerCase();
 		updateValue(KEY_LIB_VIEW, libView);
+	}
+	
+	public LibrarySelection getLastLibraryQuery() {
+		String query = settings.getString(KEY_LIB_SEL, LibrarySelection.LAST_ADDED.name().toLowerCase() );
+		return LibrarySelection.valueOf(query.toUpperCase());
+	}
+	
+	public void setLastLibraryQuery(LibrarySelection sel) {
+		updateValue(KEY_LIB_SEL, sel.name().toLowerCase() );
 	}
 }

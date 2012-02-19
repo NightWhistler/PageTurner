@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.util.List;
 
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.Configuration.LibraryView;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.ImportCallback;
@@ -97,10 +98,6 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 	
 	@Inject
 	private Configuration config;
-		
-	private static enum Selections {
-		 BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
-	}	
 	
 	private static final int[] ICONS = { R.drawable.book_binoculars,
 		R.drawable.book_add, R.drawable.book_star,
@@ -117,8 +114,6 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 	
 	private boolean askedUserToImport;
 	private boolean oldKeepScreenOn;
-	
-	private Selections lastSelection = Selections.LAST_ADDED;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(LibraryActivity.class); 
 	
@@ -206,7 +201,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 				libraryService.deleteBook( selectedBook.getFileName() );
-				new LoadBooksTask().execute(lastSelection);
+				new LoadBooksTask().execute(config.getLastLibraryQuery());
 				return true;					
 			}
 		});				
@@ -246,7 +241,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 				}
 				
 				switcher.showNext();
-				new LoadBooksTask().execute(lastSelection);
+				new LoadBooksTask().execute(config.getLastLibraryQuery());
 				return true;				
             }
         };
@@ -375,10 +370,12 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 	protected void onResume() {
 		super.onResume();				
 		
-		if ( spinner.getSelectedItemPosition() != this.lastSelection.ordinal() ) {
-			spinner.setSelection(this.lastSelection.ordinal());
+		LibrarySelection lastSelection = config.getLastLibraryQuery();
+		
+		if ( spinner.getSelectedItemPosition() != lastSelection.ordinal() ) {
+			spinner.setSelection(lastSelection.ordinal());
 		} else {
-			new LoadBooksTask().execute(this.lastSelection);
+			new LoadBooksTask().execute(lastSelection);
 		}
 	}
 	
@@ -388,10 +385,10 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 		listView.setKeepScreenOn(oldKeepScreenOn);
 		
 		//Switch to the "recently added" view.
-		if ( spinner.getSelectedItemPosition() == Selections.LAST_ADDED.ordinal() ) {
-			new LoadBooksTask().execute(Selections.LAST_ADDED);
+		if ( spinner.getSelectedItemPosition() == LibrarySelection.LAST_ADDED.ordinal() ) {
+			new LoadBooksTask().execute(LibrarySelection.LAST_ADDED);
 		} else {
-			spinner.setSelection(Selections.LAST_ADDED.ordinal());
+			spinner.setSelection(LibrarySelection.LAST_ADDED.ordinal());
 		}
 	}
 	
@@ -424,10 +421,10 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 		
 		if ( booksImported > 0 ) {			
 			//Switch to the "recently added" view.
-			if ( spinner.getSelectedItemPosition() == Selections.LAST_ADDED.ordinal() ) {
-				new LoadBooksTask().execute(Selections.LAST_ADDED);
+			if ( spinner.getSelectedItemPosition() == LibrarySelection.LAST_ADDED.ordinal() ) {
+				new LoadBooksTask().execute(LibrarySelection.LAST_ADDED);
 			} else {
-				spinner.setSelection(Selections.LAST_ADDED.ordinal());
+				spinner.setSelection(LibrarySelection.LAST_ADDED.ordinal());
 			}
 		} else {
 			AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
@@ -646,11 +643,11 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 		public void onItemSelected(AdapterView<?> arg0, View arg1, int pos,
 				long arg3) {
 			
-			Selections newSelections = Selections.values()[pos];
+			LibrarySelection newSelections = LibrarySelection.values()[pos];
 			
-			lastSelection = newSelections;
-			bookAdapter.clear();		
-						
+			config.setLastLibraryQuery(newSelections);
+			
+			bookAdapter.clear();
 			new LoadBooksTask().execute(newSelections);
 		}
 		
@@ -660,9 +657,9 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 		}
 	}	
 
-	private class LoadBooksTask extends AsyncTask<Selections, Integer, QueryResult<LibraryBook>> {		
+	private class LoadBooksTask extends AsyncTask<Configuration.LibrarySelection, Integer, QueryResult<LibraryBook>> {		
 		
-		private Selections sel;
+		private Configuration.LibrarySelection sel;
 		
 		@Override
 		protected void onPreExecute() {
@@ -671,7 +668,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 		}
 		
 		@Override
-		protected QueryResult<LibraryBook> doInBackground(Selections... params) {
+		protected QueryResult<LibraryBook> doInBackground(Configuration.LibrarySelection... params) {
 			
 			this.sel = params[0];
 			
@@ -694,7 +691,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 			bookAdapter.setResult(result);
 			waitDialog.hide();			
 			
-			if ( sel == Selections.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
+			if ( sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
 				askedUserToImport = true;
 				buildImportQuestionDialog();
 				importQuestion.show();

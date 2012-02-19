@@ -62,6 +62,16 @@ public class SinglePageStrategy implements PageChangeStrategy {
 	}
 	
 	@Override
+	public boolean isAtEnd() {
+		return getPosition() + childView.getText().length() >= this.text.length();
+	}
+	
+	@Override
+	public boolean isAtStart() {
+		return getPosition() == 0;
+	}
+	
+	@Override
 	public void pageDown() {			
 		
 		int oldPos = this.storedPosition;

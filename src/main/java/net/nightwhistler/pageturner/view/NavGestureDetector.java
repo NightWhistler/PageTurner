@@ -53,10 +53,14 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 		return false;
 	}
 	
-	
 
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
+		
+		//Links get preference
+		if ( bookView.hasLinkAt(e.getX(), e.getY())) {
+			return false;
+		}
 		
     	final int TAP_RANGE_H = bookView.getWidth() / 5;
     	final int TAP_RANGE_V = bookView.getHeight() / 5;

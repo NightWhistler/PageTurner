@@ -39,6 +39,18 @@ public interface PageChangeStrategy {
 	public int getPosition();
 	
 	/**
+	 * Returns if we're at the start of the current section
+	 * @return
+	 */
+	public boolean isAtStart();
+	
+	/**
+	 * Returns if we're at the end of the current section
+	 * @return
+	 */
+	public boolean isAtEnd();
+	
+	/**
 	 * Tells this strategy to move the window so the specified
 	 * position ends up on the top line of the windows.
 	 * 

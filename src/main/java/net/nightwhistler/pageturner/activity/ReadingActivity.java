@@ -774,6 +774,10 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     
     private void pageDown(Orientation o) {
     	
+    	if ( bookView.isAtEnd() ) {
+    		return;
+    	}
+    	
     	stopAnimating();    
     	
     	if ( o == Orientation.HORIZONTAL  ) {
@@ -802,6 +806,10 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     }
     
     private void pageUp(Orientation o) {
+    	
+    	if ( bookView.isAtStart() ) {
+    		return;
+    	}
     	
     	stopAnimating();   	
     	

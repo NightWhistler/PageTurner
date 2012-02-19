@@ -170,6 +170,20 @@ public class BookView extends ScrollView {
         spanner.registerHandler("table", tableHandler);
 	}	
 	
+	/**
+	 * Returns if we're at the start of the book, i.e. displaying the title page.
+	 * @return
+	 */
+	public boolean isAtStart() {
+		return spine.getPosition() == 0
+			&& strategy.isAtStart();
+	}
+	
+	public boolean isAtEnd() {
+		return spine.getPosition() >= spine.size() -1
+			&& strategy.isAtEnd();
+	}
+	
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 		this.loader = new ResourceLoader(fileName);
@@ -185,6 +199,19 @@ public class BookView extends ScrollView {
 	public void setStripWhiteSpace(boolean stripWhiteSpace) {
 		this.spanner.setStripExtraWhiteSpace(stripWhiteSpace);
 	}	
+	
+	public boolean hasLinkAt( float x, float y ) {
+		Integer offset = findOffsetForPosition(x, y);
+		
+		if ( offset == null ) {
+			return false;
+		}
+		
+		Spanned text = (Spanned) childView.getText();
+		ClickableSpan[] spans = text.getSpans(offset, offset, ClickableSpan.class );
+		
+		return spans != null && spans.length > 0;
+	}
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
@@ -321,6 +348,18 @@ public class BookView extends ScrollView {
 		progressUpdate();
 	}	
 	
+	private Integer findOffsetForPosition(float x, float y) {
+		
+		if ( childView == null || childView.getLayout() == null ) {
+			return null;
+		}				
+		
+		Layout layout = this.childView.getLayout();
+		int line = layout.getLineForVertical( (int) y);
+		
+		return layout.getOffsetForHorizontal(line, x);
+	}
+	
 	/**
 	 * Returns the full word containing the character at the selected location.
 	 * 
@@ -328,9 +367,9 @@ public class BookView extends ScrollView {
 	 * @param y
 	 * @return
 	 */
-	public CharSequence getWordAt( float x, float y ) {
+	public CharSequence getWordAt( float x, float y ) {		
 		
-		if ( childView == null || childView.getLayout() == null ) {
+		if ( childView == null ) {
 			return null;
 		}
 		
@@ -338,12 +377,13 @@ public class BookView extends ScrollView {
 		
 		if ( text.length() == 0 ) {
 			return null;
-		}		
+		}
 		
-		Layout layout = this.childView.getLayout();
-		int line = layout.getLineForVertical( (int) y);
+		Integer offset = findOffsetForPosition(x, y);
 		
-		int offset = layout.getOffsetForHorizontal(line, x);
+		if ( offset == null ) {
+			return null;
+		}
 		
 		if ( offset < 0 || offset > text.length() -1 ) {
 			return null;

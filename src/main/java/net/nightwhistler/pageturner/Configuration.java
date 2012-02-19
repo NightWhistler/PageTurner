@@ -121,11 +121,22 @@ public class Configuration {
 	}
 	
 	public int getLastPosition(String fileName) {
+		
+		String bookHash = Integer.toHexString( fileName.hashCode() );
+		
+		int pos = settings.getInt(KEY_POS + bookHash, -1);
+		
+		if ( pos != -1 ) {
+			return pos;
+		}
+		
+		//Fall-back for older settings.
 		return settings.getInt(KEY_POS + fileName, -1 );
 	}
 	
 	public void setLastPosition(String fileName, int position) {
-		updateValue(KEY_POS + fileName, position);
+		String bookHash = Integer.toHexString( fileName.hashCode() );
+		updateValue(KEY_POS + bookHash, position);
 	}
 	
 	public int getLastIndex(String fileName) {

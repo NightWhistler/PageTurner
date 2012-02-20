@@ -20,6 +20,7 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 import net.nightwhistler.pageturner.Configuration;
@@ -165,6 +166,60 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 		startActivityIfNeeded(intent, 99);
 	}
 	
+	private void showBookDetails( final LibraryBook libraryBook ) {
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.book_details);
+		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		View layout = inflater.inflate(R.layout.book_details, null);
+		builder.setView( layout );
+		
+		ImageView coverView = (ImageView) layout.findViewById(R.id.coverImage );
+		
+		if ( libraryBook.getCoverImage() != null ) {			
+			coverView.setImageBitmap( libraryBook.getCoverImage() );
+		} else {			
+			coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
+		}
+
+		TextView titleView = (TextView) layout.findViewById(R.id.titleField);
+		TextView authorView = (TextView) layout.findViewById(R.id.authorField);
+		TextView lastRead = (TextView) layout.findViewById(R.id.lastRead);
+		TextView added = (TextView) layout.findViewById(R.id.addedToLibrary);
+		TextView descriptionView = (TextView) layout.findViewById(R.id.bookDescription);
+		
+		titleView.setText(libraryBook.getTitle());
+		String authorText = String.format( getString(R.string.book_by),
+				 libraryBook.getAuthor().getFirstName() + " " 
+				 + libraryBook.getAuthor().getLastName() );
+		authorView.setText( authorText );
+
+		if (libraryBook.getLastRead() != null && ! libraryBook.getLastRead().equals(new Date(0))) {
+			String lastReadText = String.format(getString(R.string.last_read),
+					DATE_FORMAT.format(libraryBook.getLastRead()));
+			lastRead.setText( lastReadText );
+		} else {
+			String lastReadText = String.format(getString(R.string.last_read), getString(R.string.never_read));
+			lastRead.setText( lastReadText );
+		}
+
+		String addedText = String.format( getString(R.string.added_to_lib),
+				DATE_FORMAT.format(libraryBook.getAddedToLibrary()));
+		added.setText( addedText );
+		descriptionView.setText(libraryBook.getDescription());		
+		
+		builder.setNegativeButton(android.R.string.cancel, null);
+		builder.setPositiveButton(R.string.read, new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				onBookClicked(libraryBook);				
+			}
+		});
+		
+		builder.show();
+	}
+	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
@@ -186,9 +241,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-				Intent intent = new Intent( LibraryActivity.this, BookDetailsActivity.class );
-				intent.putExtra("book", selectedBook.getFileName());				
-				startActivity(intent);					
+				showBookDetails(selectedBook);				
 				return true;
 			}
 		});

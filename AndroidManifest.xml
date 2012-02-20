@@ -51,11 +51,7 @@
                
         <activity android:name=".activity.LibraryActivity"
                   android:label="@string/library" />
-          
-        <activity android:name=".activity.BookDetailsActivity"
-                  android:label="Book details" />                   
-       
-     
+           
         <activity android:name="org.acra.CrashReportDialog"
         	android:theme="@android:style/Theme.Dialog"
         	android:launchMode="singleInstance"

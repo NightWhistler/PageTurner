@@ -97,4 +97,5 @@
     
     <string name="list_view">Omschakelen naar lijstweergave</string>    
 	<string name="shelves_view">Omschakelen naar boekenplanken</string>
+	<string name="read">Nu lezen</string>
 </resources>

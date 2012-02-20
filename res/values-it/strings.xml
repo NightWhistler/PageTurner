@@ -86,5 +86,17 @@
         <item>Tutti i libri per autore</item> 
     </string-array>
         
+    <string name="access_denied">Il vostro accesso-chiave non è valida. Si prega di visitare pageturner-reader.org per ottenere una chiave di accesso valido.</string>
+    <string name="import_books">Importa libri</string>
+    <string name="import_desc">È possibile eseguire la scansione dell\'intero SD-Card, o di specificare una cartella per la ricerca.</string>
+    <string name="scan_whole_card">Scansione tutta la mia carta SD</string>
+    <string name="scan_folder">Scansione di una cartella specifica</string>
+    <string name="copy_to_library">Copia i libri nella mia cartella della libreria</string>
+    <string name="no_such_folder">%s La cartella non esiste.</string>
+    <string name="import_failed">Importazione non riuscita</string>
+    
+    <string name="list_view">Passa alla visualizzazione elenco</string>    
+	<string name="shelves_view">Passare alla visualizzazione libreria</string>
+    <string name="read">Leggi ora</string>
         
 </resources>

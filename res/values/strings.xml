@@ -97,5 +97,6 @@
     
     <string name="list_view">Switch to list view</string>    
 	<string name="shelves_view">Switch to shelves view</string>
+    <string name="read">Read now</string>
         
 </resources>

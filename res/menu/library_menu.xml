@@ -17,4 +17,8 @@
      <item android:id="@+id/scan_books"          
           android:title="@string/scan_books" 
           android:icon="@drawable/book_refresh"/>
+     
+     <item android:id="@+id/about"          
+          android:title="@string/about"
+          android:icon="@drawable/info" />  
 </menu>

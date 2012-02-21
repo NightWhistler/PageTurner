@@ -984,47 +984,14 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         	return true;
         	
         case R.id.about:
-        	showAboutDialog();
+        	Dialogs.showAboutDialog(this);
         	return true;
         	
         default:
             return super.onOptionsItemSelected(item);
         }
     }
-    
-    private void showAboutDialog() {
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.about);
-		builder.setIcon(R.drawable.page_turner);
-		
-		String html = "<h2>" + getString(R.string.app_name) + " " +  getVersion() + "</h2>";
-		html += getString(R.string.about_gpl);
-		html += "<br/><a href='http://pageturner-reader.org'>http://pageturner-reader.org</a>";
-		
-		builder.setMessage( Html.fromHtml(html));
-		
-		builder.setNeutralButton(getString(android.R.string.ok), 
-				new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();				
-			}
-		});
-		
-		builder.show();
-    }
-    
-    private String getVersion() {
- 
-        try {
-            return getPackageManager().getPackageInfo(
-            		getPackageName(), 0).versionName;
-        } catch (NameNotFoundException e) {
-            // Huh? Really?
-        }
-        
-        return null;
-    }
+      
 
     @Override
     public boolean onSwipeDown() {

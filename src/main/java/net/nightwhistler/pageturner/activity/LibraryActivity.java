@@ -340,6 +340,16 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			}
 		});		
 		
+		MenuItem about = menu.findItem(R.id.about);
+		about.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				Dialogs.showAboutDialog(LibraryActivity.this);
+				return true;
+			}
+		});
+		
 		return true;
 	}	
 	

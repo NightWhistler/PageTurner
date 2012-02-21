@@ -53,6 +53,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -64,6 +65,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -76,7 +78,7 @@ import android.widget.ViewSwitcher;
 
 import com.google.inject.Inject;
 
-public class LibraryActivity extends RoboActivity implements ImportCallback {
+public class LibraryActivity extends RoboActivity implements ImportCallback, OnItemClickListener {
 	
 	@Inject 
 	private LibraryService libraryService;
@@ -153,7 +155,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 		importDialog.setTitle(R.string.importing_books);
 		importDialog.setMessage(getString(R.string.scanning_epub));
 		
-		registerForContextMenu(this.listView);		
+		registerForContextMenu(this.listView);	
+		this.listView.setOnItemClickListener(this);
 	}	
 	
 	private void onBookClicked( LibraryBook book ) {
@@ -165,6 +168,12 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 				
 		startActivityIfNeeded(intent, 99);
 	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int pos,
+			long id) {
+		onBookClicked(this.bookAdapter.getResultAt(pos));
+	}	
 	
 	private void showBookDetails( final LibraryBook libraryBook ) {
 		
@@ -206,7 +215,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 		String addedText = String.format( getString(R.string.added_to_lib),
 				DATE_FORMAT.format(libraryBook.getAddedToLibrary()));
 		added.setText( addedText );
-		descriptionView.setText(libraryBook.getDescription());		
+		descriptionView.setText(Html.fromHtml( libraryBook.getDescription()));		
 		
 		builder.setNegativeButton(android.R.string.cancel, null);
 		builder.setPositiveButton(R.string.read, new OnClickListener() {
@@ -533,14 +542,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback {
 				rowView = inflater.inflate(R.layout.book_row, parent, false);
 			} else {
 				rowView = convertView;
-			}
-			
-			rowView.setOnClickListener( new View.OnClickListener() {
-				
-				public void onClick(View v) {				
-					onBookClicked(book);					
-				}
-			});
+			}			
 			
 			TextView titleView = (TextView) rowView.findViewById(R.id.bookTitle);
 			TextView authorView = (TextView) rowView.findViewById(R.id.bookAuthor);

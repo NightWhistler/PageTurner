@@ -402,6 +402,10 @@ public class BookView extends ScrollView {
 			word = text.subSequence(left, right);
 		}
 		
+		if ( word.length() == 0 ) {
+			return null;
+		}
+		
 		while ( right < text.length() && ! isBoundaryCharacter(word.charAt(word.length() -1))) {
 			right++;
 			word = text.subSequence(left, right);

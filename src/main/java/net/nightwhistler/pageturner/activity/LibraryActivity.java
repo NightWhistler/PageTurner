@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
+import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.Configuration.LibraryView;
@@ -47,13 +48,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -215,7 +217,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		String addedText = String.format( getString(R.string.added_to_lib),
 				DATE_FORMAT.format(libraryBook.getAddedToLibrary()));
 		added.setText( addedText );
-		descriptionView.setText(Html.fromHtml( libraryBook.getDescription()));		
+		descriptionView.setText(new HtmlSpanner().fromHtml( libraryBook.getDescription()));		
 		
 		builder.setNegativeButton(android.R.string.cancel, null);
 		builder.setPositiveButton(R.string.read, new OnClickListener() {
@@ -734,20 +736,36 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		@Override
 		protected QueryResult<LibraryBook> doInBackground(Configuration.LibrarySelection... params) {
 			
-			this.sel = params[0];
+			Exception storedException = null;
 			
-			switch ( sel ) {			
-			case LAST_ADDED:
-				return libraryService.findAllByLastAdded();
-			case UNREAD:
-				return libraryService.findUnread();
-			case BY_TITLE:
-				return libraryService.findAllByTitle();
-			case BY_AUTHOR:
-				return libraryService.findAllByAuthor();
-			default:
-				return libraryService.findAllByLastRead();
-			}			
+			for ( int i=0; i < 3; i++ ) {
+
+				try {
+
+					this.sel = params[0];
+
+					switch ( sel ) {			
+					case LAST_ADDED:
+						return libraryService.findAllByLastAdded();
+					case UNREAD:
+						return libraryService.findUnread();
+					case BY_TITLE:
+						return libraryService.findAllByTitle();
+					case BY_AUTHOR:
+						return libraryService.findAllByAuthor();
+					default:
+						return libraryService.findAllByLastRead();
+					}
+				} catch (SQLiteException sql) {
+					storedException = sql;
+					try {
+						//Sometimes the database is still locked.
+						Thread.sleep(1000);
+					} catch (InterruptedException in) {}
+				}				
+			}
+			
+			throw new RuntimeException( "Failed after 3 attempts", storedException ); 
 		}
 		
 		@Override

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class CatalogListAdapter extends BaseAdapter {
@@ -63,6 +64,9 @@ public class CatalogListAdapter extends BaseAdapter {
 		
 		TextView title = (TextView) rowView.findViewById(R.id.itemTitle);
 		TextView desc = (TextView) rowView.findViewById(R.id.itemDescription );
+		ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);
+		
+		
 		
 		title.setText(entry.getTitle());
 		

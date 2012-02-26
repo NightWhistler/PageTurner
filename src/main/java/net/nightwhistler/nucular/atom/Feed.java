@@ -39,4 +39,24 @@ public class Feed extends AtomElement {
 	public void addEntry(Entry entry) {
 		this.entries.add(entry);
 	}
+	
+	public Link getNextLink() {
+		for ( Link link: getLinks() ) {
+			if ( link.getRel().equals("next")) {
+				return link;
+			}
+		}
+		
+		return null;
+	}
+	
+	public Link getPreviousLink() {
+		for ( Link link: getLinks() ) {
+			if ( link.getRel().equals("previous")) {
+				return link;
+			}
+		}
+		
+		return null;
+	}
 }

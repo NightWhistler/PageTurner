@@ -231,6 +231,29 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		builder.show();
 	}
 	
+	private void showDownloadDialog() {
+		
+		final String[] names = { "Feedbooks", "Gutenberg.org" };
+		final String[] addresses = { "http://www.feedbooks.com/site/free_books.atom",
+				"http://m.gutenberg.org/ebooks/?format=opds" };
+		
+
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setTitle(R.string.download);
+
+    	builder.setItems(names, new DialogInterface.OnClickListener() {
+    		public void onClick(DialogInterface dialog, int item) {
+    			Intent intent = new Intent(LibraryActivity.this, CatalogActivity.class);
+    			
+    			intent.putExtra("url", addresses[item]);
+    			    					
+    			startActivityIfNeeded(intent, 99);
+    		}
+    	});
+
+    	builder.show();
+	}
+	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
@@ -348,6 +371,16 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 				Dialogs.showAboutDialog(LibraryActivity.this);
+				return true;
+			}
+		});
+		
+		MenuItem download = menu.findItem(R.id.download);
+		download.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				showDownloadDialog();
 				return true;
 			}
 		});

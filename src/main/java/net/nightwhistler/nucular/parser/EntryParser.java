@@ -42,6 +42,10 @@ public class EntryParser extends ElementParser {
 			return new TitleParser(entry);
 		} else if ( tagName.equals("author")) {
 			return new AuthorParser(entry);
+		} else if ( tagName.equals("id")) {
+			return new IDParser(entry);
+		} else if ( tagName.equals("summary")) {
+			return new SummaryParser(entry);
 		}
 		
 		return super.createChildParser(tagName);

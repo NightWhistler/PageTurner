@@ -18,17 +18,20 @@
  */
 package net.nightwhistler.nucular.atom;
 
+
 public class Link {
 
 	private String href;
 	private String type;
 	private String rel;
 	
+	private byte[] binData;
+	
 	public String getHref() {
 		return href;
 	}
 	public void setHref(String href) {
-		this.href = href;
+		this.href = href;		
 	}
 	public String getType() {
 		return type;
@@ -43,5 +46,12 @@ public class Link {
 		this.rel = rel;
 	}
 	
+	public byte[] getBinData() {
+		return binData;
+	}
+	
+	public void setBinData(byte[] binData) {
+		this.binData = binData;
+	}
 	
 }

@@ -18,9 +18,19 @@
  */
 package net.nightwhistler.nucular.atom;
 
+import java.util.List;
+
 public class Entry extends AtomElement {
 
 	private String updated;
+	private String summary;
+	
+	public static final String THUMBNAIL = "http://opds-spec.org/image/thumbnail";
+	public static final String THUMBNAIL_ALT = "http://opds-spec.org/thumbnail";
+	
+	public static final String BUY = "http://opds-spec.org/acquisition/buy";
+	public static final String IMAGE = "http://opds-spec.org/image";
+	public static final String COVER = "http://opds-spec.org/cover";
 
 	public String getUpdated() {
 		return updated;
@@ -30,5 +40,65 @@ public class Entry extends AtomElement {
 		this.updated = updated;
 	}	
 	
+	private Link findByRel(String rel) {
+		for ( Link link: getLinks() ) {
+			if (link.getRel() != null && link.getRel().equals(rel)) {
+				return link;
+			}
+		}
+		
+		return null;
+	}
 	
+	public Link getAtomLink() {
+		List<Link> links = getLinks();
+		
+		for ( Link link: links ) {
+			if ( link.getType().startsWith("application/atom+xml")) {
+				return link;
+			}
+		}
+		
+		return null;
+	}
+	
+	public String getSummary() {
+		return summary;
+	}
+	
+	public void setSummary(String summary) {
+		this.summary = summary;
+	}
+	
+	public Link getThumbnailLink() {
+		Link l = findByRel(THUMBNAIL);
+		if ( l != null ) {
+			return l;
+		} else {
+			return findByRel(THUMBNAIL_ALT);
+		}
+	}
+	
+	public Link getImageLink() {
+		Link l = findByRel(IMAGE);
+		if ( l != null ) {
+			return l;
+		} else {
+			return findByRel(COVER);
+		}
+	}
+	
+	public Link getBuyLink() {
+		return findByRel(BUY);
+	}
+	
+	public Link getEpubLink() {
+		for ( Link link: getLinks() ) {
+			if ( link.getType().equals("application/epub+zip")) {
+				return link;
+			}
+		}
+		
+		return null;
+	}
 }

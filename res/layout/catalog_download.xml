@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+     <ImageView
+        android:id="@+id/itemIcon"       
+        android:src="@drawable/book" 
+        android:layout_width="250px"
+        android:layout_height="250px"
+        android:layout_gravity="center"
+       />
+  
+       
+   	<ImageView    		
+    		android:src="@android:drawable/divider_horizontal_dark"
+    		android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:scaleType="fitXY"
+    		android:paddingLeft="5dp"
+    		android:paddingRight="5dp"
+    		android:paddingBottom="2dp"
+    		android:paddingTop="2dp" />        
+       
+     <TextView
+        android:id="@+id/itemTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    
+     <TextView
+            android:id="@+id/itemAuthor"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="by Someone"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        
+        <ImageView    		
+    		android:src="@android:drawable/divider_horizontal_dark"
+    		android:layout_width="fill_parent"
+    		android:layout_height="wrap_content"
+    		android:scaleType="fitXY"
+    		android:paddingLeft="5dp"
+    		android:paddingRight="5dp"
+    		android:paddingBottom="2dp"
+    		android:paddingTop="2dp" />
+
+    <TextView
+        android:id="@+id/itemDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Small Text"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <Button
+        android:id="@+id/readButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/read" />
+
+</LinearLayout>

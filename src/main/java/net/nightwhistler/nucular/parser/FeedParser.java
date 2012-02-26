@@ -56,6 +56,8 @@ public class FeedParser extends ElementParser {
 			return new EntryParser(feed);
 		} else if ( tagName.equals("author")) {
 			return new AuthorParser(feed);
+		} else if ( tagName.equals("id")) {
+			return new IDParser(feed);
 		}
 		
 		return super.createChildParser(tagName);

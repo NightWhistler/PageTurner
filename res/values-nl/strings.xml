@@ -98,4 +98,7 @@
     <string name="list_view">Omschakelen naar lijstweergave</string>    
 	<string name="shelves_view">Omschakelen naar boekenplanken</string>
 	<string name="read">Nu lezen</string>
+	
+	<string name="download">Boeken downloaden</string>
+	<string name="downloading">Boek wordt gedownload...</string>
 </resources>

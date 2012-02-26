@@ -18,6 +18,11 @@
           android:title="@string/scan_books" 
           android:icon="@drawable/book_refresh"/>
      
+     <item android:id="@+id/download"
+         android:title="@string/download"
+         android:icon="@drawable/download" />
+         
+     
      <item android:id="@+id/about"          
           android:title="@string/about"
           android:icon="@drawable/info" />  

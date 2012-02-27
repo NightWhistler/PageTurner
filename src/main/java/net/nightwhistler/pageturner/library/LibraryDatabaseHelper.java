@@ -222,10 +222,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 			} catch (RuntimeException r){}
 			
 			byte[] coverData = cursor.getBlob(Field.cover_image.ordinal());
-			
-			if ( coverData != null ) {			
-				newBook.setCoverImage( BitmapFactory.decodeByteArray(coverData, 0, coverData.length ) );
-			}
+			newBook.setCoverImage(coverData);			
 			
 			newBook.setFileName( cursor.getString(Field.file_name.ordinal()));
 			

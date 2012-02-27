@@ -48,9 +48,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -177,6 +177,10 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		onBookClicked(this.bookAdapter.getResultAt(pos));
 	}	
 	
+	private Bitmap getCover( LibraryBook book ) {
+		return BitmapFactory.decodeByteArray(book.getCoverImage(), 0, book.getCoverImage().length );
+	}
+	
 	private void showBookDetails( final LibraryBook libraryBook ) {
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -188,7 +192,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		ImageView coverView = (ImageView) layout.findViewById(R.id.coverImage );
 		
 		if ( libraryBook.getCoverImage() != null ) {			
-			coverView.setImageBitmap( libraryBook.getCoverImage() );
+			coverView.setImageBitmap( getCover(libraryBook) );
 		} else {			
 			coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
 		}
@@ -580,7 +584,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			dateView.setText( dateText );
 			
 			if ( book.getCoverImage() != null ) {				
-				imageView.setImageBitmap(book.getCoverImage());
+				imageView.setImageBitmap(getCover(book));
 			} else {
 				imageView.setImageDrawable(backupCover);
 			}
@@ -627,10 +631,9 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			
 			
 			ImageView image = (ImageView) result.findViewById(R.id.bookCover);				
-			Bitmap bitmap = object.getCoverImage();
-			
-			if ( bitmap != null ) {			
-				image.setImageBitmap( object.getCoverImage() );
+						
+			if ( object.getCoverImage() != null ) {			
+				image.setImageBitmap( getCover(object) );
 			} else {
 				image.setImageDrawable(backupCover);
 			}		

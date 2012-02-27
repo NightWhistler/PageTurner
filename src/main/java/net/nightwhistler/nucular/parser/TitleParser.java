@@ -18,11 +18,16 @@
  */
 package net.nightwhistler.nucular.parser;
 
+import java.util.Map;
+
 import net.nightwhistler.nucular.atom.AtomElement;
 
 public class TitleParser extends ElementParser {
 
 	private AtomElement parent;
+	
+	private boolean finished = false;
+	StringBuffer buffer = new StringBuffer();
 	
 	public TitleParser(AtomElement parent) {
 		super("title");
@@ -30,8 +35,26 @@ public class TitleParser extends ElementParser {
 	}
 	
 	@Override
+	public void startElement(String name, Map<String, String> attributes) {
+		//Do nothing
+	}
+	
+	@Override
+	public void endElement(String name) {
+		if ( name.equals("title") ) {
+			this.finished = true;
+			parent.setTitle(buffer.toString().trim());
+		}
+	}
+	
+	@Override
+	public boolean isFinished() {
+		return finished;
+	}
+	
+	@Override
 	public void setTextContent(String text) {
-		parent.setTitle(text);
+		buffer.append(text);
 	}
 	
 }

@@ -233,8 +233,14 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	
 	private void showDownloadDialog() {
 		
-		final String[] names = { "Feedbooks", "Gutenberg.org" };
+		final String[] names = { "Feedbooks", "Manybooks.net",
+				//"AllRomanceEbooks", 
+				//"Internet Archive", 
+				"Gutenberg.org" };
 		final String[] addresses = { "http://www.feedbooks.com/site/free_books.atom",
+				"http://www.manybooks.net/opds/index.php",
+				//"http://www.allromanceebooks.com/epub-feed.xml",
+				//"http://bookserver.archive.org/catalog/",
 				"http://m.gutenberg.org/ebooks/?format=opds" };
 		
 

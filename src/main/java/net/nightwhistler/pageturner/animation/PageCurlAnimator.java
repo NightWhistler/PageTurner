@@ -257,13 +257,13 @@ public class PageCurlAnimator implements Animator {
 		try {
 			drawForeground(canvas, rect, paint);
 		} catch (Exception e ) {
-			ErrorReporter.getInstance().handleException(e);
+			//ErrorReporter.getInstance().handleException(e);
 		}
 		
 		try {
 			drawBackground(canvas, rect, paint);
 		} catch (Exception e) {
-			ErrorReporter.getInstance().handleException(e);
+			//ErrorReporter.getInstance().handleException(e);
 		}		
 		
 		drawCurlEdge(canvas);

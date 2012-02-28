@@ -86,7 +86,9 @@ public class SqlLiteLibraryService implements LibraryService {
     		}
     	} catch (IOException io) {
     		
-    	}    	
+    	} catch (OutOfMemoryError err) {
+    		//If the image resource is too big, just import without a cover.
+    	}
 		
     	String description = "";
     	

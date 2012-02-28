@@ -89,16 +89,22 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     </string-array>
         
     <string name="access_denied">Dein Zugangsschlüssel ist ungültig. Bitte gehe auf pageturner-reader.org um einen gültigen Schlüssel zu erhalten.</string>
-    <string name="import_books">Importiere Bücher</string>
-    <string name="import_desc">Sie können entweder Ihre gesamte SD-Card scannen, oder einen Ordner zu suchen eingeben.</string>
-    <string name="scan_whole_card">Scannen Sie meine gesamte SD-Karte</string>
-    <string name="scan_folder">Prüfung eines bestimmten Ordners</string>
-    <string name="copy_to_library">Kopiere Bücher zu meinen Bibliothek Ordner</string>
-    <string name="no_such_folder">Der Ordner %s ist nicht vorhanden.</string>
-    <string name="import_failed">Import fehlgeschlagen</string>
+     <string name="import_books">Bücher importieren</string>
+	<string name="import_desc">Du kannst entweder die ganze Speicherkarte durchsuchen oder einen Ordner zum Durchsuchen auswählen.</string>
+	<string name="scan_whole_card">Meine ganze Speicherkarte durchsuchen</string>
+	<string name="scan_folder">Einen Ordner durchsuchen</string>
+	<string name="copy_to_library">Bücher in mein Bücherregal kopieren</string>
+	<string name="no_such_folder">Der Ordner %s existiert nicht.</string>
+	<string name="import_failed">Import fehlgeschlagen</string>
     
-    <string name="list_view">Zur Listenansicht</string>    
-	<string name="shelves_view">Zur Bücherschrankansicht</string>
+    <string name="list_view">Zur Listenansicht wechseln</string>
+	<string name="shelves_view">Zur Regalansicht wechseln</string>
+    
     <string name="read">Jetzt lesen</string>
+    
+
+
+
+    
         
 </resources>

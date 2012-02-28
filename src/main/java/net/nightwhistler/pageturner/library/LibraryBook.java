@@ -36,7 +36,7 @@ public class LibraryBook implements Serializable {
 	
 	private Author author;
 	
-	private Bitmap coverImage;
+	private byte[] coverImage;
 		
 	private Date lastRead;
 	
@@ -70,11 +70,11 @@ public class LibraryBook implements Serializable {
 		this.author = author;
 	}
 
-	public Bitmap getCoverImage() {
+	public byte[] getCoverImage() {
 		return coverImage;
 	}
 
-	public void setCoverImage(Bitmap coverImage) {
+	public void setCoverImage(byte[] coverImage) {
 		this.coverImage = coverImage;
 	}	
 

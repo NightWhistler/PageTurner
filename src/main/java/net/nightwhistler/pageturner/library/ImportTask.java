@@ -128,7 +128,7 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 			Book importedBook = epubReader.readEpubLazy(fileName, "UTF-8", 
 					Arrays.asList(MediatypeService.mediatypes));							
 			
-        	libraryService.storeBook(fileName, importedBook, false, this.copyToLibrary);	        		        	
+        	libraryService.storeBook(fileName, importedBook, false, this.copyToLibrary);
 			
 		} catch (Exception io ) {
 			errors.add( file + ": " + io.getMessage() );

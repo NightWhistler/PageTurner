@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.GridView;
@@ -62,7 +63,15 @@ public class BookCaseView extends GridView {
             for (int y = top; y < height; y += shelfHeight) {
                 canvas.drawBitmap(background, x, y, null);
             }
+            
+            //This draws the top pixels of the shelf above the current one
+            
+            Rect source = new Rect(0, mShelfHeight - top, mShelfWidth, mShelfHeight);
+            Rect dest = new Rect(x, 0, x + mShelfWidth, top );            	
+            	
+            canvas.drawBitmap(background, source, dest, null);            
         }        
+        
 
         super.dispatchDraw(canvas);
 	}

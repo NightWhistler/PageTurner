@@ -664,12 +664,17 @@ public class BookView extends ScrollView {
 			Bitmap bitmap = null;
 			try {				
 				bitmap = getBitmap(input);
+				
+				if ( bitmap == null || bitmap.getHeight() <1 || bitmap.getWidth() < 1 ) {
+					return;
+				}
+				
 			} catch (OutOfMemoryError outofmem) {
 				LOG.error("Could not load image", outofmem);
 			}
 			
 			if ( bitmap != null ) {
-				Drawable drawable = new BitmapDrawable( bitmap );
+				Drawable drawable = new BitmapDrawable( bitmap );				
 				drawable.setBounds(0,0, bitmap.getWidth() - 1, bitmap.getHeight() - 1);
 				builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				

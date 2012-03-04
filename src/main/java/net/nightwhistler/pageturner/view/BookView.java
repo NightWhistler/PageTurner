@@ -175,11 +175,20 @@ public class BookView extends ScrollView {
 	 * @return
 	 */
 	public boolean isAtStart() {
+		
+		if ( spine == null ) {
+			return true;
+		}
+		
 		return spine.getPosition() == 0
 			&& strategy.isAtStart();
 	}
 	
 	public boolean isAtEnd() {
+		if ( spine == null ) {
+			return false;
+		}
+		
 		return spine.getPosition() >= spine.size() -1
 			&& strategy.isAtEnd();
 	}

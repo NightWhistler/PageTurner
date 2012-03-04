@@ -73,9 +73,7 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 			
 			LOG.info("Importing: " + book.getAbsolutePath() );
 			try {
-				if ( ! libraryService.hasBook(book.getName() ) ) {
-					importBook( book.getAbsolutePath() );
-				}					
+				importBook( book );									
 			} catch (OutOfMemoryError oom ) {
 				errors.add(book.getName() + ": Out of memory.");
 				return null;
@@ -115,15 +113,22 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 		}
 	}
 	
-	private void importBook(String file) {
+	private void importBook(File file) {
 		try {
+			
+			if ( libraryService.hasBook(file.getName() ) ) {
+				return;
+			}
+			
+			String fileName = file.getAbsolutePath();
+			
 			// read epub file
 	        EpubReader epubReader = new EpubReader();
 	        				
-			Book importedBook = epubReader.readEpubLazy(file, "UTF-8", 
+			Book importedBook = epubReader.readEpubLazy(fileName, "UTF-8", 
 					Arrays.asList(MediatypeService.mediatypes));							
 			
-        	libraryService.storeBook(file, importedBook, false, this.copyToLibrary);	        		        	
+        	libraryService.storeBook(fileName, importedBook, false, this.copyToLibrary);	        		        	
 			
 		} catch (Exception io ) {
 			errors.add( file + ": " + io.getMessage() );

@@ -66,6 +66,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.speech.tts.TextToSpeech;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
 import android.util.DisplayMetrics;
@@ -257,7 +258,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	this.bookView.setIndex(lastIndex);
     	
     	config.setLastOpenedFile(fileName);
-    }           
+    }
+    
     
     /**
      * Immediately updates the text size in the BookView,

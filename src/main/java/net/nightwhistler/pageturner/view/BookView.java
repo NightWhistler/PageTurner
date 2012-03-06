@@ -898,7 +898,11 @@ public class BookView extends ScrollView {
         		
         		MediatypeService.OPENTYPE, MediatypeService.TTF, //We don't support custom fonts either
         		MediatypeService.XPGT,
-        };        	
+        		
+        		MediatypeService.MP3, MediatypeService.MP4, //And no audio either
+        		MediatypeService.SMIL, MediatypeService.XPGT,
+        		MediatypeService.PLS
+        };
         
        	Book newBook = epubReader.readEpubLazy(fileName, "UTF-8", Arrays.asList(lazyTypes));
         setBook( newBook );

@@ -175,11 +175,20 @@ public class BookView extends ScrollView {
 	 * @return
 	 */
 	public boolean isAtStart() {
+		
+		if ( spine == null ) {
+			return true;
+		}
+		
 		return spine.getPosition() == 0
 			&& strategy.isAtStart();
 	}
 	
 	public boolean isAtEnd() {
+		if ( spine == null ) {
+			return false;
+		}
+		
 		return spine.getPosition() >= spine.size() -1
 			&& strategy.isAtEnd();
 	}
@@ -655,12 +664,17 @@ public class BookView extends ScrollView {
 			Bitmap bitmap = null;
 			try {				
 				bitmap = getBitmap(input);
+				
+				if ( bitmap == null || bitmap.getHeight() <1 || bitmap.getWidth() < 1 ) {
+					return;
+				}
+				
 			} catch (OutOfMemoryError outofmem) {
 				LOG.error("Could not load image", outofmem);
 			}
 			
 			if ( bitmap != null ) {
-				Drawable drawable = new BitmapDrawable( bitmap );
+				Drawable drawable = new BitmapDrawable( bitmap );				
 				drawable.setBounds(0,0, bitmap.getWidth() - 1, bitmap.getHeight() - 1);
 				builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				
@@ -884,7 +898,11 @@ public class BookView extends ScrollView {
         		
         		MediatypeService.OPENTYPE, MediatypeService.TTF, //We don't support custom fonts either
         		MediatypeService.XPGT,
-        };        	
+        		
+        		MediatypeService.MP3, MediatypeService.MP4, //And no audio either
+        		MediatypeService.SMIL, MediatypeService.XPGT,
+        		MediatypeService.PLS
+        };
         
        	Book newBook = epubReader.readEpubLazy(fileName, "UTF-8", Arrays.asList(lazyTypes));
         setBook( newBook );

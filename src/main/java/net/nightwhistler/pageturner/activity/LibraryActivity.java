@@ -366,11 +366,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		scan.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
 			@Override
-			public boolean onMenuItemClick(MenuItem item) {				
-				
-				AlertDialog dialog = showImportDialog();
-				dialog.show();				
-				
+			public boolean onMenuItemClick(MenuItem item) {	
+				showImportDialog();
 				return true;
 			}
 		});		
@@ -409,7 +406,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		return true;
 	}
 	
-	private AlertDialog showImportDialog() {
+	private void showImportDialog() {
 		AlertDialog.Builder builder;		
 		
 		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -451,7 +448,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		builder.setPositiveButton(android.R.string.ok, okListener );
 		builder.setNegativeButton(android.R.string.cancel, null );
 		
-		return builder.create();
+		builder.show();
 	}	
 	
 	@Override
@@ -730,7 +727,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();		
-				startImport(new File("/sdcard"), config.isCopyToLibrayEnabled());
+				//startImport(new File("/sdcard"), config.isCopyToLibrayEnabled());
+				showImportDialog();
 			}
 		});
 		

@@ -58,7 +58,6 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -67,7 +66,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.text.Html;
+import android.speech.tts.TextToSpeech;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
 import android.util.DisplayMetrics;
@@ -178,25 +177,24 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         this.backgroundHandler = new Handler(bgThread.getLooper());
         
         this.waitDialog = new ProgressDialog(this);
-        this.waitDialog.setOwnerActivity(this);               
+        this.waitDialog.setOwnerActivity(this);  
+        this.waitDialog.setOnKeyListener( new DialogInterface.OnKeyListener() {			
+			@Override
+			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+				//This just consumes all key events and does nothing.
+				return true;
+			}
+		});
         
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         
         this.gestureDetector = new GestureDetector(new NavGestureDetector(
-        		bookView, this, metrics));         
-        /*
-        final PinchZoomListener pinch = new PinchZoomListener( this,
-        		new PinchZoomListener.FloatAdapter() {
-        			
-			@Override public void setValue(float value) { updateTextSize(value); }			
-			@Override public float getValue() {	return bookView.getTextSize(); }
-		});
-		*/
+        		bookView, this, metrics));        
+        
         
         this.gestureListener = new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-            	//pinch.onTouch(v, event);
+            public boolean onTouch(View v, MotionEvent event) {            	
                 return gestureDetector.onTouchEvent(event);
             }
         };           
@@ -260,7 +258,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	this.bookView.setIndex(lastIndex);
     	
     	config.setLastOpenedFile(fileName);
-    }           
+    }
+    
     
     /**
      * Immediately updates the text size in the BookView,

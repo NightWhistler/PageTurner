@@ -41,6 +41,8 @@ public class SqlLiteLibraryService implements LibraryService {
 	
 	private static final int THUMBNAIL_HEIGHT = 250;
 	
+	private static final long MAX_COVER_SIZE = 1024 * 1024; //Max 1Mb
+	
 	private LibraryDatabaseHelper helper;	
 	
 	@Inject
@@ -80,7 +82,7 @@ public class SqlLiteLibraryService implements LibraryService {
     	byte[] thumbNail = null;
     	
     	try {
-    		if ( book.getCoverImage() != null ) {    			
+    		if ( book.getCoverImage() != null && book.getCoverImage().getSize() < MAX_COVER_SIZE ) {    			
     			thumbNail = resizeImage(book.getCoverImage().getData());
     			book.getCoverImage().close();
     		}

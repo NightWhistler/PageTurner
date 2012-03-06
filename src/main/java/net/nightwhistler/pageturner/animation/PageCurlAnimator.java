@@ -18,8 +18,6 @@
  */
 package net.nightwhistler.pageturner.animation;
 
-import org.acra.ErrorReporter;
-
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;

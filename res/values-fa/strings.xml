@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Page Turner</string>
+    <string name="title">عنوان</string>
+    <string name="app_desc">Page Turner کتابخوان همگامی‌ست که امکان همگام کردن روند پیشرفت مطالعه‌تان را در دستگاه‌های چندگانه فراهم می‌کند.</string>
+    <string name="browse">مرور ...</string> <!-- Browse ... -->
+    <string name="open_file">پروندهٔ ای‌پاپ را باز کن</string> <!-- Open ePub file -->
+    <string name="open_library">کتاب‌های من</string> <!-- My Books -->
+
+    <string name="profile_day">تغییر به حالت روز</string> <!-- Switch to day mode -->  
+    <string name="profile_night">تغییر به حالت شب</string> <!-- Switch to night mode -->
+    <string name="manual_sync">همگام‌سازی روند مطالعه</string> <!-- Sync reading progress -->
+    <string name="prefs">ترجیجات</string> <!-- Preferences -->
+    
+    <string name="show_toc">نمایش فهرست</string> <!-- Show TOC -->   
+    <string name="rolling_blind">مرور خودکار</string> <!-- Auto-scroll -->
+    <string name="about">درباره</string> <!-- About PageTurner -->
+    <string name="about_gpl">PageTurner نرم‌افزار آزادی‌ست بر مبنای اجازه‌نامهٔ GPL v3</string> <!-- PageTurner is free software under the GPL v3. -->
+    <string name="error_open_bk">خطا در باز کردن کتاب: %s</string> <!-- Error opening book: %s -->
+    
+    <string name="dictionary_lookup">مراجعه واژه‌نامه</string> <!-- Look up in Dictionary -->
+    <string name="wikipedia_lookup">مراجعه به ویکی‌پدیا</string> <!-- Search on Wikipedia -->
+    <string name="google_lookup">جست-و-جو در گوگل</string> <!-- Search on Google -->    
+    <string name="word_select">عبارت «%s» را انتخاب کردید.</string> <!-- "You selected '%s' -->    
+        
+    <string name="loading_wait">در حال بار شدن، لطفاً صبر کنید...</string> <!-- Loading, please wait -->
+    <string name="install_oi">لطفاً نرم‌افزار OI File Manager را از فروشگاه اندروید نصب کنید.</string> <!-- Please install OI File Manager from the Android Market. -->    
+    
+    <string name="cloud_bm">نشان‌های ابر</string> <!-- Cloud bookmarks -->
+    <string name="toc_label">فهرست</string> <!-- Table of contents -->
+    <string name="syncing">«همگام‌سازی روند مطالعه ...»</string> <!-- "Syncing progress..." -->
+    <string name="sync_failed">همگام‌سازی انجام نشد</string> <!-- Sync failed -->
+    <string name="connection_fail">اتصال به کارساز همگام‌ساز امکان‌پذیر نیست.</string> <!-- Could not connect to the sync server. -->    
+    
+    <string name="never_read">هیچ‌وقت</string> <!-- Never -->
+        
+    <string name="library">کتابخانه</string> <!-- Library -->
+    <string name="book_details">جزئیات کتاب</string> <!-- Book details -->
+    
+    <string name="book_by">توسط %s</string> <!-- By %s -->
+    <string name="last_read">آخرین مطالعه: %s</string> <!-- Last read: %s -->
+    <string name="added_to_lib">به کتابخانه اضافه شد: %s</string> <!-- Added to library: %s -->
+    
+    <string name="view_details">نمایش جزئیات</string> <!-- View details -->
+    <string name="delete">خذف از کتابخانه</string> <!-- Delete from library -->
+    <string name="scan_books">پویش کتاب‌ها</string> <!-- Scan for books -->    
+    
+    <string name="importing_books">واردکردن کتاب‌ها</string> <!-- Importing books... -->
+    <string name="scanning_epub">پویش پرونده‌های ای‌پاب</string> <!-- Scanning for EPUB files. -->
+    <string name="importing">ورود %1$d از %2$d</string> <!-- Importing %1$d of %2$d -->
+    <string name="scan_folders">پویش پرونده‌های ای‌پاب.\nپرونده‌های پویش شده: %d</string> <!-- Scanning for EPUB files.\nFolders scanned: %d -->
+    <string name="import_errors">برخی از کتاب‌ها هنگام ورد خطا داشتند.</string> <!-- Some files had errors while importing: -->
+    <string name="no_books_found">کتابی پیدا نشد.</string> <!-- No books found. -->
+    <string name="no_bks_fnd_text">هیچ کتابی در دستگاه‌تان پیدا نشد. \nبا مراجعه به وبگاه‌های gutenberg.org و feedbooks.com کتاب بگیرید.</string> <!-- No books were found on your device.\nYou can download books at gutenberg.org or feedbooks.com -->
+    <string name="loading_library">بارشدن کتابخانه</string> <!-- Loading library... -->
+    <string name="scan_bks_question">هیچ کتابی در کتابخانه‌تان نیست.\nآیا مایلید دستگاه‌تان را برای کتاب بپویید؟</string> <!-- There are no books in your library.\nWould you like to scan your device for books? -->    
+    <string name="brightness">درخشندگی</string> <!-- Brightness -->    
+        
+    <string-array name="v_animLabels">
+        <item>سراندن</item> <!-- Slide -->
+        <item>هیچ‌کدام</item> <!-- None -->        
+    </string-array>
+    
+    <string-array name="h_animLabels">
+        <item>پرش صفحه</item> <!-- Page flip -->
+        <item>سراندن</item> <!-- Slide -->
+        <item>هیچ‌کدام</item> <!-- None -->
+    </string-array>
+        
+    <string-array name="orientationLabels">
+        <item>جهت‌دهی خودکار صفحه را قفل نکن</item> <!-- Don\'t lock orientation -->
+        <item>عمودی</item> <!-- Portrait -->
+        <item>افقی</item> <!-- Landscape -->
+    </string-array>  
+   
+    <string-array name="autoscrollLabels">
+        <item>Rolling blind</item> <!-- Rolling blind -->
+        <item>Page change timer</item> <!-- Page change timer -->
+    </string-array>    
+        
+    <string-array name="libraryQueries">
+        <item>آخرین کتاب‌های خوانده شده</item> <!-- Most recently read books -->
+        <item>آخرین کتاب‌های اضافه شده</item> <!-- Most recently added books -->
+        <item>کتاب‌های خوانده نشده</item> <!-- Unread books -->
+        <item>تمام کتاب‌ها با عنوان</item> <!-- All books by title -->
+        <item>تمام کتاب‌ها با نویسنده</item> <!-- All books by author --> 
+    </string-array>
+        
+    <string name="access_denied">کلید دسترسی شما اشتباه است. لطفاً pageturner-reader.org را برای گرفتن کلید معتبر ببینید.</string> <!-- Your access-key is invalid. Please visit pageturner-reader.org to obtain a valid access key. -->
+    <string name="import_books">ورود کتاب‌ها</string> <!-- Import Books -->
+    <string name="import_desc">می‌توانید تمامی SD-Card یا پوشهٔ مشخصی را پویش کنید.</string> <!-- You can either scan your entire SD-Card, or specify a folder to search. -->
+    <string name="scan_whole_card">پویش تمامی SD-Card</string> <!-- Scan my entire SD Card -->
+    <string name="scan_folder">پویش پوشهٔ مشخص</string> <!-- Scan a specific folder -->
+    <string name="copy_to_library">کپی کتاب‌ها در پوشهٔ کتابخانه‌ام</string> <!-- Copy books to my library folder -->
+    <string name="no_such_folder">پوشهٔ %s وجود ندارد.</string> <!-- The folder %s does not exist. -->
+    <string name="import_failed">ورود کتاب با موفقیت انجام نشد.</string> <!-- Import failed -->
+    
+    <string name="list_view">تغییر به نمای فهرستی</string> <!-- Switch to list view -->    
+	<string name="shelves_view">تغییر به نمای قفسه‌ای </string> <!-- Switch to shelves view -->
+    <string name="read"></string> <!-- Read now -->
+    
+    <string name="download">بارگیری کتاب‌ها</string> <!-- Download books -->
+    <string name="downloading">درحال بارگیری کتاب ...</string> <!-- Downloading book... -->
+        
+</resources>

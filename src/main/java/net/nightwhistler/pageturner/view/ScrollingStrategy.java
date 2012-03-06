@@ -19,6 +19,7 @@
 package net.nightwhistler.pageturner.view;
 
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.Layout;
@@ -90,7 +91,9 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	private Spanned addEndTag(Spanned text) {
 		
 		//Don't add the tag to the last section.
-		if ( bookView.getSpine().getPosition() >= bookView.getSpine().size() -1 ) {
+		PageTurnerSpine spine = bookView.getSpine();
+		
+		if (spine == null || spine.getPosition() >= spine.size() -1 ) {
 			return text;
 		}
 		

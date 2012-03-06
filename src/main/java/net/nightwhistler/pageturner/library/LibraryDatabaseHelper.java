@@ -77,7 +77,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	}
 	
 	private synchronized SQLiteDatabase getDataBase() {
-		if ( this.database == null ) {
+		if ( this.database == null || ! this.database.isOpen()) {
 			this.database = getWritableDatabase();
 		}
 		

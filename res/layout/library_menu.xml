@@ -9,15 +9,27 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
-    <ViewSwitcher android:id="@+id/libHolder"
+     <RelativeLayout 
+    		android:orientation="vertical"
+    		android:layout_width="fill_parent"
+    		android:layout_height="fill_parent"
+    		>
+    		
+   	 <ViewSwitcher android:id="@+id/libHolder"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
         
-        <ListView
-        android:id="@+id/libraryList"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
+       
+    		
+       <ListView
+        	android:id="@+id/libraryList"
+        	android:layout_width="fill_parent"
+        	android:layout_height="wrap_content" >
+    	</ListView>
+  
+  
+      
+        
     
    <net.nightwhistler.pageturner.view.BookCaseView
       android:id="@+id/bookCaseView"
@@ -29,5 +41,20 @@
     />
    
     </ViewSwitcher>
+    
+   	      <net.nightwhistler.pageturner.view.AlphabetBar
+        android:id="@+id/alphabet_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="6dip"
+        android:layout_marginTop="14dip"
+        android:layout_marginBottom="14dip"
+        android:paddingTop="2dip"
+        android:paddingBottom="2dip"
+        android:paddingLeft="4dip"
+        android:paddingRight="4dip"
+        />
+	</RelativeLayout>   
 
 </LinearLayout>

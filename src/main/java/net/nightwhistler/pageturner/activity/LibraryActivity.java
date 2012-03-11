@@ -70,6 +70,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -120,6 +121,12 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	private boolean oldKeepScreenOn;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(LibraryActivity.class); 
+	
+	private IntentCallBack intentCallBack;
+	
+	private interface IntentCallBack {
+		void onResult( int resultCode, Intent data );
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -316,6 +323,13 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	}
 	
 	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if ( this.intentCallBack != null ) {
+			this.intentCallBack.onResult(resultCode, data);
+		}
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {		
 		
 		MenuInflater inflater = getMenuInflater();
@@ -413,7 +427,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		final View layout = inflater.inflate(R.layout.import_dialog, null);
 		final RadioButton scanSpecific = (RadioButton) layout.findViewById(R.id.radioScanFolder);
 		final TextView folder = (TextView) layout.findViewById(R.id.folderToScan);
-		final CheckBox copyToLibrary = (CheckBox) layout.findViewById(R.id.copyToLib);
+		final CheckBox copyToLibrary = (CheckBox) layout.findViewById(R.id.copyToLib);		
+		final Button browseButton = (Button) layout.findViewById(R.id.browseButton);
 		
 		folder.setOnClickListener(new View.OnClickListener() {
 			
@@ -443,6 +458,29 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 				}				
 			}
 		};
+		
+		View.OnClickListener browseListener = new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				scanSpecific.setChecked(true);				
+				Intent intent = new Intent(LibraryActivity.this, FileBrowseActivity.class);
+				intent.setData( Uri.parse(folder.getText().toString() ));
+				startActivityForResult(intent, 0);
+			}
+		};
+		
+		this.intentCallBack = new IntentCallBack() {
+			
+			@Override
+			public void onResult(int resultCode, Intent data) {
+				if ( resultCode == RESULT_OK && data != null ) {
+					folder.setText(data.getData().getPath());
+				}
+			}
+		};		
+		
+		browseButton.setOnClickListener(browseListener);
 		
 		builder.setTitle(R.string.import_books);
 		builder.setPositiveButton(android.R.string.ok, okListener );

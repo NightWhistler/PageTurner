@@ -32,13 +32,25 @@
             android:text="@string/scan_folder" />
     </RadioGroup>
 
-    <EditText
-        android:id="@+id/folderToScan"
+    <LinearLayout
+        android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-		android:text="/sdcard/eBooks">
-        <requestFocus />
-    </EditText>
+        android:layout_height="wrap_content" >
+
+        <EditText
+            android:id="@+id/folderToScan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="/sdcard/eBooks" />
+
+        <Button
+            android:id="@+id/browseButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Browse..." />
+
+    </LinearLayout>
 
     <CheckBox
         android:id="@+id/copyToLib"

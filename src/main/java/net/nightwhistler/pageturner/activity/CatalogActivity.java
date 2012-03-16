@@ -23,8 +23,6 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.internal.Nullable;
-
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import android.app.ProgressDialog;
@@ -35,7 +33,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,15 +46,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.inject.internal.Nullable;
+
 public class CatalogActivity extends RoboActivity implements OnItemClickListener {
 
-	//private static final String BASE_URL = "http://m.gutenberg.org/ebooks/?format=opds";
-	//private static final String BASE_URL = "http://www.feedbooks.com/catalog.atom";
-	
-	//private static final String BASE_URL = "http://m.gutenberg.org/ebooks/730.opds";
-	
-	//private static final String BASE_URL = "http://192.168.0.6/library/catalog/catalog.xml";
-	
+		
 	private String baseURL;
 	
 	private CatalogListAdapter adapter;

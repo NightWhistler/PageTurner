@@ -20,6 +20,7 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -244,25 +245,35 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	
 	private void showDownloadDialog() {
 		
-		final String[] names = { "Feedbooks", "Manybooks.net",
-				//"AllRomanceEbooks", 
-				//"Internet Archive", 
-				"Gutenberg.org" };
-		final String[] addresses = { "http://www.feedbooks.com/site/free_books.atom",
-				"http://www.manybooks.net/opds/index.php",
+		final List<String> names = new ArrayList<String>(){{ 
+				add("Feedbooks");
+				add("Manybooks.net");
+				add("Gutenberg.org");
+				}};
+		
+		final List<String> addresses = new ArrayList<String>(){{
+				add("http://www.feedbooks.com/site/free_books.atom");
+		
+				add("http://www.manybooks.net/opds/index.php");
 				//"http://www.allromanceebooks.com/epub-feed.xml",
 				//"http://bookserver.archive.org/catalog/",
-				"http://m.gutenberg.org/ebooks/?format=opds" };
+				add("http://m.gutenberg.org/ebooks/?format=opds"); }};
 		
+		if ( config.getCalibreServer().length() != 0 ) {
+			names.add("Calibre server");
+			addresses.add(config.getCalibreServer());
+		}
+				
 
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setTitle(R.string.download);
-
-    	builder.setItems(names, new DialogInterface.OnClickListener() {
+    	builder.setTitle(R.string.download);    	
+    	
+    	builder.setItems(names.toArray(new String[names.size()]),
+    			new DialogInterface.OnClickListener() {
     		public void onClick(DialogInterface dialog, int item) {
     			Intent intent = new Intent(LibraryActivity.this, CatalogActivity.class);
     			
-    			intent.putExtra("url", addresses[item]);
+    			intent.putExtra("url", addresses.get(item));
     			    					
     			startActivityIfNeeded(intent, 99);
     		}

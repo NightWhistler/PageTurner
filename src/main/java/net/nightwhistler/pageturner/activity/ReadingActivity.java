@@ -150,6 +150,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	
 	private boolean oldBrightness = false;
 	private boolean oldStripWhiteSpace = false;
+	private String oldFontName = "";
 		
 	private enum Orientation { HORIZONTAL, VERTICAL }
 	
@@ -207,6 +208,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	
     	this.oldBrightness = config.isBrightnessControlEnabled();
     	this.oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
+    	this.oldFontName = config.getFontFamily().getName();
     	
     	registerForContextMenu(bookView);
     	
@@ -305,7 +307,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         int marginH = config.getHorizontalMargin();
         int marginV = config.getVerticalMargin();
         
-        this.bookView.setTypeface(config.getTypeface());
+        this.bookView.setFontFamily(config.getFontFamily());
         
         bookView.setHorizontalMargin(marginH);
         bookView.setVerticalMargin(marginV);
@@ -331,7 +333,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         
         //Check if we need a restart
         if ( config.isBrightnessControlEnabled() != oldBrightness
-        		|| config.isStripWhiteSpaceEnabled() != oldStripWhiteSpace ) {
+        		|| config.isStripWhiteSpaceEnabled() != oldStripWhiteSpace
+        		|| ! this.oldFontName.equalsIgnoreCase(config.getFontFamily().getName())) {
+        	
         	Intent intent = new Intent(this, ReadingActivity.class);
         	intent.setData(Uri.parse(this.fileName));
         	startActivity(intent);

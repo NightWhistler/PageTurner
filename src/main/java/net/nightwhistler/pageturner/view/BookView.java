@@ -31,8 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
+import net.nightwhistler.htmlspanner.handlers.HeaderHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
@@ -68,6 +70,8 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -158,6 +162,9 @@ public class BookView extends ScrollView {
         spanner.registerHandler("image", imgHandler );
         
         spanner.registerHandler("a", new AnchorHandler(new LinkTagHandler()) );
+        
+       
+        
         
         spanner.registerHandler("h1", new AnchorHandler(spanner.getHandlerFor("h1") ));
         spanner.registerHandler("h2", new AnchorHandler(spanner.getHandlerFor("h2") ));
@@ -324,9 +331,11 @@ public class BookView extends ScrollView {
         new LoadTextTask().execute();        
 	}
 	
-	public void setTypeface(Typeface typeFace) {
-		this.childView.setTypeface( typeFace );		
-		this.tableHandler.setTypeFace(typeFace);
+	public void setFontFamily(FontFamily family) {
+		this.childView.setTypeface( family.getDefaultTypeface() );		
+		this.tableHandler.setTypeFace(family.getDefaultTypeface());
+		
+		this.spanner.setFontFamily(family);
 	}	
 	
 	public void pageDown() {		

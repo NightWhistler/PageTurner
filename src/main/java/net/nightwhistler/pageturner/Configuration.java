@@ -19,6 +19,7 @@
 
 package net.nightwhistler.pageturner;
 
+import net.nightwhistler.htmlspanner.FontFamily;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -39,6 +40,8 @@ public class Configuration {
 	
 	private SharedPreferences settings;
 	private Context context;
+	
+	private FontFamily cachedFamily;
 
 	public static enum ScrollStyle { ROLLING_BLIND, PAGE_TIMER }
 	
@@ -100,6 +103,7 @@ public class Configuration {
 	public static final String KEY_LIB_SEL = "library_selection";
 	
 	public static final String ACCESS_KEY = "access_key";	
+	public static final String CALIBRE_SERVER = "calibre_server";
 	
 	@Inject
 	public Configuration(Context context) {
@@ -264,20 +268,40 @@ public class Configuration {
 		}		
 		
         editor.commit();    
+	}	
+	
+	private FontFamily loadFamilyFromAssets(String key, String baseName ) {
+		Typeface basic = Typeface.createFromAsset(context.getAssets(), baseName + ".otf");
+		Typeface boldFace = Typeface.createFromAsset(context.getAssets(), baseName + "-Bold.otf");
+		Typeface italicFace = Typeface.createFromAsset(context.getAssets(), baseName + "-Italic.otf");
+		Typeface biFace = Typeface.createFromAsset(context.getAssets(), baseName + "-BoldItalic.otf");
+		
+		FontFamily fam = new FontFamily(key, basic);
+		fam.setBoldTypeface(boldFace);
+		fam.setItalicTypeface(italicFace);
+		fam.setBoldItalicTypeface(biFace);
+		
+		return fam;
 	}
 	
-	
-	public Typeface getTypeface() {
+	public FontFamily getFontFamily() {
 		
-		String fontFace = settings.getString(KEY_FONT_FACE, "gen_book_bas");
-    	
-    	Typeface face = Typeface.SERIF;
+		String fontFace = settings.getString(KEY_FONT_FACE, "gen_book_bas");   
+		
+		if ( cachedFamily != null && fontFace.equals( cachedFamily.getName() )) {
+			return cachedFamily;
+		}
     	
     	if ( "gen_book_bas".equals(fontFace) ) {
-    		face = Typeface.createFromAsset(context.getAssets(), "gen_bk_bas.ttf");
-    	} else if ("gen_bas".equals(fontFace)) {
-    		face = Typeface.createFromAsset(context.getAssets(), "gen_bas.ttf");
-    	} else if ("sans".equals(fontFace) ) {
+    		return this.cachedFamily = loadFamilyFromAssets(fontFace, "GentiumBookBasic");    		
+    	}
+    	if ("gen_bas".equals(fontFace)) {
+    		return this.cachedFamily = loadFamilyFromAssets(fontFace, "GentiumBasic");    		
+    	} 
+    	
+    	Typeface face = Typeface.SANS_SERIF;
+    	
+    	if ("sans".equals(fontFace) ) {
     		face = Typeface.SANS_SERIF;
     	} else if ("serif".equals(fontFace)) {
     		face = Typeface.SERIF;
@@ -285,7 +309,7 @@ public class Configuration {
     		face = Typeface.MONOSPACE;
     	}  
     	
-    	return face;
+    	return this.cachedFamily = new FontFamily(fontFace, face);
 	}
 	
 	public int getBrightNess() {
@@ -366,5 +390,9 @@ public class Configuration {
 	
 	public void setLastLibraryQuery(LibrarySelection sel) {
 		updateValue(KEY_LIB_SEL, sel.name().toLowerCase() );
+	}
+	
+	public String getCalibreServer() {
+		return settings.getString(CALIBRE_SERVER, "");
 	}
 }

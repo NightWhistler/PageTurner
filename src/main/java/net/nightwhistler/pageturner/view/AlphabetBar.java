@@ -1,8 +1,30 @@
+/*
+ * Copyright (C) 2012 Alex Kuiper
+ * 
+ * This file is part of PageTurner
+ *
+ * PageTurner is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * PageTurner is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
+ *
+ * Based on the AlphabetListView which can be found here:
+ * 
+ * http://devtcg.blogspot.com/2008/03/custom-android-list-view-widget-to.html
+ */
 package net.nightwhistler.pageturner.view;
 
 
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.nightwhistler.pageturner.R;
 import android.content.Context;
@@ -18,7 +40,7 @@ public class AlphabetBar extends LinearLayout
 {
     private static final String TAG = "AlphabetBar";
     
-    private SortedSet<Character> alphabet = new TreeSet<Character>();
+    private List<Character> alphabet = new ArrayList<Character>();
     
     private AlphabetCallback callback;
 
@@ -35,7 +57,7 @@ public class AlphabetBar extends LinearLayout
         init();
     }
     
-    public void setAlphabet(SortedSet<Character> alphabet ) {
+    public void setAlphabet(List<Character> alphabet ) {
     	this.alphabet = alphabet;
     	updateLabels();
     	invalidate();
@@ -75,7 +97,7 @@ public class AlphabetBar extends LinearLayout
     public void init()
     {
     	setLayoutParams(new LinearLayout.LayoutParams(
-    	          LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
+    	          LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
     	        /* Not strictly necessary since we override onLayout and onMeasure with
     	         * our custom logic, but it seems like good form to do this just to
@@ -120,7 +142,7 @@ public class AlphabetBar extends LinearLayout
         {
             TextView label = (TextView)getChildAt(i);
 
-            label.setTextSize(childHeight * 0.2F);
+            label.setTextSize(childHeight * 0.5F);
 
             int thisHeight = (int)childHeight;
 
@@ -130,9 +152,11 @@ public class AlphabetBar extends LinearLayout
                 variance--;
             }
 
+            
             label.measure
-              (MeasureSpec.makeMeasureSpec(13, MeasureSpec.EXACTLY),
-               MeasureSpec.makeMeasureSpec(thisHeight, MeasureSpec.EXACTLY));
+              (MeasureSpec.makeMeasureSpec(26, MeasureSpec.EXACTLY),
+               MeasureSpec.makeMeasureSpec(thisHeight, MeasureSpec.EXACTLY));		
+            
 
             maxWidth = Math.max(maxWidth, label.getMeasuredWidth());
         }

@@ -72,11 +72,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.AlphabetIndexer;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.SectionIndexer;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -136,7 +138,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		setContentView(R.layout.library_menu);
 		
 		this.handler = new Handler();
-		
+				
 		if ( savedInstanceState != null ) {
 			this.askedUserToImport = savedInstanceState.getBoolean("import_q", false);
 		}
@@ -595,11 +597,62 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
 			this.bookCaseView.setSelection(index);
 		} else {			
-			this.listView.setSelection(index);			
+			this.listView.setSelection(index);				
 		}		
 		
-	}
+	}	
 	
+	private abstract class KeyedResultAdapter extends QueryResultAdapter<LibraryBook> implements SectionIndexer {
+		
+		private KeyedQueryResult<LibraryBook> keyedResult;
+		
+		@Override
+		public void setResult(QueryResult<LibraryBook> result) {
+			
+			if ( result instanceof KeyedQueryResult) {
+				this.keyedResult = (KeyedQueryResult<LibraryBook>) result;	
+			} else {
+				this.keyedResult = null;
+			}
+			
+			super.setResult(result);
+		}		
+		
+	
+		@Override
+		public int getPositionForSection(int section) {
+			
+			if ( keyedResult == null ) {
+				return 0;
+			}
+			
+			Character c = this.keyedResult.getAlphabet().get(section);
+			return this.keyedResult.getOffsetFor(c);
+		}
+
+		@Override
+		public int getSectionForPosition(int position) {			
+			if ( this.keyedResult == null ) {
+				return 0;
+			}
+			
+			Character c = this.keyedResult.getCharacterFor(position);
+			return this.keyedResult.getAlphabet().indexOf(c);
+		}
+
+		@Override
+		public Object[] getSections() {			
+			
+			if ( keyedResult == null ) {
+				return new Object[0];
+			}
+			
+			List<Character> sectionNames = this.keyedResult.getAlphabet();
+			
+			return sectionNames.toArray( new Character[ sectionNames.size() ] );
+			
+		}
+	}
 	
 	/**
 	 * Based on example found here:
@@ -608,13 +661,13 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	 * @author work
 	 *
 	 */
-	private class BookListAdapter extends QueryResultAdapter<LibraryBook> {	
+	private class BookListAdapter extends KeyedResultAdapter {	
 		
-		private Context context;
+		private Context context;		
 		
 		public BookListAdapter(Context context) {
 			this.context = context;
-		}		
+		}	
 		
 		
 		@Override
@@ -675,9 +728,9 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	
 	}	
 	
-	private class BookCaseAdapter extends QueryResultAdapter<LibraryBook> {
+	private class BookCaseAdapter extends KeyedResultAdapter {
 		
-		private Context context;
+		private Context context;		
 		
 		public BookCaseAdapter(Context context) {
 			this.context = context;
@@ -713,7 +766,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			
 			final ImageView image = (ImageView) result.findViewById(R.id.bookCover);
 			image.setImageDrawable(backupCover);
-						
+			
+			
 			if ( object.getCoverImage() != null ) {
 				
 				Runnable runner = new Runnable() {
@@ -725,10 +779,13 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 				};			
 				
 				handler.post(runner);
-			}		
+			}	
+				
 			
 			return result;
 		}
+		
+		
 	}
 	
 	private class QueryMenuAdapter extends ArrayAdapter<String> {
@@ -880,10 +937,10 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 				});
 				
 				alphabetBar.setVisibility(View.VISIBLE);
+				listView.setFastScrollEnabled(true);
 			} else {
-				alphabetBar.setVisibility(View.GONE);
-			}
-			
+				alphabetBar.setVisibility(View.GONE);								
+			}			
 			
 			waitDialog.hide();			
 			

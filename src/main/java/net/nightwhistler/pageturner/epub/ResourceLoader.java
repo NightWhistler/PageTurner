@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * This is mostly a performance utility:
@@ -47,9 +44,7 @@ import org.slf4j.LoggerFactory;
 public class ResourceLoader  {
 	
 	private String fileName;
-	
-	private static final Logger LOG = LoggerFactory.getLogger( ResourceLoader.class );
-	
+		
 	public ResourceLoader(String fileName) {
 		this.fileName = fileName;
 	}

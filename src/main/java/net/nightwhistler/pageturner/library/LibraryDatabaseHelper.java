@@ -28,7 +28,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.BitmapFactory;
 
 import com.google.inject.Inject;
 
@@ -225,7 +224,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	private class KeyedBookResult extends KeyedQueryResult<LibraryBook> {
 		
-		public KeyedBookResult(Cursor cursor, List<String> keys ) {
+		public KeyedBookResult(Cursor cursor, List<String> keys) {
 			super(cursor, keys);
 		}
 		

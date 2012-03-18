@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2012 Alex Kuiper
+ * 
+ * This file is part of PageTurner
+ *
+ * PageTurner is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * PageTurner is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
+ */
 package net.nightwhistler.pageturner.activity;
 
 
@@ -23,8 +41,6 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.internal.Nullable;
-
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import android.app.ProgressDialog;
@@ -35,7 +51,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,14 +64,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class CatalogActivity extends RoboActivity implements OnItemClickListener {
+import com.google.inject.internal.Nullable;
 
-	//private static final String BASE_URL = "http://m.gutenberg.org/ebooks/?format=opds";
-	//private static final String BASE_URL = "http://www.feedbooks.com/catalog.atom";
-	
-	//private static final String BASE_URL = "http://m.gutenberg.org/ebooks/730.opds";
-	
-	//private static final String BASE_URL = "http://192.168.0.6/library/catalog/catalog.xml";
+public class CatalogActivity extends RoboActivity implements OnItemClickListener {
 	
 	private String baseURL;
 	

@@ -21,8 +21,6 @@ package net.nightwhistler.pageturner.library;
 import java.io.Serializable;
 import java.util.Date;
 
-import android.graphics.Bitmap;
-
 public class LibraryBook implements Serializable {
 
 	/**

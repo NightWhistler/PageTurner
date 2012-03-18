@@ -31,10 +31,12 @@ import net.nightwhistler.pageturner.Configuration.LibraryView;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.ImportCallback;
 import net.nightwhistler.pageturner.library.ImportTask;
+import net.nightwhistler.pageturner.library.KeyedQueryResult;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.QueryResult;
 import net.nightwhistler.pageturner.library.QueryResultAdapter;
+import net.nightwhistler.pageturner.view.AlphabetBar;
 import net.nightwhistler.pageturner.view.BookCaseView;
 
 import org.slf4j.Logger;
@@ -57,6 +59,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -70,12 +73,14 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.AlphabetIndexer;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.SectionIndexer;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -99,11 +104,16 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	@InjectResource(R.drawable.river_diary)
 	private Drawable backupCover;
 	
+	@InjectView(R.id.alphabet_bar)
+	private AlphabetBar alphabetBar;
+	
 	@InjectView(R.id.libHolder)
 	private ViewSwitcher switcher;
 	
 	@Inject
 	private Configuration config;
+	
+	private Handler handler;
 	
 	private static final int[] ICONS = { R.drawable.book_binoculars,
 		R.drawable.book_add, R.drawable.book_star,
@@ -135,19 +145,26 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.library_menu);
 		
+		this.handler = new Handler();
+				
 		if ( savedInstanceState != null ) {
 			this.askedUserToImport = savedInstanceState.getBoolean("import_q", false);
 		}
 		
 		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
+			
 			this.bookAdapter = new BookCaseAdapter(this);
 			this.bookCaseView.setAdapter(bookAdapter);
 			if ( switcher.getDisplayedChild() == 0 ) {
 				switcher.showNext();
 			}
+			
+			alphabetBar.setBackgroundResource(R.drawable.alphabet_bar_bg_dark);
 		} else {		
 			this.bookAdapter = new BookListAdapter(this);
 			this.listView.setAdapter(bookAdapter);
+			
+			alphabetBar.setBackgroundResource(R.drawable.alphabet_bar_bg);
 		}			
 		
 		ArrayAdapter<String> adapter = new QueryMenuAdapter(this, 
@@ -167,6 +184,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		
 		registerForContextMenu(this.listView);	
 		this.listView.setOnItemClickListener(this);
+		
+		alphabetBar.setVisibility(View.GONE);
 	}	
 	
 	private void onBookClicked( LibraryBook book ) {
@@ -355,10 +374,12 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 					bookAdapter = new BookCaseAdapter(LibraryActivity.this);
 					bookCaseView.setAdapter(bookAdapter);	
 					config.setLibraryView(LibraryView.BOOKCASE);
+					alphabetBar.setBackgroundResource(R.drawable.alphabet_bar_bg_dark);
 				} else {
 					bookAdapter = new BookListAdapter(LibraryActivity.this);
 					listView.setAdapter(bookAdapter);
 					config.setLibraryView(LibraryView.LIST);
+					alphabetBar.setBackgroundResource(R.drawable.alphabet_bar_bg);
 				}
 				
 				switcher.showNext();
@@ -614,6 +635,73 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		importDialog.setMessage(update);
 	}
 	
+	public void onAlphabetBarClick( KeyedQueryResult<LibraryBook> result, Character c ) {
+		
+		int index = result.getOffsetFor(c);
+		
+		if ( index == -1 ) {
+			return;
+		}
+		
+		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
+			this.bookCaseView.setSelection(index);
+		} else {			
+			this.listView.setSelection(index);				
+		}		
+		
+	}	
+	
+	private abstract class KeyedResultAdapter extends QueryResultAdapter<LibraryBook> implements SectionIndexer {
+		
+		private KeyedQueryResult<LibraryBook> keyedResult;
+		
+		@Override
+		public void setResult(QueryResult<LibraryBook> result) {
+			
+			if ( result instanceof KeyedQueryResult) {
+				this.keyedResult = (KeyedQueryResult<LibraryBook>) result;	
+			} else {
+				this.keyedResult = null;
+			}
+			
+			super.setResult(result);
+		}		
+		
+	
+		@Override
+		public int getPositionForSection(int section) {
+			
+			if ( keyedResult == null ) {
+				return 0;
+			}
+			
+			Character c = this.keyedResult.getAlphabet().get(section);
+			return this.keyedResult.getOffsetFor(c);
+		}
+
+		@Override
+		public int getSectionForPosition(int position) {			
+			if ( this.keyedResult == null ) {
+				return 0;
+			}
+			
+			Character c = this.keyedResult.getCharacterFor(position);
+			return this.keyedResult.getAlphabet().indexOf(c);
+		}
+
+		@Override
+		public Object[] getSections() {			
+			
+			if ( keyedResult == null ) {
+				return new Object[0];
+			}
+			
+			List<Character> sectionNames = this.keyedResult.getAlphabet();
+			
+			return sectionNames.toArray( new Character[ sectionNames.size() ] );
+			
+		}
+	}
 	
 	/**
 	 * Based on example found here:
@@ -622,13 +710,13 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	 * @author work
 	 *
 	 */
-	private class BookListAdapter extends QueryResultAdapter<LibraryBook> {	
+	private class BookListAdapter extends KeyedResultAdapter {	
 		
-		private Context context;
+		private Context context;		
 		
 		public BookListAdapter(Context context) {
 			this.context = context;
-		}		
+		}	
 		
 		
 		@Override
@@ -650,7 +738,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			TextView dateView = (TextView) rowView.findViewById(R.id.addedToLibrary);
 			TextView progressView = (TextView) rowView.findViewById(R.id.readingProgress);
 			
-			ImageView imageView = (ImageView) rowView.findViewById(R.id.bookCover);
+			final ImageView imageView = (ImageView) rowView.findViewById(R.id.bookCover);
 						
 			String authorText = String.format(getString(R.string.book_by),
 					book.getAuthor().getFirstName() + " " + book.getAuthor().getLastName() );
@@ -668,10 +756,20 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 					DATE_FORMAT.format(book.getAddedToLibrary()));
 			dateView.setText( dateText );
 			
-			if ( book.getCoverImage() != null ) {				
-				imageView.setImageBitmap(getCover(book));
-			} else {
-				imageView.setImageDrawable(backupCover);
+			
+			imageView.setImageDrawable(backupCover);
+						
+			if ( book.getCoverImage() != null ) {
+				
+				Runnable runner = new Runnable() {
+					
+					@Override
+					public void run() {
+						imageView.setImageBitmap( getCover(book) );						
+					}
+				};			
+				
+				handler.post(runner);
 			}
 			
 			return rowView;
@@ -679,9 +777,9 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	
 	}	
 	
-	private class BookCaseAdapter extends QueryResultAdapter<LibraryBook> {
+	private class BookCaseAdapter extends KeyedResultAdapter {
 		
-		private Context context;
+		private Context context;		
 		
 		public BookCaseAdapter(Context context) {
 			this.context = context;
@@ -715,16 +813,28 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			});	
 			
 			
-			ImageView image = (ImageView) result.findViewById(R.id.bookCover);				
-						
-			if ( object.getCoverImage() != null ) {			
-				image.setImageBitmap( getCover(object) );
-			} else {
-				image.setImageDrawable(backupCover);
-			}		
+			final ImageView image = (ImageView) result.findViewById(R.id.bookCover);
+			image.setImageDrawable(backupCover);
+			
+			
+			if ( object.getCoverImage() != null ) {
+				
+				Runnable runner = new Runnable() {
+					
+					@Override
+					public void run() {
+						image.setImageBitmap( getCover(object) );						
+					}
+				};			
+				
+				handler.post(runner);
+			}	
+				
 			
 			return result;
 		}
+		
+		
 	}
 	
 	private class QueryMenuAdapter extends ArrayAdapter<String> {
@@ -860,6 +970,27 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		@Override
 		protected void onPostExecute(QueryResult<LibraryBook> result) {
 			bookAdapter.setResult(result);
+			
+			
+			if ( result instanceof KeyedQueryResult ) {
+				
+				final KeyedQueryResult<LibraryBook> keyedResult = (KeyedQueryResult<LibraryBook>) result;
+				alphabetBar.setAlphabet(keyedResult.getAlphabet());
+				
+				alphabetBar.setCallback(new AlphabetBar.AlphabetCallback() {
+					
+					@Override
+					public void characterClicked(Character c) {
+						onAlphabetBarClick(keyedResult, c);						
+					}
+				});
+				
+				alphabetBar.setVisibility(View.VISIBLE);
+				listView.setFastScrollEnabled(true);
+			} else {
+				alphabetBar.setVisibility(View.GONE);								
+			}			
+			
 			waitDialog.hide();			
 			
 			if ( sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {

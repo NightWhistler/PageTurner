@@ -66,7 +66,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.speech.tts.TextToSpeech;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
 import android.util.DisplayMetrics;

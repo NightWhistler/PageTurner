@@ -158,7 +158,7 @@ public class SqlLiteLibraryService implements LibraryService {
 	public QueryResult<LibraryBook> findUnread() {
 		return helper.findByField(
 				LibraryDatabaseHelper.Field.date_last_read,
-				null, LibraryDatabaseHelper.Field.date_last_read, 
+				null, LibraryDatabaseHelper.Field.title, 
 				LibraryDatabaseHelper.Order.ASC);
 				
 	}	
@@ -189,7 +189,7 @@ public class SqlLiteLibraryService implements LibraryService {
 	
 	@Override
 	public QueryResult<LibraryBook> findAllByAuthor() {
-		return helper.findAllOrderedBy(
+		return helper.findAllKeyedBy(
 				LibraryDatabaseHelper.Field.a_last_name,
 				LibraryDatabaseHelper.Order.ASC );
 	
@@ -203,8 +203,8 @@ public class SqlLiteLibraryService implements LibraryService {
 	}
 	
 	@Override
-	public QueryResult<LibraryBook> findAllByTitle() {
-		return helper.findAllOrderedBy(
+	public KeyedQueryResult<LibraryBook> findAllByTitle() {
+		return helper.findAllKeyedBy(
 				LibraryDatabaseHelper.Field.title,
 				LibraryDatabaseHelper.Order.ASC );	
 	}

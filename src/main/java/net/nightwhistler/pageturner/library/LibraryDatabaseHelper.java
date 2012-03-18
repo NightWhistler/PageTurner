@@ -18,7 +18,9 @@
  */
 package net.nightwhistler.pageturner.library;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import roboguice.inject.ContextScoped;
 import android.content.ContentValues;
@@ -194,6 +196,45 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return new LibraryBookResult(cursor);
 	}	
 	
+	public KeyedQueryResult<LibraryBook> findAllKeyedBy(Field fieldName, Order order ) {
+		
+		String[] keyField = { fieldName.toString() };
+		Cursor fieldCursor = getDataBase().query("lib_books", keyField, null, 
+				new String[0], null, null, 
+				fieldName != null ? fieldName.toString() + " " + order.toString() : null);
+				
+		List<String> keys = new ArrayList<String>();
+		fieldCursor.moveToFirst();
+		
+		fieldCursor.moveToFirst();
+		
+		while( !fieldCursor.isAfterLast()) {
+		     keys.add(fieldCursor.getString(0));
+		     fieldCursor.moveToNext();
+		}
+		
+		fieldCursor.close();
+						
+		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
+				fieldName != null ? fieldName.toString() + " is not null" : null,
+			    new String[0], null, null,
+				fieldName != null ? fieldName.toString() + " " + order.toString() : null );		
+		
+		return new KeyedBookResult(cursor, keys);
+	}	
+	
+	private class KeyedBookResult extends KeyedQueryResult<LibraryBook> {
+		
+		public KeyedBookResult(Cursor cursor, List<String> keys ) {
+			super(cursor, keys);
+		}
+		
+		@Override
+		public LibraryBook convertRow(Cursor cursor) {
+			return doConvertRow(cursor);
+		}
+	}
+	
 	private class LibraryBookResult extends QueryResult<LibraryBook> {
 		
 		public LibraryBookResult(Cursor cursor) {
@@ -202,35 +243,39 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		
 		@Override
 		public LibraryBook convertRow(Cursor cursor) {
-			
-			LibraryBook newBook = new LibraryBook();
-			
-			newBook.setAuthor(new Author( 
-					cursor.getString(Field.a_first_name.ordinal()), 
-					cursor.getString(Field.a_last_name.ordinal())));
-			
-			newBook.setTitle( cursor.getString(Field.title.ordinal()));
-			
-			newBook.setDescription(cursor.getString(Field.description.ordinal()));
-			
-			try {
-				newBook.setAddedToLibrary(new Date(cursor.getLong(Field.date_added.ordinal())));
-			} catch (RuntimeException r){}
-			
-			try {
-				newBook.setLastRead(new Date(cursor.getLong(Field.date_last_read.ordinal())));
-			} catch (RuntimeException r){}
-			
-			byte[] coverData = cursor.getBlob(Field.cover_image.ordinal());
-			newBook.setCoverImage(coverData);			
-			
-			newBook.setFileName( cursor.getString(Field.file_name.ordinal()));
-			
-			newBook.setProgress(cursor.getInt(Field.progress.ordinal()));
-			
-			return newBook;
+			return doConvertRow(cursor);
 		}
 	}	
+	
+	private static LibraryBook doConvertRow(Cursor cursor) {
+		
+		LibraryBook newBook = new LibraryBook();
+		
+		newBook.setAuthor(new Author( 
+				cursor.getString(Field.a_first_name.ordinal()), 
+				cursor.getString(Field.a_last_name.ordinal())));
+		
+		newBook.setTitle( cursor.getString(Field.title.ordinal()));
+		
+		newBook.setDescription(cursor.getString(Field.description.ordinal()));
+		
+		try {
+			newBook.setAddedToLibrary(new Date(cursor.getLong(Field.date_added.ordinal())));
+		} catch (RuntimeException r){}
+		
+		try {
+			newBook.setLastRead(new Date(cursor.getLong(Field.date_last_read.ordinal())));
+		} catch (RuntimeException r){}
+		
+		byte[] coverData = cursor.getBlob(Field.cover_image.ordinal());
+		newBook.setCoverImage(coverData);			
+		
+		newBook.setFileName( cursor.getString(Field.file_name.ordinal()));
+		
+		newBook.setProgress(cursor.getInt(Field.progress.ordinal()));
+		
+		return newBook;
+	}
 	
 	//public void createOrUpdateBook( 
 	

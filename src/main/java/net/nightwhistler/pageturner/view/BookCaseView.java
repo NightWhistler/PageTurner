@@ -49,6 +49,16 @@ public class BookCaseView extends GridView {
 		invalidate();
 	}
 	
+	public void scrollToChild( int index ) {
+		System.out.println("Scrolling to child " + index );
+		
+		int y = getChildAt(index).getTop();
+		
+		int delta = y - getScrollY();
+		
+		scrollBy(0, delta);
+	}
+	
 	@Override
 	protected void dispatchDraw(Canvas canvas) {
 		final int count = getChildCount();

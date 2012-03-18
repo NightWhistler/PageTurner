@@ -2,6 +2,8 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import net.nightwhistler.pageturner.R;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -47,6 +50,8 @@ public class FileBrowseActivity extends RoboListActivity {
 			adapter.setFolder(new File("/sdcard"));
 		}
 		
+		setTitle(adapter.getCurrentFolder());
+		
 		setListAdapter(adapter);		
 		registerForContextMenu(getListView());
 	}
@@ -54,7 +59,10 @@ public class FileBrowseActivity extends RoboListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		File f = this.adapter.getItem(position);
-		this.adapter.setFolder(f);
+		if ( f.isDirectory() ) {
+			this.adapter.setFolder(f);
+			setTitle(adapter.getCurrentFolder());
+		}
 	}
 	
 	@Override
@@ -88,18 +96,24 @@ public class FileBrowseActivity extends RoboListActivity {
 			this.currentFolder = folder;
 			items = new ArrayList<File>();
 			
-			if ( folder.getParentFile() != null ) {
-				items.add( folder.getParentFile() );
-			}
-			
 			for ( String child: folder.list() ) {
 				File childFile = new File( folder, child );
-				if ( childFile.isDirectory() ) {
+				if ( childFile.isDirectory() || childFile.getName().endsWith(".epub")) {
 					items.add(childFile);
 				}
 			}
 			
+			Collections.sort(items, new FileSorter() );
+			
+			if ( folder.getParentFile() != null ) {
+				items.add(0, folder.getParentFile() );
+			}
+			
 			notifyDataSetChanged();
+		}
+		
+		public String getCurrentFolder() {
+			return this.currentFolder.getAbsolutePath();
 		}
 		
 		@Override
@@ -130,6 +144,14 @@ public class FileBrowseActivity extends RoboListActivity {
 				rowView = convertView;
 			}
 			
+			ImageView img = (ImageView) rowView.findViewById(R.id.folderIcon);
+			
+			if ( file.isDirectory() ) {
+				img.setImageDrawable(getResources().getDrawable(R.drawable.folder));				
+			} else {
+				img.setImageDrawable(getResources().getDrawable(R.drawable.book));
+			}
+			
 			TextView label = (TextView) rowView.findViewById(R.id.folderName);
 
 			if ( position == 0 && currentFolder.getParentFile() != null ) {
@@ -142,6 +164,24 @@ public class FileBrowseActivity extends RoboListActivity {
 		}
 		
 		
+	}
+	
+	private class FileSorter implements Comparator<File> {
+		@Override
+		public int compare(File lhs, File rhs) {			
+			
+			if ( (lhs.isDirectory() && rhs.isDirectory()) ||
+					(!lhs.isDirectory() && !rhs.isDirectory())) {
+				return lhs.getName().compareTo(rhs.getName());
+			}
+			
+			if ( lhs.isDirectory() ) {
+				return -1;
+			} else {
+				return 1;
+			}
+						
+		}
 	}
 	
 }

@@ -136,6 +136,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	private static final Logger LOG = LoggerFactory.getLogger(LibraryActivity.class); 
 	
 	private IntentCallBack intentCallBack;
+	private List<CoverCallback> callbacks = new ArrayList<CoverCallback>();
 	
 	private interface IntentCallBack {
 		void onResult( int resultCode, Intent data );
@@ -156,11 +157,13 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			this.askedUserToImport = savedInstanceState.getBoolean("import_q", false);
 		}
 		
+		this.bookCaseView.setOnScrollListener( new CoverScrollListener() );
+		this.listView.setOnScrollListener( new CoverScrollListener() );
+		
 		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
 			
 			this.bookAdapter = new BookCaseAdapter(this);
-			this.bookCaseView.setAdapter(bookAdapter);
-			this.bookCaseView.setOnScrollListener( (AbsListView.OnScrollListener) bookAdapter);
+			this.bookCaseView.setAdapter(bookAdapter);			
 			
 			if ( switcher.getDisplayedChild() == 0 ) {
 				switcher.showNext();
@@ -766,17 +769,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			
 			imageView.setImageDrawable(backupCover);
 						
-			if ( book.getCoverImage() != null ) {
-				
-				Runnable runner = new Runnable() {
-					
-					@Override
-					public void run() {
-						imageView.setImageBitmap( getCover(book) );						
-					}
-				};			
-				
-				handler.post(runner);
+			if ( book.getCoverImage() != null ) {				
+				callbacks.add( new CoverCallback(book, index, imageView ) );	
 			}
 			
 			return rowView;
@@ -784,28 +778,9 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	
 	}	
 	
-	private class CoverCallback {
-		protected LibraryBook book;
-		protected int viewIndex;
-		protected ImageView view;	
-		
-		public void run() {
-			view.setImageDrawable(new FastBitmapDrawable(getCover(book)));
-		}
-	}
-	
-	private class BookCaseAdapter extends KeyedResultAdapter implements AbsListView.OnScrollListener {
-		
-		private Context context;	
-		private List<CoverCallback> callbacks = new ArrayList<LibraryActivity.CoverCallback>();		
-		
-		private int scrollState;
-		
+	private class CoverScrollListener implements AbsListView.OnScrollListener {
 		private Runnable lastRunnable;
 		
-		public BookCaseAdapter(Context context) {
-			this.context = context;
-		}
 		
 		@Override
 		public void onScroll(AbsListView view, final int firstVisibleItem,
@@ -843,8 +818,34 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
-			this.scrollState = scrollState;			
+					
 		}
+		
+	}
+	
+	private class CoverCallback {
+		protected LibraryBook book;
+		protected int viewIndex;
+		protected ImageView view;	
+		
+		public CoverCallback(LibraryBook book, int viewIndex, ImageView view) {
+			this.book = book;
+			this.view = view;
+			this.viewIndex = viewIndex;			
+		}
+		
+		public void run() {			
+			view.setImageDrawable(new FastBitmapDrawable(getCover(book)));					
+		}
+	}
+	
+	private class BookCaseAdapter extends KeyedResultAdapter {
+		
+		private Context context;
+		
+		public BookCaseAdapter(Context context) {
+			this.context = context;
+		}	
 		
 		@Override
 		public View getView(final int index, final LibraryBook object, View convertView,
@@ -880,15 +881,12 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			text.setText( object.getTitle() );
 			text.setBackgroundResource(R.drawable.alphabet_bar_bg_dark);			
 			
-			if ( object.getCoverImage() != null ) {
-				CoverCallback callback = new CoverCallback() {{ book = object; view = image; viewIndex = index; }};
-				this.callbacks.add( callback );				
-			}				
-			
+			if ( object.getCoverImage() != null ) {				
+				callbacks.add( new CoverCallback(object, index, image ) );	
+			}			
 			
 			return result;
 		}
-		
 		
 	}
 	

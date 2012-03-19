@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="142dip"    
+    >
 
    
     <ImageView
         android:id="@+id/bookCover"
-        android:layout_width="fill_parent"
-        android:layout_height="130dip"
-      
-        android:layout_marginTop="12dip"
+        android:layout_width="fill_parent"        
+      	android:layout_height="fill_parent"       
         android:gravity="center"
-        android:src="@drawable/page_turner" >
+        android:layout_gravity="bottom"
+        android:src="@drawable/page_turner"
+        android:layout_marginTop="12dip" >
     </ImageView>
 
+    <TextView
+        android:id="@+id/bookLabel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Small Text"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:gravity="center"
+        android:layout_gravity="bottom"                
+         />
 
-   
-
-</LinearLayout>
+</FrameLayout>

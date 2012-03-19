@@ -38,6 +38,7 @@ import net.nightwhistler.pageturner.library.QueryResult;
 import net.nightwhistler.pageturner.library.QueryResultAdapter;
 import net.nightwhistler.pageturner.view.AlphabetBar;
 import net.nightwhistler.pageturner.view.BookCaseView;
+import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.AbsListView;
 import android.widget.AlphabetIndexer;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -101,7 +103,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	@InjectView(R.id.bookCaseView)
 	private BookCaseView bookCaseView;
 	
-	@InjectResource(R.drawable.river_diary)
+	//@InjectResource(R.drawable.river_diary)
 	private Drawable backupCover;
 	
 	@InjectView(R.id.alphabet_bar)
@@ -145,6 +147,9 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.library_menu);
 		
+		Bitmap backupBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.river_diary );
+		this.backupCover = new FastBitmapDrawable(backupBitmap);
+		
 		this.handler = new Handler();
 				
 		if ( savedInstanceState != null ) {
@@ -155,6 +160,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			
 			this.bookAdapter = new BookCaseAdapter(this);
 			this.bookCaseView.setAdapter(bookAdapter);
+			this.bookCaseView.setOnScrollListener( (AbsListView.OnScrollListener) bookAdapter);
+			
 			if ( switcher.getDisplayedChild() == 0 ) {
 				switcher.showNext();
 			}
@@ -777,16 +784,70 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	
 	}	
 	
-	private class BookCaseAdapter extends KeyedResultAdapter {
+	private class CoverCallback {
+		protected LibraryBook book;
+		protected int viewIndex;
+		protected ImageView view;	
 		
-		private Context context;		
+		public void run() {
+			view.setImageDrawable(new FastBitmapDrawable(getCover(book)));
+		}
+	}
+	
+	private class BookCaseAdapter extends KeyedResultAdapter implements AbsListView.OnScrollListener {
+		
+		private Context context;	
+		private List<CoverCallback> callbacks = new ArrayList<LibraryActivity.CoverCallback>();		
+		
+		private int scrollState;
+		
+		private Runnable lastRunnable;
 		
 		public BookCaseAdapter(Context context) {
 			this.context = context;
 		}
 		
 		@Override
-		public View getView(int index, final LibraryBook object, View convertView,
+		public void onScroll(AbsListView view, final int firstVisibleItem,
+				final int visibleItemCount, final int totalItemCount) {
+			
+			if ( visibleItemCount == 0  ) {
+				return;
+			}
+			
+			if ( this.lastRunnable != null ) {
+				handler.removeCallbacks(lastRunnable);
+			}
+			
+			this.lastRunnable = new Runnable() {
+				
+				@Override
+				public void run() {
+					List<CoverCallback> localList = new ArrayList<LibraryActivity.CoverCallback>( callbacks );
+					callbacks.clear();
+					
+					int lastVisibleItem = firstVisibleItem + visibleItemCount - 1;
+					
+					LOG.info( "Loading items " + firstVisibleItem + " to " + lastVisibleItem + " of " + totalItemCount );
+					
+					for ( CoverCallback callback: localList ) {
+						if ( callback.viewIndex >= firstVisibleItem && callback.viewIndex <= lastVisibleItem ) {
+							callback.run();
+						}
+					}						
+				}
+			};
+				
+			handler.postDelayed(lastRunnable, 550);
+		}
+		
+		@Override
+		public void onScrollStateChanged(AbsListView view, int scrollState) {
+			this.scrollState = scrollState;			
+		}
+		
+		@Override
+		public View getView(final int index, final LibraryBook object, View convertView,
 				ViewGroup parent) {
 			
 			View result;
@@ -815,21 +876,15 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			
 			final ImageView image = (ImageView) result.findViewById(R.id.bookCover);
 			image.setImageDrawable(backupCover);
-			
+			TextView text = (TextView) result.findViewById(R.id.bookLabel);
+			text.setText( object.getTitle() );
+			text.setBackgroundResource(R.drawable.alphabet_bar_bg_dark);			
 			
 			if ( object.getCoverImage() != null ) {
-				
-				Runnable runner = new Runnable() {
-					
-					@Override
-					public void run() {
-						image.setImageBitmap( getCover(object) );						
-					}
-				};			
-				
-				handler.post(runner);
-			}	
-				
+				CoverCallback callback = new CoverCallback() {{ book = object; view = image; viewIndex = index; }};
+				this.callbacks.add( callback );				
+			}				
+			
 			
 			return result;
 		}

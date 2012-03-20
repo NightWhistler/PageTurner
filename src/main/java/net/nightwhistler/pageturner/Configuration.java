@@ -53,6 +53,8 @@ public class Configuration {
 	
 	public static enum LibraryView { BOOKCASE, LIST }
 	
+	public static enum CoverLabelOption { ALWAYS, NEVER, WITHOUT_COVER }
+	
 	public static enum LibrarySelection {
 		 BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
 	}	
@@ -104,6 +106,8 @@ public class Configuration {
 	
 	public static final String ACCESS_KEY = "access_key";	
 	public static final String CALIBRE_SERVER = "calibre_server";
+	
+	public static final String KEY_COVER_LABELS = "cover_labels";
 	
 	@Inject
 	public Configuration(Context context) {
@@ -238,6 +242,12 @@ public class Configuration {
 		} else {
 			updateValue(KEY_NIGHT_MODE, true);
 		}
+	}
+	
+	public CoverLabelOption getCoverLabelOption() {
+		return CoverLabelOption.valueOf(
+				settings.getString(KEY_COVER_LABELS, 
+						CoverLabelOption.ALWAYS.name().toLowerCase()) );
 	}
 	
 	public ColourProfile getColourProfile() {

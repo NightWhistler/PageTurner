@@ -4,56 +4,58 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
+   
+        
     <Spinner
         android:id="@+id/librarySpinner"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
-     <RelativeLayout 
-    		android:orientation="vertical"
-    		android:layout_width="fill_parent"
-    		android:layout_height="fill_parent"
-    		>
-    		
+    <LinearLayout
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:orientation="horizontal" >
+    	 		
    	 <ViewSwitcher android:id="@+id/libHolder"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-        
-       
+        android:layout_height="fill_parent"
+        android:layout_weight="1">       
     		
-       <ListView
+   		<ListView
         	android:id="@+id/libraryList"
         	android:layout_width="fill_parent"
         	android:layout_height="wrap_content" 
         	android:fastScrollEnabled="true" >
-    	</ListView>    
+   		</ListView>    
         
     
-   <net.nightwhistler.pageturner.view.BookCaseView
-      android:id="@+id/bookCaseView"
-      android:layout_width="fill_parent"
-      android:layout_height="fill_parent"
-      android:numColumns="auto_fit"
-      android:verticalSpacing="22dip"
-      android:columnWidth="130dip"  
-      android:fastScrollEnabled="true" />                 
+   		<net.nightwhistler.pageturner.view.BookCaseView
+      		android:id="@+id/bookCaseView"
+      		android:layout_width="fill_parent"
+      		android:layout_height="fill_parent"
+      		android:numColumns="auto_fit"
+      		android:verticalSpacing="22dip"
+      		android:columnWidth="130dip"  
+      		android:fastScrollEnabled="true" />                 
     
    
-    </ViewSwitcher>
-    
-   	      <net.nightwhistler.pageturner.view.AlphabetBar
-        android:id="@+id/alphabet_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="2dip"
-        android:layout_marginTop="14dip"
-        android:layout_marginBottom="14dip"
-        android:paddingTop="2dip"
-        android:paddingBottom="2dip"
-        android:paddingLeft="4dip"
-        android:paddingRight="4dip"
-        />
-	</RelativeLayout>   
+    	</ViewSwitcher>
+    	
+   	     <ImageView 
+   	         android:id="@+id/alphabetDivider"
+   	         android:layout_height="fill_parent"
+   	         android:layout_width="1dip"
+   	         android:src="@color/dark_grey"/>
+    	
+   	     <ListView
+        	android:id="@+id/alphabetList"
+        	android:layout_width="15dip"
+        	android:layout_marginLeft="2dip"
+        	android:layout_height="fill_parent"> 
+        	
+   		</ListView>  
+    	
+   	 </LinearLayout>
+   	  
 
 </LinearLayout>

@@ -102,19 +102,20 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	
 	@InjectView(R.id.bookCaseView)
 	private BookCaseView bookCaseView;
+		
+	@InjectView(R.id.alphabetList)
+	private ListView alphabetBar;
 	
-	//@InjectResource(R.drawable.river_diary)
-	private Drawable backupCover;
-	
-	@InjectView(R.id.alphabet_bar)
-	private AlphabetBar alphabetBar;
+	@InjectView(R.id.alphabetDivider)
+	private ImageView alphabetDivider;
 	
 	@InjectView(R.id.libHolder)
 	private ViewSwitcher switcher;
 	
 	@Inject
 	private Configuration config;
-	
+
+	private Drawable backupCover;
 	private Handler handler;
 	
 	private static final int[] ICONS = { R.drawable.book_binoculars,
@@ -168,13 +169,9 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			if ( switcher.getDisplayedChild() == 0 ) {
 				switcher.showNext();
 			}
-			
-			alphabetBar.setBackgroundResource(R.drawable.alphabet_bar_bg_dark);
 		} else {		
 			this.bookAdapter = new BookListAdapter(this);
 			this.listView.setAdapter(bookAdapter);
-			
-			alphabetBar.setBackgroundResource(R.drawable.alphabet_bar_bg);
 		}			
 		
 		ArrayAdapter<String> adapter = new QueryMenuAdapter(this, 
@@ -195,7 +192,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		registerForContextMenu(this.listView);	
 		this.listView.setOnItemClickListener(this);
 		
-		alphabetBar.setVisibility(View.GONE);
+		setAlphabetBarVisible(false);
 	}	
 	
 	private void onBookClicked( LibraryBook book ) {
@@ -383,13 +380,11 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 				if ( switcher.getDisplayedChild() == 0 ) {
 					bookAdapter = new BookCaseAdapter(LibraryActivity.this);
 					bookCaseView.setAdapter(bookAdapter);	
-					config.setLibraryView(LibraryView.BOOKCASE);
-					alphabetBar.setBackgroundResource(R.drawable.alphabet_bar_bg_dark);
+					config.setLibraryView(LibraryView.BOOKCASE);					
 				} else {
 					bookAdapter = new BookListAdapter(LibraryActivity.this);
 					listView.setAdapter(bookAdapter);
-					config.setLibraryView(LibraryView.LIST);
-					alphabetBar.setBackgroundResource(R.drawable.alphabet_bar_bg);
+					config.setLibraryView(LibraryView.LIST);					
 				}
 				
 				switcher.showNext();
@@ -956,6 +951,15 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		this.importQuestion = builder.create();
 	}
 	
+	private void setAlphabetBarVisible( boolean visible ) {
+		
+		int vis = visible ? View.VISIBLE : View.GONE; 
+		
+		alphabetBar.setVisibility(vis);
+		alphabetDivider.setVisibility(vis);		
+		listView.setFastScrollEnabled(visible);
+	}
+	
 	private class MenuSelectionListener implements OnItemSelectedListener {
 		@Override
 		public void onItemSelected(AdapterView<?> arg0, View arg1, int pos,
@@ -1018,7 +1022,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			}
 			
 			throw new RuntimeException( "Failed after 3 attempts", storedException ); 
-		}
+		}		
+		
 		
 		@Override
 		protected void onPostExecute(QueryResult<LibraryBook> result) {
@@ -1028,20 +1033,24 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			if ( result instanceof KeyedQueryResult ) {
 				
 				final KeyedQueryResult<LibraryBook> keyedResult = (KeyedQueryResult<LibraryBook>) result;
-				alphabetBar.setAlphabet(keyedResult.getAlphabet());
 				
-				alphabetBar.setCallback(new AlphabetBar.AlphabetCallback() {
-					
+				ArrayAdapter<Character> adapter = new ArrayAdapter<Character>(LibraryActivity.this,
+						R.layout.alphabet_line, R.id.alphabetLabel,	keyedResult.getAlphabet() );
+				
+				alphabetBar.setAdapter(adapter);
+				
+				alphabetBar.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
-					public void characterClicked(Character c) {
-						onAlphabetBarClick(keyedResult, c);						
+					public void onItemClick(AdapterView<?> arg0, View arg1,
+							int arg2, long arg3) {
+						Character c = keyedResult.getAlphabet().get(arg2);
+						onAlphabetBarClick(keyedResult, c);
 					}
-				});
+				});				
 				
-				alphabetBar.setVisibility(View.VISIBLE);
-				listView.setFastScrollEnabled(true);
+				setAlphabetBarVisible(true);
 			} else {
-				alphabetBar.setVisibility(View.GONE);								
+				setAlphabetBarVisible(false);								
 			}			
 			
 			waitDialog.hide();			

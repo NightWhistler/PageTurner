@@ -43,6 +43,8 @@ public class SqlLiteLibraryService implements LibraryService {
 	
 	private static final long MAX_COVER_SIZE = 1024 * 1024; //Max 1Mb
 	
+	private static final int LIMIT = 20;
+	
 	private LibraryDatabaseHelper helper;	
 	
 	@Inject
@@ -182,9 +184,11 @@ public class SqlLiteLibraryService implements LibraryService {
 	
 	@Override
 	public QueryResult<LibraryBook> findAllByLastRead() {		
-		return helper.findAllOrderedBy(
+		QueryResult<LibraryBook> result = helper.findAllOrderedBy(
 				LibraryDatabaseHelper.Field.date_last_read,
 				LibraryDatabaseHelper.Order.DESC );
+		result.setLimit(LIMIT);
+		return result;
 	}
 	
 	@Override
@@ -197,9 +201,11 @@ public class SqlLiteLibraryService implements LibraryService {
 	
 	@Override
 	public QueryResult<LibraryBook> findAllByLastAdded() {
-		return helper.findAllOrderedBy(
+		QueryResult<LibraryBook> result = helper.findAllOrderedBy(
 				LibraryDatabaseHelper.Field.date_added,
-				LibraryDatabaseHelper.Order.DESC );	
+				LibraryDatabaseHelper.Order.DESC );
+		result.setLimit(LIMIT);
+		return result;
 	}
 	
 	@Override

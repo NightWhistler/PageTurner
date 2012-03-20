@@ -165,7 +165,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return result;
 	}	
 	
-	public QueryResult<LibraryBook> findByField( Field fieldName, String fieldValue,
+	public KeyedQueryResult<LibraryBook> findByField( Field fieldName, String fieldValue,
 			Field orderField, Order ordering) {
 						
 		String[] args = { fieldValue };
@@ -182,7 +182,9 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 				whereClause, args, null, null,
 				orderField + " " + ordering  );		
 		
-		return new LibraryBookResult(cursor);
+		List<String> keys = getKeys(orderField, ordering);
+		
+		return new KeyedBookResult( cursor, keys );
 	}
 	
 	public QueryResult<LibraryBook> findAllOrderedBy( Field fieldName, Order order ) {
@@ -195,8 +197,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return new LibraryBookResult(cursor);
 	}	
 	
-	public KeyedQueryResult<LibraryBook> findAllKeyedBy(Field fieldName, Order order ) {
-		
+	private List<String> getKeys( Field fieldName, Order order ) {
 		String[] keyField = { fieldName.toString() };
 		Cursor fieldCursor = getDataBase().query("lib_books", keyField, null, 
 				new String[0], null, null, 
@@ -213,6 +214,13 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		}
 		
 		fieldCursor.close();
+		
+		return keys;
+	}
+	
+	public KeyedQueryResult<LibraryBook> findAllKeyedBy(Field fieldName, Order order ) {
+		
+		List<String> keys = getKeys(fieldName, order);
 						
 		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
 				fieldName != null ? fieldName.toString() + " is not null" : null,

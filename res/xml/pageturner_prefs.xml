@@ -66,7 +66,8 @@
 				android:title="Copy to library folder"
 				android:summary="Should PageTurner copy files to its own library folder"
 				android:defaultValue="true"
-				/>  
+				/> 			
+              	
 				
       			<EditTextPreference
 	            android:key="calibre_server"

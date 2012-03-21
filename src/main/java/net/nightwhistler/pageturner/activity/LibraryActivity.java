@@ -19,10 +19,13 @@
 package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
+import java.lang.ref.SoftReference;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
@@ -138,6 +141,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	
 	private IntentCallBack intentCallBack;
 	private List<CoverCallback> callbacks = new ArrayList<CoverCallback>();
+	private Map<String, SoftReference<Drawable>> coverCache = new HashMap<String, SoftReference<Drawable>>();
 	
 	private interface IntentCallBack {
 		void onResult( int resultCode, Intent data );
@@ -761,17 +765,27 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 					DATE_FORMAT.format(book.getAddedToLibrary()));
 			dateView.setText( dateText );
 			
-			
-			imageView.setImageDrawable(backupCover);
-						
-			if ( book.getCoverImage() != null ) {				
-				callbacks.add( new CoverCallback(book, index, imageView ) );	
-			}
+			loadCover(imageView, book, index);			
 			
 			return rowView;
 		}	
 	
 	}	
+	
+	private void loadCover( ImageView imageView, LibraryBook book, int index ) {
+		SoftReference<Drawable> ref = coverCache.get(book.getFileName());			
+		
+		if ( ref != null && ref.get() != null ) {
+			imageView.setImageDrawable(ref.get());
+		} else {
+			
+			imageView.setImageDrawable(backupCover);
+			
+			if ( book.getCoverImage() != null ) {				
+				callbacks.add( new CoverCallback(book, index, imageView ) );	
+			}
+		}
+	}
 	
 	private class CoverScrollListener implements AbsListView.OnScrollListener {
 		private Runnable lastRunnable;
@@ -793,12 +807,12 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 				
 				@Override
 				public void run() {
-					List<CoverCallback> localList = new ArrayList<LibraryActivity.CoverCallback>( callbacks );
+					List<CoverCallback> localList = new ArrayList<CoverCallback>( callbacks );
 					callbacks.clear();
 					
 					int lastVisibleItem = firstVisibleItem + visibleItemCount - 1;
 					
-					LOG.info( "Loading items " + firstVisibleItem + " to " + lastVisibleItem + " of " + totalItemCount );
+					LOG.debug( "Loading items " + firstVisibleItem + " to " + lastVisibleItem + " of " + totalItemCount );
 					
 					for ( CoverCallback callback: localList ) {
 						if ( callback.viewIndex >= firstVisibleItem && callback.viewIndex <= lastVisibleItem ) {
@@ -830,7 +844,9 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		}
 		
 		public void run() {			
-			view.setImageDrawable(new FastBitmapDrawable(getCover(book)));					
+			FastBitmapDrawable drawable = new FastBitmapDrawable(getCover(book));			
+			view.setImageDrawable(drawable);	
+			coverCache.put(book.getFileName(), new SoftReference<Drawable>(drawable));
 		}
 	}
 	
@@ -876,9 +892,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			text.setText( object.getTitle() );
 			text.setBackgroundResource(R.drawable.alphabet_bar_bg_dark);			
 			
-			if ( object.getCoverImage() != null ) {				
-				callbacks.add( new CoverCallback(object, index, image ) );	
-			}			
+			loadCover(image, object, index);		
 			
 			return result;
 		}

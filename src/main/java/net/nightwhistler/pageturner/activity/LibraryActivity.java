@@ -128,6 +128,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	private QueryResultAdapter<LibraryBook> bookAdapter;
 		
 	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG);
+	private static final int ALPHABET_THRESHOLD = 35;
 	
 	private ProgressDialog waitDialog;
 	private ProgressDialog importDialog;	
@@ -1044,7 +1045,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			bookAdapter.setResult(result);
 			
 			
-			if ( result instanceof KeyedQueryResult ) {
+			if ( result instanceof KeyedQueryResult && result.getSize() >= ALPHABET_THRESHOLD ) {
 				
 				final KeyedQueryResult<LibraryBook> keyedResult = (KeyedQueryResult<LibraryBook>) result;
 				

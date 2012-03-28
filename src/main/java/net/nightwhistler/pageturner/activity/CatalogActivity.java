@@ -125,10 +125,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 	private void initActionBar() {
 		     
 	     actionBar.setTitle("Catalog");	
-	     Intent libIntent = new Intent(this, LibraryActivity.class);
-	     actionBar.setHomeAction(new IntentAction(this, libIntent, R.drawable.page_turner));
-	     
-	          
+	    
 	     this.homeAction = new ActionBar.AbstractAction(R.drawable.home) {
 				
 				@Override
@@ -136,6 +133,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 					onNavClick( this );				
 				}
 		     };
+		 actionBar.setHomeAction(this.homeAction);
 	     
 	     this.prevAction = new ActionBar.AbstractAction(R.drawable.arrow_left) {
 			
@@ -161,71 +159,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				}
 		  };
 	     
-	     /*
-	     final Action shareAction = new IntentAction(this, createShareIntent(), R.drawable.ic_title_share_default);
-	        actionBar.addAction(shareAction);
-	        final Action otherAction = new IntentAction(this, new Intent(this, OtherActivity.class), R.drawable.ic_title_export_default);
-	        actionBar.addAction(otherAction);
-
-	        Button startProgress = (Button) findViewById(R.id.start_progress);
-	        startProgress.setOnClickListener(new OnClickListener() {
-	            @Override
-	            public void onClick(View v) {
-	                actionBar.setProgressBarVisibility(View.VISIBLE);
-	            }
-	        });
-	        
-	        Button stopProgress = (Button) findViewById(R.id.stop_progress);
-	        stopProgress.setOnClickListener(new OnClickListener() {
-	            @Override
-	            public void onClick(View v) {
-	                actionBar.setProgressBarVisibility(View.GONE);
-	            }
-	        });
-
-	        Button removeActions = (Button) findViewById(R.id.remove_actions);
-	        removeActions.setOnClickListener(new OnClickListener() {
-	            @Override
-	            public void onClick(View view) {
-	                actionBar.removeAllActions();
-	            }
-	        });
-
-	        Button addAction = (Button) findViewById(R.id.add_action);
-	        addAction.setOnClickListener(new OnClickListener() {
-	            @Override
-	            public void onClick(View view) {
-	                actionBar.addAction(new Action() {
-	                    @Override
-	                    public void performAction(View view) {
-	                        Toast.makeText(HomeActivity.this, "Added action.", Toast.LENGTH_SHORT).show();
-	                    }
-	                    @Override
-	                    public int getDrawable() {
-	                        return R.drawable.ic_title_share_default;
-	                    }
-	                });
-	            }
-	        });
-
-	        Button removeAction = (Button) findViewById(R.id.remove_action);
-	        removeAction.setOnClickListener(new OnClickListener() {
-	            @Override
-	            public void onClick(View view) {
-	                int actionCount = actionBar.getActionCount();
-	                actionBar.removeActionAt(actionCount - 1);
-	                Toast.makeText(HomeActivity.this, "Removed action." , Toast.LENGTH_SHORT).show();
-	            }
-	        });
-
-	        Button removeShareAction = (Button) findViewById(R.id.remove_share_action);
-	        removeShareAction.setOnClickListener(new OnClickListener() {
-	            @Override
-	            public void onClick(View view) {
-	                actionBar.removeAction(shareAction);
-	            }
-	        });
-	        */
+	    
 	}
 	
 	@Override
@@ -549,8 +483,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 		@Override
 		protected void onPostExecute(Feed result) {
 			
-			actionBar.removeAllActions();
-			actionBar.addAction(homeAction);
+			actionBar.removeAllActions();			
 			
 			if ( result != null ) {
 				

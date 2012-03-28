@@ -20,15 +20,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class FileBrowseActivity extends RoboListActivity {
 	
-	private FileAdapter adapter;
-	
-	private File currentFolder;
+	private FileAdapter adapter;	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {		
@@ -53,7 +53,6 @@ public class FileBrowseActivity extends RoboListActivity {
 		setTitle(adapter.getCurrentFolder());
 		
 		setListAdapter(adapter);		
-		registerForContextMenu(getListView());
 	}
 	
 	@Override
@@ -63,27 +62,6 @@ public class FileBrowseActivity extends RoboListActivity {
 			this.adapter.setFolder(f);
 			setTitle(adapter.getCurrentFolder());
 		}
-	}
-	
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		
-		AdapterView.AdapterContextMenuInfo info;		
-		info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-		
-		this.currentFolder = adapter.getItem(info.position);
-		
-		menu.add("Select this folder");
-	}
-	
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		Intent intent = getIntent();
-		intent.setData( Uri.fromFile(currentFolder) );
-		setResult(RESULT_OK, intent);
-		finish();
-		return true;
 	}	
 	
 	private class FileAdapter extends BaseAdapter {
@@ -132,7 +110,7 @@ public class FileBrowseActivity extends RoboListActivity {
 		}
 		
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			View rowView;		
 			final File file = getItem(position);
 
@@ -145,12 +123,29 @@ public class FileBrowseActivity extends RoboListActivity {
 			}
 			
 			ImageView img = (ImageView) rowView.findViewById(R.id.folderIcon);
+			CheckBox selectBox = (CheckBox) rowView.findViewById(R.id.selectBox);
 			
 			if ( file.isDirectory() ) {
-				img.setImageDrawable(getResources().getDrawable(R.drawable.folder));				
+				img.setImageDrawable(getResources().getDrawable(R.drawable.folder));
+				selectBox.setVisibility(View.VISIBLE);
 			} else {
 				img.setImageDrawable(getResources().getDrawable(R.drawable.book));
+				selectBox.setVisibility(View.GONE);
 			}
+			
+			selectBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+				
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					if ( isChecked ) {
+						Intent intent = getIntent();
+						intent.setData( Uri.fromFile(file) );
+						setResult(RESULT_OK, intent);
+						finish();
+					}
+				}
+			});
+			selectBox.setFocusable(false);
 			
 			TextView label = (TextView) rowView.findViewById(R.id.folderName);
 

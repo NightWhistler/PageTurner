@@ -117,6 +117,14 @@
          <version>4.2.3</version>
          <scope>compile</scope>
      </dependency>
+
+     <dependency>
+        <groupId>com.markupartist.android</groupId>
+        <artifactId>actionbar</artifactId>
+        <version>20120328</version>
+        <scope>compile</scope>
+        <type>apklib</type>
+     </dependency>
     
     </dependencies>
 

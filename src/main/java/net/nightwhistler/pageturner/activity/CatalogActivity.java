@@ -56,6 +56,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
@@ -65,6 +66,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.inject.internal.Nullable;
+import com.markupartist.android.widget.ActionBar;
+import com.markupartist.android.widget.ActionBar.Action;
+import com.markupartist.android.widget.ActionBar.IntentAction;
 
 public class CatalogActivity extends RoboActivity implements OnItemClickListener {
 		
@@ -79,21 +83,14 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 	
 	private Stack<String> navStack = new Stack<String>();
 	
-	@InjectView(R.id.homeButton)
 	@Nullable
-	private ImageButton homeButton;
+	@InjectView(R.id.actionbar)
+	private ActionBar actionBar;
 	
-	@InjectView(R.id.prevButton)
-	@Nullable
-	private ImageButton prevButton;
-	
-	@InjectView(R.id.nextButton)
-	@Nullable
-	private ImageButton nextButton;
-	
-	@InjectView(R.id.searchButton)
-	@Nullable
-	private ImageButton searchButton;
+	private Action prevAction;
+	private Action homeAction;
+	private Action nextAction;
+	private Action searchAction;	
 	
 	@InjectView(R.id.catalogList)
 	@Nullable
@@ -104,7 +101,10 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.catalog);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		
+		setContentView(R.layout.catalog);		
+		initActionBar();
 		
 		this.adapter = new DownloadingCatalogAdapter();
 		catalogList.setAdapter(adapter);
@@ -131,6 +131,46 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 		}
 		
 		new LoadOPDSTask().execute(baseURL);
+	}
+	
+	private void initActionBar() {
+		     
+	     actionBar.setTitle("Catalog");	
+	    
+	     this.homeAction = new ActionBar.AbstractAction(R.drawable.home) {
+				
+				@Override
+				public void performAction(View view) {
+					onNavClick( this );				
+				}
+		     };
+		 actionBar.setHomeAction(this.homeAction);
+	     
+	     this.prevAction = new ActionBar.AbstractAction(R.drawable.arrow_left) {
+			
+			@Override
+			public void performAction(View view) {
+				onNavClick( this );				
+			}
+	     };
+	     
+	     this.nextAction = new ActionBar.AbstractAction(R.drawable.arrow_right) {
+				
+				@Override
+				public void performAction(View view) {
+					onNavClick( this );				
+				}
+		  };
+		  
+		  this.searchAction = new ActionBar.AbstractAction(R.drawable.zoom) {
+				
+				@Override
+				public void performAction(View view) {
+					onNavClick( this );				
+				}
+		  };
+	     
+	    
 	}
 	
 	@Override
@@ -170,14 +210,14 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 		}
 	}
 	
-	public void onNavClick( View v ) {
-		if ( v == homeButton ) {
+	public void onNavClick( Action a ) {
+		if ( a == homeAction ) {
 			navStack.clear();
 			new LoadOPDSTask().execute(baseURL);
 			return;
-		} else if ( v == nextButton ) {
+		} else if ( a == nextAction ) {
 			loadURL( adapter.getFeed().getNextLink().getHref() );
-		} else if ( v == prevButton ) {
+		} else if ( a == prevAction ) {
 			if ( navStack.size() > 0 ) {
 				onBackPressed(); 
 			} else if ( adapter.getFeed().getPreviousLink() != null ) {
@@ -453,12 +493,22 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 		
 		@Override
 		protected void onPostExecute(Feed result) {
+			
+			actionBar.removeAllActions();			
+			
 			if ( result != null ) {
-				nextButton.setEnabled( result.getNextLink() != null );
-				prevButton.setEnabled( result.getPreviousLink() != null || navStack.size() > 0 );
 				
-				setTitle( result.getTitle() );
-				searchButton.setEnabled(false);
+				if ( result.getPreviousLink() != null || navStack.size() > 0 ) {
+					actionBar.addAction(prevAction);
+				}
+				
+				if ( result.getNextLink() != null ) {
+					actionBar.addAction(nextAction);
+				}
+				
+				actionBar.setTitle( result.getTitle() );
+				
+				actionBar.addAction(searchAction);
 				
 				adapter.setFeed(result);
 			} 

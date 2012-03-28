@@ -6,4 +6,8 @@
    <color name="dark_grey">#888888</color>
    <color name="black">#000000</color>
    
+   <color name="actionbar_separator">#3A5FCD</color>
+   <color name="actionbar_background_start">#3A5FCD</color>
+   <color name="actionbar_background_end">#27408B</color>
+   
 </resources>

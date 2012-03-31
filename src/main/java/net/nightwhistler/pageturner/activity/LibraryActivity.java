@@ -142,7 +142,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	
 	private IntentCallBack intentCallBack;
 	private List<CoverCallback> callbacks = new ArrayList<CoverCallback>();
-	private Map<String, SoftReference<Drawable>> coverCache = new HashMap<String, SoftReference<Drawable>>();
+	private Map<String, Drawable> coverCache = new HashMap<String, Drawable>();
 	
 	private interface IntentCallBack {
 		void onResult( int resultCode, Intent data );
@@ -774,10 +774,10 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	}	
 	
 	private void loadCover( ImageView imageView, LibraryBook book, int index ) {
-		SoftReference<Drawable> ref = coverCache.get(book.getFileName());			
+		Drawable draw = coverCache.get(book.getFileName());			
 		
-		if ( ref != null && ref.get() != null ) {
-			imageView.setImageDrawable(ref.get());
+		if ( draw != null ) {
+			imageView.setImageDrawable(draw);
 		} else {
 			
 			imageView.setImageDrawable(backupCover);
@@ -802,7 +802,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			
 			if ( this.lastRunnable != null ) {
 				handler.removeCallbacks(lastRunnable);
-			}
+			}			
 			
 			this.lastRunnable = new Runnable() {
 				
@@ -845,9 +845,13 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		}
 		
 		public void run() {			
-			FastBitmapDrawable drawable = new FastBitmapDrawable(getCover(book));			
-			view.setImageDrawable(drawable);	
-			coverCache.put(book.getFileName(), new SoftReference<Drawable>(drawable));
+			try {
+				FastBitmapDrawable drawable = new FastBitmapDrawable(getCover(book));			
+				view.setImageDrawable(drawable);	
+				coverCache.put(book.getFileName(), drawable);
+			} catch (OutOfMemoryError err) {
+				coverCache.clear();
+			}
 		}
 	}
 	
@@ -1002,6 +1006,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		protected void onPreExecute() {
 			waitDialog.setTitle(R.string.loading_library);
 			waitDialog.show();
+			
+			coverCache.clear();
 		}
 		
 		@Override

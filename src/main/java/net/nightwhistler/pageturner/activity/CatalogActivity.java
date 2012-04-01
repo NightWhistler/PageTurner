@@ -21,10 +21,12 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Stack;
+import java.util.UUID;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.nucular.atom.Entry;
@@ -45,6 +47,8 @@ import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -60,15 +64,14 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.inject.internal.Nullable;
 import com.markupartist.android.widget.ActionBar;
 import com.markupartist.android.widget.ActionBar.Action;
-import com.markupartist.android.widget.ActionBar.IntentAction;
 
 public class CatalogActivity extends RoboActivity implements OnItemClickListener {
 		
@@ -95,9 +98,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 	@InjectView(R.id.catalogList)
 	@Nullable
 	private ListView catalogList;
-	
-	private String catalogType;
-	
+		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -114,7 +115,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
         this.waitDialog.setOwnerActivity(this);  
         
         this.downloadDialog = new ProgressDialog(this);
-        //this.downloadDialog.setMessage("Downloading file...");
+        
         this.downloadDialog.setIndeterminate(false);
         this.downloadDialog.setMax(100);
         this.downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -122,20 +123,14 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
                 
 		super.onCreate(savedInstanceState);
 		
-		this.baseURL = getIntent().getStringExtra("url");
-		
-		if ( baseURL.contains("gutenberg") ) {
-			catalogType = "gutenberg";
-		} else {
-			catalogType = "feedbooks";
-		}
+		this.baseURL = getIntent().getStringExtra("url");		
 		
 		new LoadOPDSTask().execute(baseURL);
 	}
 	
 	private void initActionBar() {
 		     
-	     actionBar.setTitle("Catalog");	
+	     actionBar.setTitle(R.string.download);	
 	    
 	     this.homeAction = new ActionBar.AbstractAction(R.drawable.home) {
 				
@@ -177,18 +172,27 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 	public void onItemClick(AdapterView<?> list, View arg1, int position, long arg3) {		
 		
 		Entry entry = adapter.getItem(position);
-		if ( entry.getAtomLink() != null ) {
+		if ( entry.getAtomLink() != null && ! navStack.contains(entry.getAtomLink().getHref() )) {
 			String href = entry.getAtomLink().getHref();
 			loadURL(href);		
-		}		
+		} else {
+			loadFakeFeed(entry);
+		}
 	}
 	
 	private boolean isLeafEntry(Feed feed, Entry entry ) {
-		if ( catalogType.equals("gutenberg") ) {
-			return entry.getEpubLink() != null;
-		} else {
-			return feed.getEntries().size() == 1;			
+		return feed.getEntries().size() == 1;
+	}
+	
+	private void loadFakeFeed( Entry entry ) {
+		String base = baseURL;
+		
+		if ( ! navStack.isEmpty() ) {
+			base = navStack.peek();
 		}
+		
+		navStack.push(base);
+		new LoadFakeFeedTask(entry).execute(base);
 	}
 	
 	private void loadURL( String url ) {
@@ -347,9 +351,11 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 	}
 	
 	//this is our download file asynctask
-    private class DownloadFileTask extends AsyncTask<String, String, String> {
+    private class DownloadFileTask extends AsyncTask<String, Integer, String> {
     	
     	File destFile;
+    	
+    	private Exception failure;
        
         @Override
         protected void onPreExecute() {
@@ -378,7 +384,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
    					destFolder.mkdirs();
    				}
    				
-                destFile = new File(destFolder, catalogType + "_" + fileName );
+                destFile = new File(destFolder, fileName );
                
                 if ( destFile.exists() ) {
                 	destFile.delete();
@@ -405,41 +411,134 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
                 	}
                 	
                     total += len1; 
-                    publishProgress("" + (int)((total*100)/lenghtOfFile));
+                    publishProgress((int)((total*100)/lenghtOfFile));
                     f.write(buffer, 0, len1);
                 }
                 f.close();
                
             } catch (Exception e) {
-            	LOG.error("Download failed.", e);				
+            	LOG.error("Download failed.", e);	
+            	this.failure = e;
             }
            
             return null;
         }
-       
-        protected void onProgressUpdate(String... progress) {
-             downloadDialog.setProgress(Integer.parseInt(progress[0]));
-        }
+        
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+        	downloadDialog.setProgress(values[0]);
+        }       
 
         @Override
         protected void onPostExecute(String unused) {
            downloadDialog.hide();
            
-           if ( ! isCancelled() ) {
+           if ( ! isCancelled() && failure == null ) {
         	   Intent intent = new Intent(getBaseContext(), ReadingActivity.class);   		
         	   intent.setData( Uri.parse(destFile.getAbsolutePath()));   				   				
         	   startActivity(intent);
         	   finish();
+           } else if ( failure != null ) {
+        	   Toast.makeText(CatalogActivity.this, R.string.book_failed, Toast.LENGTH_LONG).show();
            }
         }
     }   
+    
+    private void loadImageLink( Link imageLink, String baseUrl ) throws IOException {
+    	
+    	DefaultHttpClient client = new DefaultHttpClient();		
+    	
+    	if ( imageLink != null ) {
+			String href = imageLink.getHref();					
+
+			if ( href.startsWith("data:image/png;base64")) {
+				String dataString = href.substring( href.indexOf(',') + 1 );
+				imageLink.setBinData( Base64.decode(dataString, Base64.DEFAULT ));
+			} else {
+				String target = new URL(new URL(baseUrl), href).toString();	
+				
+				LOG.info("Downloading image: " + target );
+				
+				HttpResponse resp = client.execute(new HttpGet(target));
+
+				imageLink.setBinData( EntityUtils.toByteArray( resp.getEntity() ) );
+			}
+		}
+    }
 	
-	private class LoadOPDSTask extends AsyncTask<String, Integer, Feed> {
+    private void setNewFeed( Feed result ) {
+    	actionBar.removeAllActions();			
+		
+		if ( result != null ) {
+			
+			if ( result.getPreviousLink() != null || navStack.size() > 0 ) {
+				actionBar.addAction(prevAction);
+			}
+			
+			if ( result.getNextLink() != null ) {
+				actionBar.addAction(nextAction);
+			}
+			
+			actionBar.setTitle( result.getTitle() );
+			
+			//actionBar.addAction(searchAction);
+			
+			adapter.setFeed(result);
+
+			waitDialog.hide();
+		} else {
+			waitDialog.hide();
+			Toast.makeText(CatalogActivity.this, R.string.feed_failed, Toast.LENGTH_LONG ).show();
+		}
+    }
+    
+    private class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
+    	
+    	private Entry singleEntry;
+    	
+    	public LoadFakeFeedTask(Entry entry) {
+    		this.singleEntry = entry;
+		}
+    	
+    	@Override
+		protected void onPreExecute() {
+			waitDialog.setTitle(getString(R.string.loading_wait));
+	    	waitDialog.show();
+		}
+    	
+    	@Override
+    	protected Feed doInBackground(String... params) {
+    		Feed fakeFeed = new Feed();
+    		fakeFeed.addEntry(singleEntry);
+    		fakeFeed.setTitle(singleEntry.getTitle());
+    		
+    		try {
+    			loadImageLink(singleEntry.getImageLink(), params[0]);
+    		} catch (IOException io) {
+    			LOG.error("Could not load image: ", io);
+    		}
+    		
+    		return fakeFeed;
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(Feed result) {
+    		setNewFeed(result);
+    	}
+    }
+    
+	private class LoadOPDSTask extends AsyncTask<String, Integer, Feed> implements OnCancelListener {
 		
 		@Override
 		protected void onPreExecute() {
 			waitDialog.setTitle(getString(R.string.loading_wait));
+			waitDialog.setOnCancelListener(this);
 	    	waitDialog.show();
+		}
+		
+		@Override
+		public void onCancel(DialogInterface dialog) {
+			this.cancel(true);			
 		}
 		
 		@Override
@@ -456,6 +555,11 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				Feed feed = Nucular.readFromStream( response.getEntity().getContent() );
 				
 				for ( Entry entry: feed.getEntries() ) {
+					
+					if ( isCancelled() ) {
+						return feed;
+					}
+					
 					Link imageLink;
 					
 					if( isLeafEntry(feed, entry) ) {
@@ -464,24 +568,8 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 						imageLink = entry.getThumbnailLink();
 					}
 					
-					if ( imageLink != null ) {
-						String href = imageLink.getHref();					
-
-						if ( href.startsWith("data:image/png;base64")) {
-							String dataString = href.substring( href.indexOf(',') + 1 );
-							imageLink.setBinData( Base64.decode(dataString, Base64.DEFAULT ));
-						} else {
-							String target = new URL(new URL(baseUrl), href).toString();	
-							
-							LOG.info("Downloading image: " + target );
-							
-							HttpResponse resp = client.execute(new HttpGet(target));
-
-							imageLink.setBinData( EntityUtils.toByteArray( resp.getEntity() ) );
-						}
-					}
-				}
-				
+					loadImageLink(imageLink, baseUrl);					
+				}				
 				
 				return feed;
 			} catch (Exception e) {
@@ -493,27 +581,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 		
 		@Override
 		protected void onPostExecute(Feed result) {
-			
-			actionBar.removeAllActions();			
-			
-			if ( result != null ) {
-				
-				if ( result.getPreviousLink() != null || navStack.size() > 0 ) {
-					actionBar.addAction(prevAction);
-				}
-				
-				if ( result.getNextLink() != null ) {
-					actionBar.addAction(nextAction);
-				}
-				
-				actionBar.setTitle( result.getTitle() );
-				
-				actionBar.addAction(searchAction);
-				
-				adapter.setFeed(result);
-			} 
-			//else show popup
-			waitDialog.hide();
+			setNewFeed(result);			
 		}
 		
 	}

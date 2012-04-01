@@ -66,6 +66,15 @@
 				android:summary="PageTurner copierà i file in una cartella specifica"
 				android:defaultValue="true"
 				/>  
+				
+              
+      			<EditTextPreference
+	            android:key="calibre_server"
+	            android:title="Calibre content server"
+	            android:summary="Connect to your own Calibre library"
+	            android:dialogTitle="Calibre URL"
+	            android:dialogMessage="Ex. http://192.168.1.1:8080/opds"   
+	            />
                 
     </PreferenceCategory>
 

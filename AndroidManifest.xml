@@ -24,16 +24,16 @@
     			<category android:name="android.intent.category.BROWSABLE" />    			
     			
     			<data android:scheme="http" android:host="*"
-                    android:pathPattern="*.*\\.epub"
+                    android:pathPattern=".*\\.epub"
                     android:mimeType="application/epub+zip" />
                 <data android:scheme="https" android:host="*"
-                    android:pathPattern="*.*\\.epub" 
+                    android:pathPattern=".*\\.epub" 
                     android:mimeType="application/epub+zip"/>
                 <data android:scheme="content" android:host="*"
-                    android:pathPattern="*.*\\.epub"
+                    android:pathPattern=".*\\.epub"
                     android:mimeType="application/epub+zip" />
                 <data android:scheme="file" android:host="*"
-                    android:pathPattern="*.*\\.epub"
+                    android:pathPattern=".*\\.epub"
                     android:mimeType="application/epub+zip" />
 
             </intent-filter>

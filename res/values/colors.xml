@@ -10,4 +10,7 @@
    <color name="actionbar_background_start">#3A5FCD</color>
    <color name="actionbar_background_end">#27408B</color>
    
+   <color name="translucent_black">#80000000</color>
+       
+   
 </resources>

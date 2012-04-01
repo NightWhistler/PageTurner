@@ -33,6 +33,7 @@ import net.nightwhistler.pageturner.animation.Animator;
 import net.nightwhistler.pageturner.animation.PageCurlAnimator;
 import net.nightwhistler.pageturner.animation.PageTimer;
 import net.nightwhistler.pageturner.animation.RollingBlindAnimator;
+import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
@@ -42,6 +43,7 @@ import net.nightwhistler.pageturner.view.BookView;
 import net.nightwhistler.pageturner.view.BookViewListener;
 import net.nightwhistler.pageturner.view.NavGestureDetector;
 import net.nightwhistler.pageturner.view.ProgressListAdapter;
+import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 
 import org.slf4j.Logger;
@@ -60,13 +62,11 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
@@ -83,7 +83,9 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -130,7 +132,16 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	private TextView titleBar;
 	
 	@InjectView(R.id.myTitleBarLayout) 
-	private LinearLayout titleBarLayout;
+	private RelativeLayout titleBarLayout;
+	
+	@InjectView(R.id.titleProgress)
+	private ProgressBar progressBar;
+	
+	@InjectView(R.id.percentageField)
+	private TextView percentageField;
+	
+	@InjectView(R.id.authorField)
+	private TextView authorField;
 	
 	@InjectView(R.id.dummyView)
 	private AnimatedImageView dummyView;
@@ -280,21 +291,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     }
     
     @Override
-    public void progressUpdate(int progressPercentage) {
-    	if ( titleBase == null ) {
-    		return;
-    	}
+    public void progressUpdate(int progressPercentage) {    	
     	
     	this.progressPercentage = progressPercentage;
+    	percentageField.setText("" + progressPercentage + "%  ");
     	
-    	String title = this.titleBase;
-    	
-    	SpannableStringBuilder spannedTitle = new SpannableStringBuilder();
-    	spannedTitle.append(title);
-    	spannedTitle.append(" " + progressPercentage + "%");
-    	    	
-    	this.titleBar.setTextColor(Color.WHITE);
-    	this.titleBar.setText(spannedTitle);
+    	this.progressBar.setProgress(progressPercentage);
+    	this.progressBar.setMax(100);
     }
     
     private void updateFromPrefs() {
@@ -325,7 +328,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         } else {    
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        	this.titleBarLayout.setVisibility(View.VISIBLE);
+        	this.titleBarLayout.setVisibility(View.GONE);
     	}
         
         restoreColorProfile();
@@ -374,6 +377,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	this.bookTitle = book.getTitle();
     	this.titleBase = this.bookTitle;
     	setTitle( titleBase );  
+    	this.titleBar.setText(titleBase ); 
+    	
+    	if ( book.getMetadata() != null && ! book.getMetadata().getAuthors().isEmpty() ) {
+    		Author author = book.getMetadata().getAuthors().get(0);
+    		this.authorField.setText( author.getFirstname() + " " + author.getLastname() );
+    	}    				
     	
     	backgroundHandler.post(new Runnable() {
 			

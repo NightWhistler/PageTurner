@@ -71,6 +71,8 @@
         <item>Don\'t lock orientation</item>
         <item>Portrait</item>
         <item>Landscape</item>
+        <item>Reverse Portrait</item>
+        <item>Reverse Landscape</item>
     </string-array>  
    
     <string-array name="autoscrollLabels">
@@ -103,5 +105,7 @@
     <string name="downloading">Downloading book...</string>
     <string name="feed_failed">Could not contact the site. Please try again.</string>
     <string name="book_failed">Could not download the book. Please try again.</string>
+    
+        
         
 </resources>

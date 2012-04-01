@@ -71,6 +71,8 @@
         <item>Niet vergrendelen</item>
         <item>Staand</item>
         <item>Liggend</item>
+        <item>Omgekeerd Staand</item>
+        <item>Omgekeerd liggend</item>
     </string-array>  
    
     <string-array name="autoscrollLabels">

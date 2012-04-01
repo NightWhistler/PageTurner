@@ -71,6 +71,8 @@
         <item>جهت‌دهی خودکار صفحه را قفل نکن</item> <!-- Don\'t lock orientation -->
         <item>عمودی</item> <!-- Portrait -->
         <item>افقی</item> <!-- Landscape -->
+        <item>Reverse Portrait</item>
+        <item>Reverse Landscape</item>
     </string-array>  
    
     <string-array name="autoscrollLabels">

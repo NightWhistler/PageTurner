@@ -47,7 +47,7 @@ public class Configuration {
 	
 	public static enum AnimationStyle { CURL, SLIDE, NONE }
 	
-	public static enum OrientationLock { PORTRAIT, LANDSCAPE, NO_LOCK }
+	public static enum OrientationLock { PORTRAIT, LANDSCAPE, REVERSE_PORTRAIT, REVERSE_LANDSCAPE, NO_LOCK }
 	
 	public static enum ColourProfile { DAY, NIGHT }
 	

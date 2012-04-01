@@ -73,6 +73,8 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
         <item>Ausrichtung nicht fixieren</item>
         <item>Hochformat</item>
         <item>Querformat</item>
+        <item>Umgekehrt Hochformat</item>
+        <item>Umgekehrt Querformat</item>
     </string-array>  
    
     <string-array name="autoscrollLabels">

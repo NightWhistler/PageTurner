@@ -353,6 +353,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         case LANDSCAPE:
         	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         	break;
+        case REVERSE_LANDSCAPE:
+        	setRequestedOrientation(8); //Android 2.3+ value
+        	break;
+        case REVERSE_PORTRAIT:
+        	setRequestedOrientation(9); //Android 2.3+ value
+        	break;
         default:
         	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         }

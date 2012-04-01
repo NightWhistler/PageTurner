@@ -71,6 +71,8 @@
         <item>Non bloccare l\'orientamento</item>
         <item>Verticale</item>
         <item>Orizzontale</item>
+        <item>Reverse Portrait</item>
+        <item>Reverse Landscape</item>
     </string-array>  
    
     <string-array name="autoscrollLabels">

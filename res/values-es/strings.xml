@@ -1,0 +1,107 @@
+<resources>
+    <string name="app_name">Page Turner</string>
+    <string name="title">Título</string>
+    <string name="app_desc">Page Turner es un lector de e-books que permite sincronizar sus progresos en la lectura entre múltiples dispositivos.</string>
+
+    <string name="browse">Navegando...</string>
+    <string name="open_file">Abrir archivo ePub</string>
+    <string name="open_library">Mis Libros</string>
+
+    <string name="profile_day">Cambia a modo día</string>  
+    <string name="profile_night">Cambia a modo noche</string>
+    <string name="manual_sync">Sincronize sus progresos</string>
+    <string name="prefs">Preferencias</string>
+    
+    <string name="show_toc">Muestra Índice</string>   
+    <string name="rolling_blind">Auto-scroll</string>
+    <string name="about">Acerca de PageTurner</string>
+    <string name="about_gpl">PageTurner es software libre bajo la GPL v3.</string>
+    <string name="error_open_bk">Error abriendo el libro: %s</string>
+    
+    <string name="dictionary_lookup">Buscar en el diccionario</string>
+    <string name="wikipedia_lookup">Buscar en la Wikipedia</string>
+    <string name="google_lookup">Buscar en Google</string>    
+    <string name="word_select">"Ha seleccionado '%s'</string>    
+        
+    <string name="loading_wait">Cargando, por favor espere</string>
+    <string name="install_oi">Por favor instale OI File Manager de Google Play Store</string>  
+
+    
+    <string name="cloud_bm">Marcadores Sincronizados</string>
+    <string name="toc_label">Tabla de Contenidos</string>
+    <string name="syncing">"Progreso de la sincronización..."</string>
+    <string name="sync_failed">Sincronización fallida</string>
+    <string name="connection_fail">No se puede conectar con el servidor.</string>    
+    
+    <string name="never_read">Nunca</string>
+        
+    <string name="library">Biblioteca</string>
+    <string name="book_details">Detalles del libro</string>
+    
+    <string name="book_by">Por %s</string>
+    <string name="last_read">Lo último leído: %s</string>
+    <string name="added_to_lib">Añadido a la biblioteca: %s</string>
+    
+    <string name="view_details">Ver detalles</string>
+    <string name="delete">Borrar de la biblioteca</string>
+    <string name="scan_books">Busqueda de libros</string>    
+    
+    <string name="importing_books">Importando libros...</string>
+    <string name="scanning_epub">Buscando ficheros EPUB.</string>
+    <string name="importing">Importando %1$d de %2$d</string>
+    <string name="scan_folders">Buscando ficheros EPUB.\nCarpetas escaneadas: %d</string>
+    <string name="import_errors">Error de formato en algunos ficheros:</string>
+    <string name="no_books_found">No se encontraron libros.</string>
+    <string name="no_bks_fnd_text">No hay libros en su dispositivo.\nPuede bajar libros de gutenberg.org o feedbooks.com</string>
+    <string name="loading_library">Cargando biblioteca...</string>
+    <string name="scan_bks_question">No hay libros en su biblioteca.\n¿Le gustaría encontrar los libros que pueda haber en su dispositivo?</string>    
+    <string name="brightness">Brillo</string>    
+        
+    <string-array name="v_animLabels">
+        <item>Deslizamiento</item>
+        <item>Ninguno</item>        
+    </string-array>
+    
+    <string-array name="h_animLabels">
+        <item>Paso de página</item>
+        <item>Deslizamiento</item>
+        <item>Ninguno</item>
+    </string-array>
+        
+    <string-array name="orientationLabels">
+        <item>No bloquear orientacion</item>
+        <item>Vertical</item>
+        <item>Horizontal</item>
+    </string-array>  
+   
+    <string-array name="autoscrollLabels">
+        <item>Cortinilla</item>
+        <item>Barra de tiempo para cambio</item>
+    </string-array>    
+        
+    <string-array name="libraryQueries">
+        <item>Leidos recientemente</item>
+        <item>Añadidos recientemente</item>
+        <item>No leídos</item>
+        <item>Ordenar por título</item>
+        <item>Ordenar por autor</item> 
+    </string-array>
+        
+    <string name="access_denied">Su clave de acceso no es válida. Por favor visite pageturner-reader.org para obtener una clave válida.</string>
+    <string name="import_books">Importar libros</string>
+    <string name="import_desc">Puede escanear toda la tarjeta SD o especificar una carpeta concreta.</string>
+    <string name="scan_whole_card">Escanee toda mi tarjeta SD</string>
+    <string name="scan_folder">Escanee una carpeta</string>
+    <string name="copy_to_library">Copiar los libros a la carpeta de mi biblioteca</string>
+    <string name="no_such_folder">La carpeta %s no existe.</string>
+    <string name="import_failed">Importación fallida</string>
+    
+    <string name="list_view">Cambie a modo lista</string>    
+	<string name="shelves_view">Cambie a vista de estantería</string>
+    <string name="read">Leer ahora</string>
+    
+    <string name="download">Descargar libros</string>
+    <string name="downloading">Descargando libro...</string>
+        
+</resources>
+

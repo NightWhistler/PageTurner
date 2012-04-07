@@ -154,7 +154,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.library_menu);
 		
-		Bitmap backupBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.river_diary );
+		Bitmap backupBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.unknown_cover );
 		this.backupCover = new FastBitmapDrawable(backupBitmap);
 		
 		this.handler = new Handler();
@@ -233,7 +233,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		if ( libraryBook.getCoverImage() != null ) {			
 			coverView.setImageBitmap( getCover(libraryBook) );
 		} else {			
-			coverView.setImageDrawable( getResources().getDrawable(R.drawable.river_diary));
+			coverView.setImageDrawable( getResources().getDrawable(R.drawable.unknown_cover));
 		}
 
 		TextView titleView = (TextView) layout.findViewById(R.id.titleField);

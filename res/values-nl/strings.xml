@@ -103,4 +103,6 @@
 	
 	<string name="download">Boeken downloaden</string>
 	<string name="downloading">Boek wordt gedownload...</string>
+
+    <string name="browse">Bladeren...</string>
 </resources>

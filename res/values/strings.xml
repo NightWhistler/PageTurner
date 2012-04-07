@@ -105,6 +105,8 @@
     <string name="downloading">Downloading book...</string>
     <string name="feed_failed">Could not contact the site. Please try again.</string>
     <string name="book_failed">Could not download the book. Please try again.</string>
+
+    <string name="browse">Browse...</string>
     
         
         

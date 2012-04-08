@@ -19,13 +19,12 @@
 package net.nightwhistler.pageturner.library;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import android.database.Cursor;
-import android.widget.AlphabetIndexer;
-import android.widget.SectionIndexer;
 
 /**
  * Special QueryResult which buffers the keys,
@@ -39,27 +38,22 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 
 	private List<String> keys;	
 	
+	private List<Character> alphabet;
+	private String alphabetString;
 	
 	public KeyedQueryResult(Cursor cursor, List<String> keys ) {
 		super(cursor);		
-		this.keys = keys;		
+		this.keys = keys;	
+		
+		this.alphabet = calculateAlphaBet();
+		this.alphabetString = calculateAlphabetString();
 	}
 	
 	public List<String> getKeys() {
 		return keys;
 	}
 	
-	
-	public String getAlphabetString() {
-		StringBuffer buff = new StringBuffer();
-		for ( Character c: getAlphabet() ) {
-			buff.append(c);
-		}
-		
-		return buff.toString();
-	}
-	
-	public List<Character> getAlphabet() {
+	private List<Character> calculateAlphaBet() {
 		SortedSet<Character> result = new TreeSet<Character>();
 		
 		for ( String key: keys ) {
@@ -68,11 +62,34 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 			}
 		}
 		
-		return new ArrayList<Character>(result);
+		return Collections.unmodifiableList( new ArrayList<Character>(result) );
+	}
+	
+	private String calculateAlphabetString() {
+		StringBuffer buff = new StringBuffer();
+		for ( Character c: getAlphabet() ) {
+			buff.append(c);
+		}
+		
+		return buff.toString();
+	}
+	
+	public String getAlphabetString() {
+		return alphabetString;
+	}
+	
+	public List<Character> getAlphabet() {
+		return this.alphabet;
 	}
 	
 	public Character getCharacterFor( int position ) {
-		return keys.get(position).charAt(0);
+		String key = keys.get(position);
+		
+		if ( key.length() > 0 ) {
+			return key.charAt(0);
+		} else {
+			return null;
+		}
 	}
 	
 	public int getOffsetFor( Character c ) {

@@ -23,7 +23,7 @@
     <string name="google_lookup">Zoeken op Google</string>    
     <string name="word_select">"Selectie van '%s'</string>    
         
-    <string name="loading_wait">Boek wordt geladen... Even geduld aub.</string>
+    <string name="loading_wait">Bezig met lezen... Even geduld aub.</string>
     <string name="install_oi">Installeer aub de OI File Manager uit de Android Market.</string>    
     
     <string name="cloud_bm">Online bladwijzers</string>

@@ -64,7 +64,7 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 		
 		for ( String key: keys ) {
 			if ( key.length() > 0 ) {
-				result.add( key.charAt(0) );
+				result.add( Character.toUpperCase(key.charAt(0)) );
 			}
 		}
 		

@@ -46,7 +46,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	private SQLiteDatabase database;
 	
-	public enum Order { ASC, DESC };	
+	public enum Order { ASC , DESC }
 	
 	private static final String DB_NAME = "PageTurnerLibrary";
 	private static final int VERSION = 4;
@@ -180,7 +180,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		
 		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
 				whereClause, args, null, null,
-				orderField + " " + ordering  );		
+				"LOWER(" + orderField + ") " + ordering  );		
 		
 		List<String> keys = getKeys(orderField, ordering);
 		
@@ -192,7 +192,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
 				fieldName != null ? fieldName.toString() + " is not null" : null,
 			    new String[0], null, null,
-				fieldName != null ? fieldName.toString() + " " + order.toString() : null );		
+				fieldName != null ? "LOWER(" + fieldName.toString() + ") " + order.toString() : null );		
 		
 		return new LibraryBookResult(cursor);
 	}	
@@ -225,7 +225,8 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
 				fieldName != null ? fieldName.toString() + " is not null" : null,
 			    new String[0], null, null,
-				fieldName != null ? fieldName.toString() + " " + order.toString() : null );		
+				fieldName != null ? "LOWER(" + fieldName.toString() + ") " 
+						+ order.toString() : null );		
 		
 		return new KeyedBookResult(cursor, keys);
 	}	

@@ -747,27 +747,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			
 			if ( this.lastRunnable != null ) {
 				handler.removeCallbacks(lastRunnable);
-			}			
-			
-			if ( bookAdapter.isKeyed() ) {
-				
-				int section = bookAdapter.getSectionForPosition(firstVisibleItem);
-				
-				if ( section != lastSection) {
-
-					for ( int i=0; i < alphabetBar.getChildCount(); i++ ) {
-						alphabetBar.getChildAt(i).setBackgroundColor(android.R.color.background_dark);
-					}
-
-					alphabetBar.setSelection( section );
-					this.lastSection = section;
-
-					if ( alphabetBar.getChildAt(section) != null ) {				
-						View child = alphabetBar.getChildAt(section);				
-						child.setBackgroundColor( Color.BLUE );
-					}
-				}
-			}			
+			}	
 			
 			this.lastRunnable = new Runnable() {
 				
@@ -784,7 +764,28 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 						if ( callback.viewIndex >= firstVisibleItem && callback.viewIndex <= lastVisibleItem ) {
 							callback.run();
 						}
-					}						
+					}
+					
+					if ( bookAdapter.isKeyed() ) {
+						
+						int section = bookAdapter.getSectionForPosition(firstVisibleItem);
+						
+						if ( section != lastSection) {
+
+							for ( int i=0; i < alphabetBar.getChildCount(); i++ ) {
+								alphabetBar.getChildAt(i).setBackgroundColor(android.R.color.background_dark);
+							}
+
+							alphabetBar.setSelection( section );
+							lastSection = section;
+
+							if ( alphabetBar.getChildAt(section) != null ) {				
+								View child = alphabetBar.getChildAt(section);				
+								child.setBackgroundColor( Color.BLUE );
+							}
+						}
+					}
+						
 				}
 			};
 				

@@ -201,7 +201,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		String[] keyField = { fieldName.toString() };
 		Cursor fieldCursor = getDataBase().query("lib_books", keyField, null, 
 				new String[0], null, null, 
-				fieldName != null ? fieldName.toString() + " " + order.toString() : null);
+				fieldName != null ? "LOWER(" + fieldName.toString() + ") " + order.toString() : null);
 				
 		List<String> keys = new ArrayList<String>();
 		fieldCursor.moveToFirst();

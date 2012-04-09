@@ -86,18 +86,21 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 		String key = keys.get(position);
 		
 		if ( key.length() > 0 ) {
-			return key.charAt(0);
+			return Character.toUpperCase(key.charAt(0));
 		} else {
 			return null;
 		}
 	}
 	
 	public int getOffsetFor( Character c ) {
+		
+		Character input = Character.toUpperCase(c);
+		
 		for ( int i=0; i < keys.size(); i++ ) {
 			String key = keys.get(i);
 			if ( key.length() > 0 ) {
-				Character keyStart = key.charAt(0);
-				if ( keyStart.compareTo(c) >= 0 ) {
+				Character keyStart = Character.toUpperCase(key.charAt(0));
+				if ( keyStart.compareTo(input) >= 0 ) {
 					return i;
 				}
 			}			

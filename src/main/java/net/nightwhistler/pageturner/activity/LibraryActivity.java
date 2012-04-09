@@ -105,6 +105,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	@InjectView(R.id.alphabetList)
 	private ListView alphabetBar;
 	
+	private AlphabetAdapter alphabetAdapter;
+	
 	@InjectView(R.id.alphabetDivider)
 	private ImageView alphabetDivider;
 	
@@ -643,11 +645,13 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	
 	public void onAlphabetBarClick( KeyedQueryResult<LibraryBook> result, Character c ) {
 		
-		int index = result.getOffsetFor(c);
+		int index = result.getOffsetFor(Character.toUpperCase(c));
 		
 		if ( index == -1 ) {
 			return;
 		}
+		
+		alphabetAdapter.setHighlightChar(c);
 		
 		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
 			this.bookCaseView.setSelection(index);
@@ -764,8 +768,15 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 						
 						if (keyChar != null && ! keyChar.equals(lastCharacter)) {
 
-							AlphabetAdapter alpha = (AlphabetAdapter) alphabetBar.getAdapter();
-							alpha.setHighlightChar(keyChar);
+							lastCharacter = keyChar;
+							List<Character> alphabet = bookAdapter.getAlphabet();
+							
+							//If the highlight-char is already set, this means the 
+							//user clicked the bar, so don't scroll it.
+							if ( ! keyChar.equals( alphabetAdapter.getHighlightChar() ) ) {
+								alphabetAdapter.setHighlightChar(keyChar);
+								alphabetBar.setSelection( alphabet.indexOf(keyChar) );
+							}
 							
 							for ( int i=0; i < alphabetBar.getChildCount(); i++ ) {
 								View child = alphabetBar.getChildAt(i);
@@ -998,6 +1009,10 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		public void setHighlightChar(Character highlightChar) {
 			this.highlightChar = highlightChar;
 		}
+		
+		public Character getHighlightChar() {
+			return highlightChar;
+		}
 	}
 	
 	private class LoadBooksTask extends AsyncTask<Configuration.LibrarySelection, Integer, QueryResult<LibraryBook>> {		
@@ -1056,15 +1071,16 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 				
 				final KeyedQueryResult<LibraryBook> keyedResult = (KeyedQueryResult<LibraryBook>) result;
 				
-				ArrayAdapter<Character> adapter = new AlphabetAdapter(LibraryActivity.this,
+				alphabetAdapter = new AlphabetAdapter(LibraryActivity.this,
 						R.layout.alphabet_line, R.id.alphabetLabel,	keyedResult.getAlphabet() );
 				
-				alphabetBar.setAdapter(adapter);
+				alphabetBar.setAdapter(alphabetAdapter);
 				
 				alphabetBar.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> arg0, View arg1,
 							int arg2, long arg3) {
+						
 						Character c = keyedResult.getAlphabet().get(arg2);
 						onAlphabetBarClick(keyedResult, c);
 					}

@@ -29,6 +29,14 @@ public abstract class KeyedResultAdapter extends QueryResultAdapter<LibraryBook>
 	public boolean isKeyed() {
 		return this.keyedResult != null;
 	}
+	
+	public String getKey(int position) {
+		return keyedResult.getKeys().get(position);
+	}
+	
+	public List<Character> getAlphabet() {
+		return keyedResult.getAlphabet();
+	}
 
 	@Override
 	public int getPositionForSection(int section) {

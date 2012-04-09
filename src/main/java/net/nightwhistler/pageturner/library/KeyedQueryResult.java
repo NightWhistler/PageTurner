@@ -72,7 +72,7 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 		}
 		
 		return buff.toString();
-	}
+	}	
 	
 	public String getAlphabetString() {
 		return alphabetString;

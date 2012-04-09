@@ -35,7 +35,7 @@ import com.google.inject.Inject;
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	public enum Field { 
-		file_name("text primary key"),title("text"), a_first_name("text"),
+		file_name("text primary key"), title("text"), a_first_name("text"),
 		a_last_name("text"), date_added("integer"), date_last_read("integer"), 
 		description("text"), cover_image("blob"), progress("integer");
 		

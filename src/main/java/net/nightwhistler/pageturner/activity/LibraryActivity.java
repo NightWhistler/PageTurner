@@ -161,7 +161,6 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		
 		this.bookCaseView.setOnScrollListener( new CoverScrollListener() );
 		this.listView.setOnScrollListener( new CoverScrollListener() );
-		this.alphabetBar.setFocusable(true);
 		
 		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
 			
@@ -733,9 +732,9 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	}	
 	
 	private class CoverScrollListener implements AbsListView.OnScrollListener {
-		private Runnable lastRunnable;
 		
-		private int lastSection = -1;
+		private Runnable lastRunnable;
+		private Character lastCharacter;
 		
 		@Override
 		public void onScroll(AbsListView view, final int firstVisibleItem,
@@ -747,12 +746,38 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			
 			if ( this.lastRunnable != null ) {
 				handler.removeCallbacks(lastRunnable);
-			}	
+			}
 			
 			this.lastRunnable = new Runnable() {
 				
 				@Override
-				public void run() {
+				public void run() {					
+					
+					if ( bookAdapter.isKeyed() ) {
+						
+						String key = bookAdapter.getKey( firstVisibleItem );
+						Character keyChar = null;
+						
+						if ( key.length() > 0 ) {
+							keyChar = Character.toUpperCase( key.charAt(0) );
+						}						
+						
+						if (keyChar != null && ! keyChar.equals(lastCharacter)) {
+
+							AlphabetAdapter alpha = (AlphabetAdapter) alphabetBar.getAdapter();
+							alpha.setHighlightChar(keyChar);
+							
+							for ( int i=0; i < alphabetBar.getChildCount(); i++ ) {
+								View child = alphabetBar.getChildAt(i);
+								if ( child.getTag().equals(keyChar) ) {
+									child.setBackgroundColor(Color.BLUE);
+								} else {
+									child.setBackgroundColor(android.R.color.background_dark);
+								}
+							}							
+						}						
+					}
+					
 					List<CoverCallback> localList = new ArrayList<CoverCallback>( callbacks );
 					callbacks.clear();
 					
@@ -765,31 +790,11 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 							callback.run();
 						}
 					}
-					
-					if ( bookAdapter.isKeyed() ) {
-						
-						int section = bookAdapter.getSectionForPosition(firstVisibleItem);
-						
-						if ( section != lastSection) {
-
-							for ( int i=0; i < alphabetBar.getChildCount(); i++ ) {
-								alphabetBar.getChildAt(i).setBackgroundColor(android.R.color.background_dark);
-							}
-
-							alphabetBar.setSelection( section );
-							lastSection = section;
-
-							if ( alphabetBar.getChildAt(section) != null ) {				
-								View child = alphabetBar.getChildAt(section);				
-								child.setBackgroundColor( Color.BLUE );
-							}
-						}
-					}
 						
 				}
 			};
 				
-			handler.postDelayed(lastRunnable, 550);
+			handler.postDelayed(lastRunnable, 550);			
 		}
 		
 		@Override
@@ -964,6 +969,37 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		}
 	}	
 
+	private class AlphabetAdapter extends ArrayAdapter<Character> {
+		
+		private List<Character> data;
+		
+		private Character highlightChar;
+		
+		public AlphabetAdapter(Context context, int layout, int view, List<Character> input ) {
+			super(context, layout, view, input);
+			this.data = input;
+		}
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view = super.getView(position, convertView, parent);
+			Character tag = data.get(position);
+			view.setTag( tag );
+			
+			if ( tag.equals(highlightChar) ) {
+				view.setBackgroundColor(Color.BLUE);
+			} else {
+				view.setBackgroundColor(android.R.color.background_dark);
+			}
+			
+			return view;
+		}
+		
+		public void setHighlightChar(Character highlightChar) {
+			this.highlightChar = highlightChar;
+		}
+	}
+	
 	private class LoadBooksTask extends AsyncTask<Configuration.LibrarySelection, Integer, QueryResult<LibraryBook>> {		
 		
 		private Configuration.LibrarySelection sel;
@@ -1020,7 +1056,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 				
 				final KeyedQueryResult<LibraryBook> keyedResult = (KeyedQueryResult<LibraryBook>) result;
 				
-				ArrayAdapter<Character> adapter = new ArrayAdapter<Character>(LibraryActivity.this,
+				ArrayAdapter<Character> adapter = new AlphabetAdapter(LibraryActivity.this,
 						R.layout.alphabet_line, R.id.alphabetLabel,	keyedResult.getAlphabet() );
 				
 				alphabetBar.setAdapter(adapter);

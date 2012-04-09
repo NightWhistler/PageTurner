@@ -239,12 +239,14 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		TextView lastRead = (TextView) layout.findViewById(R.id.lastRead);
 		TextView added = (TextView) layout.findViewById(R.id.addedToLibrary);
 		TextView descriptionView = (TextView) layout.findViewById(R.id.bookDescription);
+		TextView fileName = (TextView) layout.findViewById(R.id.fileName);
 		
 		titleView.setText(libraryBook.getTitle());
 		String authorText = String.format( getString(R.string.book_by),
 				 libraryBook.getAuthor().getFirstName() + " " 
 				 + libraryBook.getAuthor().getLastName() );
 		authorView.setText( authorText );
+		fileName.setText( libraryBook.getFileName() );
 
 		if (libraryBook.getLastRead() != null && ! libraryBook.getLastRead().equals(new Date(0))) {
 			String lastReadText = String.format(getString(R.string.last_read),

@@ -55,6 +55,12 @@
     		android:paddingTop="2dp" />
         
         <TextView
+            android:id="@+id/fileName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="book.epub"/>    
+        
+        <TextView
             android:id="@+id/lastRead"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

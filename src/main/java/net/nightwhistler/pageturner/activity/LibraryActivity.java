@@ -653,7 +653,9 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			return;
 		}
 		
-		alphabetAdapter.setHighlightChar(c);
+		if ( alphabetAdapter != null ) {		
+			alphabetAdapter.setHighlightChar(c);
+		}
 		
 		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
 			this.bookCaseView.setSelection(index);
@@ -775,7 +777,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 							
 							//If the highlight-char is already set, this means the 
 							//user clicked the bar, so don't scroll it.
-							if ( ! keyChar.equals( alphabetAdapter.getHighlightChar() ) ) {
+							if (alphabetAdapter != null && ! keyChar.equals( alphabetAdapter.getHighlightChar() ) ) {
 								alphabetAdapter.setHighlightChar(keyChar);
 								alphabetBar.setSelection( alphabet.indexOf(keyChar) );
 							}
@@ -1090,6 +1092,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 				
 				setAlphabetBarVisible(true);
 			} else {
+				alphabetAdapter = null;
 				setAlphabetBarVisible(false);								
 			}			
 			

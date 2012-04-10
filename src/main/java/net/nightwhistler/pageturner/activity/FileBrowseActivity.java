@@ -36,20 +36,22 @@ public class FileBrowseActivity extends RoboListActivity {
 		
 		Uri data = getIntent().getData();		
 		
-		if ( data != null ) {
-			File file = new File(data.getPath());
-			
-			if ( file.exists() && file.isDirectory() ) {
-				this.adapter = new FileAdapter();
-				adapter.setFolder(file);
-			}
-		}		
+		File file = null;
 		
-		if ( adapter == null) {
-			this.adapter = new FileAdapter();
-			adapter.setFolder(new File("/sdcard"));
+		if ( data != null ) {
+			file = new File(data.getPath());
 		}
 		
+		if (file == null || ! (file.exists() && file.isDirectory()) ) {
+			file = new File("/sdcard");
+		}
+		
+		if (file == null || ! (file.exists() && file.isDirectory()) ) {
+			file = new File("/");
+		}
+		
+		this.adapter = new FileAdapter();
+		adapter.setFolder(file);
 		setTitle(adapter.getCurrentFolder());
 		
 		setListAdapter(adapter);		

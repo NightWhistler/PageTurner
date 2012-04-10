@@ -58,7 +58,7 @@ public class FileBrowseActivity extends RoboListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		File f = this.adapter.getItem(position);
-		if ( f.isDirectory() ) {
+		if ( f.exists() && f.isDirectory() ) {
 			this.adapter.setFolder(f);
 			setTitle(adapter.getCurrentFolder());
 		}
@@ -73,11 +73,13 @@ public class FileBrowseActivity extends RoboListActivity {
 			
 			this.currentFolder = folder;
 			items = new ArrayList<File>();
+			File[] listing = folder.listFiles();
 			
-			for ( String child: folder.list() ) {
-				File childFile = new File( folder, child );
-				if ( childFile.isDirectory() || childFile.getName().endsWith(".epub")) {
-					items.add(childFile);
+			if ( listing != null ) {
+				for ( File childFile: listing ) {					
+					if ( childFile.isDirectory() || childFile.getName().toLowerCase().endsWith(".epub")) {
+						items.add(childFile);
+					}
 				}
 			}
 			

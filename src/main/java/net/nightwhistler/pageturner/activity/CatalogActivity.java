@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -184,6 +186,8 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 		return feed.getEntries().size() == 1;
 	}
 	
+	
+	
 	private void loadFakeFeed( Entry entry ) {
 		String base = baseURL;
 		
@@ -294,7 +298,13 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 					@Override
 					public void onClick(View v) {
 						try {
-							URL url = new URL(new URL(baseURL), entry.getEpubLink().getHref() );
+							String base = baseURL;
+							
+							if ( ! navStack.isEmpty() ) {
+								base = navStack.peek();
+							}
+							
+							URL url = new URL(new URL(base), entry.getEpubLink().getHref());
 							new DownloadFileTask().execute(url.toExternalForm());
 						} catch (Exception e) {
 							throw new RuntimeException(e);
@@ -371,50 +381,57 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
             try {
             	
             	String url = params[0];
+            	LOG.debug("Downloading: " + url);
             	
             	String fileName = url.substring( url.lastIndexOf('/') + 1 );
             	
             	DefaultHttpClient client = new DefaultHttpClient();
     			HttpGet get = new HttpGet( url );
     				
-   				HttpResponse response = client.execute(get);                
-                
-   				File destFolder = new File("/sdcard/PageTurner/Downloads/");
-   				if ( ! destFolder.exists() ) {
-   					destFolder.mkdirs();
-   				}
+   				HttpResponse response = client.execute(get); 
    				
-                destFile = new File(destFolder, fileName );
-               
-                if ( destFile.exists() ) {
-                	destFile.delete();
-                }
-               
-                //lenghtOfFile is used for calculating download progress
-                long lenghtOfFile = response.getEntity().getContentLength();
-               
-                //this is where the file will be seen after the download
-                FileOutputStream f = new FileOutputStream(destFile);
-                //file input is from the url
-                InputStream in = response.getEntity().getContent();
+   				if ( response.getStatusLine().getStatusCode() == 200 ) {
 
-                //here's the download code
-                byte[] buffer = new byte[1024];
-                int len1 = 0;
-                long total = 0;
-               
-                while ((len1 = in.read(buffer)) > 0) {
-                	
-                	//Make sure the user can cancel the download.
-                	if ( isCancelled() ) {
-                		return null;
-                	}
-                	
-                    total += len1; 
-                    publishProgress((int)((total*100)/lenghtOfFile));
-                    f.write(buffer, 0, len1);
-                }
-                f.close();
+   					File destFolder = new File("/sdcard/PageTurner/Downloads/");
+   					if ( ! destFolder.exists() ) {
+   						destFolder.mkdirs();
+   					}
+
+   					destFile = new File(destFolder, URLDecoder.decode(fileName) );
+
+   					if ( destFile.exists() ) {
+   						destFile.delete();
+   					}
+
+   					//lenghtOfFile is used for calculating download progress
+   					long lenghtOfFile = response.getEntity().getContentLength();
+
+   					//this is where the file will be seen after the download
+   					FileOutputStream f = new FileOutputStream(destFile);
+   					//file input is from the url
+   					InputStream in = response.getEntity().getContent();
+
+   					//here's the download code
+   					byte[] buffer = new byte[1024];
+   					int len1 = 0;
+   					long total = 0;
+
+   					while ((len1 = in.read(buffer)) > 0) {
+
+   						//Make sure the user can cancel the download.
+   						if ( isCancelled() ) {
+   							return null;
+   						}
+
+   						total += len1; 
+   						publishProgress((int)((total*100)/lenghtOfFile));
+   						f.write(buffer, 0, len1);
+   					}
+   					f.close();
+   				} else {
+   					this.failure = new RuntimeException( response.getStatusLine().getReasonPhrase() );
+   					LOG.error("Download failed: " + response.getStatusLine().getReasonPhrase() );	
+   				}
                
             } catch (Exception e) {
             	LOG.error("Download failed.", e);	

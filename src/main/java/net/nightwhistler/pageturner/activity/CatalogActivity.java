@@ -570,10 +570,9 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 			
 			String baseUrl = params[0];
 			
-			DefaultHttpClient client = new DefaultHttpClient();
-			HttpGet get = new HttpGet( baseUrl );
-			
 			try {
+				DefaultHttpClient client = new DefaultHttpClient();
+				HttpGet get = new HttpGet( baseUrl );
 				
 				HttpResponse response = client.execute(get);
 				Feed feed = Nucular.readFromStream( response.getEntity().getContent() );

@@ -31,7 +31,13 @@ public abstract class KeyedResultAdapter extends QueryResultAdapter<LibraryBook>
 	}
 	
 	public String getKey(int position) {
-		return keyedResult.getKeys().get(position);
+		List<String> keys = keyedResult.getKeys();
+		
+		if ( keys == null || position >= keys.size() ) {
+			return null;
+		}
+		
+		return keys.get(position);
 	}
 	
 	public List<Character> getAlphabet() {

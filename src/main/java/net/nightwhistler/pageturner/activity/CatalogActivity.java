@@ -470,7 +470,12 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 
 			if ( href.startsWith("data:image/png;base64")) {
 				String dataString = href.substring( href.indexOf(',') + 1 );
-				imageLink.setBinData( Base64.decode(dataString, Base64.DEFAULT ));
+				try {
+					imageLink.setBinData( Base64.decode(dataString, Base64.DEFAULT ));
+				} catch ( NoClassDefFoundError ncd ) {
+					//Slight hack for Android 2.1
+					imageLink.setBinData(null);
+				}
 			} else {
 				String target = new URL(new URL(baseUrl), href).toString();	
 				

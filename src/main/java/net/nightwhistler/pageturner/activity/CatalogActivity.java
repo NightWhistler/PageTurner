@@ -484,6 +484,11 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
     }
 	
     private void setNewFeed( Feed result ) {
+    	
+    	if ( actionBar == null ) {
+    		return;
+    	}
+    	
     	actionBar.removeAllActions();			
 		
 		if ( result != null ) {
@@ -497,9 +502,6 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 			}
 			
 			actionBar.setTitle( result.getTitle() );
-			
-			//actionBar.addAction(searchAction);
-			
 			adapter.setFeed(result);
 
 			waitDialog.hide();

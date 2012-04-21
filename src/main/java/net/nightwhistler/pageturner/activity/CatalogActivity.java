@@ -570,6 +570,12 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 			
 			String baseUrl = params[0];
 			
+			if ( baseUrl == null || baseUrl.trim().length() == 0 ) {
+				return null;
+			}
+			
+			baseUrl = baseUrl.trim();
+			
 			try {
 				DefaultHttpClient client = new DefaultHttpClient();
 				HttpGet get = new HttpGet( baseUrl );

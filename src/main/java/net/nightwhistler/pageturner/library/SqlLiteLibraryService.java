@@ -25,6 +25,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.nightwhistler.pageturner.library.LibraryDatabaseHelper.Order;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Metadata;
@@ -46,6 +49,8 @@ public class SqlLiteLibraryService implements LibraryService {
 	private static final int LIMIT = 20;
 	
 	private LibraryDatabaseHelper helper;	
+	
+	private static final Logger LOG = LoggerFactory.getLogger(SqlLiteLibraryService.class);
 	
 	@Inject
 	public void setHelper(LibraryDatabaseHelper helper) {
@@ -121,7 +126,7 @@ public class SqlLiteLibraryService implements LibraryService {
 			output = output.replace(c, '_');
 		}
 		
-		return output;		
+		return output.trim();		
 	}
 	
 	private File copyToLibrary( String fileName, String author, String title) throws IOException {
@@ -137,6 +142,9 @@ public class SqlLiteLibraryService implements LibraryService {
 		FileChannel destination = null;
 		
 		File targetFile = new File(targetFolder, baseFile.getName());
+		
+		LOG.debug("Copying to file: " + targetFile.getAbsolutePath() );
+		
 		targetFile.createNewFile();
 				
 		try {

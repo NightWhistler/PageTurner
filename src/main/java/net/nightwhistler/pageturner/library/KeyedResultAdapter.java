@@ -47,11 +47,18 @@ public abstract class KeyedResultAdapter extends QueryResultAdapter<LibraryBook>
 	@Override
 	public int getPositionForSection(int section) {
 		
-		if ( keyedResult == null ) {
+		if ( section < 0 || keyedResult == null ) {
+			return -1;
+		}
+		
+		List<Character> alphabet = this.keyedResult.getAlphabet();
+		
+		if ( section >= alphabet.size() ) {
 			return 0;
 		}
 		
-		Character c = this.keyedResult.getAlphabet().get(section);
+		Character c = alphabet.get(section);
+		
 		return this.keyedResult.getOffsetFor(c);
 	}
 

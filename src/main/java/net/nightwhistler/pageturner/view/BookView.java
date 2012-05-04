@@ -722,6 +722,10 @@ public class BookView extends ScrollView {
 					
 					LOG.debug("Rescaling from " + originalWidth + "x" + originalHeight + " to " + targetWidth + "x" + targetHeight );
 					
+					if ( targetWidth <= 0 || targetHeight <= 0 ) {
+						return null;
+					}
+					
 					//android.graphics.Bitmap.createScaledBitmap should do the same.					
 					return Bitmap.createScaledBitmap(originalBitmap, targetWidth, targetHeight, true);
 				}									

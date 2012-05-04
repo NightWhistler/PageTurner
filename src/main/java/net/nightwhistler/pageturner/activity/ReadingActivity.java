@@ -770,17 +770,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     }
     
     private void prepareSlide(Animation inAnim, Animation outAnim) {
-    	    	    	    	
-    	dummyView.setVisibility(View.VISIBLE);
-    	dummyView.setImageBitmap(null);
-    	
+   	
     	Bitmap bitmap = getBookViewSnapshot();
-    	
-    	if ( bitmap != null ) {
-    		dummyView.setImageBitmap(bitmap);
-    	}    		
+   		dummyView.setImageBitmap(bitmap);
     	
     	viewSwitcher.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight() );
+    	dummyView.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight() );
+    	
     	this.viewSwitcher.showNext();
     	
 		this.viewSwitcher.setInAnimation(inAnim);

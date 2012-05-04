@@ -224,7 +224,7 @@ public class PageTurnerSpine {
 	 * @param progressInPart
 	 * @return
 	 */
-	public int getProgressPercentage(int progressInPart) {		
+	public int getProgressPercentage(double progressInPart) {		
 		
 		if ( this.entries == null ) {
 			return -1;
@@ -244,14 +244,9 @@ public class PageTurnerSpine {
 		
 		double pastParts = (double) uptoHere / (double) total; 
 		
-		int pos = progressInPart;
-		int totalLength = entries.get(this.position).size;
-		
 		double thisPart = (double) entries.get(this.position).size / (double) total;
 		
-		double inThisPart = (double) pos / (double) totalLength;
-		
-		double progress = pastParts + (inThisPart * thisPart);
+		double progress = pastParts + (progressInPart * thisPart);
 		
 		return (int) (progress * 100);		
 	}

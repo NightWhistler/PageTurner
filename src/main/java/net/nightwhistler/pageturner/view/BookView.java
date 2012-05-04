@@ -845,7 +845,14 @@ public class BookView extends ScrollView {
 	private void progressUpdate() {		
 		
 		if ( this.spine != null ) {
-			int progress = spine.getProgressPercentage(this.getPosition() );
+			
+			double progressInPart = (double) this.getPosition() / (double) this.strategy.getText().length(); 
+			
+			if ( strategy.isAtEnd() ) {
+				progressInPart = 1d;
+			}			
+			
+			int progress = spine.getProgressPercentage( progressInPart );
 		
 			if ( progress != -1 ) {
 				for ( BookViewListener listener: this.listeners ) {

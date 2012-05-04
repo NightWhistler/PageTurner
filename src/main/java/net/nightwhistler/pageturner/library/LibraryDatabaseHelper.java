@@ -131,6 +131,9 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 			String authorLastName, String title, String description,
 			byte[] coverImage, boolean setLastRead) {
 		
+		if ( title.trim().length() == 0 ) {
+			title = fileName.substring( fileName.lastIndexOf('/') );
+		}		
 				
 		ContentValues content = new ContentValues();
 				

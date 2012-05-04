@@ -195,11 +195,11 @@ public class ScrollingStrategy implements PageChangeStrategy {
 		if ( bookView.getScrollY() == currentPos ) {
 						
 			if ( delta < 0 ) {				
-				if (! bookView.getSpine().navigateBack() ) {					
+				if (bookView.getSpine() == null || ! bookView.getSpine().navigateBack() ) {					
 					return;
 				}
 			} else {				
-				if ( ! bookView.getSpine().navigateForward() ) {
+				if (bookView.getSpine() == null ||  ! bookView.getSpine().navigateForward() ) {
 					return;
 				}
 			}

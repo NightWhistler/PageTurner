@@ -38,7 +38,6 @@ import net.nightwhistler.pageturner.library.KeyedResultAdapter;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.QueryResult;
-import net.nightwhistler.pageturner.library.QueryResultAdapter;
 import net.nightwhistler.pageturner.view.BookCaseView;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 
@@ -62,8 +61,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -73,7 +70,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -199,13 +195,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	}	
 	
 	private void onBookClicked( LibraryBook book ) {
-		
-		Intent intent = new Intent(this, ReadingActivity.class);
-		
-		intent.setData( Uri.parse(book.getFileName()));
-		this.setResult(RESULT_OK, intent);
-				
-		startActivityIfNeeded(intent, 99);
+		showBookDetails(book);
 	}
 
 	@Override
@@ -262,12 +252,28 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		added.setText( addedText );
 		descriptionView.setText(new HtmlSpanner().fromHtml( libraryBook.getDescription()));		
 		
+		builder.setNeutralButton(R.string.delete, new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				libraryService.deleteBook( libraryBook.getFileName() );
+				new LoadBooksTask().execute(config.getLastLibraryQuery());
+				dialog.dismiss();			
+			}
+		});			
+		
 		builder.setNegativeButton(android.R.string.cancel, null);
 		builder.setPositiveButton(R.string.read, new OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				onBookClicked(libraryBook);				
+
+				Intent intent = new Intent(LibraryActivity.this, ReadingActivity.class);
+				
+				intent.setData( Uri.parse(libraryBook.getFileName()));
+				setResult(RESULT_OK, intent);
+						
+				startActivityIfNeeded(intent, 99);				
 			}
 		});
 		
@@ -311,47 +317,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
     	});
 
     	builder.show();
-	}
-	
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		
-		int pos;
-		
-		if ( menuInfo != null ) {		
-			AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-			pos = info.position;
-		} else {
-			pos = (Integer) v.getTag();
-		}
-		
-		final LibraryBook selectedBook = bookAdapter.getResultAt(pos);
-		
-		MenuItem detailsItem = menu.add( R.string.view_details);
-		
-		detailsItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				showBookDetails(selectedBook);				
-				return true;
-			}
-		});
-		
-		MenuItem deleteItem = menu.add(R.string.delete);
-		
-		deleteItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				libraryService.deleteBook( selectedBook.getFileName() );
-				new LoadBooksTask().execute(config.getLastLibraryQuery());
-				return true;					
-			}
-		});				
-		
 	}	
+	
 	
 	private void startImport(File startFolder, boolean copy) {		
 		ImportTask importTask = new ImportTask(this, libraryService, this, copy);
@@ -862,9 +829,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 				
 			} else {
 				result = convertView;
-			}
-			
-			registerForContextMenu(result);
+			}			
 			
 			result.setTag(index);
 			

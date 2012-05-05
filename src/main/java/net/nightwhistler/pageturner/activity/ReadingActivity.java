@@ -86,6 +86,7 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -135,7 +136,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	private RelativeLayout titleBarLayout;
 	
 	@InjectView(R.id.titleProgress)
-	private ProgressBar progressBar;
+	private SeekBar progressBar;
 	
 	@InjectView(R.id.percentageField)
 	private TextView percentageField;
@@ -170,6 +171,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	private Handler backgroundHandler;
 	
 	private Toast brightnessToast;
+	
 	
     /** Called when the activity is first created. */
     @Override
@@ -209,6 +211,30 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
                 return gestureDetector.onTouchEvent(event);
             }
         };           
+        
+        this.progressBar.setFocusable(true);
+        this.progressBar.setOnSeekBarChangeListener( new SeekBar.OnSeekBarChangeListener() {
+        	
+        	private int seekValue;
+			
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				bookView.navigateToPercentage(this.seekValue);		
+				//hideTitleBar();
+			}			
+			
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {}
+			
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				if ( fromUser ) {
+					seekValue = progress;
+					percentageField.setText(progress + "% ");
+				}
+			}
+		});       
         
     	this.viewSwitcher.setOnTouchListener(gestureListener);
     	this.bookView.setOnTouchListener(gestureListener);    	
@@ -323,12 +349,10 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 
         if ( config.isFullScreenEnabled() ) {
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-            this.titleBarLayout.setVisibility(View.GONE);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);            
         } else {    
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        	this.titleBarLayout.setVisibility(View.GONE);
+        	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);        	
     	}
         
         restoreColorProfile();
@@ -367,9 +391,10 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
     	super.onWindowFocusChanged(hasFocus);
+    	
     	if ( hasFocus ) {
     		updateFromPrefs();
-    	}
+    	}    	
     }
     
     @Override
@@ -564,7 +589,10 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	            
 	        case KeyEvent.KEYCODE_BACK:
 	        	if ( action == KeyEvent.ACTION_DOWN ) { 
-	        		if ( bookView.hasPrevPosition() ) {
+	        		
+	        		if ( titleBarLayout.getVisibility() == View.VISIBLE ) {
+	        			hideTitleBar();
+	        		} else if ( bookView.hasPrevPosition() ) {
 	        			bookView.goBackInHistory();
 	        		
 	        			return true;
@@ -884,18 +912,24 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	
     	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
     	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    	this.titleBarLayout.setVisibility(View.VISIBLE);
+    	showTitleBar();
     	
     	return super.onPrepareOptionsMenu(menu);
     }
+    
+    private void showTitleBar() {
+    	this.titleBarLayout.setVisibility(View.VISIBLE);
+    }
+    
+    private void hideTitleBar() {
+    	titleBarLayout.setVisibility(View.GONE);    	    
+    }    
     
     @Override
     public void onOptionsMenuClosed(Menu menu) {
     	if ( config.isFullScreenEnabled() ) {
         	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
         			WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        	
-        	this.titleBarLayout.setVisibility(View.GONE);
         }
     }
     
@@ -954,6 +988,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	
+    	hideTitleBar();
+    	
         // Handle item selection
         switch (item.getItemId()) {
      
@@ -1007,7 +1043,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
       
 
     @Override
-    public boolean onSwipeDown() {
+    public boolean onSwipeDown() { 
+    	
     	if ( config.isVerticalSwipeEnabled() ) {
     		pageDown(Orientation.VERTICAL);
     		return true;
@@ -1018,6 +1055,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     
     @Override
     public boolean onSwipeUp() {
+    	    	
     	if ( config.isVerticalSwipeEnabled() ) {
     		pageUp(Orientation.VERTICAL);
     		return true;
@@ -1029,10 +1067,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     @Override
     public void onScreenTap() {
     	stopAnimating();
+    	hideTitleBar();
     }
     
     @Override
-    public boolean onSwipeLeft() {    			
+    public boolean onSwipeLeft() {    	
+    	    	
     	if ( config.isHorizontalSwipeEnabled() ) {    		
     		pageDown(Orientation.HORIZONTAL);
     		return true;
@@ -1042,7 +1082,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     }
     
     @Override
-    public boolean onSwipeRight() {
+    public boolean onSwipeRight() {    	
+    	
     	if ( config.isHorizontalSwipeEnabled() ) {    		
     		pageUp(Orientation.HORIZONTAL);
     		return true;

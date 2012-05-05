@@ -34,7 +34,6 @@ import java.util.Set;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
-import net.nightwhistler.htmlspanner.handlers.HeaderHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
@@ -56,7 +55,6 @@ import org.slf4j.LoggerFactory;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -70,8 +68,6 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -162,9 +158,6 @@ public class BookView extends ScrollView {
         spanner.registerHandler("image", imgHandler );
         
         spanner.registerHandler("a", new AnchorHandler(new LinkTagHandler()) );
-        
-       
-        
         
         spanner.registerHandler("h1", new AnchorHandler(spanner.getHandlerFor("h1") ));
         spanner.registerHandler("h2", new AnchorHandler(spanner.getHandlerFor("h2") ));
@@ -489,6 +482,39 @@ public class BookView extends ScrollView {
 		}
 	}	
 	
+	public void navigateToPercentage( int percentage ) {
+		
+		double targetPoint = (double) percentage / 100d;
+		List<Double> percentages = this.spine.getRelativeSizes();
+				
+		if ( percentages == null || percentages.isEmpty() ) {
+			return;
+		}
+		
+		int index = 0;		
+		double total = 0;
+		
+		for ( ; total < targetPoint && index < percentages.size() ; index++ ) {
+			total = total + percentages.get(index);
+		}
+		
+		index--;
+		
+		double partBefore = total - percentages.get(index);
+		double progressInPart = (targetPoint - partBefore) / percentages.get(index);		
+		
+		this.prevIndex = this.getIndex();
+		this.prevPos = this.getPosition();
+		
+		this.storedIndex = index;
+		this.strategy.clearText();
+		this.strategy.setRelativePosition(progressInPart);
+				
+		this.spine.navigateByIndex(index);
+		
+		loadText();
+	}	
+	
 	public void navigateTo( int index, int position ) {
 		
 		this.prevIndex = this.getIndex();
@@ -683,7 +709,7 @@ public class BookView extends ScrollView {
 			}
 			
 			if ( bitmap != null ) {
-				Drawable drawable = new BitmapDrawable( bitmap );				
+				Drawable drawable = new FastBitmapDrawable( bitmap );				
 				drawable.setBounds(0,0, bitmap.getWidth() - 1, bitmap.getHeight() - 1);
 				builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				

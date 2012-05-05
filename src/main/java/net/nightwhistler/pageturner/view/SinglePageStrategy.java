@@ -33,6 +33,7 @@ public class SinglePageStrategy implements PageChangeStrategy {
 	
 	private Spanned text = new SpannableString("");	
 	private int storedPosition = 0;
+	private double storedPercentage = -1d;
 	
 	private BookView bookView;
 	private TextView childView;
@@ -53,6 +54,12 @@ public class SinglePageStrategy implements PageChangeStrategy {
 		}
 		
 		return this.storedPosition;
+	}
+	
+	@Override
+	public void setRelativePosition(double position) {
+		this.storedPercentage = position;
+		updatePosition();
 	}
 	
 	@Override
@@ -182,6 +189,11 @@ public class SinglePageStrategy implements PageChangeStrategy {
 		
 		if ( this.text.length() == 0 ) {
 			return;
+		}
+		
+		if ( this.storedPercentage != -1d ) {
+			this.storedPosition = (int) ( storedPercentage * text.length() );
+			this.storedPercentage = -1d;
 		}
 		
 		if ( this.storedPosition >= text.length() ) {

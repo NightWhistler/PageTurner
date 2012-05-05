@@ -59,6 +59,15 @@ public interface PageChangeStrategy {
 	public void setPosition( int pos );	
 	
 	/**
+	 * Sets a position relative to the text length:
+	 * 0 means the start of the text, 1 means the end of 
+	 * the text.
+	 * 
+	 * @param position a value between 0 and 1
+	 */
+	public void setRelativePosition( double position );
+	
+	/**
 	 * Move the view one page up.
 	 */
 	public void pageUp();

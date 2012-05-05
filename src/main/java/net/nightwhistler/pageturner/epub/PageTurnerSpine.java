@@ -230,25 +230,42 @@ public class PageTurnerSpine {
 			return -1;
 		}
 		
-		int total = 0;
-		int uptoHere = 0;
+		double uptoHere = 0;
 		
-		for ( int i=0; i < entries.size(); i++ ) {
-			
-			if ( i < this.position ) {
-				uptoHere += entries.get(i).size;
-			}
-			
-			total += entries.get(i).size;
-		}
+		List<Double> percentages = getRelativeSizes();
 		
-		double pastParts = (double) uptoHere / (double) total; 
+		for ( int i=0; i < percentages.size() && i < this.position; i++ ) {
+			uptoHere += percentages.get( i );
+		}  
 		
-		double thisPart = (double) entries.get(this.position).size / (double) total;
+		double thisPart = percentages.get(this.position);
 		
-		double progress = pastParts + (progressInPart * thisPart);
+		double progress = uptoHere + (progressInPart * thisPart);
 		
 		return (int) (progress * 100);		
+	}
+	
+	/**
+	 * Returns a list of doubles representing the relative size of each spine index.
+	 * @return
+	 */
+	public List<Double> getRelativeSizes() {
+		int total = 0;
+		List<Integer> sizes = new ArrayList<Integer>();
+		
+		for ( int i=0; i < entries.size(); i++ ) {
+			int size = entries.get(i).size;
+			sizes.add(size);
+			total += size;
+		}
+		
+		List<Double> result = new ArrayList<Double>();
+		for ( int i=0; i < sizes.size(); i++ ) {
+			double part = (double) sizes.get(i) / (double) total;
+			result.add( part );
+		}
+		
+		return result;
 	}
 	
 	private Resource createCoverResource(Book book) {	

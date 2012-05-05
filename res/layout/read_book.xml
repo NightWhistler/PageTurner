@@ -20,10 +20,7 @@
             android:id="@+id/bookView"
         	android:layout_width="fill_parent"
 	        android:layout_height="fill_parent"
-	        >
-
-           
-        </net.nightwhistler.pageturner.view.BookView>
+	        />
      
 	    <net.nightwhistler.pageturner.view.AnimatedImageView
     	     android:layout_width="fill_parent"
@@ -39,13 +36,13 @@
         	android:layout_height="wrap_content"
         	android:orientation="vertical"        
         	android:layout_alignTop="@id/mainContainer"
+        	android:visibility="gone"
         	>   
         	    
          <TextView
                 android:id="@+id/myTitleBarTextView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Large Text"
+                android:layout_height="wrap_content"                
                 android:layout_alignParentTop="true"                             
                 android:background="@color/translucent_black"                
                 android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -53,16 +50,15 @@
           <TextView
                 android:id="@+id/authorField"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Unknown Author"
+                android:layout_height="wrap_content"                
                 android:textColor="@color/opaque_white"
                 android:layout_below="@id/myTitleBarTextView"                              
                 android:background="@color/translucent_black"                
-                android:textAppearance="?android:attr/textAppearanceSmall" />        
-           
-          <TextView
+                android:textAppearance="?android:attr/textAppearanceSmall" />     
+         
+           <TextView
                 android:id="@+id/percentageField"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/opaque_white"
                 android:text="0%  "
@@ -70,16 +66,18 @@
                                        
                 android:background="@color/translucent_black"                
                 android:textAppearance="?android:attr/textAppearanceSmall" /> 
-          
-    	<ProgressBar
-        	android:id="@+id/titleProgress"
+                
+          <SeekBar android:id="@+id/titleProgress"
         	style="?android:attr/progressBarStyleHorizontal"
         	android:layout_width="fill_parent"        	
         	android:layout_height="wrap_content"        
-        	android:layout_below="@id/authorField"
-        	android:layout_toRightOf="@id/percentageField"        	
-			android:background="@color/translucent_black"
-       />
+        	android:layout_below="@id/percentageField"        	        	
+			android:background="@color/translucent_black" />   
+           
+          
+         
+                
+               
 
        
     </RelativeLayout>

@@ -40,6 +40,8 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	
 	private TextView childView;
 	private int storedPosition;
+
+	private double storedPercentage = -1;
 	
 	private Spanned text;
 	
@@ -148,10 +150,21 @@ public class ScrollingStrategy implements PageChangeStrategy {
 		this.text = null;
 	}
 	
+	@Override
+	public void setRelativePosition(double position) {
+		this.storedPercentage = position;
+		updatePosition();
+	}
+	
 	public void updatePosition() {
 		if ( this.storedPosition == -1 || this.childView.getText().length() == 0 ) {			
 			return; //Hopefully come back later
 		} else {
+			
+			if ( storedPercentage != -1d ) {
+				this.storedPosition = (int) (this.childView.getText().length() * storedPercentage);
+				this.storedPercentage = -1d;
+			}
 			
 			Layout layout = this.childView.getLayout();
 			

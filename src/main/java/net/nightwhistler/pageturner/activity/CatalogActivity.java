@@ -26,9 +26,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.Stack;
-import java.util.UUID;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.nucular.atom.Entry;
@@ -173,13 +171,9 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 	@Override
 	public void onItemClick(AdapterView<?> list, View arg1, int position, long arg3) {		
 		
-		Entry entry = adapter.getItem(position);
-		if ( entry.getAtomLink() != null && ! navStack.contains(entry.getAtomLink().getHref() )) {
-			String href = entry.getAtomLink().getHref();
-			loadURL(href);		
-		} else {
-			loadFakeFeed(entry);
-		}
+		Entry entry = adapter.getItem(position);		
+		String href = entry.getAtomLink().getHref();
+		loadURL(entry, href);		
 	}
 	
 	private boolean isLeafEntry(Feed feed, Entry entry ) {
@@ -199,7 +193,11 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 		new LoadFakeFeedTask(entry).execute(base);
 	}
 	
-	private void loadURL( String url ) {
+	private void loadURL(String url ) {
+		loadURL(null, url);
+	}
+	
+	private void loadURL(Entry entry, String url ) {
 		
 		String base = baseURL;
 		
@@ -212,7 +210,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 			LOG.info("Loading " + target );
 			
 			navStack.push(target);
-			new LoadOPDSTask().execute(target);
+			new LoadOPDSTask(entry).execute(target);
 		} catch (MalformedURLException u ) {
 			LOG.error("Malformed URL:", u);
 		}
@@ -461,6 +459,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
         }
     }   
     
+   
     private void loadImageLink( Link imageLink, String baseUrl ) throws IOException {
     	
     	DefaultHttpClient client = new DefaultHttpClient();		
@@ -470,7 +469,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 
 			if ( href.startsWith("data:image/png;base64")) {
 				String dataString = href.substring( href.indexOf(',') + 1 );
-				try {
+				try {					
 					imageLink.setBinData( Base64.decode(dataString, Base64.DEFAULT ));
 				} catch ( NoClassDefFoundError ncd ) {
 					//Slight hack for Android 2.1
@@ -553,6 +552,16 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
     
 	private class LoadOPDSTask extends AsyncTask<String, Integer, Feed> implements OnCancelListener {
 		
+		private Entry previousEntry;
+		
+		public LoadOPDSTask() {
+			//leave previousEntry null
+		}
+		
+		public LoadOPDSTask(Entry entry) {
+			this.previousEntry = entry;
+		}
+		
 		@Override
 		protected void onPreExecute() {
 			waitDialog.setTitle(getString(R.string.loading_wait));
@@ -610,6 +619,22 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 		
 		@Override
 		protected void onPostExecute(Feed result) {
+			
+			/**
+			 * This is a bit hacky: some feeds have the download link in the list,
+			 * and clicking an item will take you to another list.
+			 * 
+			 * Since we always want to send the user to a single-item page before
+			 * downloading, we have to fake it some times.
+			 */
+			
+			if ( previousEntry != null && previousEntry.getEpubLink() != null ) {
+				if ( result == null || result.getSize() != 1 || result.getEntries().get(0).getEpubLink() == null) {
+					loadFakeFeed(previousEntry);
+					return;
+				}
+			} 			
+			
 			setNewFeed(result);			
 		}
 		

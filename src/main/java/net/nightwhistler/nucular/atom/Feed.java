@@ -59,4 +59,8 @@ public class Feed extends AtomElement {
 		
 		return null;
 	}
+	
+	public int getSize() {
+		return getEntries().size();
+	}
 }

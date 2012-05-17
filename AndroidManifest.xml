@@ -23,8 +23,8 @@
     			<category android:name="android.intent.category.DEFAULT" />
     			<category android:name="android.intent.category.BROWSABLE" />    			
     			
-    			 <data android:mimeType="*/*" />
-                 <data android:pathPattern="*.*\\.epub" />
+    			 <data android:mimeType="application/epub+zip" />
+                 <data android:pathPattern=".*\\.epub" />
 
             </intent-filter>
             

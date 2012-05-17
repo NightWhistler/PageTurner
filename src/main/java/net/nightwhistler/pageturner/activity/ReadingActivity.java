@@ -219,8 +219,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 			
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
-				bookView.navigateToPercentage(this.seekValue);		
-				//hideTitleBar();
+				bookView.navigateToPercentage(this.seekValue);					
 			}			
 			
 			@Override
@@ -1066,8 +1065,14 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     
     @Override
     public void onScreenTap() {
+    	
     	stopAnimating();
-    	hideTitleBar();
+    	
+    	if ( this.titleBarLayout.getVisibility() == View.VISIBLE ) {
+    		titleBarLayout.setVisibility(View.GONE);
+    	} else {
+    		titleBarLayout.setVisibility(View.VISIBLE);
+    	}
     }
     
     @Override

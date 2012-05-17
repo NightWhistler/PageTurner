@@ -45,14 +45,7 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 		this.bookView = bookView;
 		this.bookViewListener = navListener;
 		this.metrics = metrics;
-	}	
-	
-	@Override
-	public boolean onDown(MotionEvent e) {		
-		this.bookViewListener.onScreenTap();	
-		return false;
 	}
-	
 
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
@@ -79,7 +72,8 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
     		return bookViewListener.onTopBottomEdge();	
     	}
     	
-    	return false;        
+    	this.bookViewListener.onScreenTap();	
+    	return false;    	        
 	}
 	
 	@Override

@@ -22,6 +22,7 @@ package net.nightwhistler.pageturner.view;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -461,8 +462,8 @@ public class BookView extends ScrollView {
 		
 		//URLDecode the href, so it does not contain %20 etc.
 		String href = URLDecoder.decode( 
-				StringUtil.substringBefore(rawHref, 
-						Constants.FRAGMENT_SEPARATOR_CHAR) );
+			StringUtil.substringBefore(rawHref, 
+			Constants.FRAGMENT_SEPARATOR_CHAR) );
 		
 		//Don't decode the anchor.
 		String anchor = StringUtil.substringAfterLast(rawHref, 
@@ -545,7 +546,7 @@ public class BookView extends ScrollView {
 		
 		if ( refs == null || refs.isEmpty() ) {
 			return;
-		}
+		}		
 		
 		for ( TOCReference ref: refs ) {
 			
@@ -558,7 +559,7 @@ public class BookView extends ScrollView {
 			title += ref.getTitle();
 			
 			if ( ref.getResource() != null ) {
-				entries.add( new TocEntry(title, ref.getCompleteHref() ));
+				entries.add( new TocEntry(title, spine.resolveTocHref( ref.getCompleteHref() )));
 			}
 			
 			flatten( ref.getChildren(), entries, level + 1 );
@@ -673,7 +674,7 @@ public class BookView extends ScrollView {
 					
 				@Override
 				public void onClick(View widget) {
-					navigateTo(href);					
+					navigateTo(spine.resolveHref(href));					
 				}
 			};
 				
@@ -777,7 +778,8 @@ public class BookView extends ScrollView {
 			}
 	        builder.append("\uFFFC");
 	        
-	        loader.registerCallback(src, new ImageCallback(builder, start, builder.length()));
+	        loader.registerCallback(spine.resolveHref(src), 
+	        		new ImageCallback(builder, start, builder.length()));
 		}				
 		
 	}

@@ -18,6 +18,11 @@
  */
 package net.nightwhistler.pageturner.epub;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +47,8 @@ public class PageTurnerSpine {
 	
 	/** How long should a cover page be to be included **/
 	private static final int COVER_PAGE_THRESHOLD = 1024;
+	
+	private String tocHref;
 	
 	/**
 	 * Creates a new Spine from this book.
@@ -68,7 +75,11 @@ public class PageTurnerSpine {
 	      	if ( href == null || ! (href.equals(res.getHref()))) {
 	      		addResource(res);
 	      	}
-	    }	 
+	    }
+	    
+	    if ( book.getNcxResource() != null ) {
+	    	this.tocHref = book.getNcxResource().getHref();
+	    }
 	}
 	
 	/**
@@ -163,6 +174,78 @@ public class PageTurnerSpine {
 	}
 	
 	/**
+	 * Resolves a href relative to the current resource.
+	 * 
+	 * @param href
+	 * @return
+	 */
+	public String resolveHref( String href ) {		
+		
+		Resource res = getCurrentResource();
+		
+		if ( res == null || res.getHref() == null ) {
+			return href;
+		}
+		
+		return resolveHref(href, res.getHref());			
+	}
+	
+	/**
+	 * Resolves a HREF relative to the Table of Contents
+	 * 
+	 * @param href
+	 * @return
+	 */
+	public String resolveTocHref( String href ) {
+		if ( this.tocHref != null ) {
+			return resolveHref(href, tocHref);
+		}
+		
+		return href;
+	}
+	
+	private static String resolveHref( String href, String against ) {
+		try {
+			String result = new URI(encode(against)).resolve(encode(href)).getPath();
+			return result;
+		} 
+		catch (URISyntaxException u) {
+			return href;
+		}	
+	}
+	
+	private static String encode(String input) {
+        StringBuilder resultStr = new StringBuilder();
+        for (char ch : input.toCharArray()) {
+            if (isUnsafe(ch)) {
+                resultStr.append('%');
+                resultStr.append(toHex(ch / 16));
+                resultStr.append(toHex(ch % 16));
+            } else {
+                resultStr.append(ch);
+            }
+        }
+        return resultStr.toString();
+    }
+
+    private static char toHex(int ch) {
+        return (char) (ch < 10 ? '0' + ch : 'A' + ch - 10);
+    }
+
+    /**
+     * This is slightly unsafe: it lets / and % pass, making 
+     * multiple encodes safe.
+     * @param ch
+     * @return
+     */
+    private static boolean isUnsafe(char ch) {
+        if (ch > 128 || ch < 0)
+            return true;
+        return " %$&+,:;=?@<>#".indexOf(ch) >= 0;
+    }
+
+	
+	/**
 	 * Returns the href of the current resource.
 	 * @return
 	 */
@@ -206,8 +289,11 @@ public class PageTurnerSpine {
 	 */
 	public boolean navigateByHref( String href ) {
 		
+		String encodedHref = encode(href);
+		
 		for ( int i=0; i < size(); i++ ) {
-			if ( entries.get(i).href.equals(href) ) {
+			String entryHref = encode(entries.get(i).href);
+			if ( entryHref.equals(encodedHref)){
 				this.position = i;
 				return true;
 			}

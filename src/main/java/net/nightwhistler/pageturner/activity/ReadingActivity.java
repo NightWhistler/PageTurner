@@ -1241,7 +1241,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	builder.setTitle(R.string.toc_label);
 
     	builder.setItems(items, new DialogInterface.OnClickListener() {
-    		public void onClick(DialogInterface dialog, int item) {
+    		public void onClick(DialogInterface dialog, int item) {    			
     			bookView.navigateTo( tocList.get(item).getHref() );
     		}
     	});

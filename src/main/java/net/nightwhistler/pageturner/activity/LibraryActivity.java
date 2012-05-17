@@ -753,8 +753,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 								View child = alphabetBar.getChildAt(i);
 								if ( child.getTag().equals(keyChar) ) {
 									child.setBackgroundColor(Color.BLUE);
-								} else {
-									child.setBackgroundColor(android.R.color.background_dark);
+								} else {									
+									child.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
 								}
 							}							
 						}						
@@ -969,7 +969,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			if ( tag.equals(highlightChar) ) {
 				view.setBackgroundColor(Color.BLUE);
 			} else {
-				view.setBackgroundColor(android.R.color.background_dark);
+				view.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
 			}
 			
 			return view;

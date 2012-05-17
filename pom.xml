@@ -180,7 +180,7 @@
                         <debug>true</debug>
                     </run>
                     <sdk>
-                        <platform>8</platform>
+                        <platform>15</platform>
                     </sdk>
                     <emulator>
                         <avd>Telefoon</avd>

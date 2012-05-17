@@ -180,8 +180,6 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 		return feed.getEntries().size() == 1;
 	}
 	
-	
-	
 	private void loadFakeFeed( Entry entry ) {
 		String base = baseURL;
 		
@@ -550,9 +548,9 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
     	}
     }
     
-	private class LoadOPDSTask extends AsyncTask<String, Integer, Feed> implements OnCancelListener {
+	private class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements OnCancelListener {
 		
-		private Entry previousEntry;
+		private Entry previousEntry;		
 		
 		public LoadOPDSTask() {
 			//leave previousEntry null
@@ -592,6 +590,8 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				HttpResponse response = client.execute(get);
 				Feed feed = Nucular.readFromStream( response.getEntity().getContent() );
 				
+				publishProgress(feed);
+				
 				for ( Entry entry: feed.getEntries() ) {
 					
 					if ( isCancelled() ) {
@@ -606,7 +606,8 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 						imageLink = entry.getThumbnailLink();
 					}
 					
-					loadImageLink(imageLink, baseUrl);					
+					loadImageLink(imageLink, baseUrl);	
+					publishProgress(imageLink);
 				}				
 				
 				return feed;
@@ -619,24 +620,42 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 		
 		@Override
 		protected void onPostExecute(Feed result) {
-			
-			/**
-			 * This is a bit hacky: some feeds have the download link in the list,
-			 * and clicking an item will take you to another list.
-			 * 
-			 * Since we always want to send the user to a single-item page before
-			 * downloading, we have to fake it some times.
-			 */
-			
-			if ( previousEntry != null && previousEntry.getEpubLink() != null ) {
-				if ( result == null || result.getSize() != 1 || result.getEntries().get(0).getEpubLink() == null) {
-					loadFakeFeed(previousEntry);
-					return;
-				}
-			} 			
-			
-			setNewFeed(result);			
+			if ( result == null ) {
+				setNewFeed(null);
+			}
 		}
+		
+		@Override
+		protected void onProgressUpdate(Object... values) {
+			if ( values == null || values.length == 0 ) {
+				return;
+			}
+			
+			Object val = values[0];
+			
+			if ( val instanceof Feed ) {
+				Feed result = (Feed) val;
+				
+				/**
+				 * This is a bit hacky: some feeds have the download link in the list,
+				 * and clicking an item will take you to another list.
+				 * 
+				 * Since we always want to send the user to a single-item page before
+				 * downloading, we have to fake it some times.
+				 */
+				
+				if ( previousEntry != null && previousEntry.getEpubLink() != null ) {
+					if ( result == null || result.getSize() != 1 || result.getEntries().get(0).getEpubLink() == null) {
+						loadFakeFeed(previousEntry);
+						return;
+					}
+				} 			
+				
+				setNewFeed(result);			
+			} else if ( val instanceof Link ) {
+				adapter.notifyDataSetChanged();
+			}
+		}		
 		
 	}
 	

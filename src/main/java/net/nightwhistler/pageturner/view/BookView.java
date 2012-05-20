@@ -501,6 +501,11 @@ public class BookView extends ScrollView {
 		
 		index--;
 		
+		//Work-around for when we get multiple events.
+		if ( index < 0 || index >= percentages.size() ) {
+			return;
+		}
+		
 		double partBefore = total - percentages.get(index);
 		double progressInPart = (targetPoint - partBefore) / percentages.get(index);		
 		
@@ -876,7 +881,7 @@ public class BookView extends ScrollView {
 			
 			double progressInPart = (double) this.getPosition() / (double) this.strategy.getText().length(); 
 			
-			if ( strategy.isAtEnd() ) {
+			if ( strategy.getText().length() > 0 && strategy.isAtEnd() ) {
 				progressInPart = 1d;
 			}			
 			

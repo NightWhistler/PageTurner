@@ -129,11 +129,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	public void storeNewBook(String fileName, String authorFirstName,
 			String authorLastName, String title, String description,
-			byte[] coverImage, boolean setLastRead) {
-		
-		if ( title.trim().length() == 0 ) {
-			title = fileName.substring( fileName.lastIndexOf('/') );
-		}		
+			byte[] coverImage, boolean setLastRead) {		
 				
 		ContentValues content = new ContentValues();
 				

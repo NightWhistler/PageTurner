@@ -36,6 +36,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.text.TextUtils;
 
 import com.google.inject.Inject;
 
@@ -105,12 +106,18 @@ public class SqlLiteLibraryService implements LibraryService {
     		description = metaData.getDescriptions().get(0);
     	}
     	
+    	String title = book.getTitle();
+    	
+    	if ( title.trim().length() == 0 ) {    		
+			title = fileName.substring( fileName.lastIndexOf('/') + 1 );
+		}		
+    	
 		if ( copyFile ) {			
-			bookFile = copyToLibrary(fileName, authorLastName + ", " + authorFirstName, book.getTitle() );			
+			bookFile = copyToLibrary(fileName, authorLastName + ", " + authorFirstName, title );			
 		}
     	
 		this.helper.storeNewBook(bookFile.getAbsolutePath(),
-				authorFirstName, authorLastName, book.getTitle(),
+				authorFirstName, authorLastName, title,
 				description, thumbNail, updateLastRead);    	
 		
 	}

@@ -26,6 +26,10 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
@@ -457,23 +461,19 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
         }
     }   
     
+    
    
-    private void loadImageLink( Link imageLink, String baseUrl ) throws IOException {
+    private void loadImageLink(Map<String, byte[]> cache, Link imageLink, String baseUrl ) throws IOException {
     	
     	DefaultHttpClient client = new DefaultHttpClient();		
     	
     	if ( imageLink != null ) {
-			String href = imageLink.getHref();					
-
-			if ( href.startsWith("data:image/png;base64")) {
-				String dataString = href.substring( href.indexOf(',') + 1 );
-				try {					
-					imageLink.setBinData( Base64.decode(dataString, Base64.DEFAULT ));
-				} catch ( NoClassDefFoundError ncd ) {
-					//Slight hack for Android 2.1
-					imageLink.setBinData(null);
-				}
-			} else {
+			String href = imageLink.getHref();
+			
+			if ( cache.containsKey(href) ) {
+				imageLink.setBinData( cache.get(href) );
+			} else {			
+			
 				String target = new URL(new URL(baseUrl), href).toString();	
 				
 				LOG.info("Downloading image: " + target );
@@ -481,6 +481,8 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				HttpResponse resp = client.execute(new HttpGet(target));
 
 				imageLink.setBinData( EntityUtils.toByteArray( resp.getEntity() ) );
+				
+				cache.put(href, imageLink.getBinData() );
 			}
 		}
     }
@@ -534,7 +536,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
     		fakeFeed.setTitle(singleEntry.getTitle());
     		
     		try {
-    			loadImageLink(singleEntry.getImageLink(), params[0]);
+    			loadImageLink(new HashMap<String, byte[]>(), singleEntry.getImageLink(), params[0]);
     		} catch (IOException io) {
     			LOG.error("Could not load image: ", io);
     		}
@@ -589,14 +591,14 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				
 				HttpResponse response = client.execute(get);
 				Feed feed = Nucular.readFromStream( response.getEntity().getContent() );
-				
-				publishProgress(feed);
+								
+				List<Link> remoteImages = new ArrayList<Link>();
 				
 				for ( Entry entry: feed.getEntries() ) {
 					
 					if ( isCancelled() ) {
 						return feed;
-					}
+					}	
 					
 					Link imageLink;
 					
@@ -606,9 +608,31 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 						imageLink = entry.getThumbnailLink();
 					}
 					
-					loadImageLink(imageLink, baseUrl);	
-					publishProgress(imageLink);
-				}				
+					if ( imageLink != null ) {
+						String href = imageLink.getHref();					
+
+						//If the image is contained in the feed, load it directly
+						if ( href.startsWith("data:image/png;base64")) {
+							String dataString = href.substring( href.indexOf(',') + 1 );
+							try {					
+								imageLink.setBinData( Base64.decode(dataString, Base64.DEFAULT ));
+							} catch ( NoClassDefFoundError ncd ) {
+								//Slight hack for Android 2.1
+								imageLink.setBinData(null);
+							}
+						} else {
+							remoteImages.add(imageLink);
+						}
+					}					
+				}
+				
+				publishProgress(feed);
+				
+				Map<String, byte[]> cache = new HashMap<String, byte[]>();
+				for ( Link link: remoteImages ) {
+					loadImageLink(cache, link, baseUrl);
+					publishProgress(link);
+				}
 				
 				return feed;
 			} catch (Exception e) {

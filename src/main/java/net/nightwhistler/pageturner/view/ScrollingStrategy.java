@@ -199,6 +199,10 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	
 	private void scroll( int delta ) {
 		
+		if ( this.bookView == null ) {
+			return;
+		}
+		
 		int currentPos = bookView.getScrollY();
 		
 		int newPos = currentPos + delta;

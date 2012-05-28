@@ -318,6 +318,11 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     @Override
     public void progressUpdate(int progressPercentage) {    	
     	
+    	//Work-around for calculation errors and weird values.
+    	if ( progressPercentage < 0 || progressPercentage > 100 ) {
+    		return;
+    	}
+    	
     	this.progressPercentage = progressPercentage;
     	percentageField.setText("" + progressPercentage + "%  ");
     	

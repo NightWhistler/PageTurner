@@ -509,30 +509,35 @@ public class BookView extends ScrollView {
 		double partBefore = total - percentages.get(index);
 		double progressInPart = (targetPoint - partBefore) / percentages.get(index);		
 		
-		this.prevIndex = this.getIndex();
 		this.prevPos = this.getPosition();
+		this.strategy.setRelativePosition(progressInPart);
+		
+		doNavigation(index);
+	}	
+	
+	private void doNavigation( int index ) {
+
+		//Check if we're already in the right part of the book
+		if ( index == this.getIndex() ) {
+			restorePosition();
+			return;
+		} 
+		
+		this.prevIndex = this.getIndex();
 		
 		this.storedIndex = index;
 		this.strategy.clearText();
-		this.strategy.setRelativePosition(progressInPart);
-				
 		this.spine.navigateByIndex(index);
-		
+
 		loadText();
-	}	
+	}
 	
 	public void navigateTo( int index, int position ) {
 		
-		this.prevIndex = this.getIndex();
 		this.prevPos = this.getPosition();
-		
-		this.storedIndex = index;
-		this.strategy.clearText();
 		this.strategy.setPosition(position);
-				
-		this.spine.navigateByIndex(index);
 		
-		loadText();
+		doNavigation(index);
 	}
 	
 	public List<TocEntry> getTableOfContents() {

@@ -916,25 +916,17 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	
     	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
     	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    	showTitleBar();
     	
     	return super.onPrepareOptionsMenu(menu);
     }
-    
-    private void showTitleBar() {
-    	this.titleBarLayout.setVisibility(View.VISIBLE);
-    }
-    
+       
     private void hideTitleBar() {
     	titleBarLayout.setVisibility(View.GONE);    	    
     }    
     
     @Override
     public void onOptionsMenuClosed(Menu menu) {
-    	if ( config.isFullScreenEnabled() ) {
-        	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
-        			WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
+    	updateFromPrefs();
     }
     
     /**
@@ -1075,8 +1067,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	
     	if ( this.titleBarLayout.getVisibility() == View.VISIBLE ) {
     		titleBarLayout.setVisibility(View.GONE);
+    		
+    		updateFromPrefs();
     	} else {
     		titleBarLayout.setVisibility(View.VISIBLE);
+    		
+    		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     	}
     }
     

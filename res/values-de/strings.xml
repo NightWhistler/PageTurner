@@ -43,7 +43,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="added_to_lib">Zu Buchregal hinzugefügt: %s</string>
     
     <string name="view_details">Details</string>
-    <string name="delete">Von Buchregal lüschen</string>
+    <string name="delete">Lüschen</string>
     <string name="scan_books">Nach Büchern suchen</string>    
     
     <string name="importing_books">Bücher importieren...</string>

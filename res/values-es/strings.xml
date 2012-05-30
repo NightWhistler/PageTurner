@@ -43,7 +43,7 @@
     <string name="added_to_lib">Añadido a la biblioteca: %s</string>
     
     <string name="view_details">Ver detalles</string>
-    <string name="delete">Borrar de la biblioteca</string>
+    <string name="delete">Borrar</string>
     <string name="scan_books">Busqueda de libros</string>    
     
     <string name="importing_books">Importando libros...</string>

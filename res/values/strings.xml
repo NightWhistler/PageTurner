@@ -42,7 +42,7 @@
     <string name="added_to_lib">Added to library: %s</string>
     
     <string name="view_details">View details</string>
-    <string name="delete">Delete from library</string>
+    <string name="delete">Delete</string>
     <string name="scan_books">Scan for books</string>    
     
     <string name="importing_books">Importing books...</string>

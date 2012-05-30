@@ -42,7 +42,7 @@
     <string name="added_to_lib">Toegevoegd: %s</string>
     
     <string name="view_details">Bekijk details</string>
-    <string name="delete">Verwijderen uit bibliotheek</string>
+    <string name="delete">Verwijderen</string>
     <string name="scan_books">Naar nieuwe boeken zoeken</string>    
     
     <string name="importing_books">Boeken aan het importeren...</string>

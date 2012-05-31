@@ -175,9 +175,14 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 	@Override
 	public void onItemClick(AdapterView<?> list, View arg1, int position, long arg3) {		
 		
-		Entry entry = adapter.getItem(position);		
-		String href = entry.getAtomLink().getHref();
-		loadURL(entry, href);		
+		Entry entry = adapter.getItem(position);	
+		
+		if ( entry.getAtomLink() != null ) {
+			String href = entry.getAtomLink().getHref();
+			loadURL(entry, href);
+		} else {
+			loadFakeFeed(entry);
+		}
 	}
 	
 	private boolean isLeafEntry(Feed feed, Entry entry ) {

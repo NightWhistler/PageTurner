@@ -20,84 +20,49 @@ package net.nightwhistler.nucular.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.nightwhistler.nucular.atom.Feed;
+import net.nightwhistler.nucular.parser.opensearch.OpenSearchParser;
+import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
 
-import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
 
-public class Nucular extends DefaultHandler {
+public class Nucular {
 
-	private FeedParser feedParser;
-
-	public static Feed readFromStream(InputStream stream)
+	public static Feed readAtomFeedFromStream(InputStream stream)
 			throws ParserConfigurationException, SAXException, IOException {
 
+		FeedParser feedParser = new FeedParser();		
+		parseStream(feedParser, stream );
+		return feedParser.getFeed();
+	}
+	
+	public static SearchDescription readOpenSearchFromStream(InputStream stream ) 
+			throws ParserConfigurationException, SAXException, IOException {
+		OpenSearchParser search = new OpenSearchParser();
+		parseStream(search, stream);
+		
+		return search.getDesc();
+	}
+	
+	private static void parseStream( ElementParser rootElementsParser, InputStream stream ) 
+			throws ParserConfigurationException, SAXException, IOException {
+		
 		SAXParserFactory parseFactory = SAXParserFactory.newInstance();
 		SAXParser xmlParser = parseFactory.newSAXParser();
 
 		XMLReader xmlIn = xmlParser.getXMLReader();
-		Nucular catalogParser = new Nucular();
+		
+		StreamParser catalogParser = new StreamParser( rootElementsParser );
 		xmlIn.setContentHandler(catalogParser);
 
 		xmlIn.parse(new InputSource(stream));
-
-		return catalogParser.getFeed();
-	}
-	
-	private Nucular() {
-		this.feedParser = new FeedParser();
-	}
-
-	public Feed getFeed() {
-		return feedParser.getFeed();
-	}
-
-	private String pickName( String qName, String localName ) {
-		if ( localName.length() == 0 ) {
-			return qName;
-		} else {
-			return localName;
-		}
-	}
-	
-	@Override
-	public void startElement(String uri, String localName, String qName,
-			Attributes attributes) throws SAXException {
-
-		Map<String, String> attrMap = new HashMap<String, String>();
-		for (int i = 0; i < attributes.getLength(); i++) {
-			String value = attributes.getValue(i);
-			String key = attributes.getLocalName(i);
-			attrMap.put(key, value);
-		}
-
-		this.feedParser.startElement(pickName(qName, localName), attrMap);
-	}
-
-	@Override
-	public void characters(char[] ch, int start, int length)
-			throws SAXException {
-
-		StringBuffer buff = new StringBuffer();
-		buff.append(ch, start, length);
-
-		this.feedParser.setTextContent(buff.toString());
-	}
-
-	@Override
-	public void endElement(String uri, String localName, String qName)
-			throws SAXException {
-		this.feedParser.endElement(pickName(qName,localName));
 	}
 
 }

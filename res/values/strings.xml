@@ -108,6 +108,9 @@
 
     <string name="browse">Browse...</string>
     
+    <string name="search_books">Search for books</string>
+    <string name="enter_query">Please enter a search-term</string>
+    
         
         
 </resources>

@@ -70,6 +70,15 @@ public abstract class AtomElement {
 	
 	public void addLink( Link link ) {
 		this.links.add(link);
-	}
+	}	
 	
+	public Link findByRel(String rel) {
+		for ( Link link: getLinks() ) {
+			if (link.getRel() != null && link.getRel().equals(rel)) {
+				return link;
+			}
+		}
+		
+		return null;
+	}
 }

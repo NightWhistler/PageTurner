@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,10 +34,12 @@ import java.util.Map;
 import java.util.Stack;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.nucular.parser.Nucular;
+import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.catalog.CatalogListAdapter;
 
@@ -49,6 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -68,6 +72,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -165,11 +170,45 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				
 				@Override
 				public void performAction(View view) {
-					onNavClick( this );				
+					onSearchClick();				
 				}
 		  };
 	     
 	    
+	}
+	
+	public void onSearchClick() {
+
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+		alert.setTitle(R.string.search_books);
+		alert.setMessage(R.string.enter_query);
+
+		// Set an EditText view to get user input 
+		final EditText input = new EditText(this);
+		alert.setView(input);
+
+		alert.setPositiveButton(android.R.string.search_go, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				CharSequence value = input.getText();
+				if ( value != null && value.length() > 0 ) {
+					String searchString = URLEncoder.encode( value.toString() );
+					String linkUrl = adapter.getFeed().getSearchLink().getHref();
+					
+					linkUrl = linkUrl.replace("{searchTerms}", searchString);
+					
+					loadURL(linkUrl);
+				}
+			}
+		});
+
+		alert.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				// Canceled.
+			}
+		});
+
+		alert.show();		
 	}
 	
 	@Override
@@ -510,6 +549,10 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				actionBar.addAction(nextAction);
 			}
 			
+			if ( result.getSearchLink() != null ) {
+				actionBar.addAction(searchAction);
+			}
+			
 			actionBar.setTitle( result.getTitle() );
 			adapter.setFeed(result);
 
@@ -595,7 +638,7 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				HttpGet get = new HttpGet( baseUrl );
 				
 				HttpResponse response = client.execute(get);
-				Feed feed = Nucular.readFromStream( response.getEntity().getContent() );
+				Feed feed = Nucular.readAtomFeedFromStream( response.getEntity().getContent() );
 								
 				List<Link> remoteImages = new ArrayList<Link>();
 				
@@ -629,6 +672,22 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 							remoteImages.add(imageLink);
 						}
 					}					
+				}
+				
+				Link searchLink = feed.findByRel(AtomConstants.REL_SEARCH);
+				
+				if ( searchLink != null && 
+						AtomConstants.TYPE_OPENSEARCH.equals(searchLink.getType())) {
+					HttpGet searchGet = new HttpGet( searchLink.getHref() );
+					
+					HttpResponse searchResponse = client.execute(searchGet);
+					SearchDescription desc = Nucular.readOpenSearchFromStream( searchResponse.getEntity().getContent() );
+					
+					if ( desc.getSearchLink() != null ) {
+						searchLink.setType(AtomConstants.TYPE_ATOM);
+						searchLink.setHref(desc.getSearchLink().getHref());
+					}
+					
 				}
 				
 				publishProgress(feed);

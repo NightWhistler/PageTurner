@@ -89,7 +89,7 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	
 	private void findEpubsInFolder( File folder, List<File> items) {
 		
-		if ( folder == null || folder.getAbsolutePath().startsWith(LibraryService.BASE_LIB_PATH) ) {
+		if ( folder == null ) {
 			return;
 		}			
 		

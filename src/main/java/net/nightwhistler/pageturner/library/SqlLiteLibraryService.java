@@ -150,6 +150,10 @@ public class SqlLiteLibraryService implements LibraryService {
 		
 		File targetFile = new File(targetFolder, baseFile.getName());
 		
+		if ( baseFile.equals(targetFile) ) {
+			return baseFile;
+		}
+		
 		LOG.debug("Copying to file: " + targetFile.getAbsolutePath() );
 		
 		targetFile.createNewFile();

@@ -28,6 +28,9 @@ public class Entry extends AtomElement {
 	public static final String THUMBNAIL = "http://opds-spec.org/image/thumbnail";
 	public static final String THUMBNAIL_ALT = "http://opds-spec.org/thumbnail";
 	
+	public static final String STANZA_COVER_IMAGE = "x-stanza-cover-image";
+	public static final String STANZA_THUMBNAIL_IMAGE = "x-stanza-cover-image-thumbnail";
+	
 	public static final String BUY = "http://opds-spec.org/acquisition/buy";
 	public static final String IMAGE = "http://opds-spec.org/image";
 	public static final String COVER = "http://opds-spec.org/cover";
@@ -70,22 +73,21 @@ public class Entry extends AtomElement {
 		this.summary = summary;
 	}
 	
-	public Link getThumbnailLink() {
-		Link l = findByRel(THUMBNAIL);
-		if ( l != null ) {
-			return l;
-		} else {
-			return findByRel(THUMBNAIL_ALT);
+	private Link findByRel(String... items) {
+		Link link = null;
+		for ( int i=0; i < items.length && link == null; i++ ) {
+			link = findByRel( items[i] );
 		}
+		
+		return link;
+	}
+	
+	public Link getThumbnailLink() {		
+		return findByRel(THUMBNAIL, THUMBNAIL_ALT, STANZA_THUMBNAIL_IMAGE);
 	}
 	
 	public Link getImageLink() {
-		Link l = findByRel(IMAGE);
-		if ( l != null ) {
-			return l;
-		} else {
-			return findByRel(COVER);
-		}
+		return findByRel(IMAGE, COVER, STANZA_COVER_IMAGE );		
 	}
 	
 	public Link getBuyLink() {

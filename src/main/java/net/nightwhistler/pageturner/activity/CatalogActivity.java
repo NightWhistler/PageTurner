@@ -132,9 +132,18 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
                 
 		super.onCreate(savedInstanceState);
 		
-		this.baseURL = getIntent().getStringExtra("url");		
+		Intent intent = getIntent();
 		
-		new LoadOPDSTask().execute(baseURL);
+		this.baseURL = intent.getStringExtra("url");	
+		
+		Uri uri = intent.getData();
+		
+		if ( uri != null && uri.toString().startsWith("epub://") ) {
+			String downloadUrl = uri.toString().replace("epub://", "http://");
+			new DownloadFileTask().execute(downloadUrl);
+		} else {		
+			new LoadOPDSTask().execute(baseURL);
+		}
 	}
 	
 	private void initActionBar() {

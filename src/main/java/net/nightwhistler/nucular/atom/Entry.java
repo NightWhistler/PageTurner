@@ -27,6 +27,7 @@ import static net.nightwhistler.nucular.atom.AtomConstants.REL_THUMBNAIL;
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_THUMBNAIL_ALT;
 import static net.nightwhistler.nucular.atom.AtomConstants.TYPE_ATOM;
 import static net.nightwhistler.nucular.atom.AtomConstants.TYPE_EPUB;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_STANZA_BUY;
 
 import java.util.List;
 
@@ -81,7 +82,7 @@ public class Entry extends AtomElement {
 	}
 	
 	public Link getBuyLink() {
-		return findByRel(REL_BUY);
+		return findByRel(REL_BUY, REL_STANZA_BUY);
 	}
 	
 	public Link getEpubLink() {

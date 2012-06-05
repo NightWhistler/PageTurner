@@ -343,10 +343,10 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 			if ( isLeafEntry(adapter.getFeed(), entry) ) {			
 				rowView = inflater.inflate(R.layout.catalog_download, parent, false);	
 				
-				Button button = (Button) rowView.findViewById( R.id.readButton );
+				Button downloadButton = (Button) rowView.findViewById( R.id.readButton );
 				TextView authorTextView = (TextView) rowView.findViewById(R.id.itemAuthor);
 				
-				button.setOnClickListener(new View.OnClickListener() {
+				downloadButton.setOnClickListener(new View.OnClickListener() {
 					
 					@Override
 					public void onClick(View v) {
@@ -365,6 +365,25 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 					}
 				});
 				
+				Button buyButton = (Button) rowView.findViewById( R.id.buyButton );
+				
+				if ( entry.getBuyLink() == null ) {
+					buyButton.setVisibility(View.GONE);
+				} else {
+					buyButton.setVisibility(View.VISIBLE);
+					
+					buyButton.setOnClickListener(new View.OnClickListener() {
+						
+						@Override
+						public void onClick(View v) {
+							String url = entry.getBuyLink().getHref();
+							Intent i = new Intent(Intent.ACTION_VIEW);
+							i.setData(Uri.parse(url));
+							startActivity(i);
+						}
+					});
+				}
+				
 				if ( entry.getAuthor() != null ) {				
 					String authorText = String.format( getString(R.string.book_by),
 						 entry.getAuthor().getName() );
@@ -374,9 +393,9 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				}
 				
 				if ( entry.getEpubLink() == null ) {
-					button.setVisibility(View.INVISIBLE);
+					downloadButton.setVisibility(View.INVISIBLE);
 				} else {
-					button.setVisibility(View.VISIBLE);
+					downloadButton.setVisibility(View.VISIBLE);
 				}
 				
 				imgLink = entry.getImageLink();

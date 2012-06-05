@@ -12,8 +12,9 @@ public final class AtomConstants {
 	
 	public static final String REL_STANZA_COVER_IMAGE = "x-stanza-cover-image";
 	public static final String REL_STANZA_THUMBNAIL_IMAGE = "x-stanza-cover-image-thumbnail";
+	public static final String REL_STANZA_BUY = "bookinfo";
 	
-	public static final String REL_BUY = "http://opds-spec.org/acquisition/buy";
+	public static final String REL_BUY = "http://opds-spec.org/acquisition/buy";	
 	public static final String REL_IMAGE = "http://opds-spec.org/image";
 	public static final String REL_COVER = "http://opds-spec.org/cover";
 	

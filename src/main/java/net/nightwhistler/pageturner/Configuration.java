@@ -109,6 +109,8 @@ public class Configuration {
 	
 	public static final String KEY_COVER_LABELS = "cover_labels";
 	
+	public static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
+	
 	@Inject
 	public Configuration(Context context) {
 		this.settings = PreferenceManager.getDefaultSharedPreferences(context);
@@ -235,6 +237,10 @@ public class Configuration {
 	public int getLineSpacing() {
 		return settings.getInt(KEY_LINE_SPACING, 0);
 	}
+	
+	public boolean isKeepScreenOn() {
+		return settings.getBoolean(KEY_KEEP_SCREEN_ON, false);
+	}	
 	
 	public void setColourProfile(ColourProfile profile) {
 		if ( profile == ColourProfile.DAY ) {

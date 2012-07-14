@@ -94,6 +94,13 @@
         android:defaultValue="no_lock"
         android:entries="@array/orientationLabels"
         android:entryValues="@array/orientation" />
+    
+    <CheckBoxPreference 
+   	    	android:title="Keep screen on"
+   	    	android:summary="Prevents the screen from locking while reading"
+   	    	android:key="keep_screen_on"
+   	    	android:defaultValue="false"
+   	    	/>
             
    <CheckBoxPreference
 			android:key="set_brightness"

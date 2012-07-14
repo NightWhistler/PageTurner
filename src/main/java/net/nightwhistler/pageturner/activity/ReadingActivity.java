@@ -359,6 +359,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);        	
     	}
         
+        if ( config.isKeepScreenOn() ) {
+        	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+        	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+        
         restoreColorProfile();
         
         //Check if we need a restart

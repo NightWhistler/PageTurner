@@ -95,6 +95,13 @@
         android:entries="@array/orientationLabels"
         android:entryValues="@array/orientation" />
             
+    <CheckBoxPreference 
+   	    	android:title="Bildschirm eingeschalted lassen"
+   	    	android:summary="Verhindert dass der Bildschirm sperrt während des Lesens"
+   	    	android:key="keep_screen_on"
+   	    	android:defaultValue="false"
+   	    	/>
+    
    <CheckBoxPreference
 			android:key="set_brightness"
 			android:title="Helligkeit"

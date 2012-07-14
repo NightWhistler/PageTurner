@@ -22,7 +22,6 @@ package net.nightwhistler.pageturner.view;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,8 +55,6 @@ import org.slf4j.LoggerFactory;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.text.Layout;
@@ -75,7 +72,6 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -91,8 +87,6 @@ public class BookView extends ScrollView {
 	
 	private HtmlSpanner spanner;		
 	private TableHandler tableHandler;
-	
-	private OnTouchListener touchListener;
 	
 	private PageTurnerSpine spine;
 	
@@ -216,8 +210,7 @@ public class BookView extends ScrollView {
 	@Override
 	public void setOnTouchListener(OnTouchListener l) {		
 		super.setOnTouchListener(l);
-		this.childView.setOnTouchListener(l);
-		this.touchListener = l;
+		this.childView.setOnTouchListener(l);		
 	}
 	
 	public void setStripWhiteSpace(boolean stripWhiteSpace) {
@@ -238,14 +231,7 @@ public class BookView extends ScrollView {
 	}
 	
 	@Override
-	public boolean onTouchEvent(MotionEvent ev) {
-		/*
-		if ( this.touchListener != null ) {
-			this.touchListener.onTouch(this, ev);
-		}	
-		
-		return super.onTouchEvent(ev);
-		*/
+	public boolean onTouchEvent(MotionEvent ev) {		
 		return childView.onTouchEvent(ev);
 	}	
 	
@@ -262,7 +248,7 @@ public class BookView extends ScrollView {
 				strategy.updatePosition();
 			}
 		}
-	}
+	}	
 	
 	public int getLineSpacing() {
 		return lineSpacing;

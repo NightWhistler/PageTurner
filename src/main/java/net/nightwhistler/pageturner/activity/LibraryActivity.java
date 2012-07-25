@@ -291,10 +291,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		
 		final List<String> addresses = new ArrayList<String>(){{
 				add("http://www.feedbooks.com/site/free_books.atom");
-				add("http://www.smashwords.com/atom");
-				add("http://www.manybooks.net/opds/index.php");
-				//"http://www.allromanceebooks.com/epub-feed.xml",
-				//"http://bookserver.archive.org/catalog/",
+				add("http://www.smashwords.com/nightwhistler");
+				add("http://www.manybooks.net/opds/index.php");				
 				add("http://m.gutenberg.org/ebooks/?format=opds"); }};
 		
 		if ( config.getCalibreServer().length() != 0 ) {

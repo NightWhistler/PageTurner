@@ -102,6 +102,18 @@
     
     <string name="download">Descargar libros</string>
     <string name="downloading">Descargando libro...</string>
+    
+     <string name="feed_failed">No se ha podido contactar con el sitio. Por favor intentelo de nuevo.</string>
+
+
+    <string name="book_failed">No se ha podido descargar el libro. Por favor intentelo de nuevo</string>
+	<string name="browse">Navegar...</string>
+
+	<string name="search_books">Buscar libros</string>
+
+	<string name="enter_query">Por favor introduzca un criterio de búsqueda</string>
+
+	<string name="buy_now">Comprar</string>
         
 </resources>
 

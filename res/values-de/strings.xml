@@ -104,8 +104,19 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     
     <string name="read">Jetzt lesen</string>
     
+     <string name="download">Bücher herunterladen</string>
+    <string name="downloading">Buch wird heruntergeladen...</string>     
+    
+    <string name="feed_failed">Konnte die Seite nicht kontaktieren. Bitte nochmals versuchen.</string>
+     <string name="book_failed">Konnte das Buch nicht laden. Bitte nochmals versuchen.</string>
 
+     <string name="browse">Suchen...</string>
+     
+     <string name="search_books">Nach Büchern suchen</string>
+     <string name="enter_query">Bitte Suchbegriff eingeben</string>
+     <string name="buy_now">Jetzt kaufen</string>
 
+    
 
     
         

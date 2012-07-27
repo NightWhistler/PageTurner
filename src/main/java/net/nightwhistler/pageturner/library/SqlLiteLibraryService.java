@@ -28,6 +28,7 @@ import java.nio.channels.FileChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.library.LibraryDatabaseHelper.Order;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Metadata;
@@ -49,11 +50,15 @@ public class SqlLiteLibraryService implements LibraryService {
 	
 	private static final int LIMIT = 20;
 	
+	@Inject
 	private LibraryDatabaseHelper helper;	
 	
 	private static final Logger LOG = LoggerFactory.getLogger(SqlLiteLibraryService.class);
 	
 	@Inject
+	private Configuration config;
+	
+	
 	public void setHelper(LibraryDatabaseHelper helper) {
 		this.helper = helper;
 	}
@@ -140,7 +145,7 @@ public class SqlLiteLibraryService implements LibraryService {
 
 		File baseFile = new File(fileName);
 
-		File targetFolder = new File(BASE_LIB_PATH
+		File targetFolder = new File(config.getLibraryFolder()
 				+ cleanUp(author) + "/" + cleanUp(title) );
 
 		targetFolder.mkdirs();				
@@ -243,7 +248,7 @@ public class SqlLiteLibraryService implements LibraryService {
 		this.helper.delete( fileName );	
 		
 		//Only delete files we manage
-		if ( fileName.startsWith(BASE_LIB_PATH) ) {
+		if ( fileName.startsWith(config.getLibraryFolder()) ) {
 			File bookFile = new File(fileName);
 			File parentFolder = bookFile.getParentFile();
 			

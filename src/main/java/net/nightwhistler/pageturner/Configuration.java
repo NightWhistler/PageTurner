@@ -19,12 +19,15 @@
 
 package net.nightwhistler.pageturner;
 
+import java.io.File;
+
 import net.nightwhistler.htmlspanner.FontFamily;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.google.inject.Inject;
@@ -411,4 +414,21 @@ public class Configuration {
 	public String getCalibreServer() {
 		return settings.getString(CALIBRE_SERVER, "");
 	}
+	
+	public String getStorageBase() {
+		return Environment.getExternalStorageDirectory().getAbsolutePath();
+	}
+
+	public String getPageTurnerFolder() {
+		return getStorageBase() + "/PageTurner";
+	}
+	
+	public String getDownloadsFolder() {
+		return getPageTurnerFolder() + "/Downloads";
+	}
+	
+	public String getLibraryFolder() {
+		return getPageTurnerFolder() + "/Books";
+	}
+	
 }

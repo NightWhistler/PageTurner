@@ -462,7 +462,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 				if ( scanSpecific.isChecked() ) {
 					startImport(new File(folder.getText().toString()), copyToLibrary.isChecked() );
 				} else {
-					startImport(new File("/sdcard"), copyToLibrary.isChecked());
+					startImport(new File(config.getStorageBase()), copyToLibrary.isChecked());
 				}				
 			}
 		};
@@ -902,8 +902,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();		
-				//startImport(new File("/sdcard"), config.isCopyToLibrayEnabled());
+				dialog.dismiss();				
 				showImportDialog();
 			}
 		});

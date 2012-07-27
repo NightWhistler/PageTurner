@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.google.inject.Inject;
+
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import roboguice.activity.RoboListActivity;
 import android.content.Context;
@@ -29,6 +32,9 @@ import android.widget.TextView;
 public class FileBrowseActivity extends RoboListActivity {
 	
 	private FileAdapter adapter;	
+	
+	@Inject
+	private Configuration config;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {		
@@ -43,7 +49,7 @@ public class FileBrowseActivity extends RoboListActivity {
 		}
 		
 		if (file == null || ! (file.exists() && file.isDirectory()) ) {
-			file = new File("/sdcard");
+			file = new File(config.getStorageBase());
 		}
 		
 		if (file == null || ! (file.exists() && file.isDirectory()) ) {

@@ -40,6 +40,7 @@ import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.nucular.parser.Nucular;
 import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.catalog.CatalogListAdapter;
 
@@ -62,6 +63,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -78,6 +80,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.inject.Inject;
 import com.google.inject.internal.Nullable;
 import com.markupartist.android.widget.ActionBar;
 import com.markupartist.android.widget.ActionBar.Action;
@@ -107,6 +110,9 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 	@InjectView(R.id.catalogList)
 	@Nullable
 	private ListView catalogList;
+	
+	@Inject
+	private Configuration config;
 		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -464,7 +470,8 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
    				
    				if ( response.getStatusLine().getStatusCode() == 200 ) {
 
-   					File destFolder = new File("/sdcard/PageTurner/Downloads/");
+   					
+   					File destFolder = new File(config.getDownloadsFolder());
    					if ( ! destFolder.exists() ) {
    						destFolder.mkdirs();
    					}

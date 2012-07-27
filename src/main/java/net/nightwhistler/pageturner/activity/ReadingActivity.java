@@ -408,7 +408,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	
     	if ( hasFocus ) {
     		updateFromPrefs();
-    	}    	
+    	}  else {
+    		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    	}
     }
     
     @Override
@@ -1284,7 +1286,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     			}
     		});
     	}
-    }    
+    }      
+   
     
     private class ManualProgressSync extends AsyncTask<Void, Integer, List<BookProgress>> {
     	

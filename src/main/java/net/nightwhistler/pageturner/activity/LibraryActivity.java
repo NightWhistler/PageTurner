@@ -732,7 +732,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 						String key = bookAdapter.getKey( firstVisibleItem );
 						Character keyChar = null;
 						
-						if ( key.length() > 0 ) {
+						if (key != null && key.length() > 0 ) {
 							keyChar = Character.toUpperCase( key.charAt(0) );
 						}						
 						

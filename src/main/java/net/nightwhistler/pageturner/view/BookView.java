@@ -489,6 +489,10 @@ public class BookView extends ScrollView {
 	
 	public void navigateToPercentage( int percentage ) {
 		
+		if ( spine == null ) {
+			return;
+		}
+		
 		double targetPoint = (double) percentage / 100d;
 		List<Double> percentages = this.spine.getRelativeSizes();
 				

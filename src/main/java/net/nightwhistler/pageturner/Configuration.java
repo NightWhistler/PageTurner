@@ -19,12 +19,15 @@
 
 package net.nightwhistler.pageturner;
 
+import java.io.File;
+
 import net.nightwhistler.htmlspanner.FontFamily;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.google.inject.Inject;
@@ -108,6 +111,8 @@ public class Configuration {
 	public static final String CALIBRE_SERVER = "calibre_server";
 	
 	public static final String KEY_COVER_LABELS = "cover_labels";
+	
+	public static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
 	
 	@Inject
 	public Configuration(Context context) {
@@ -235,6 +240,10 @@ public class Configuration {
 	public int getLineSpacing() {
 		return settings.getInt(KEY_LINE_SPACING, 0);
 	}
+	
+	public boolean isKeepScreenOn() {
+		return settings.getBoolean(KEY_KEEP_SCREEN_ON, false);
+	}	
 	
 	public void setColourProfile(ColourProfile profile) {
 		if ( profile == ColourProfile.DAY ) {
@@ -405,4 +414,21 @@ public class Configuration {
 	public String getCalibreServer() {
 		return settings.getString(CALIBRE_SERVER, "");
 	}
+	
+	public String getStorageBase() {
+		return Environment.getExternalStorageDirectory().getAbsolutePath();
+	}
+
+	public String getPageTurnerFolder() {
+		return getStorageBase() + "/PageTurner";
+	}
+	
+	public String getDownloadsFolder() {
+		return getPageTurnerFolder() + "/Downloads";
+	}
+	
+	public String getLibraryFolder() {
+		return getPageTurnerFolder() + "/Books";
+	}
+	
 }

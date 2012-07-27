@@ -105,4 +105,7 @@
 	<string name="downloading">Boek wordt gedownload...</string>
 
     <string name="browse">Bladeren...</string>
+     <string name="search_books">Boeken zoeken</string>
+    <string name="enter_query">Voer a.u.b. een zoek-term in</string>
+    <string name="buy_now">Nu kopen</string>
 </resources>

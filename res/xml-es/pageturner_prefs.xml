@@ -95,6 +95,13 @@
         android:defaultValue="no_lock"
         android:entries="@array/orientationLabels"
         android:entryValues="@array/orientation" />
+    
+    <CheckBoxPreference
+       android:title="Mantener la pantalla encendida"
+       android:summary="Hace que la pantalla no se bloquee durante la lectura"
+       android:key="keep_screen_on"
+       android:defaultValue="false"
+       />
             
    <CheckBoxPreference
 			android:key="set_brightness"

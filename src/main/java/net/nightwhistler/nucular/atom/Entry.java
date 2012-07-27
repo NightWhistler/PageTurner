@@ -18,19 +18,23 @@
  */
 package net.nightwhistler.nucular.atom;
 
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_BUY;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_COVER;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_IMAGE;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_STANZA_COVER_IMAGE;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_STANZA_THUMBNAIL_IMAGE;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_THUMBNAIL;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_THUMBNAIL_ALT;
+import static net.nightwhistler.nucular.atom.AtomConstants.TYPE_ATOM;
+import static net.nightwhistler.nucular.atom.AtomConstants.TYPE_EPUB;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_STANZA_BUY;
+
 import java.util.List;
 
 public class Entry extends AtomElement {
 
 	private String updated;
-	private String summary;
-	
-	public static final String THUMBNAIL = "http://opds-spec.org/image/thumbnail";
-	public static final String THUMBNAIL_ALT = "http://opds-spec.org/thumbnail";
-	
-	public static final String BUY = "http://opds-spec.org/acquisition/buy";
-	public static final String IMAGE = "http://opds-spec.org/image";
-	public static final String COVER = "http://opds-spec.org/cover";
+	private String summary;	
 
 	public String getUpdated() {
 		return updated;
@@ -38,23 +42,13 @@ public class Entry extends AtomElement {
 
 	public void setUpdated(String updated) {
 		this.updated = updated;
-	}	
-	
-	private Link findByRel(String rel) {
-		for ( Link link: getLinks() ) {
-			if (link.getRel() != null && link.getRel().equals(rel)) {
-				return link;
-			}
-		}
-		
-		return null;
-	}
+	}		
 	
 	public Link getAtomLink() {
 		List<Link> links = getLinks();
 		
 		for ( Link link: links ) {
-			if ( link.getType().startsWith("application/atom+xml")) {
+			if ( link.getType().startsWith(TYPE_ATOM)) {
 				return link;
 			}
 		}
@@ -70,31 +64,30 @@ public class Entry extends AtomElement {
 		this.summary = summary;
 	}
 	
-	public Link getThumbnailLink() {
-		Link l = findByRel(THUMBNAIL);
-		if ( l != null ) {
-			return l;
-		} else {
-			return findByRel(THUMBNAIL_ALT);
+	private Link findByRel(String... items) {
+		Link link = null;
+		for ( int i=0; i < items.length && link == null; i++ ) {
+			link = findByRel( items[i] );
 		}
+		
+		return link;
+	}
+	
+	public Link getThumbnailLink() {		
+		return findByRel(REL_THUMBNAIL, REL_THUMBNAIL_ALT, REL_STANZA_THUMBNAIL_IMAGE);
 	}
 	
 	public Link getImageLink() {
-		Link l = findByRel(IMAGE);
-		if ( l != null ) {
-			return l;
-		} else {
-			return findByRel(COVER);
-		}
+		return findByRel(REL_IMAGE, REL_COVER, REL_STANZA_COVER_IMAGE );		
 	}
 	
 	public Link getBuyLink() {
-		return findByRel(BUY);
+		return findByRel(REL_BUY, REL_STANZA_BUY);
 	}
 	
 	public Link getEpubLink() {
 		for ( Link link: getLinks() ) {
-			if ( link.getType().equals("application/epub+zip")) {
+			if ( link.getType().equals(TYPE_EPUB)) {
 				return link;
 			}
 		}

@@ -22,7 +22,6 @@ package net.nightwhistler.pageturner.view;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +55,6 @@ import org.slf4j.LoggerFactory;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.text.Layout;
@@ -90,8 +88,6 @@ public class BookView extends ScrollView {
 	private HtmlSpanner spanner;		
 	private TableHandler tableHandler;
 	
-	private OnTouchListener touchListener;
-	
 	private PageTurnerSpine spine;
 	
 	private String fileName;
@@ -117,6 +113,7 @@ public class BookView extends ScrollView {
 		this.listeners = new HashSet<BookViewListener>();
 				
 		this.childView = new TextView(context) {
+			
 			protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 				super.onSizeChanged(w, h, oldw, oldh);
 				restorePosition();	
@@ -129,13 +126,23 @@ public class BookView extends ScrollView {
 				return BookView.this.dispatchKeyEvent(event);
 			}			
 			
+			@Override
+			protected void onSelectionChanged(int selStart, int selEnd) {
+				// TODO Auto-generated method stub
+				super.onSelectionChanged(selStart, selEnd);
+				
+				LOG.debug("Got text selection from " + selStart + " to " + selEnd );
+			}			
+			
 		};  
 		
+		childView.setCursorVisible(false);		
 		childView.setLongClickable(true);	        
         this.setVerticalFadingEdgeEnabled(false);
         childView.setFocusable(true);
         childView.setLinksClickable(true);
         childView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT) );
+        
         
         MovementMethod m = childView.getMovementMethod();  
         if ((m == null) || !(m instanceof LinkMovementMethod)) {  
@@ -143,6 +150,7 @@ public class BookView extends ScrollView {
                 childView.setMovementMethod(LinkMovementMethod.getInstance());  
             }  
         }  
+        
         
         this.setSmoothScrollingEnabled(false);        
         this.addView(childView);        
@@ -202,8 +210,7 @@ public class BookView extends ScrollView {
 	@Override
 	public void setOnTouchListener(OnTouchListener l) {		
 		super.setOnTouchListener(l);
-		this.childView.setOnTouchListener(l);
-		this.touchListener = l;
+		this.childView.setOnTouchListener(l);		
 	}
 	
 	public void setStripWhiteSpace(boolean stripWhiteSpace) {
@@ -224,13 +231,8 @@ public class BookView extends ScrollView {
 	}
 	
 	@Override
-	public boolean onTouchEvent(MotionEvent ev) {
-		
-		if ( this.touchListener != null ) {
-			this.touchListener.onTouch(this, ev);
-		}	
-		
-		return super.onTouchEvent(ev);					
+	public boolean onTouchEvent(MotionEvent ev) {		
+		return childView.onTouchEvent(ev);
 	}	
 	
 	public boolean hasPrevPosition() {
@@ -246,7 +248,7 @@ public class BookView extends ScrollView {
 				strategy.updatePosition();
 			}
 		}
-	}
+	}	
 	
 	public int getLineSpacing() {
 		return lineSpacing;
@@ -385,6 +387,8 @@ public class BookView extends ScrollView {
 			return null;
 		}
 		
+		//childView.setse
+		
 		CharSequence text = this.childView.getText();
 		
 		if ( text.length() == 0 ) {
@@ -484,6 +488,10 @@ public class BookView extends ScrollView {
 	}	
 	
 	public void navigateToPercentage( int percentage ) {
+		
+		if ( spine == null ) {
+			return;
+		}
 		
 		double targetPoint = (double) percentage / 100d;
 		List<Double> percentages = this.spine.getRelativeSizes();

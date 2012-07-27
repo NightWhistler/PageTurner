@@ -119,6 +119,13 @@
             android:key="جهت‌دهی صفحه"
             android:summary="اجازه می‌دهد تا جهت‌دهی خودکار صفحه را قفل کنید."
             android:title="جهت‌دهی صفحه" />
+        
+        <CheckBoxPreference 
+   	    	android:title="Keep screen on"
+   	    	android:summary="Prevents the screen from locking while reading"
+   	    	android:key="keep_screen_on"
+   	    	android:defaultValue="false"
+   	    	/>
 
         <CheckBoxPreference
             android:defaultValue="false"

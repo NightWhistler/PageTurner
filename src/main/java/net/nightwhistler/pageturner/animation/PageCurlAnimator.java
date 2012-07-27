@@ -232,9 +232,7 @@ public class PageCurlAnimator implements Animator {
 			onFirstDrawEvent(canvas);
 		}
 		
-		canvas.drawColor(backgroundColor);
-		
-		
+		canvas.drawColor(backgroundColor);		
 		
 		// TODO: This just scales the views to the current
 		// width and height. We should add some logic for:
@@ -523,6 +521,7 @@ public class PageCurlAnimator implements Animator {
 			
 			canvas.restore();
 		}
+		
 	}
 	
 	/**

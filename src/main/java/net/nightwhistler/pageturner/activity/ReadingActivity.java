@@ -62,6 +62,10 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Bitmap.Config;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -359,6 +363,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);        	
     	}
         
+        if ( config.isKeepScreenOn() ) {
+        	getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+        	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+        
         restoreColorProfile();
         
         //Check if we need a restart
@@ -398,7 +408,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	
     	if ( hasFocus ) {
     		updateFromPrefs();
-    	}    	
+    	}  else {
+    		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    	}
     }
     
     @Override
@@ -690,19 +702,22 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	
     	animator.setBackgroundColor(config.getBackgroundColor());    		
 
+    	LOG.debug("Before size: w=" + before.getWidth() + " h=" + before.getHeight() ); 
+    	
     	if ( flipRight ) {
     		bookView.pageDown();
     		Bitmap after = getBookViewSnapshot();
+    		LOG.debug("After size: w=" + after.getWidth() + " h=" + after.getHeight() );
     		animator.setBackgroundBitmap(after);
     		animator.setForegroundBitmap(before);
     	} else {
     		bookView.pageUp();
     		Bitmap after = getBookViewSnapshot();
+    		LOG.debug("After size: w=" + after.getWidth() + " h=" + after.getHeight() );
     		animator.setBackgroundBitmap(before);
     		animator.setForegroundBitmap(after);
     	}    		
-
-
+    	
     	dummyView.setAnimator(animator);
 
     	this.viewSwitcher.showNext();
@@ -782,23 +797,21 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     
     private Bitmap getBookViewSnapshot() {
     	
-    	bookView.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight());
-    	
     	try {
-    		bookView.buildDrawingCache(false);
-    		Bitmap drawingCache = bookView.getDrawingCache();		
-		  		
-    		if ( drawingCache != null ) {					
-    			Bitmap copy = drawingCache.copy(drawingCache.getConfig(), false);
-    			bookView.destroyDrawingCache();
-    			return copy;
-    		}
-    		
-    	} catch (OutOfMemoryError out) {
-    		viewSwitcher.setBackgroundColor(config.getBackgroundColor());	
-    	}	
+    		Bitmap bitmap = Bitmap.createBitmap(viewSwitcher.getWidth(), viewSwitcher.getHeight(),
+    			Config.ARGB_8888);
+    		Canvas canvas = new Canvas(bitmap);
+    	    		
+    		bookView.layout(0, 0, viewSwitcher.getWidth(), viewSwitcher.getHeight());
     	
-    	return null;
+    		bookView.draw(canvas);
+    	
+    		return bitmap;
+    	} catch (OutOfMemoryError out ) {
+    		viewSwitcher.setBackgroundColor(config.getBackgroundColor());	
+    	}
+    	
+    	return null;    	
     }
     
     private void prepareSlide(Animation inAnim, Animation outAnim) {
@@ -1273,7 +1286,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     			}
     		});
     	}
-    }    
+    }      
+   
     
     private class ManualProgressSync extends AsyncTask<Void, Integer, List<BookProgress>> {
     	

@@ -46,8 +46,15 @@
                   android:label="Browse" />
         
         <activity android:name=".activity.CatalogActivity"
-                  android:label="Catalog" />
+                  android:label="Catalog">
             
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:scheme="epub" />
+			</intent-filter>
+        </activity>
  
         <activity android:name="org.acra.CrashReportDialog"
         	android:theme="@android:style/Theme.Dialog"

@@ -25,8 +25,7 @@ import nl.siegmann.epublib.domain.Book;
 
 public interface LibraryService {
 	
-	public static final String BASE_LIB_PATH = "/sdcard/PageTurner/Books/";
-	
+		
 	/**
 	 * Adds a new book to the library database, optionally copying it.
 	 * 

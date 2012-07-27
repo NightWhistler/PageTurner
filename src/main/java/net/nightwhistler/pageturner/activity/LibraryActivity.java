@@ -284,15 +284,15 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		
 		final List<String> names = new ArrayList<String>(){{ 
 				add("Feedbooks");
+				add("Smashwords");
 				add("Manybooks.net");
 				add("Gutenberg.org");
 				}};
 		
 		final List<String> addresses = new ArrayList<String>(){{
 				add("http://www.feedbooks.com/site/free_books.atom");
+				add("http://www.smashwords.com/nightwhistler");
 				add("http://www.manybooks.net/opds/index.php");
-				//"http://www.allromanceebooks.com/epub-feed.xml",
-				//"http://bookserver.archive.org/catalog/",
 				add("http://m.gutenberg.org/ebooks/?format=opds"); }};
 		
 		if ( config.getCalibreServer().length() != 0 ) {
@@ -462,7 +462,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 				if ( scanSpecific.isChecked() ) {
 					startImport(new File(folder.getText().toString()), copyToLibrary.isChecked() );
 				} else {
-					startImport(new File("/sdcard"), copyToLibrary.isChecked());
+					startImport(new File(config.getStorageBase()), copyToLibrary.isChecked());
 				}				
 			}
 		};
@@ -732,7 +732,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 						String key = bookAdapter.getKey( firstVisibleItem );
 						Character keyChar = null;
 						
-						if ( key.length() > 0 ) {
+						if (key != null && key.length() > 0 ) {
 							keyChar = Character.toUpperCase( key.charAt(0) );
 						}						
 						
@@ -902,8 +902,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();		
-				//startImport(new File("/sdcard"), config.isCopyToLibrayEnabled());
+				dialog.dismiss();				
 				showImportDialog();
 			}
 		});

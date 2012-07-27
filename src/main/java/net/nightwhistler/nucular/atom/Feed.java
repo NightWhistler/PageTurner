@@ -22,13 +22,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_SEARCH;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_NEXT;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_PREV;
+
 /**
  * Represents a low-level Atom feed, as parsed from XML.
  * 
  * @author Alex Kuiper
  *
  */
-public class Feed extends AtomElement {
+public class Feed extends AtomElement {	
 	
 	private List<Entry> entries = new ArrayList<Entry>();
 	
@@ -41,20 +45,18 @@ public class Feed extends AtomElement {
 	}
 	
 	public Link getNextLink() {
-		for ( Link link: getLinks() ) {
-			if ( link.getRel().equals("next")) {
-				return link;
-			}
-		}
-		
-		return null;
+		return findByRel(REL_NEXT);
 	}
 	
 	public Link getPreviousLink() {
-		for ( Link link: getLinks() ) {
-			if ( link.getRel().equals("previous")) {
-				return link;
-			}
+		return findByRel(REL_PREV);
+	}
+	
+	public Link getSearchLink() {
+		Link link = findByRel(REL_SEARCH);
+		
+		if ( link != null && link.getType().equals(AtomConstants.TYPE_ATOM)) {
+			return link;
 		}
 		
 		return null;

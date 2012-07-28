@@ -146,7 +146,7 @@ public class SqlLiteLibraryService implements LibraryService {
 		File baseFile = new File(fileName);
 
 		File targetFolder = new File(config.getLibraryFolder()
-				+ cleanUp(author) + "/" + cleanUp(title) );
+				+ "/" + cleanUp(author) + "/" + cleanUp(title) );
 
 		targetFolder.mkdirs();				
 

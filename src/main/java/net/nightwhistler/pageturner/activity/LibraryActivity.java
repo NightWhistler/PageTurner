@@ -438,6 +438,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		final CheckBox copyToLibrary = (CheckBox) layout.findViewById(R.id.copyToLib);		
 		final Button browseButton = (Button) layout.findViewById(R.id.browseButton);
 		
+		folder.setText( config.getStorageBase() + "/eBooks" );
+		
 		folder.setOnClickListener(new View.OnClickListener() {
 			
 			@Override

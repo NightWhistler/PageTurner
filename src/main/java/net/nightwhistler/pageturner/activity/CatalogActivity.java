@@ -45,8 +45,12 @@ import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.catalog.CatalogListAdapter;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +92,8 @@ import com.markupartist.android.widget.ActionBar.Action;
 public class CatalogActivity extends RoboActivity implements OnItemClickListener {
 		
 	private String baseURL;
+	private String user;
+	private String password;
 	
 	private CatalogListAdapter adapter;
 	
@@ -140,14 +146,16 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 		
 		Intent intent = getIntent();
 		
-		this.baseURL = intent.getStringExtra("url");	
+		this.baseURL = intent.getStringExtra("url");
+		this.user = intent.getStringExtra("user");
+		this.password = intent.getStringExtra("password");
 		
 		Uri uri = intent.getData();
 		
 		if ( uri != null && uri.toString().startsWith("epub://") ) {
 			String downloadUrl = uri.toString().replace("epub://", "http://");
 			new DownloadFileTask().execute(downloadUrl);
-		} else {		
+		} else {
 			new LoadOPDSTask().execute(baseURL);
 		}
 	}
@@ -463,7 +471,11 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
             	
             	String fileName = url.substring( url.lastIndexOf('/') + 1 );
             	
-            	DefaultHttpClient client = new DefaultHttpClient();
+            	HttpParams httpParams = new BasicHttpParams();
+				DefaultHttpClient client = new DefaultHttpClient(httpParams);
+				client.getCredentialsProvider().setCredentials(
+						new AuthScope(null, -1),
+						new UsernamePasswordCredentials(user, password));
     			HttpGet get = new HttpGet( url );
     				
    				HttpResponse response = client.execute(get); 
@@ -544,7 +556,11 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
    
     private void loadImageLink(Map<String, byte[]> cache, Link imageLink, String baseUrl ) throws IOException {
     	
-    	DefaultHttpClient client = new DefaultHttpClient();		
+    	HttpParams httpParams = new BasicHttpParams();
+		DefaultHttpClient client = new DefaultHttpClient(httpParams);
+		client.getCredentialsProvider().setCredentials(
+				new AuthScope(null, -1),
+				new UsernamePasswordCredentials(user, password));	
     	
     	if ( imageLink != null ) {
 			String href = imageLink.getHref();
@@ -669,12 +685,14 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 			baseUrl = baseUrl.trim();
 			
 			try {
-				DefaultHttpClient client = new DefaultHttpClient();
+				HttpParams httpParams = new BasicHttpParams();
+				DefaultHttpClient client = new DefaultHttpClient(httpParams);
+				client.getCredentialsProvider().setCredentials(
+						new AuthScope(null, -1),
+						new UsernamePasswordCredentials(user, password));
 				HttpGet get = new HttpGet( baseUrl );
-				
 				HttpResponse response = client.execute(get);
 				Feed feed = Nucular.readAtomFeedFromStream( response.getEntity().getContent() );
-								
 				List<Link> remoteImages = new ArrayList<Link>();
 				
 				for ( Entry entry: feed.getEntries() ) {
@@ -710,15 +728,14 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				}
 				
 				Link searchLink = feed.findByRel(AtomConstants.REL_SEARCH);
-
+				
 				URL mBaseUrl = new URL(baseUrl);
 				URL mSearchUrl = new URL(mBaseUrl, searchLink.getHref());
 				searchLink.setHref(mSearchUrl.toString());
-
+				
 				if ( searchLink != null && 
 						AtomConstants.TYPE_OPENSEARCH.equals(searchLink.getType())) {
-					HttpGet searchGet = new HttpGet( searchLink.getHref() );
-					
+					HttpGet searchGet = new HttpGet( mSearchUrl.toString() );
 					HttpResponse searchResponse = client.execute(searchGet);
 					SearchDescription desc = Nucular.readOpenSearchFromStream( searchResponse.getEntity().getContent() );
 					

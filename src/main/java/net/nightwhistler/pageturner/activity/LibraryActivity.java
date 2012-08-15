@@ -292,12 +292,34 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 		final List<String> addresses = new ArrayList<String>(){{
 				add("http://www.feedbooks.com/site/free_books.atom");
 				add("http://www.smashwords.com/nightwhistler");
-				add("http://www.manybooks.net/opds/index.php");				
+				add("http://www.manybooks.net/opds/index.php");
 				add("http://m.gutenberg.org/ebooks/?format=opds"); }};
+		
+		final List<String> users = new ArrayList<String>(){{
+				add("");
+				add("");
+				add("");
+				add(""); }};
+				
+		final List<String> passwords = new ArrayList<String>(){{
+				add("");
+				add("");
+				add("");
+				add(""); }};
 		
 		if ( config.getCalibreServer().length() != 0 ) {
 			names.add("Calibre server");
 			addresses.add(config.getCalibreServer());
+			if ( config.getCalibreUser().length() != 0 ) {
+				users.add(config.getCalibreUser());
+			} else {
+				users.add("");
+			}
+			if ( config.getCalibrePassword().length() != 0 ) {
+				passwords.add(config.getCalibrePassword());
+			} else {
+				passwords.add("");
+			}
 		}
 				
 
@@ -310,6 +332,8 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
     			Intent intent = new Intent(LibraryActivity.this, CatalogActivity.class);
     			
     			intent.putExtra("url", addresses.get(item));
+    			intent.putExtra("user", users.get(item));
+    			intent.putExtra("password", passwords.get(item));
     			    					
     			startActivityIfNeeded(intent, 99);
     		}

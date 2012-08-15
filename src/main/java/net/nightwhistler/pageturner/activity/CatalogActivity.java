@@ -710,7 +710,11 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				}
 				
 				Link searchLink = feed.findByRel(AtomConstants.REL_SEARCH);
-				
+
+				URL mBaseUrl = new URL(baseUrl);
+				URL mSearchUrl = new URL(mBaseUrl, searchLink.getHref());
+				searchLink.setHref(mSearchUrl.toString());
+
 				if ( searchLink != null && 
 						AtomConstants.TYPE_OPENSEARCH.equals(searchLink.getType())) {
 					HttpGet searchGet = new HttpGet( searchLink.getHref() );

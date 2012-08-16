@@ -109,6 +109,8 @@ public class Configuration {
 	
 	public static final String ACCESS_KEY = "access_key";	
 	public static final String CALIBRE_SERVER = "calibre_server";
+	public static final String CALIBRE_USER = "calibre_user";
+	public static final String CALIBRE_PASSWORD = "calibre_password";
 	
 	public static final String KEY_COVER_LABELS = "cover_labels";
 	
@@ -413,6 +415,14 @@ public class Configuration {
 	
 	public String getCalibreServer() {
 		return settings.getString(CALIBRE_SERVER, "");
+	}
+	
+	public String getCalibreUser() {
+		return settings.getString(CALIBRE_USER, "");
+	}
+	
+	public String getCalibrePassword() {
+		return settings.getString(CALIBRE_PASSWORD, "");
 	}
 	
 	public String getStorageBase() {

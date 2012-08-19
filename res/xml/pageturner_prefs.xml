@@ -76,6 +76,23 @@
 	            android:dialogTitle="Calibre URL"
 	            android:dialogMessage="Ex. http://192.168.1.1:8080/opds"   
 	            />
+      			
+      			<EditTextPreference
+      			    android:key="calibre_user"
+      			    android:dialogTitle="User name"
+      			    android:title="User name"
+      			    android:summary="Your calibre user name"
+      			    android:hint="calibre"
+      			    android:inputType="textPersonName"
+      			 	/>
+      			
+      			<EditTextPreference
+      			    android:key="calibre_password"
+      			    android:dialogTitle="Password"
+      			    android:title="Password"
+      			    android:summary="Your calibre password"
+      			    android:inputType="textPassword"
+      			    />
                 
     </PreferenceCategory>
 

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">برنامج Page Turner</string>
+    <string name="title">العنوان</string>
+    <string name="app_desc">برنامج يقراء الكتب الإلكترونية لمختلف الأجهزة</string>
+    <string name="browse">أستعراض...</string>
+    <string name="open_file">فتح ملف ePub</string>
+    <string name="open_library">الكتب</string>
+
+    <string name="profile_day">تحول إلى النمط العادي</string>  
+    <string name="profile_night">تحول إلى النمط الليلي</string>
+    <string name="manual_sync">مدى تزامن القراءة</string>
+    <string name="prefs">الخصائص</string>
+    
+    <string name="show_toc">عرض محتوى الجدول</string>   
+    <string name="rolling_blind">التصفح الآلي</string>
+    <string name="about">عن البرنامج</string>
+    <string name="about_gpl">PageTurner برنامج مجاني تحت ترخيص GPL v3</string>
+    <string name="error_open_bk">خلل في فتح الكتاب: %s</string>
+    
+    <string name="dictionary_lookup">بحث في القاموس</string>
+    <string name="wikipedia_lookup">بحث في ويكيبيديا</string>
+    <string name="google_lookup">بحث في موقع جوجل</string>    
+    <string name="word_select">"لقد أخترت '%s'</string>    
+        
+    <string name="loading_wait">جارى التحميل، الرجاء الإنتظار</string>
+    <string name="install_oi">الرجاء، تثبيت برنامج (OI File Manager) من سوق أندرويد للبرامج</string>    
+    
+    <string name="cloud_bm">علامات مرجعية</string>
+    <string name="toc_label">جدول المحتويات</string>
+    <string name="syncing">"مستوى تقدم التزامن ..."</string>
+    <string name="sync_failed">فشل التزامن</string>
+    <string name="connection_fail">لا يمكن الأتصال بمزود البيانات للتزامن</string>    
+    
+    <string name="never_read">أبدا</string>
+        
+    <string name="library">المكتبة</string>
+    <string name="book_details">تفاصيل الكتاب</string>
+    
+    <string name="book_by">لـ %s</string>
+    <string name="last_read">أخر قراءة: %s</string>
+    <string name="added_to_lib">أضافته للمكتبة: %s</string>
+    
+    <string name="view_details">عرض التفاصيل</string>
+    <string name="delete">أحذف</string>
+    <string name="scan_books">البحث عن كتب</string>    
+    
+    <string name="importing_books">أستيراد الكتب ...</string>
+    <string name="scanning_epub">البحث عن ملفات EPUB</string>
+    <string name="importing">أستيراد 	 %1$d 	من 	%2$d</string>
+    <string name="importing">أستيراد	%1$d	من	%2$d</string>	
+    <string name="scan_folders">البحث عن ملفات EPUB.\n مجلد البحث: %d</string>
+    <string name="import_errors">بعض الملفات يوجد بها خلل عن أستيرادها:</string>
+    <string name="no_books_found">حاليا لا توجد كتب بمكتبتك </string>
+    <string name="no_bks_fnd_text">لا يوجد كتب في جاهزك.\nيمكن أن تحمل الكتب من موقع gutenberg.org أو feedbooks.com </string>
+    <string name="loading_library">تحميل المكتبة ...</string>
+    <string name="scan_bks_question">لا يوجد كتب في مكتبتك.\n لتحميل الكتب من جهازك</string>    
+    <string name="brightness">السطوع</string>    
+        
+    <string-array name="v_animLabels">
+        <item>على شكل شرائح</item>
+        <item>عادى</item>        
+    </string-array>
+    
+    <string-array name="h_animLabels">
+        <item>على شكل ورقة</item>
+        <item>على شكل شرائح</item>
+        <item>عادى</item>
+    </string-array>
+        
+    <string-array name="orientationLabels">
+        <item>لا تغلق التوجيه الآلي للشاشة</item>
+        <item>بشكل طولي</item>
+        <item>بشكل عرضي</item>
+        <item>عكس الشكل الطولي</item>
+        <item>عكس الشكل العرضي</item>
+    </string-array>  
+   
+    <string-array name="autoscrollLabels">
+        <item>لف إلى الخارج</item>
+        <item>تغير مؤقت الصفحة</item>
+    </string-array>    
+        
+    <string-array name="libraryQueries">
+        <item>الكتب الأكثر قراءة حديثا</item>
+        <item>الكتب الأكثر أضافة حديثا</item>
+        <item>الكتب الغير مقروءة</item>
+        <item>جميع الكتب حسب العنوان</item>
+        <item>جميع كتب المؤلف</item> 
+    </string-array>
+        
+    <string name="access_denied">مفتاح الدخول غير صالح . الرجاء زيارة موقع pageturner-reader.org للحصول على مفتاح وصول صالح.</string>
+    <string name="import_books">أستيراد الكتب</string>
+    <string name="import_desc">يمكنك البحث في ملفات بطاقة الهاتف أو البحث في مجلد محدد</string>
+    <string name="scan_whole_card">أبحث في جميع ملفات بطاقة الهاتف.</string>
+    <string name="scan_folder">أبحث في مجلد محدد</string>
+    <string name="copy_to_library">أنسخ الكتب إلى مجلد المكتبة</string>
+    <string name="no_such_folder">المجلد %s غير موجود</string>
+    <string name="import_failed">فشل الأستيراد</string>
+    
+    <string name="list_view">التحول إلى عرض القائمة</string>    
+	<string name="shelves_view">التحول إلى عرض الرفوف</string>
+    <string name="read">إقراء الآن</string>
+    
+    <string name="download">تحميل الكتب</string>
+    <string name="downloading">تحميل الكتاب ...</string>
+    <string name="feed_failed">لا يمكن الاتصال بالموقع. الرجاء المحاوله مرة أخرى.</string>
+    <string name="book_failed">لا يمكن تحميل الكتاب. الرجاء المحاولة مرة أخرى.</string>
+
+    <string name="browse">أستعرض ...</string>
+    
+    <string name="search_books">البحث في الكتب</string>
+    <string name="enter_query">الرجاء إدخال كلمات البحث</string>
+    <string name="buy_now">أشتري الآن</string>
+        
+        
+</resources>

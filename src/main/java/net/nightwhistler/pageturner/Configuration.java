@@ -332,7 +332,8 @@ public class Configuration {
 	}
 	
 	public int getBrightNess() {
-		return getProfileSetting(KEY_BRIGHTNESS, 50, 50);		
+		//Brightness 0 means black screen :)
+		return Math.max(1, getProfileSetting(KEY_BRIGHTNESS, 50, 50));		
 	}
 	
 	public void setBrightness(int brightness) {

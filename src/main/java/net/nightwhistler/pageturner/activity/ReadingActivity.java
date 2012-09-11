@@ -54,10 +54,12 @@ import roboguice.inject.InjectView;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -76,7 +78,6 @@ import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -183,6 +184,12 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     {
         super.onCreate(savedInstanceState);
         
+        // initialize receiver
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        BroadcastReceiver mReceiver = new ScreenReceiver();
+        registerReceiver(mReceiver, filter);
+        
         // Restore preferences
         requestWindowFeature(Window.FEATURE_NO_TITLE);        
         setContentView(R.layout.read_book);
@@ -282,7 +289,22 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	
     }    
     
-    private void updateFileName(Bundle savedInstanceState, String fileName) {
+    /* (non-Javadoc)
+	 * @see roboguice.activity.RoboActivity#onPause()
+	 */
+	@Override
+	protected void onPause() {
+		// when the screen is about to turn off
+        if (ScreenReceiver.wasScreenOn) {
+            // this is the case when onPause() is called by the system due to a screen state change
+            manualStoreProgress();
+        } else {
+            // this is when onPause() is called when the screen state has not changed
+        }
+		super.onPause();
+	}
+
+	private void updateFileName(Bundle savedInstanceState, String fileName) {
     	
     	this.fileName = fileName;
     	
@@ -1381,4 +1403,21 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
             bookView.restore();            
     	}
     }    
+}
+
+class ScreenReceiver extends BroadcastReceiver {
+    
+    public static boolean wasScreenOn = true;
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+            // do whatever you need to do here
+            wasScreenOn = false;
+        } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+            // and do whatever you need to do here
+            wasScreenOn = true;
+        }
+    }
+
 }

@@ -83,6 +83,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -567,6 +568,40 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	this.waitDialog.show();
     }    
     
+    private boolean handleVolumeButtonEvent(KeyEvent event) {
+        if (!config.isVolumeKeyNavEnabled())
+            return false;
+        boolean invert = false;
+
+        int rotation = this.getWindowManager().getDefaultDisplay().getRotation();
+
+        switch ( rotation ) {
+        case Surface.ROTATION_0:
+        case Surface.ROTATION_90:
+            invert = false;
+            break;
+        case Surface.ROTATION_180:
+        case Surface.ROTATION_270:
+            invert = true;
+            break;
+        }
+
+        if (event.getAction() != KeyEvent.ACTION_DOWN)
+            return false;
+        else {
+            if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP)
+                if (invert)
+                    pageDown(Orientation.HORIZONTAL);
+                else
+                    pageUp(Orientation.HORIZONTAL);
+            if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN)
+                if (invert)
+                    pageUp(Orientation.HORIZONTAL);
+                else
+                    pageDown(Orientation.HORIZONTAL);
+            return true;
+        }
+    }
     
     @Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
@@ -579,22 +614,17 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 	    }	    
 	    
 	    switch (keyCode) {
-	    
-	    	case KeyEvent.KEYCODE_VOLUME_DOWN:
-	    		//Yes, this is nasty: if the setting is true, we fall through to the next case.
-	    		if (! config.isVolumeKeyNavEnabled() ) { return false; }	    		
+      case KeyEvent.KEYCODE_VOLUME_DOWN:
+      case KeyEvent.KEYCODE_VOLUME_UP:
+          return handleVolumeButtonEvent(event);
 	        
-	    	case KeyEvent.KEYCODE_DPAD_RIGHT:
-	            
+      case KeyEvent.KEYCODE_DPAD_RIGHT:        
 	        	if (action == KeyEvent.ACTION_DOWN) {
 	                pageDown(Orientation.HORIZONTAL);	        		
 	            }
 	        	
 	        	return true;	 
 
-	        case KeyEvent.KEYCODE_VOLUME_UP:
-		        //Same dirty trick.
-	    		if (! config.isVolumeKeyNavEnabled() ) { return false; } 
 
 	        case KeyEvent.KEYCODE_DPAD_LEFT:	
 	            if (action == KeyEvent.ACTION_DOWN) {

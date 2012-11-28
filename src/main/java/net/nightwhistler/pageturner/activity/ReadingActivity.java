@@ -1325,15 +1325,17 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     		outState.putInt(POS_KEY, this.bookView.getPosition() );  
     		outState.putInt(IDX_KEY, this.bookView.getIndex());
 
-    		libraryService.updateReadingProgress(fileName, progressPercentage);			    		
-    		libraryService.close();
-    		
     		sendProgressUpdateToServer();
+    		
+    		libraryService.close();    		
+    		
     	}
     }      
     
     private void sendProgressUpdateToServer() {
 
+    	libraryService.updateReadingProgress(fileName, progressPercentage);
+    	
 		backgroundHandler.post(new Runnable() {
 			@Override
 			public void run() {

@@ -231,8 +231,9 @@ public class BookView extends ScrollView {
 	}
 	
 	@Override
-	public boolean onTouchEvent(MotionEvent ev) {		
-		return childView.onTouchEvent(ev);
+	public boolean onTouchEvent(MotionEvent ev) {
+		childView.onTouchEvent(ev);
+		return super.onTouchEvent(ev);		
 	}	
 	
 	public boolean hasPrevPosition() {

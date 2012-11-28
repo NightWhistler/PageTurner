@@ -78,6 +78,7 @@ import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -297,7 +298,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
 		// when the screen is about to turn off
         if (ScreenReceiver.wasScreenOn) {
             // this is the case when onPause() is called by the system due to a screen state change
-            manualStoreProgress();
+            sendProgressUpdateToServer();
         } else {
             // this is when onPause() is called when the screen state has not changed
         }
@@ -1297,18 +1298,23 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     		libraryService.updateReadingProgress(fileName, progressPercentage);			    		
     		libraryService.close();
     		
-    		backgroundHandler.post(new Runnable() {
-    			@Override
-    			public void run() {
-    				try {
-    					progressService.storeProgress(fileName,
-    	    				bookView.getIndex(), bookView.getPosition(), 
-    	    				progressPercentage);
-    				} catch (AccessException a) {}
-    			}
-    		});
+    		sendProgressUpdateToServer();
     	}
     }      
+    
+    private void sendProgressUpdateToServer() {
+
+		backgroundHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					progressService.storeProgress(fileName,
+	    				bookView.getIndex(), bookView.getPosition(), 
+	    				progressPercentage);
+				} catch (AccessException a) {}
+			}
+		});
+    }
    
     
     private class ManualProgressSync extends AsyncTask<Void, Integer, List<BookProgress>> {

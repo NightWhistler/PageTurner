@@ -729,21 +729,23 @@ public class CatalogActivity extends RoboActivity implements OnItemClickListener
 				
 				Link searchLink = feed.findByRel(AtomConstants.REL_SEARCH);
 				
-				URL mBaseUrl = new URL(baseUrl);
-				URL mSearchUrl = new URL(mBaseUrl, searchLink.getHref());
-				searchLink.setHref(mSearchUrl.toString());
-				
-				if ( searchLink != null && 
-						AtomConstants.TYPE_OPENSEARCH.equals(searchLink.getType())) {
-					HttpGet searchGet = new HttpGet( mSearchUrl.toString() );
-					HttpResponse searchResponse = client.execute(searchGet);
-					SearchDescription desc = Nucular.readOpenSearchFromStream( searchResponse.getEntity().getContent() );
+				if ( searchLink != null ) {
+					URL mBaseUrl = new URL(baseUrl);
+					URL mSearchUrl = new URL(mBaseUrl, searchLink.getHref());
+					searchLink.setHref(mSearchUrl.toString());
+
+					if (  AtomConstants.TYPE_OPENSEARCH.equals(searchLink.getType())) {
+						HttpGet searchGet = new HttpGet( searchLink.getHref() );
 					
-					if ( desc.getSearchLink() != null ) {
-						searchLink.setType(AtomConstants.TYPE_ATOM);
-						searchLink.setHref(desc.getSearchLink().getHref());
+						HttpResponse searchResponse = client.execute(searchGet);
+						SearchDescription desc = Nucular.readOpenSearchFromStream( searchResponse.getEntity().getContent() );
+					
+						if ( desc.getSearchLink() != null ) {
+							searchLink.setType(AtomConstants.TYPE_ATOM);
+							searchLink.setHref(desc.getSearchLink().getHref());
+						}
+					
 					}
-					
 				}
 				
 				publishProgress(feed);

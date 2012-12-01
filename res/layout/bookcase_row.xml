@@ -22,7 +22,8 @@
         android:text="Small Text"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:gravity="center"
-        android:layout_gravity="bottom"                
+        android:layout_gravity="bottom"  
+        android:textColor="@color/opaque_white"              
          />
 
 </FrameLayout>

@@ -25,23 +25,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.library.LibraryDatabaseHelper.Order;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Metadata;
-import roboguice.inject.ContextScoped;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import roboguice.inject.ContextSingleton;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.text.TextUtils;
 
 import com.google.inject.Inject;
 
-@ContextScoped
+@ContextSingleton
 public class SqlLiteLibraryService implements LibraryService {
 	
 	private static final int THUMBNAIL_HEIGHT = 250;

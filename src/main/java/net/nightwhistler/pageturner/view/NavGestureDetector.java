@@ -126,11 +126,14 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 	
 	@Override
     public void onLongPress(MotionEvent e) {
+		/*
     	CharSequence word = bookView.getWordAt(e.getX(), e.getY() );
     	
     	if ( word != null ) {
     		bookViewListener.onWordLongPressed(word);
     	}
+    	*/
+		super.onLongPress(e);
     }     
 
 

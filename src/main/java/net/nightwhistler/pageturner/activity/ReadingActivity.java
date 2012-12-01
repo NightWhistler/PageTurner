@@ -33,7 +33,6 @@ import net.nightwhistler.pageturner.animation.Animator;
 import net.nightwhistler.pageturner.animation.PageCurlAnimator;
 import net.nightwhistler.pageturner.animation.PageTimer;
 import net.nightwhistler.pageturner.animation.RollingBlindAnimator;
-import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
@@ -49,7 +48,7 @@ import nl.siegmann.epublib.domain.Book;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import roboguice.activity.RoboActivity;
+import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -64,10 +63,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -80,27 +77,25 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 
-public class ReadingActivity extends RoboActivity implements BookViewListener {
+public class ReadingActivity extends RoboSherlockActivity implements BookViewListener {
 
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
@@ -192,8 +187,14 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         BroadcastReceiver mReceiver = new ScreenReceiver();
         registerReceiver(mReceiver, filter);
         
-        // Restore preferences
-        requestWindowFeature(Window.FEATURE_NO_TITLE);        
+        if ( config.getColourProfile() == ColourProfile.NIGHT ) {
+        	setTheme(R.style.Sherlock___Theme );
+        } else {
+        	setTheme(R.style.Sherlock___Theme_DarkActionBar );
+        }
+        
+        
+        // Restore preferences        
         setContentView(R.layout.read_book);
         
         this.uiHandler = new Handler();
@@ -252,8 +253,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	this.bookView.setOnTouchListener(gestureListener);    	
         
     	this.bookView.addListener(this);
-    	this.bookView.setSpanner(getInjector().getInstance(HtmlSpanner.class));
-    	
+    	this.bookView.setSpanner(RoboGuice.getInjector(this).getInstance(HtmlSpanner.class));
+    	    	
     	this.oldBrightness = config.isBrightnessControlEnabled();
     	this.oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
     	this.oldFontName = config.getFontFamily().getName();
@@ -359,7 +360,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     }
     
     private void updateFromPrefs() {
-    	    	
+    	
+    	
     	this.progressService.setConfig(this.config);
     	                      
         bookView.setTextSize( config.getTextSize() );
@@ -380,11 +382,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         bookView.setLineSpacing(config.getLineSpacing());             
 
         if ( config.isFullScreenEnabled() ) {
-        	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);            
+        	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);            
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);   
+            getSupportActionBar().hide();            
         } else {    
         	getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);        	
+        	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        	getSupportActionBar().show();
     	}
         
         if ( config.isKeepScreenOn() ) {
@@ -399,11 +403,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         if ( config.isBrightnessControlEnabled() != oldBrightness
         		|| config.isStripWhiteSpaceEnabled() != oldStripWhiteSpace
         		|| ! this.oldFontName.equalsIgnoreCase(config.getFontFamily().getName())) {
-        	
-        	Intent intent = new Intent(this, ReadingActivity.class);
-        	intent.setData(Uri.parse(this.fileName));
-        	startActivity(intent);
-        	finish();
+        	restartActivity();
         }
         
         Configuration.OrientationLock orientation = config.getScreenOrientation(); 
@@ -424,6 +424,13 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         default:
         	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         }
+    }
+    
+    private void restartActivity() {
+    	Intent intent = new Intent(this, ReadingActivity.class);
+    	intent.setData(Uri.parse(this.fileName));
+    	startActivity(intent);
+    	finish();
     }
     
     @Override
@@ -470,6 +477,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     	
     }
     
+    /*
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
     		ContextMenuInfo menuInfo) {
@@ -492,23 +500,23 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         	intent.putExtra(EXTRA_MARGIN_LEFT, 100);
         	
         	if ( isIntentAvailable(this, intent)) {
-        		MenuItem item = menu.add(getString(R.string.dictionary_lookup));
+        		android.view.MenuItem item = menu.add(getString(R.string.dictionary_lookup));
         		item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 					
 					@Override
-					public boolean onMenuItemClick(MenuItem item) {
+					public boolean onMenuItemClick(android.view.MenuItem item) {
 						startActivityForResult(intent, 5); 
 						return true;
 					}
 				});
         	}
         	        
-        	MenuItem newItem = menu.add(getString(R.string.wikipedia_lookup));
+        	android.view.MenuItem newItem = menu.add(getString(R.string.wikipedia_lookup));
         	newItem.setOnMenuItemClickListener(new BrowserSearchMenuItem(
 					"http://en.wikipedia.org/wiki/Special:Search?search="
         			+ URLEncoder.encode( word.toString() )));
 		            
-        	MenuItem newItem2 = menu.add(getString(R.string.google_lookup));
+        	android.view.MenuItem newItem2 = menu.add(getString(R.string.google_lookup));
         	newItem2.setOnMenuItemClickListener(new BrowserSearchMenuItem(
 					"http://www.google.com/search?q="
         			+ URLEncoder.encode( word.toString() )));
@@ -516,6 +524,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
         	this.selectedWord = null;
     	}    	 
     }    
+    
+    
     
     private class BrowserSearchMenuItem implements OnMenuItemClickListener {
     	
@@ -534,6 +544,8 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
             return true;
     	}
     }
+    
+    */
     
     public static boolean isIntentAvailable(Context context, Intent intent) {
     	final PackageManager packageManager = context.getPackageManager();
@@ -988,12 +1000,14 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
        
     private void hideTitleBar() {
     	titleBarLayout.setVisibility(View.GONE);    	    
-    }    
+    }
     
+    /*
     @Override
-    public void onOptionsMenuClosed(Menu menu) {
+    public void onOptionsMenuClosed(android.view.Menu menu) {
     	updateFromPrefs();
     }
+    */    
     
     /**
      * This is called after the file manager finished.
@@ -1041,7 +1055,7 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+        MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.reading_menu, menu);        
         
         return true;
@@ -1057,12 +1071,14 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
      
         case R.id.profile_night:
         	config.setColourProfile(ColourProfile.NIGHT);   
-        	this.restoreColorProfile();  
+        	//this.restoreColorProfile(); 
+        	this.restartActivity();
             return true;
             
         case R.id.profile_day:
-        	config.setColourProfile(ColourProfile.DAY);   
-        	this.restoreColorProfile();  
+        	config.setColourProfile(ColourProfile.DAY); 
+        	this.restartActivity();
+        	//this.restoreColorProfile();  
             return true;
             
         case R.id.manual_sync:
@@ -1136,8 +1152,9 @@ public class ReadingActivity extends RoboActivity implements BookViewListener {
     		
     		updateFromPrefs();
     	} else {
-    		titleBarLayout.setVisibility(View.VISIBLE);
+    		titleBarLayout.setVisibility(View.VISIBLE);    		
     		
+    		getSupportActionBar().show();
     		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         	getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     	}

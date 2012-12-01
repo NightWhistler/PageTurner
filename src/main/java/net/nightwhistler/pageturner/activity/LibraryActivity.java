@@ -44,7 +44,6 @@ import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -62,10 +61,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -82,9 +77,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 
-public class LibraryActivity extends RoboActivity implements ImportCallback, OnItemClickListener {
+public class LibraryActivity extends RoboSherlockActivity implements ImportCallback, OnItemClickListener {
 	
 	@Inject 
 	private LibraryService libraryService;
@@ -364,7 +364,7 @@ public class LibraryActivity extends RoboActivity implements ImportCallback, OnI
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {		
 		
-		MenuInflater inflater = getMenuInflater();
+		MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.library_menu, menu);        
        		
 		OnMenuItemClickListener toggleListener = new OnMenuItemClickListener() {

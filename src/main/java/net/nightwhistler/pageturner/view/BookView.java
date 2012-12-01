@@ -124,18 +124,11 @@ public class BookView extends ScrollView {
 			
 			public boolean dispatchKeyEvent(KeyEvent event) {
 				return BookView.this.dispatchKeyEvent(event);
-			}			
-			
-			@Override
-			protected void onSelectionChanged(int selStart, int selEnd) {
-				// TODO Auto-generated method stub
-				super.onSelectionChanged(selStart, selEnd);
-				
-				LOG.debug("Got text selection from " + selStart + " to " + selEnd );
-			}			
+			}
 			
 		};  
 		
+		//childView.setTextIsSelectable(true);
 		childView.setCursorVisible(false);		
 		childView.setLongClickable(true);	        
         this.setVerticalFadingEdgeEnabled(false);
@@ -149,8 +142,7 @@ public class BookView extends ScrollView {
             if (childView.getLinksClickable()) {  
                 childView.setMovementMethod(LinkMovementMethod.getInstance());  
             }  
-        }  
-        
+        }                
         
         this.setSmoothScrollingEnabled(false);        
         this.addView(childView);        

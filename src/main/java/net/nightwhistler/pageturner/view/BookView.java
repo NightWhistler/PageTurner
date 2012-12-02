@@ -126,9 +126,8 @@ public class BookView extends ScrollView {
 				return BookView.this.dispatchKeyEvent(event);
 			}
 			
-		};  
-		
-		//childView.setTextIsSelectable(true);
+		};		
+
 		childView.setCursorVisible(false);		
 		childView.setLongClickable(true);	        
         this.setVerticalFadingEdgeEnabled(false);

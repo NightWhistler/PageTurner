@@ -73,10 +73,10 @@ import android.os.HandlerThread;
 import android.text.SpannedString;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
@@ -91,7 +91,6 @@ import android.widget.ViewSwitcher;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 
@@ -477,11 +476,10 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     	
     }
     
-    /*
+    
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-    		ContextMenuInfo menuInfo) {
-    	
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        
     	//This is a hack to give the longclick handler time
     	//to find the word the user long clicked on.    	
     	
@@ -523,7 +521,8 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
         	
         	this.selectedWord = null;
     	}    	 
-    }    
+    }
+
     
     
     
@@ -536,7 +535,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		}
     	
     	@Override
-    	public boolean onMenuItemClick(MenuItem item) {
+    	public boolean onMenuItemClick(android.view.MenuItem item) {
     		Intent i = new Intent(Intent.ACTION_VIEW);  
             i.setData(Uri.parse(this.launchURL));  
             startActivity(i);  
@@ -545,7 +544,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     	}
     }
     
-    */
+    
     
     public static boolean isIntentAvailable(Context context, Intent intent) {
     	final PackageManager packageManager = context.getPackageManager();

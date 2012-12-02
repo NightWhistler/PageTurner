@@ -19,6 +19,7 @@
 package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,8 +43,12 @@ import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.nucular.parser.Nucular;
 import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.catalog.CatalogListAdapter;
+import net.nightwhistler.pageturner.library.LibraryService;
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.epub.EpubReader;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -62,6 +67,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -109,11 +115,20 @@ public class CatalogActivity extends RoboSherlockActivity implements
 
 	@Inject
 	private Configuration config;
+	
+	@Inject
+	private LibraryService libraryService;
+	
+	private LinkListener linkListener;
 
+	private static interface LinkListener {
+		void linkUpdated();
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		
 		setContentView(R.layout.catalog);
 
 		this.adapter = new DownloadingCatalogAdapter();
@@ -142,7 +157,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 
 		if (uri != null && uri.toString().startsWith("epub://")) {
 			String downloadUrl = uri.toString().replace("epub://", "http://");
-			new DownloadFileTask().execute(downloadUrl);
+			new DownloadFileTask(false).execute(downloadUrl);
 		} else {
 			new LoadOPDSTask().execute(baseURL);
 		}
@@ -201,7 +216,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		}
 	}
 
-	private boolean isLeafEntry(Feed feed, Entry entry) {
+	private boolean isLeafEntry(Feed feed) {
 		return feed.getEntries().size() == 1;
 	}
 
@@ -351,127 +366,38 @@ public class CatalogActivity extends RoboSherlockActivity implements
 
 	private class DownloadingCatalogAdapter extends CatalogListAdapter {
 
-		HtmlSpanner spanner = new HtmlSpanner();
-
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View rowView;
 			final Entry entry = getItem(position);
 
 			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			Link imgLink;
+			Link imgLink = entry.getThumbnailLink();
 
-			if (isLeafEntry(adapter.getFeed(), entry)) {
-				rowView = inflater.inflate(R.layout.catalog_download, parent,
-						false);
+			rowView = inflater.inflate(R.layout.catalog_item, parent, false);			 			
 
-				Button downloadButton = (Button) rowView
-						.findViewById(R.id.readButton);
-				TextView authorTextView = (TextView) rowView
-						.findViewById(R.id.itemAuthor);
-
-				downloadButton.setOnClickListener(new View.OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						try {
-							String base = baseURL;
-
-							if (!navStack.isEmpty()) {
-								base = navStack.peek();
-							}
-
-							URL url = new URL(new URL(base), entry
-									.getEpubLink().getHref());
-							new DownloadFileTask().execute(url.toExternalForm());
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-					}
-				});
-
-				Button buyButton = (Button) rowView
-						.findViewById(R.id.buyButton);
-
-				if (entry.getBuyLink() == null) {
-					buyButton.setVisibility(View.GONE);
-				} else {
-					buyButton.setVisibility(View.VISIBLE);
-
-					buyButton.setOnClickListener(new View.OnClickListener() {
-
-						@Override
-						public void onClick(View v) {
-							String url = entry.getBuyLink().getHref();
-							Intent i = new Intent(Intent.ACTION_VIEW);
-							i.setData(Uri.parse(url));
-							startActivity(i);
-						}
-					});
-				}
-
-				if (entry.getAuthor() != null) {
-					String authorText = String.format(
-							getString(R.string.book_by), entry.getAuthor()
-									.getName());
-					authorTextView.setText(authorText);
-				} else {
-					authorTextView.setText("");
-				}
-
-				if (entry.getEpubLink() == null) {
-					downloadButton.setVisibility(View.INVISIBLE);
-				} else {
-					downloadButton.setVisibility(View.VISIBLE);
-				}
-
-				imgLink = entry.getImageLink();
-
-			} else {
-				rowView = inflater
-						.inflate(R.layout.catalog_item, parent, false);
-				imgLink = entry.getThumbnailLink();
-			}
-
-			TextView title = (TextView) rowView.findViewById(R.id.itemTitle);
-			TextView desc = (TextView) rowView
-					.findViewById(R.id.itemDescription);
-
-			ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);
-
-			if (imgLink != null && imgLink.getBinData() != null) {
-				byte[] data = imgLink.getBinData();
-				icon.setImageBitmap(BitmapFactory.decodeByteArray(data, 0,
-						data.length));
-			} else {
-				icon.setImageDrawable(getResources().getDrawable(
-						R.drawable.book));
-			}
-
-			title.setText(entry.getTitle());
-
-			if (entry.getContent() != null) {
-				desc.setText(spanner.fromHtml(entry.getContent().getText()));
-			} else if (entry.getSummary() != null) {
-				desc.setText(spanner.fromHtml(entry.getSummary()));
-			} else {
-				desc.setText("");
-			}
-
+			loadBookDetails( rowView, entry, imgLink );
 			return rowView;
 		}
 	}
+	
+	
 
 	// this is our download file asynctask
 	private class DownloadFileTask extends AsyncTask<String, Integer, String> {
 
 		File destFile;
-
+		
+		private boolean openAfterDownload;
 		private Exception failure;
+		
+		public DownloadFileTask(boolean openAfterDownload) {
+			this.openAfterDownload = openAfterDownload;
+		}
 
 		@Override
 		protected void onPreExecute() {
-			super.onPreExecute();
+			super.onPreExecute();			
 			downloadDialog.setMessage(getString(R.string.downloading));
 			downloadDialog.show();
 		}
@@ -532,7 +458,12 @@ public class CatalogActivity extends RoboSherlockActivity implements
 						publishProgress((int) ((total * 100) / lenghtOfFile));
 						f.write(buffer, 0, len1);
 					}
+					
 					f.close();
+					
+					Book book = new EpubReader().readEpub( new FileInputStream(destFile) );					
+					libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.isCopyToLibrayEnabled() );
+					
 				} else {
 					this.failure = new RuntimeException(response
 							.getStatusLine().getReasonPhrase());
@@ -558,11 +489,22 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			downloadDialog.hide();
 
 			if (!isCancelled() && failure == null) {
-				Intent intent = new Intent(getBaseContext(),
+				
+				Intent intent;
+				
+				if ( openAfterDownload ) {				
+					intent = new Intent(getBaseContext(),
 						ReadingActivity.class);
-				intent.setData(Uri.parse(destFile.getAbsolutePath()));
+					intent.setData(Uri.parse(destFile.getAbsolutePath()));
+					
+				} else {
+					intent = new Intent(getBaseContext(), LibraryActivity.class);					
+					config.setLastLibraryQuery(LibrarySelection.LAST_ADDED);
+				}
+				
 				startActivity(intent);
-				finish();
+				finish();				
+				
 			} else if (failure != null) {
 				Toast.makeText(CatalogActivity.this, R.string.book_failed,
 						Toast.LENGTH_LONG).show();
@@ -570,6 +512,41 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		}
 	}
 
+	private void loadBookDetails(View layout, Entry entry, Link imageLink ) {
+		
+		HtmlSpanner spanner = new HtmlSpanner();
+		
+		TextView title = (TextView) layout.findViewById(R.id.itemTitle);
+		TextView desc = (TextView) layout
+				.findViewById(R.id.itemDescription);
+
+		ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
+		loadImageLink(icon, imageLink);
+
+		title.setText(entry.getTitle());
+
+		if (entry.getContent() != null) {
+			desc.setText(spanner.fromHtml(entry.getContent().getText()));
+		} else if (entry.getSummary() != null) {
+			desc.setText(spanner.fromHtml(entry.getSummary()));
+		} else {
+			desc.setText("");
+		}
+
+	}
+	
+	private void loadImageLink(ImageView icon, Link imageLink ) {
+
+		if (imageLink != null && imageLink.getBinData() != null) {
+			byte[] data = imageLink.getBinData();
+			icon.setImageBitmap(BitmapFactory.decodeByteArray(data, 0,
+					data.length));
+		} else {
+			icon.setImageDrawable(getResources().getDrawable(
+					R.drawable.book));
+		}
+	}
+	
 	private void loadImageLink(Map<String, byte[]> cache, Link imageLink,
 			String baseUrl) throws IOException {
 
@@ -597,16 +574,121 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			}
 		}
 	}
+	
+	private void notifyLinkUpdated() {
+		adapter.notifyDataSetChanged();
+		
+		if ( linkListener != null ) {
+			linkListener.linkUpdated();
+			linkListener = null;
+		}		
+	}
+	
+	private void showItemPopup(final Feed feed) {
+		
+		//If we're here, the feed always has just 1 entry
+		final Entry entry = feed.getEntries().get(0);
+		
+		//Also, we don't want this entry on the nav-stack
+		navStack.pop();
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(getSupportActionBar().getThemedContext());
+		builder.setTitle(feed.getTitle());
+		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		View layout = inflater.inflate(R.layout.catalog_download, null);
+		builder.setView( layout );		
 
-	private void setNewFeed(Feed result) {
+		TextView authorTextView = (TextView) layout
+				.findViewById(R.id.itemAuthor);
+
+		builder.setNegativeButton(android.R.string.cancel, null);
+		
+		if ( entry.getEpubLink() != null ) {
+			
+			String base = baseURL;
+
+			if (!navStack.isEmpty()) {
+				base = navStack.peek();
+			}
+			
+			try {
+				final URL url = new URL(new URL(base), entry.getEpubLink().getHref());
+				
+				builder.setPositiveButton(R.string.read, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						new DownloadFileTask(true).execute(url.toExternalForm());						
+					}
+				});
+				
+				builder.setNeutralButton(R.string.add_to_library, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						new DownloadFileTask(false).execute(url.toExternalForm());						
+					}
+				});				
+				
+			} catch (MalformedURLException e) {
+				throw new RuntimeException(e);
+			}
+			
+			
+		}
+		
+
+		if (entry.getBuyLink() != null) {
+			builder.setNeutralButton(R.string.buy_now, new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					String url = entry.getBuyLink().getHref();
+					Intent i = new Intent(Intent.ACTION_VIEW);
+					i.setData(Uri.parse(url));
+					startActivity(i);
+				}
+			});
+		}
+
+		if (entry.getAuthor() != null) {
+			String authorText = String.format(
+					getString(R.string.book_by), entry.getAuthor()
+							.getName());
+			authorTextView.setText(authorText);
+		} else {
+			authorTextView.setText("");
+		}
+		
+		final Link imgLink = entry.getImageLink();
+		
+		loadBookDetails(layout, entry, imgLink);
+		final ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
+		
+		linkListener = new LinkListener() {
+			
+			@Override
+			public void linkUpdated() {
+				loadImageLink(icon, imgLink);				
+			}
+		};
+		
+		builder.show();
+	}
+
+	private void setNewFeed(Feed result) {		
 
 		if (result != null) {
+			
+			if ( isLeafEntry(result) ) {
+				showItemPopup(result);
+			} else {
 
-			supportInvalidateOptionsMenu();		
-
-			getSupportActionBar().setTitle(result.getTitle());
-			adapter.setFeed(result);
-
+				supportInvalidateOptionsMenu();
+				getSupportActionBar().setTitle(result.getTitle());
+				adapter.setFeed(result);
+			}
+			
 			waitDialog.hide();
 		} else {
 			waitDialog.hide();
@@ -707,7 +789,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 
 					Link imageLink;
 
-					if (isLeafEntry(feed, entry)) {
+					if (isLeafEntry(feed)) {
 						imageLink = entry.getImageLink();
 					} else {
 						imageLink = entry.getThumbnailLink();
@@ -811,7 +893,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 
 				setNewFeed(result);
 			} else if (val instanceof Link) {
-				adapter.notifyDataSetChanged();
+				notifyLinkUpdated();
 			}
 		}
 

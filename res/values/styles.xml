@@ -12,6 +12,8 @@
             backward-compatibility can go here.
         -->
     </style>
+    
+    <style name="popup_theme" parent="Theme.Sherlock.Light.Dialog" />
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">

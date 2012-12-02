@@ -109,4 +109,5 @@
     <string name="enter_query">Voer a.u.b. een zoek-term in</string>
     <string name="buy_now">Nu kopen</string>
     <string name="enter_email">Cloud sync is momenteel uitgeschakeld. Voer a.u.b. een e-mail adres in bij voorkeuren om het in te schakelen.</string>
+    <string name="add_to_library">Toevoegen aan mijn boeken</string>
 </resources>

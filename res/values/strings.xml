@@ -113,6 +113,7 @@
     <string name="buy_now">Buy now</string>
     
     <string name="enter_email">Cloud sync is currently disabled. To enable it, please enter an e-mail address in the preferences.</string>
+    <string name="add_to_library">Add to library</string>
         
         
 </resources>

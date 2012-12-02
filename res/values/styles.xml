@@ -13,8 +13,6 @@
         -->
     </style>
     
-    <style name="popup_theme" parent="Theme.Sherlock.Light.Dialog" />
-
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->

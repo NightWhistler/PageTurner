@@ -592,7 +592,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		//Also, we don't want this entry on the nav-stack
 		navStack.pop();
 		
-		AlertDialog.Builder builder = new AlertDialog.Builder(getSupportActionBar().getThemedContext());
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(feed.getTitle());
 		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 		View layout = inflater.inflate(R.layout.catalog_download, null);

@@ -76,6 +76,23 @@
 	            android:dialogTitle="Feed URL"
 	            android:dialogMessage="Ex. http://192.168.1.1:8080/opds"   
 	            />
+      			
+      			<EditTextPreference
+      			    android:key="calibre_user"
+      			    android:dialogTitle="Gebruikersnaam"
+      			    android:title="Gebruikersnaam"
+      			    android:summary="De gebruikersnaam voor Calibre"
+      			    android:hint="calibre"
+      			    android:inputType="textPersonName"
+      			 	/>
+      			
+      			<EditTextPreference
+      			    android:key="calibre_password"
+      			    android:dialogTitle="Wachtwoord"
+      			    android:title="Wachtwoord"
+      			    android:summary="Het wachtwoord voor Calibre"
+      			    android:inputType="textPassword"
+      			    />
                 
     </PreferenceCategory>
 

@@ -24,7 +24,7 @@ import org.acra.annotation.ReportsCrashes;
 
 import android.app.Application;
 
-@ReportsCrashes(formKey="dDFPZ3VQQ2FISUIwYzVrby0xVDdyVVE6MQ")
+@ReportsCrashes(formKey="dC1sc0tQUVpzdlRRMDNhMFJtbW1UaWc6MQ")
 public class PageTurner extends Application {
 	
 	@Override

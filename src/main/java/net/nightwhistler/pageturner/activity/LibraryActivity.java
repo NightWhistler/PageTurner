@@ -66,17 +66,17 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -88,9 +88,6 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 	
 	@Inject 
 	private LibraryService libraryService;
-	
-	@InjectView(R.id.librarySpinner)
-	private Spinner spinner;
 	
 	@InjectView(R.id.libraryList)
 	private ListView listView;
@@ -114,11 +111,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 
 	private Drawable backupCover;
 	private Handler handler;
-	
-	private static final int[] ICONS = { R.drawable.book_binoculars,
-		R.drawable.book_add, R.drawable.book_star,
-		R.drawable.book, R.drawable.user };
-	
+		
 	private KeyedResultAdapter bookAdapter;
 		
 	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG);
@@ -145,7 +138,8 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		
-		super.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);		
+		
 		setContentView(R.layout.library_menu);
 		
 		Bitmap backupBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.unknown_cover );
@@ -171,13 +165,18 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 		} else {		
 			this.bookAdapter = new BookListAdapter(this);
 			this.listView.setAdapter(bookAdapter);
-		}			
+		}		
 		
-		ArrayAdapter<String> adapter = new QueryMenuAdapter(this, 
-				getResources().getStringArray(R.array.libraryQueries));
 		
-		spinner.setAdapter(adapter);
-		spinner.setOnItemSelectedListener(new MenuSelectionListener());	
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayShowTitleEnabled(false);
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(actionBar.getThemedContext(),
+				android.R.layout.simple_list_item_1,
+				android.R.id.text1, getResources().getStringArray(R.array.libraryQueries));
+		
+		actionBar.setListNavigationCallbacks(adapter, new MenuSelectionListener() );
 						
 		this.waitDialog = new ProgressDialog(this);
 		this.waitDialog.setOwnerActivity(this);
@@ -551,14 +550,17 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 		super.onPause();
 	}
 	
+	
 	@Override
 	protected void onResume() {
 		super.onResume();				
 		
 		LibrarySelection lastSelection = config.getLastLibraryQuery();
 		
-		if ( spinner.getSelectedItemPosition() != lastSelection.ordinal() ) {
-			spinner.setSelection(lastSelection.ordinal());
+		ActionBar actionBar = getSupportActionBar();
+		
+		if ( actionBar.getSelectedNavigationIndex() != lastSelection.ordinal() ) {
+			actionBar.setSelectedNavigationItem(lastSelection.ordinal());
 		} else {
 			new LoadBooksTask().execute(lastSelection);
 		}
@@ -568,14 +570,16 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 	public void importCancelled() {
 		
 		listView.setKeepScreenOn(oldKeepScreenOn);
+		ActionBar actionBar = getSupportActionBar();
 		
 		//Switch to the "recently added" view.
-		if ( spinner.getSelectedItemPosition() == LibrarySelection.LAST_ADDED.ordinal() ) {
+		if ( actionBar.getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
 			new LoadBooksTask().execute(LibrarySelection.LAST_ADDED);
 		} else {
-			spinner.setSelection(LibrarySelection.LAST_ADDED.ordinal());
+			actionBar.setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
 		}
 	}
+	
 	
 	@Override
 	public void importComplete(int booksImported, List<String> errors) {
@@ -605,11 +609,12 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 		listView.setKeepScreenOn(oldKeepScreenOn);
 		
 		if ( booksImported > 0 ) {			
+			
 			//Switch to the "recently added" view.
-			if ( spinner.getSelectedItemPosition() == LibrarySelection.LAST_ADDED.ordinal() ) {
+			if (getSupportActionBar().getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
 				new LoadBooksTask().execute(LibrarySelection.LAST_ADDED);
 			} else {
-				spinner.setSelection(LibrarySelection.LAST_ADDED.ordinal());
+				getSupportActionBar().setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
 			}
 		} else {
 			AlertDialog.Builder builder = new AlertDialog.Builder(LibraryActivity.this);
@@ -880,41 +885,6 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 		
 	}
 	
-	private class QueryMenuAdapter extends ArrayAdapter<String> {
-		
-		String[] strings;
-		
-		public QueryMenuAdapter(Context context, String[] strings) {
-			super(context, android.R.layout.simple_spinner_item, strings);	
-			this.strings = strings;
-		}
-		
-		@Override
-		public View getDropDownView(int position, View convertView,
-				ViewGroup parent) {
-			
-			View rowView;
-			
-			if ( convertView == null ) {			
-				LayoutInflater inflater = (LayoutInflater) getContext()
-					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				rowView = inflater.inflate(R.layout.menu_row, parent, false);
-			} else {
-				rowView = convertView;
-			}
-			
-			TextView textView = (TextView) rowView.findViewById(R.id.menuText);
-			textView.setText(strings[position]);
-			textView.setTextColor(Color.BLACK);
-			
-			ImageView img = (ImageView) rowView.findViewById(R.id.icon);
-			
-			img.setImageResource(ICONS[position]);
-			
-			return rowView;			
-		}
-	}
-	
 	private void buildImportQuestionDialog() {
 		
 		if ( importQuestion != null ) {
@@ -954,22 +924,18 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 		listView.setFastScrollEnabled(visible);
 	}
 	
-	private class MenuSelectionListener implements OnItemSelectedListener {
+	private class MenuSelectionListener implements OnNavigationListener {	
+		
 		@Override
-		public void onItemSelected(AdapterView<?> arg0, View arg1, int pos,
-				long arg3) {
-			
+		public boolean onNavigationItemSelected(int pos, long arg1) {
+
 			LibrarySelection newSelections = LibrarySelection.values()[pos];
 			
 			config.setLastLibraryQuery(newSelections);
 			
 			bookAdapter.clear();
 			new LoadBooksTask().execute(newSelections);
-		}
-		
-		@Override
-		public void onNothingSelected(AdapterView<?> arg0) {
-						
+			return false;
 		}
 	}	
 
@@ -1073,7 +1039,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 					@Override
 					public void onItemClick(AdapterView<?> arg0, View arg1,
 							int arg2, long arg3) {
-						
+							
 						Character c = keyedResult.getAlphabet().get(arg2);
 						onAlphabetBarClick(keyedResult, c);
 					}

@@ -969,11 +969,9 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     	MenuItem dayMode = menu.findItem(R.id.profile_day);
     	
     	MenuItem showToc = menu.findItem(R.id.show_toc );
-    	MenuItem sync = menu.findItem(R.id.manual_sync );
-    	
+    	    	
     	showToc.setEnabled( this.tocDialog != null );
-    	sync.setEnabled( config.isSyncEnabled() );
-    	
+    	    	
     	if ( config.getColourProfile() == ColourProfile.DAY ) {
     		dayMode.setVisible(false);
     		nightMode.setVisible(true);
@@ -1000,13 +998,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     private void hideTitleBar() {
     	titleBarLayout.setVisibility(View.GONE);    	    
     }
-    
-    /*
-    @Override
-    public void onOptionsMenuClosed(android.view.Menu menu) {
-    	updateFromPrefs();
-    }
-    */    
+   
     
     /**
      * This is called after the file manager finished.
@@ -1069,19 +1061,21 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
         switch (item.getItemId()) {
      
         case R.id.profile_night:
-        	config.setColourProfile(ColourProfile.NIGHT);   
-        	//this.restoreColorProfile(); 
+        	config.setColourProfile(ColourProfile.NIGHT);
         	this.restartActivity();
             return true;
             
         case R.id.profile_day:
         	config.setColourProfile(ColourProfile.DAY); 
-        	this.restartActivity();
-        	//this.restoreColorProfile();  
+        	this.restartActivity();        	  
             return true;
             
         case R.id.manual_sync:
-        	new ManualProgressSync().execute();
+        	if ( config.isSyncEnabled() ) {
+        		new ManualProgressSync().execute();
+        	} else {
+        		Toast.makeText(this, R.string.enter_email, Toast.LENGTH_LONG ).show();
+        	}
         	return true;
         	
         case R.id.preferences:

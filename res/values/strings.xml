@@ -111,6 +111,8 @@
     <string name="search_books">Search for books</string>
     <string name="enter_query">Please enter a search-term</string>
     <string name="buy_now">Buy now</string>
+    
+    <string name="enter_email">Cloud sync is currently disabled. To enable it, please enter an e-mail address in the preferences.</string>
         
         
 </resources>

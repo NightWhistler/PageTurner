@@ -178,20 +178,19 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        
-        // initialize receiver
-        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        BroadcastReceiver mReceiver = new ScreenReceiver();
-        registerReceiver(mReceiver, filter);
-        
+        super.onCreate(savedInstanceState);     
+        		
         if ( config.getColourProfile() == ColourProfile.NIGHT ) {
         	setTheme(R.style.Sherlock___Theme );
         } else {
         	setTheme(R.style.Sherlock___Theme_DarkActionBar );
-        }
-        
+        }        
+
+        // initialize receiver
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        BroadcastReceiver mReceiver = new ScreenReceiver();
+        registerReceiver(mReceiver, filter);        
         
         // Restore preferences        
         setContentView(R.layout.read_book);
@@ -971,6 +970,8 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     	MenuItem showToc = menu.findItem(R.id.show_toc );
     	    	
     	showToc.setEnabled( this.tocDialog != null );
+    	
+    	getSupportActionBar().show();
     	    	
     	if ( config.getColourProfile() == ColourProfile.DAY ) {
     		dayMode.setVisible(false);
@@ -1050,6 +1051,11 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
         inflater.inflate(R.menu.reading_menu, menu);        
         
         return true;
+    }
+    
+    @Override
+    public void onOptionsMenuClosed(android.view.Menu menu) {
+    	updateFromPrefs();
     }
     
     @Override

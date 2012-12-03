@@ -82,7 +82,7 @@
       			    android:key="calibre_user"
       			    android:dialogTitle="@string/pref_calibre_user"
       			    android:title="@string/pref_calibre_user"
-      			    android:summary="pref_calibre_user_summary"
+      			    android:summary="@string/pref_calibre_user_summary"
       			    android:hint="pref_calibre_user_hint"
       			    android:inputType="textPersonName"
       			 	/>
@@ -91,7 +91,7 @@
       			    android:key="calibre_password"
       			    android:dialogTitle="@string/pref_calibre_password"
       			    android:title="@string/pref_calibre_password"
-      			    android:summary="@string/pref_calibre_password"
+      			    android:summary="@string/pref_calibre_password_summary"
       			    android:inputType="textPassword"
       			    />
                 

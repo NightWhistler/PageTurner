@@ -3,31 +3,31 @@
 	android:key="PageTurnerState">
 	
 	<PreferenceCategory
-                android:title="Sync settings"> 
+                android:title="@string/pref_sync_settings"> 
                  
 	<EditTextPreference
 	            android:key="email"
-	            android:title="E-mail address"
-	            android:summary="Used to sync your progress across devices. Leave blank to disable syncing."
-	            android:dialogTitle="E-mail address"
-	            android:dialogMessage="Please enter a valid e-mail address"   
+	            android:title="@string/pref_email"
+	            android:summary="@string/pref_email_summary"
+	            android:dialogTitle="@string/pref_email"
+	            android:dialogMessage="@string/pref_email_message"   
 	            />
 	
 	<EditTextPreference
 	            android:key="device_name"
-	            android:title="Device name"
-	            android:summary="Unique name for this device, for conflict resolution."
-	            android:dialogTitle="Device name"
-	            android:dialogMessage="Please enter a name for this device."
+	            android:title="@string/pref_device_name"
+	            android:summary="@string/pref_device_name_summary"
+	            android:dialogTitle="@string/pref_device_name"
+	            android:dialogMessage="@string/pref_device_name_message"
 	            android:dependency="email"   
 	            />
 	
 	<EditTextPreference
 	            android:key="access_key"
-	            android:title="Access Key"
-	            android:summary="An access key is required to use the synchronization service. Visit the site to learn how to get a key."
-	            android:dialogTitle="Access key"
-	            android:dialogMessage="Please enter your access key."
+	            android:title="@string/pref_access_key"
+	            android:summary="@string/pref_access_key_summary"
+	            android:dialogTitle="@string/pref_access_key"
+	            android:dialogMessage="@string/pref_access_key_message"
 	            android:password="true"
 	            android:dependency="email"   
 	            />
@@ -35,12 +35,12 @@
 	</PreferenceCategory>
 
 	<PreferenceCategory
-                android:title="Autoscroll settings">  		
+                android:title="@string/pref_autoscroll_settings">  		
 
  <ListPreference
      		android:key="scroll_style"
-            android:title="Autoscroll style"
-            android:summary="Rolling blind or timer"            
+            android:title="@string/pref_scroll_style"
+            android:summary="@string/pref_scroll_style_summary"            
         	android:defaultValue="rolling_blind"
         	android:entries="@array/autoscrollLabels"
         	android:entryValues="@array/autoscroll" />           
@@ -49,9 +49,9 @@
 
 	<com.hlidskialf.android.preference.SeekBarPreference
 				android:key="scroll_speed"
-				android:title="Autoscrolling speed"
-				android:summary="How many seconds a page will be displayed."
-				android:dialogTitle="Scroll speed"								
+				android:title="@string/pref_scroll_speed"
+				android:summary="@string/pref_scroll_speed_summary"
+				android:dialogTitle="@string/pref_scroll_speed"								
 				android:defaultValue="60"
 				android:max="300"				
 				/>
@@ -59,104 +59,105 @@
 	</PreferenceCategory>
 	
 	<PreferenceCategory
-                android:title="My Books settings">
+                android:title="@string/pref_my_books_settings">
                 
               <CheckBoxPreference
 				android:key="copy_to_library"
-				android:title="Copy to library folder"
-				android:summary="Should PageTurner copy files to its own library folder"
+				android:title="@string/pref_copy_to_library"
+				android:summary="@string/pref_copy_to_library_summary"
 				android:defaultValue="true"
 				/> 			
               	
 				
       			<EditTextPreference
 	            android:key="calibre_server"
-	            android:title="Calibre content server"
-	            android:summary="Connect to your own Calibre library"
-	            android:dialogTitle="Calibre URL"
-	            android:dialogMessage="Ex. http://192.168.1.1:8080/opds"   
+	            android:title="@string/pref_calibre_server"
+	            android:summary="@string/pref_calibre_server_summary"
+	            android:dialogTitle="@string/pref_calibre_server"
+	            android:dialogMessage="@string/pref_calibre_server_message"
+	            android:hint="@string/pref_calibre_server_hint"   
 	            />
       			
       			<EditTextPreference
       			    android:key="calibre_user"
-      			    android:dialogTitle="User name"
-      			    android:title="User name"
-      			    android:summary="Your calibre user name"
-      			    android:hint="calibre"
+      			    android:dialogTitle="@string/pref_calibre_user"
+      			    android:title="@string/pref_calibre_user"
+      			    android:summary="pref_calibre_user_summary"
+      			    android:hint="pref_calibre_user_hint"
       			    android:inputType="textPersonName"
       			 	/>
       			
       			<EditTextPreference
       			    android:key="calibre_password"
-      			    android:dialogTitle="Password"
-      			    android:title="Password"
-      			    android:summary="Your calibre password"
+      			    android:dialogTitle="@string/pref_calibre_password"
+      			    android:title="@string/pref_calibre_password"
+      			    android:summary="@string/pref_calibre_password"
       			    android:inputType="textPassword"
       			    />
                 
     </PreferenceCategory>
 
 	<PreferenceCategory
-                android:title="Visual settings">  		
+                android:title="@string/pref_visual_settings">  		
 
 	<CheckBoxPreference			
             android:key="full_screen"
-            android:title="Full screen"
-            android:summary="Hides all status bars."
+            android:title="@string/pref_full_screen"
+            android:summary="@string/pref_full_screen_summary"
             android:defaultValue="false" />
             
     <ListPreference
-     	android:title="Screen orientation"
-        android:summary="Allows you to lock the screen orientation"
+     	android:title="@string/pref_screen_orientation"
+        android:summary="@string/pref_screen_orientation_summary"
         android:key="screen_orientation"
         android:defaultValue="no_lock"
         android:entries="@array/orientationLabels"
         android:entryValues="@array/orientation" />
     
    	<CheckBoxPreference 
-   	    	android:title="Keep screen on"
-   	    	android:summary="Prevents the screen from locking while reading"
+   	    	android:title="@string/pref_keep_screen_on"
+   	    	android:summary="@string/pref_keep_screen_on"
    	    	android:key="keep_screen_on"
    	    	android:defaultValue="false"
    	    	/>
             
    <CheckBoxPreference
 			android:key="set_brightness"
-			android:title="Brightness controls"
-			android:summary="Lets PageTurner control screen brightness"
+			android:title="@string/pref_set_brightness"
+			android:summary="@string/pref_set_brightness_summary"
 			android:defaultValue="false"
 			/>
    
    <com.hlidskialf.android.preference.SeekBarPreference
 				android:key="day_bright"
-				android:title="Screen brightness"
-				android:summary="For day mode"
-				android:dialogTitle="Screen brightness"								
+				android:title="@string/pref_day_bright"
+				android:summary="@string/pref_day_bright_summary"
+				android:dialogTitle="@string/pref_day_bright"								
 				android:defaultValue="50"
 				android:max="100"
 				android:dependency="set_brightness"
 				/>   
 	
-	<com.hlidskialf.android.preference.SeekBarPreference
+   <com.hlidskialf.android.preference.SeekBarPreference
 				android:key="night_bright"
-				android:title="Screen brightness"
-				android:summary="For night mode"
-				android:dialogTitle="Screen brightness"								
+				android:title="@string/pref_day_night"
+				android:summary="@string/pref_day_night_summary"
+				android:dialogTitle="@string/pref_day_night"								
 				android:defaultValue="50"
 				android:max="100"
 				android:dependency="set_brightness"
-				/>  
+				/>   
 	            
 	
 	</PreferenceCategory>
 	
 	<PreferenceCategory
-                android:title="Text display settings">
+                android:title="@string/pref_text_display_settings">
                 
      <ListPreference
      		android:key="font_face"
-            android:title="Font face"
-            android:summary="Main font for text display"            
+            android:title="@string/pref_font_face"
+            android:summary="@string/pref_font_face_summary"            
         	android:defaultValue="gen_book_bas"
         	android:entries="@array/fontLabels"
         	android:entryValues="@array/fonts" />
@@ -164,42 +165,42 @@
                 
      <CheckBoxPreference
 				android:key="strip_whitespace"
-				android:title="Strip whitespace"
-				android:summary="Strips out unneeded blank lines."
+				android:title="@string/pref_strip_whitespace"
+				android:summary="@string/pref_strip_whitespace_summary"
 				android:defaultValue="true"
 				/>  		
 	
 	<com.hlidskialf.android.preference.SeekBarPreference
 				android:key="itext_size"
-				android:title="Text size"
-				android:dialogTitle="Font size"
-				android:summary="The size of the font used for displaying books."				
+				android:title="@string/pref_itext_size"
+				android:dialogTitle="@string/pref_itext_size"
+				android:summary="@string/pref_itext_size_summary"				
 				android:defaultValue="16"
 				android:max="48"
 				/>	
 				
 	<com.hlidskialf.android.preference.SeekBarPreference
 				android:key="margin_h"
-				android:title="Horizontal margins"
-				android:summary="Space on the left and right edge of the screen."
-				android:dialogTitle="Margin size"								
+				android:title="@string/pref_margin_h"
+				android:summary="@string/pref_margin_h_summary"
+				android:dialogTitle="@string/pref_margin_h"								
 				android:defaultValue="15"
 				android:max="150"				
 				/>    					
 	
 	<com.hlidskialf.android.preference.SeekBarPreference
 				android:key="margin_v"
-				android:title="Vertical margins"
-				android:summary="Space on the top and bottom edge of the screen."
-				android:dialogTitle="Margin size"								
+				android:title="@string/pref_margin_v"
+				android:summary="@string/pref_margin_v_summary"
+				android:dialogTitle="@string/pref_margin_v"								
 				android:defaultValue="15"
 				android:max="150"				
 				/>  
 	<com.hlidskialf.android.preference.SeekBarPreference
 				android:key="line_spacing"
-				android:title="Line spacing"
-				android:summary="Adds extra vertical space between lines."
-				android:dialogTitle="Line spacing"								
+				android:title="@string/pref_line_spacing"
+				android:summary="@string/pref_line_spacing_summary"
+				android:dialogTitle="@string/pref_line_spacing"								
 				android:defaultValue="0"
 				android:max="50"				
 				/>
@@ -207,43 +208,43 @@
 	</PreferenceCategory>		
 			
 	<PreferenceCategory
-                android:title="Colour settings">
+                android:title="@string/pref_colour_settings">
         
         	<net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="day_text"
-    			android:title="Text colour"
-    			android:summary="For day mode"
+    			android:title="@string/pref_day_text"
+    			android:summary="@string/pref_day_text"
     			android:defaultValue="-16777216" />
     			
     		<net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="day_bg"
-    			android:title="Background colour"
-    			android:summary="For day mode"
+    			android:title="@string/pref_day_bg"
+    			android:summary="@string/pref_day_bg"
     			android:defaultValue="-1" />     		
     		    		
 			<net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="day_link"
-    			android:title="Link colour"
-    			android:summary="For day mode"
+    			android:title="@string/pref_day_link"
+    			android:summary="@string/pref_day_link"
     			android:defaultValue="-16776961" />  
 			 		    		
     		
              <net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="night_text"
-    			android:title="Text colour"
-    			android:summary="For night mode"
+    			android:title="@string/pref_night_text"
+    			android:summary="@string/pref_night_text"
     			android:defaultValue="-7829368" />
     				
     		<net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="night_bg"
-    			android:title="Background colour"
-    			android:summary="For night mode"
+    			android:title="@string/pref_night_bg"
+    			android:summary="@string/pref_night_bg"
     			android:defaultValue="-16777216" />  
     			
     		<net.nightwhistler.pageturner.prefs.ColourChooserPref
     			android:key="night_link"
-    			android:title="Link colour"
-    			android:summary="For night mode"
+    			android:title="@string/pref_night_link"
+    			android:summary="@string/pref_night_link"
     			android:defaultValue="-23296" />  
     		
     	
@@ -251,12 +252,12 @@
     </PreferenceCategory>
     
     <PreferenceCategory
-                android:title="Animations">
+                android:title="@string/pref_animations">
         
          <ListPreference
      		android:key="h_animation"
-            android:title="Horizontal animations"
-            android:summary="Horizontal page change animations"            
+            android:title="@string/pref_h_animation"
+            android:summary="@string/pref_h_animation"            
         	android:defaultValue="curl"
         	android:entries="@array/h_animLabels"
         	android:entryValues="@array/h_anim" />
@@ -264,8 +265,8 @@
 
          <ListPreference
      		android:key="v_animation"
-            android:title="Vertical animations"
-            android:summary="Vertical page change animations"            
+            android:title="@string/pref_v_animation"
+            android:summary="@string/pref_v_animation"            
         	android:defaultValue="slide"
         	android:entries="@array/v_animLabels"
         	android:entryValues="@array/v_anim" />               
@@ -274,45 +275,45 @@
     </PreferenceCategory>
                 
 	<PreferenceCategory
-                android:title="Navigation settings">
+                android:title="@string/pref_navigation_settings">
                 
      <CheckBoxPreference			
             android:key="scrolling"
-            android:title="Enable scrolling"
-            android:summary="Enabled browser-style scrolling"
+            android:title="@string/pref_scrolling"
+            android:summary="@string/pref_scrolling"
             android:defaultValue="false"
             android:disableDependentsState="true" />       
      
             
      <CheckBoxPreference			
             android:key="nav_vol"
-            android:title="Enable volume buttons"
-            android:summary="Press volume up/down to change pages."
+            android:title="@string/pref_nav_vol"
+            android:summary="@string/pref_nav_vol"
             android:defaultValue="false" />
             
      <CheckBoxPreference			
             android:key="nav_swipe_h"
-            android:title="Enable horizontal swiping"
-            android:summary="Swipe left/right to change pages."
+            android:title="@string/pref_nav_swipe_h"
+            android:summary="@string/pref_nav_swipe_h"
             android:defaultValue="true" /> 
             
      <CheckBoxPreference			
             android:key="nav_swipe_v"
-            android:title="Enable vertical swiping"
-            android:summary="Swipe up/down to change pages."
+            android:title="@string/pref_nav_swipe_v"
+            android:summary="@string/pref_nav_swipe_v"
             android:defaultValue="true" 
             android:dependency="scrolling"/> 
             
      <CheckBoxPreference			
             android:key="nav_tap_h"
-            android:title="Enable tapping sides"
-            android:summary="Tap the left/right edge of the screen to change pages."
+            android:title="@string/pref_nav_tap_h"
+            android:summary="@string/pref_nav_tap_h"
             android:defaultValue="true" />       
      
      <CheckBoxPreference			
             android:key="nav_tap_v"
-            android:title="Enable tapping top/bottom"
-            android:summary="Tap the top/bottom edge of the screen to change pages."
+            android:title="@string/pref_nav_tap_v"
+            android:summary="@string/pref_nav_tap_v"
             android:defaultValue="true" />           
                 
     </PreferenceCategory>

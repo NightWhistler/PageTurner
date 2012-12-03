@@ -116,4 +116,95 @@
     <string name="add_to_library">Add to library</string>
         
         
+    <string name="pref_sync_settings">Sync settings</string>
+    <string name="pref_email">E-mail address</string>
+    <string name="pref_email_summary">Used to sync your progress across devices. Leave blank to disable syncing.</string>
+    <string name="pref_email_message">Please enter a valid e-mail address</string>
+    <string name="pref_device_name">Device name</string>
+    <string name="pref_device_name_summary">Unique name for this device, for conflict resolution.</string>
+    <string name="pref_device_name_message">Please enter a name for this device.</string>
+    <string name="pref_access_key">Access Key</string>
+    <string name="pref_access_key_summary">An access key is required to use the synchronization service. Visit the site to learn how to get a key.</string>
+    <string name="pref_access_key_message">Please enter your access key.</string>
+
+    <string name="pref_autoscroll_settings">Autoscroll settings</string>
+    <string name="pref_scroll_style">Autoscroll style</string>
+    <string name="pref_scroll_style_summary">Rolling blind or timer</string>
+    <string name="pref_scroll_speed">Autoscrolling speed</string>
+    <string name="pref_scroll_speed_summary">How many seconds a page will be displayed.</string>
+
+    <string name="pref_my_books_settings">My Books settings</string>
+    <string name="pref_copy_to_library">Copy to library folder</string>
+    <string name="pref_copy_to_library_summary">Should PageTurner copy files to its own library folder</string>
+    <string name="pref_calibre_server">Calibre content server</string>
+    <string name="pref_calibre_server_summary">Connect to your own Calibre library</string>
+    <string name="pref_calibre_server_message">Calibre URL</string>
+    <string name="pref_calibre_server_hint">http://192.168.1.1:8080/opds</string>
+    <string name="pref_calibre_user">User name</string>
+    <string name="pref_calibre_user_summary">Your calibre user name</string>
+    <string name="pref_calibre_user_hint">calibre</string>
+    <string name="pref_calibre_password">Password</string>
+    <string name="pref_calibre_password_summary">Your calibre password</string>
+
+    <string name="pref_visual_settings">Visual settings</string>
+    <string name="pref_full_screen">Full screen</string>
+    <string name="pref_full_screen_summary">Hides all status bars.</string>
+    <string name="pref_screen_orientation">Screen orientation</string>
+    <string name="pref_screen_orientation_summary">Allows you to lock the screen orientation</string>
+    <string name="pref_keep_screen_on">Keep screen on</string>
+    <string name="pref_keep_screen_on_summary">Prevents the screen from locking while reading</string>
+    <string name="pref_set_brightness">Brightness controls</string>
+    <string name="pref_set_brightness_summary">Lets PageTurner control screen brightness</string>
+    <string name="pref_day_bright">Screen brightness</string>
+    <string name="pref_day_bright_summary">For day mode</string>
+    <string name="pref_day_night">Screen brightness</string>
+    <string name="pref_day_night_summary">For night mode</string>
+    <string name="pref_text_display_settings">Text display settings</string>
+    <string name="pref_font_face">Font face</string>
+    <string name="pref_font_face_summary">Main font for text display</string>
+    <string name="pref_strip_whitespace">Strip whitespace</string>
+    <string name="pref_strip_whitespace_summary">Strips out unneeded blank lines.</string>
+    <string name="pref_itext_size">Text size</string>
+    <string name="pref_itext_size_summary">The size of the font used for displaying books.</string>
+    <string name="pref_margin_h">Horizontal margins</string>
+    <string name="pref_margin_h_summary">Space on the left and right edge of the screen.</string>
+    <string name="pref_margin_v">Vertical margins</string>
+    <string name="pref_margin_v_summary">Space on the top and bottom edge of the screen.</string>
+    <string name="pref_line_spacing">Line spacing</string>
+    <string name="pref_line_spacing_summary">Adds extra vertical space between lines.</string>
+
+    <string name="pref_colour_settings">Colour settings</string>
+    <string name="pref_day_text">Text colour</string>
+    <string name="pref_day_text_summary">For day mode</string>
+    <string name="pref_day_bg">Background colour</string>
+    <string name="pref_day_bg_summary">For day mode</string>
+    <string name="pref_day_link">Link colour</string>
+    <string name="pref_day_link_summary">For day mode</string>
+    <string name="pref_night_text">Text colour</string>
+    <string name="pref_night_text_summary">For night mode</string>
+    <string name="pref_night_bg">Background colour</string>
+    <string name="pref_night_bg_summary">For night mode</string>
+    <string name="pref_night_link">Link colour</string>
+    <string name="pref_night_link_summary">For night mode</string>
+
+    <string name="pref_animations">Animations</string>
+    <string name="pref_h_animation">Horizontal animations</string>
+    <string name="pref_h_animation_summary">Horizontal page change animations</string>
+    <string name="pref_v_animation">Vertical animations</string>
+    <string name="pref_v_animation_summary">Vertical page change animations</string>
+    
+    <string name="pref_navigation_settings">Navigation settings</string>
+    <string name="pref_scrolling">Enable scrolling</string>
+    <string name="pref_scrolling_summary">Enabled browser-style scrolling</string>
+    <string name="pref_nav_vol">Enable volume buttons</string>
+    <string name="pref_nav_vol_summary">Press volume up/down to change pages.</string>
+    <string name="pref_nav_swipe_h">Enable horizontal swiping</string>
+    <string name="pref_nav_swipe_h_summary">Swipe left/right to change pages.</string>
+    <string name="pref_nav_swipe_v">Enable vertical swiping</string>
+    <string name="pref_nav_swipe_v_summary">Swipe up/down to change pages.</string>
+    <string name="pref_nav_tap_h">Enable tapping sides</string>
+    <string name="pref_nav_tap_h_summary">Tap the left/right edge of the screen to change pages.</string>
+    <string name="pref_nav_tap_v">Enable tapping top/bottom</string>
+    <string name="pref_nav_tap_v_summary">Tap the top/bottom edge of the screen to change pages.</string>
+
 </resources>

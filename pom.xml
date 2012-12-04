@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>nl.siegmann.epublib</groupId>
 			<artifactId>epublib-core</artifactId>
-			<version>3.0-SNAPSHOT</version>
+			<version>3.1</version>
 
 			<exclusions>
 				<exclusion>
@@ -116,15 +116,15 @@
 			<version>4.2.3</version>
 			<scope>compile</scope>
 		</dependency>
-  
-		<dependency>
+		
+        <dependency>
 			<groupId>com.actionbarsherlock</groupId>
 			<artifactId>actionbarsherlock</artifactId>
 			<version>4.2.0</version>
 			<type>apklib</type>
 		</dependency>
- 
-		<dependency>
+		     
+   	<dependency>
 			<groupId>com.github.rtyley</groupId>
 			<artifactId>roboguice-sherlock</artifactId>
 			<version>1.5</version>

@@ -15,7 +15,7 @@
 
         	<ImageView
         	    android:id="@+id/coverImage"
-            	android:src="@drawable/page_turner" 
+            	android:src="@drawable/unknown_cover" 
             	android:layout_width="250px"
             	android:layout_height="250px"/>
         </LinearLayout>

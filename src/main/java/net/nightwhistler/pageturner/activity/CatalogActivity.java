@@ -258,11 +258,11 @@ public class CatalogActivity extends RoboSherlockActivity implements
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem item = menu.add(getString(R.string.open_library));
-		item.setIcon(R.drawable.book_star);
-		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-
+		
 		getSupportActionBar().setHomeButtonEnabled(true);
+		
+		MenuItem item = menu.add(getString(R.string.open_library));
+		item.setIcon(R.drawable.book_star);				
 
 		menu.add("Left").setIcon(R.drawable.arrow_left)
 				.setVisible(false)
@@ -545,7 +545,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 					data.length));
 		} else {
 			icon.setImageDrawable(getResources().getDrawable(
-					R.drawable.book));
+					R.drawable.unknown_cover));
 		}
 	}
 	

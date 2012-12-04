@@ -61,6 +61,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -127,6 +128,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.catalog);

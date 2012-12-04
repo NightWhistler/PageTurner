@@ -178,13 +178,8 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);     
-        		
-        if ( config.getColourProfile() == ColourProfile.NIGHT ) {
-        	setTheme(R.style.Sherlock___Theme );
-        } else {
-        	setTheme(R.style.Sherlock___Theme_DarkActionBar );
-        }        
+    	setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );    	
+    	super.onCreate(savedInstanceState);
 
         // initialize receiver
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);

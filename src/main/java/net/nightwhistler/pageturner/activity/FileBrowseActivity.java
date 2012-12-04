@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import roboguice.RoboGuice;
+
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import android.content.Context;
@@ -51,7 +53,8 @@ public class FileBrowseActivity extends RoboSherlockListActivity {
 	private Configuration config;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {		
+	protected void onCreate(Bundle savedInstanceState) {	
+		setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );
 		super.onCreate(savedInstanceState);
 		
 		Uri data = getIntent().getData();		

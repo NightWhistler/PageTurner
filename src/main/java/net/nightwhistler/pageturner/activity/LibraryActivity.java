@@ -44,6 +44,7 @@ import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -137,7 +138,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
+		setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );				
 		super.onCreate(savedInstanceState);		
 		
 		setContentView(R.layout.library_menu);

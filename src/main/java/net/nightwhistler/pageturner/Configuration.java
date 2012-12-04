@@ -21,6 +21,8 @@ package net.nightwhistler.pageturner;
 
 import java.io.File;
 
+import roboguice.inject.ContextSingleton;
+
 import net.nightwhistler.htmlspanner.FontFamily;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -30,6 +32,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.google.inject.Inject;
 
 /**
@@ -39,6 +42,7 @@ import com.google.inject.Inject;
  * @author Alex Kuiper
  *
  */
+@ContextSingleton
 public class Configuration {	
 	
 	private SharedPreferences settings;
@@ -246,6 +250,15 @@ public class Configuration {
 	public boolean isKeepScreenOn() {
 		return settings.getBoolean(KEY_KEEP_SCREEN_ON, false);
 	}	
+	
+	public int getTheme() {
+		if ( getColourProfile() == ColourProfile.NIGHT ) {
+			return R.style.Theme_Sherlock;
+		} else {
+			return R.style.Theme_Sherlock_Light_DarkActionBar;
+		}
+		
+	}
 	
 	public void setColourProfile(ColourProfile profile) {
 		if ( profile == ColourProfile.DAY ) {

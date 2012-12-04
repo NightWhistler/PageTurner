@@ -19,18 +19,21 @@
 
 package net.nightwhistler.pageturner.activity;
 
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
+import roboguice.RoboGuice;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockPreferenceActivity;
 
-public class PageTurnerPrefsActivity extends SherlockPreferenceActivity {
-
+public class PageTurnerPrefsActivity extends RoboSherlockPreferenceActivity {
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );
 		super.onCreate(savedInstanceState);
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);

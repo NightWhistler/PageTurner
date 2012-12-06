@@ -37,11 +37,13 @@ import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;
+import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.AnimatedImageView;
 import net.nightwhistler.pageturner.view.BookView;
 import net.nightwhistler.pageturner.view.BookViewListener;
 import net.nightwhistler.pageturner.view.NavGestureDetector;
 import net.nightwhistler.pageturner.view.ProgressListAdapter;
+import net.nightwhistler.pageturner.view.SearchResultAdapter;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 
@@ -67,12 +69,14 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.SpannedString;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -82,6 +86,7 @@ import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -470,6 +475,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     	
     }
     
+   
     
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -597,11 +603,26 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     }    
     
     private boolean handleVolumeButtonEvent(KeyEvent event) {
-        if (!config.isVolumeKeyNavEnabled())
+        
+    	if (!config.isVolumeKeyNavEnabled()) {
             return false;
+        }
+        
         boolean invert = false;
 
-        int rotation = this.getWindowManager().getDefaultDisplay().getRotation();
+        int rotation = Surface.ROTATION_0;
+        
+        if ( Build.VERSION.SDK_INT >= 8 ) {
+        	try {
+        		Display display = this.getWindowManager().getDefaultDisplay();
+        		Object result = display.getClass().getMethod("getRotation", new Class<?>[0] )
+        				.invoke(display, new Object[0] );
+
+        		rotation = (Integer) result;
+        	} catch (Exception e) {
+        		//getRotation is API level 8, so on 7 just ignore.
+        	}
+        }
 
         switch ( rotation ) {
         case Surface.ROTATION_0:
@@ -1089,11 +1110,11 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
         	return true;
         	
         case R.id.show_toc:   
-        	this.tocDialog.show();
+        	this.tocDialog.show();        	
         	return true;
         	
         case R.id.open_file:
-        	launchFileManager();
+        	launchFileManager();        	
         	return true;        	
         
         case R.id.open_library:
@@ -1295,8 +1316,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     	AlertDialog dialog = builder.create();
     	dialog.setOwnerActivity(this);
     	dialog.show();
-    } 
-    
+    }
     
     private void initTocDialog() {
 

@@ -42,6 +42,7 @@ import net.nightwhistler.pageturner.view.BookView;
 import net.nightwhistler.pageturner.view.BookViewListener;
 import net.nightwhistler.pageturner.view.NavGestureDetector;
 import net.nightwhistler.pageturner.view.ProgressListAdapter;
+import net.nightwhistler.pageturner.view.TextSelectionCallback;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 
@@ -50,6 +51,8 @@ import org.slf4j.LoggerFactory;
 
 import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -63,6 +66,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.net.Uri;
@@ -73,6 +77,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.SpannedString;
 import android.util.DisplayMetrics;
+import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -96,7 +101,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 
-public class ReadingActivity extends RoboSherlockActivity implements BookViewListener {
+public class ReadingActivity extends RoboSherlockActivity implements BookViewListener, TextSelectionCallback {
 
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
@@ -249,6 +254,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
         
     	this.bookView.addListener(this);
     	this.bookView.setSpanner(RoboGuice.getInjector(this).getInstance(HtmlSpanner.class));
+    	this.bookView.setTextSelectionCallback(this);
     	    	
     	this.oldBrightness = config.isBrightnessControlEnabled();
     	this.oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
@@ -470,9 +476,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 			}
 		});    	
     	
-    }
-    
-   
+    }   
     
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -485,62 +489,89 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     		final CharSequence word = this.selectedWord;
     		
     		String header = String.format(getString(R.string.word_select), selectedWord);    		
-    		menu.setHeaderTitle(header);
-    		
-    		final Intent intent = new Intent(PICK_RESULT_ACTION);
-        	intent.putExtra(EXTRA_QUERY, word.toString()); //Search Query
-        	intent.putExtra(EXTRA_FULLSCREEN, false); //
-        	intent.putExtra(EXTRA_HEIGHT, 400); //400pixel, if you don't specify, fill_parent"
-        	intent.putExtra(EXTRA_GRAVITY, Gravity.BOTTOM);
-        	intent.putExtra(EXTRA_MARGIN_LEFT, 100);
-        	
-        	if ( isIntentAvailable(this, intent)) {
+    		menu.setHeaderTitle(header);    		
+    		        	
+        	if ( isDictionaryAvailable() ) {
         		android.view.MenuItem item = menu.add(getString(R.string.dictionary_lookup));
-        		item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-					
+        		item.setOnMenuItemClickListener(new OnMenuItemClickListener() {					
 					@Override
 					public boolean onMenuItemClick(android.view.MenuItem item) {
-						startActivityForResult(intent, 5); 
+						lookupDictionary(word.toString());
 						return true;
 					}
 				});
         	}
         	        
         	android.view.MenuItem newItem = menu.add(getString(R.string.wikipedia_lookup));
-        	newItem.setOnMenuItemClickListener(new BrowserSearchMenuItem(
-					"http://en.wikipedia.org/wiki/Special:Search?search="
-        			+ URLEncoder.encode( word.toString() )));
+        	newItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {					
+				@Override
+				public boolean onMenuItemClick(android.view.MenuItem item) {
+					lookupWikipedia(word.toString());
+					return true;
+				}
+        	});				
 		            
         	android.view.MenuItem newItem2 = menu.add(getString(R.string.google_lookup));
-        	newItem2.setOnMenuItemClickListener(new BrowserSearchMenuItem(
-					"http://www.google.com/search?q="
-        			+ URLEncoder.encode( word.toString() )));
+        	newItem2.setOnMenuItemClickListener(new OnMenuItemClickListener() {					
+				@Override
+				public boolean onMenuItemClick(android.view.MenuItem item) {
+					lookupGoogle(word.toString());
+					return true;
+				}
+        	});	       	
+        	
         	
         	this.selectedWord = null;
     	}    	 
     }
-
     
-    
-    
-    private class BrowserSearchMenuItem implements OnMenuItemClickListener {
+    @Override
+    public void highLight(int from, int to, Color color) {
+    	// TODO Auto-generated method stub
     	
-    	private String launchURL;
-    	
-    	public BrowserSearchMenuItem(String url) {
-    		this.launchURL = url;
-		}
-    	
-    	@Override
-    	public boolean onMenuItemClick(android.view.MenuItem item) {
-    		Intent i = new Intent(Intent.ACTION_VIEW);  
-            i.setData(Uri.parse(this.launchURL));  
-            startActivity(i);  
-            
-            return true;
-    	}
     }
     
+    @Override
+    public boolean isDictionaryAvailable() {
+    	return isIntentAvailable(this, getDictionaryIntent() );
+    }
+    
+    @Override
+    public void lookupDictionary(String text) {
+    	Intent intent = getDictionaryIntent();    	
+    	intent.putExtra(EXTRA_QUERY, text); //Search Query    	
+    	startActivityForResult(intent, 5);		
+    }
+    
+    @Override
+    public void lookupWikipedia(String text) {
+    	openBrowser("http://en.wikipedia.org/wiki/Special:Search?search="
+    			+ URLEncoder.encode( text ));    	
+    }
+    
+    @Override
+    public void lookupGoogle(String text) {
+    	openBrowser("http://www.google.com/search?q="
+    			+ URLEncoder.encode( text ));    	
+    }    
+    
+    
+    private Intent getDictionaryIntent() {
+    	final Intent intent = new Intent(PICK_RESULT_ACTION);
+    	
+    	intent.putExtra(EXTRA_FULLSCREEN, false); //
+    	intent.putExtra(EXTRA_HEIGHT, 400); //400pixel, if you don't specify, fill_parent"
+    	intent.putExtra(EXTRA_GRAVITY, Gravity.BOTTOM);
+    	intent.putExtra(EXTRA_MARGIN_LEFT, 100);
+
+    	return intent;
+    }
+
+    private void openBrowser(String url) {
+    	Intent i = new Intent(Intent.ACTION_VIEW);  
+        i.setData(Uri.parse(url));  
+        startActivity(i);          
+    }
     
     
     public static boolean isIntentAvailable(Context context, Intent intent) {
@@ -598,8 +629,9 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
     	this.waitDialog.setTitle(getString(R.string.loading_wait));
     	this.waitDialog.show();
     }    
-    
-    private boolean handleVolumeButtonEvent(KeyEvent event) {
+        
+    @TargetApi(Build.VERSION_CODES.FROYO)
+	private boolean handleVolumeButtonEvent(KeyEvent event) {
         
     	if (!config.isVolumeKeyNavEnabled()) {
             return false;
@@ -610,15 +642,8 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
         int rotation = Surface.ROTATION_0;
         
         if ( Build.VERSION.SDK_INT >= 8 ) {
-        	try {
-        		Display display = this.getWindowManager().getDefaultDisplay();
-        		Object result = display.getClass().getMethod("getRotation", new Class<?>[0] )
-        				.invoke(display, new Object[0] );
-
-        		rotation = (Integer) result;
-        	} catch (Exception e) {
-        		//getRotation is API level 8, so on 7 just ignore.
-        	}
+        	Display display = this.getWindowManager().getDefaultDisplay();
+        	rotation = display.getRotation();        	
         }
 
         switch ( rotation ) {

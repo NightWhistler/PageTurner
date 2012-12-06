@@ -134,14 +134,13 @@ public class BookView extends ScrollView {
         childView.setFocusable(true);
         childView.setLinksClickable(true);
         childView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT) );
-        
-        
-        MovementMethod m = childView.getMovementMethod();  
-        if ((m == null) || !(m instanceof LinkMovementMethod)) {  
-            if (childView.getLinksClickable()) {  
-                childView.setMovementMethod(LinkMovementMethod.getInstance());  
-            }  
-        }                
+       
+        try {
+        	childView.getClass().getMethod( "setTextIsSelectable", Boolean.class )
+        		.invoke(childView, true);
+        } catch ( Exception nme ) {
+        	//Ignore
+        }
         
         this.setSmoothScrollingEnabled(false);        
         this.addView(childView);        
@@ -208,17 +207,17 @@ public class BookView extends ScrollView {
 		this.spanner.setStripExtraWhiteSpace(stripWhiteSpace);
 	}	
 	
-	public boolean hasLinkAt( float x, float y ) {
+	public ClickableSpan[] getLinkAt( float x, float y ) {
 		Integer offset = findOffsetForPosition(x, y);
 		
 		if ( offset == null ) {
-			return false;
+			return null;
 		}
 		
 		Spanned text = (Spanned) childView.getText();
 		ClickableSpan[] spans = text.getSpans(offset, offset, ClickableSpan.class );
 		
-		return spans != null && spans.length > 0;
+		return spans;
 	}
 	
 	@Override

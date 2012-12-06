@@ -78,7 +78,6 @@ public class ProgressListAdapter extends ArrayAdapter<BookProgress> implements
 
 		BookProgress progress = books.get(position);
 
-		deviceView.setTextColor( Color.BLACK );
 		deviceView.setText( progress.getDeviceName() + " - " + progress.getPercentage() + "%" );
 		dateView.setText( new SimpleDateFormat().format(progress.getTimeStamp()) );
 

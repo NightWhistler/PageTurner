@@ -44,6 +44,7 @@ import net.nightwhistler.pageturner.view.BookViewListener;
 import net.nightwhistler.pageturner.view.NavGestureDetector;
 import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import net.nightwhistler.pageturner.view.SearchResultAdapter;
+import net.nightwhistler.pageturner.view.TextSelectionCallback;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 
@@ -52,6 +53,7 @@ import org.slf4j.LoggerFactory;
 
 import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -67,6 +69,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -99,8 +102,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 
-public class ReadingActivity extends RoboSherlockActivity implements
-		BookViewListener {
+public class ReadingActivity extends RoboSherlockActivity implements BookViewListener, TextSelectionCallback {
 
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
@@ -258,6 +260,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		this.bookView.addListener(this);
 		this.bookView.setSpanner(RoboGuice.getInjector(this).getInstance(
 				HtmlSpanner.class));
+		this.bookView.setTextSelectionCallback(this);
 
 		this.oldBrightness = config.isBrightnessControlEnabled();
 		this.oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
@@ -292,13 +295,12 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			} else {
 				bookView.restore();
 			}
+
 		}
 
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see roboguice.activity.RoboActivity#onPause()
 	 */
 	@Override
@@ -492,186 +494,206 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		});
 
 	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenu.ContextMenuInfo menuInfo) {
-
-		// This is a hack to give the longclick handler time
-		// to find the word the user long clicked on.
-
-		if (this.selectedWord != null) {
-
-			final CharSequence word = this.selectedWord;
-
-			String header = String.format(getString(R.string.word_select),
-					selectedWord);
-			menu.setHeaderTitle(header);
-
-			final Intent intent = new Intent(PICK_RESULT_ACTION);
-			intent.putExtra(EXTRA_QUERY, word.toString()); // Search Query
-			intent.putExtra(EXTRA_FULLSCREEN, false); //
-			intent.putExtra(EXTRA_HEIGHT, 400); // 400pixel, if you don't
-												// specify, fill_parent"
-			intent.putExtra(EXTRA_GRAVITY, Gravity.BOTTOM);
-			intent.putExtra(EXTRA_MARGIN_LEFT, 100);
-
-			if (isIntentAvailable(this, intent)) {
-				android.view.MenuItem item = menu
-						.add(getString(R.string.dictionary_lookup));
-				item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-
+		
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        
+    	//This is a hack to give the longclick handler time
+    	//to find the word the user long clicked on.    	
+    	
+    	if ( this.selectedWord != null ) {
+    		
+    		final CharSequence word = this.selectedWord;
+    		
+    		String header = String.format(getString(R.string.word_select), selectedWord);    		
+    		menu.setHeaderTitle(header);    		
+    		        	
+        	if ( isDictionaryAvailable() ) {
+        		android.view.MenuItem item = menu.add(getString(R.string.dictionary_lookup));
+        		item.setOnMenuItemClickListener(new OnMenuItemClickListener() {					
 					@Override
 					public boolean onMenuItemClick(android.view.MenuItem item) {
-						startActivityForResult(intent, 5);
+						lookupDictionary(word.toString());
 						return true;
 					}
 				});
-			}
+        	}
+        	        
+        	android.view.MenuItem newItem = menu.add(getString(R.string.wikipedia_lookup));
+        	newItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {					
+				@Override
+				public boolean onMenuItemClick(android.view.MenuItem item) {
+					lookupWikipedia(word.toString());
+					return true;
+				}
+        	});				
+		            
+        	android.view.MenuItem newItem2 = menu.add(getString(R.string.google_lookup));
+        	newItem2.setOnMenuItemClickListener(new OnMenuItemClickListener() {					
+				@Override
+				public boolean onMenuItemClick(android.view.MenuItem item) {
+					lookupGoogle(word.toString());
+					return true;
+				}
+        	});	       	
+        	
+        	
+        	this.selectedWord = null;
+    	}    	 
+    }
+    
+    @Override
+    public void highLight(int from, int to, Color color) {
+    	// TODO Auto-generated method stub
+    	
+    }
+    
+    @Override
+    public boolean isDictionaryAvailable() {
+    	return isIntentAvailable(this, getDictionaryIntent() );
+    }
+    
+    @Override
+    public void lookupDictionary(String text) {
+    	Intent intent = getDictionaryIntent();    	
+    	intent.putExtra(EXTRA_QUERY, text); //Search Query    	
+    	startActivityForResult(intent, 5);		
+    }
+    
+    @Override
+    public void lookupWikipedia(String text) {
+    	openBrowser("http://en.wikipedia.org/wiki/Special:Search?search="
+    			+ URLEncoder.encode( text ));    	
+    }
+    
+    @Override
+    public void lookupGoogle(String text) {
+    	openBrowser("http://www.google.com/search?q="
+    			+ URLEncoder.encode( text ));    	
+    }    
+    
+    
+    private Intent getDictionaryIntent() {
+    	final Intent intent = new Intent(PICK_RESULT_ACTION);
+    	
+    	intent.putExtra(EXTRA_FULLSCREEN, false); //
+    	intent.putExtra(EXTRA_HEIGHT, 400); //400pixel, if you don't specify, fill_parent"
+    	intent.putExtra(EXTRA_GRAVITY, Gravity.BOTTOM);
+    	intent.putExtra(EXTRA_MARGIN_LEFT, 100);
 
-			android.view.MenuItem newItem = menu
-					.add(getString(R.string.wikipedia_lookup));
-			newItem.setOnMenuItemClickListener(new BrowserSearchMenuItem(
-					"http://en.wikipedia.org/wiki/Special:Search?search="
-							+ URLEncoder.encode(word.toString())));
+    	return intent;
+    }
 
-			android.view.MenuItem newItem2 = menu
-					.add(getString(R.string.google_lookup));
-			newItem2.setOnMenuItemClickListener(new BrowserSearchMenuItem(
-					"http://www.google.com/search?q="
-							+ URLEncoder.encode(word.toString())));
+    private void openBrowser(String url) {
+    	Intent i = new Intent(Intent.ACTION_VIEW);  
+        i.setData(Uri.parse(url));  
+        startActivity(i);          
+    }
+    
+    
+    public static boolean isIntentAvailable(Context context, Intent intent) {
+    	final PackageManager packageManager = context.getPackageManager();
+    	List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+    	return list.size() > 0;
+    }
+    
+    private void restoreColorProfile() {
 
-			this.selectedWord = null;
-		}
-	}
+    	this.bookView.setBackgroundColor(config.getBackgroundColor());
+    	this.viewSwitcher.setBackgroundColor(config.getBackgroundColor());
+    	this.bookView.setTextColor(config.getTextColor());   
+    	this.bookView.setLinkColor(config.getLinkColor());
 
-	private class BrowserSearchMenuItem implements OnMenuItemClickListener {
-
-		private String launchURL;
-
-		public BrowserSearchMenuItem(String url) {
-			this.launchURL = url;
-		}
-
-		@Override
-		public boolean onMenuItemClick(android.view.MenuItem item) {
-			Intent i = new Intent(Intent.ACTION_VIEW);
-			i.setData(Uri.parse(this.launchURL));
-			startActivity(i);
-
-			return true;
-		}
-	}
-
-	public static boolean isIntentAvailable(Context context, Intent intent) {
-		final PackageManager packageManager = context.getPackageManager();
-		List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
-				PackageManager.MATCH_DEFAULT_ONLY);
-		return list.size() > 0;
-	}
-
-	private void restoreColorProfile() {
-
-		this.bookView.setBackgroundColor(config.getBackgroundColor());
-		this.viewSwitcher.setBackgroundColor(config.getBackgroundColor());
-		this.bookView.setTextColor(config.getTextColor());
-		this.bookView.setLinkColor(config.getLinkColor());
-
-		int brightness = config.getBrightNess();
-
-		if (config.isBrightnessControlEnabled()) {
-			setScreenBrightnessLevel(brightness);
-		}
-	}
-
-	private void setScreenBrightnessLevel(int level) {
-		WindowManager.LayoutParams lp = getWindow().getAttributes();
+    	int brightness = config.getBrightNess();
+    	
+    	if ( config.isBrightnessControlEnabled() ) {
+    		setScreenBrightnessLevel(brightness);
+    	}  
+    }    
+    
+    private void setScreenBrightnessLevel( int level ) {
+    	WindowManager.LayoutParams lp = getWindow().getAttributes();
 		lp.screenBrightness = (float) level / 100f;
 		getWindow().setAttributes(lp);
-	}
-
-	@Override
-	public void errorOnBookOpening(String errorMessage) {
-		this.waitDialog.hide();
-		String message = String.format(getString(R.string.error_open_bk),
-				errorMessage);
-		bookView.setText(new SpannedString(message));
-	}
-
-	@Override
-	public void parseEntryComplete(int entry, String name) {
-		if (name != null && !name.equals(this.bookTitle)) {
-			this.titleBase = this.bookTitle + " - " + name;
-		} else {
-			this.titleBase = this.bookTitle;
-		}
-
-		setTitle(this.titleBase);
-		this.waitDialog.hide();
-	}
-
-	@Override
-	public void parseEntryStart(int entry) {
-		this.viewSwitcher.clearAnimation();
-		this.viewSwitcher.setBackgroundDrawable(null);
-		restoreColorProfile();
-
-		this.waitDialog.setTitle(getString(R.string.loading_wait));
-		this.waitDialog.show();
-	}
-
+    }
+  
+    
+    @Override
+    public void errorOnBookOpening(String errorMessage) {    	
+    	this.waitDialog.hide();    	
+    	String message = String.format(getString(R.string.error_open_bk),  errorMessage);
+        bookView.setText(new SpannedString(message));    	
+    }
+    
+    @Override
+    public void parseEntryComplete(int entry, String name) {
+    	if (name != null && ! name.equals(this.bookTitle) ) {
+    		this.titleBase = this.bookTitle + " - " + name;    		
+    	} else {
+    		this.titleBase = this.bookTitle;
+    	}
+    	
+    	setTitle(this.titleBase);
+    	this.waitDialog.hide();
+    }
+    
+    @Override
+    public void parseEntryStart(int entry) {
+    	this.viewSwitcher.clearAnimation();
+    	this.viewSwitcher.setBackgroundDrawable(null);
+    	restoreColorProfile();
+    	
+    	this.waitDialog.setTitle(getString(R.string.loading_wait));
+    	this.waitDialog.show();
+    }    
+        
+    @TargetApi(Build.VERSION_CODES.FROYO)
 	private boolean handleVolumeButtonEvent(KeyEvent event) {
+        
+    	if (!config.isVolumeKeyNavEnabled()) {
+            return false;
+        }
+        
+        boolean invert = false;
 
-		if (!config.isVolumeKeyNavEnabled()) {
-			return false;
-		}
+        int rotation = Surface.ROTATION_0;
+        
+        if ( Build.VERSION.SDK_INT >= 8 ) {
+        	Display display = this.getWindowManager().getDefaultDisplay();
+        	rotation = display.getRotation();        	
+        }
 
-		boolean invert = false;
+        switch ( rotation ) {
+        case Surface.ROTATION_0:
+        case Surface.ROTATION_90:
+            invert = false;
+            break;
+        case Surface.ROTATION_180:
+        case Surface.ROTATION_270:
+            invert = true;
+            break;
+        }
 
-		int rotation = Surface.ROTATION_0;
+        if (event.getAction() != KeyEvent.ACTION_DOWN)
+            return false;
+        else {
+            if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP)
+                if (invert)
+                    pageDown(Orientation.HORIZONTAL);
+                else
+                    pageUp(Orientation.HORIZONTAL);
+            if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN)
+                if (invert)
+                    pageUp(Orientation.HORIZONTAL);
+                else
+                    pageDown(Orientation.HORIZONTAL);
+            return true;
+        }
+    }
+    
+    @Override
 
-		if (Build.VERSION.SDK_INT >= 8) {
-			try {
-				Display display = this.getWindowManager().getDefaultDisplay();
-				Object result = display.getClass()
-						.getMethod("getRotation", new Class<?>[0])
-						.invoke(display, new Object[0]);
-
-				rotation = (Integer) result;
-			} catch (Exception e) {
-				// getRotation is API level 8, so on 7 just ignore.
-			}
-		}
-
-		switch (rotation) {
-		case Surface.ROTATION_0:
-		case Surface.ROTATION_90:
-			invert = false;
-			break;
-		case Surface.ROTATION_180:
-		case Surface.ROTATION_270:
-			invert = true;
-			break;
-		}
-
-		if (event.getAction() != KeyEvent.ACTION_DOWN)
-			return false;
-		else {
-			if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP)
-				if (invert)
-					pageDown(Orientation.HORIZONTAL);
-				else
-					pageUp(Orientation.HORIZONTAL);
-			if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN)
-				if (invert)
-					pageUp(Orientation.HORIZONTAL);
-				else
-					pageDown(Orientation.HORIZONTAL);
-			return true;
-		}
-	}
-
-	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		int action = event.getAction();
 		int keyCode = event.getKeyCode();
@@ -1453,12 +1475,18 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 							protected void onPostExecute(
 									java.util.List<SearchResult> result) {
+								
+								waitDialog.hide();
+								
 								if (result.size() > 0) {
 									showSearchResultDialog(result);
+								} else {
+									Toast.makeText(ReadingActivity.this, "Search returned 0 hits", Toast.LENGTH_LONG).show();
 								}
 							};
 						};
 
+						waitDialog.setTitle("Searching... please wait.");
 						waitDialog.show();
 						task.execute(value.toString());
 					}
@@ -1477,7 +1505,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	private void showSearchResultDialog(
 			final List<SearchTextTask.SearchResult> results) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(getString(R.string.cloud_bm));
+		builder.setTitle("Search results");
 
 		SearchResultAdapter adapter = new SearchResultAdapter(this, bookView,
 				results);

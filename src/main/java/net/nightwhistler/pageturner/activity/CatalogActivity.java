@@ -441,27 +441,30 @@ public class CatalogActivity extends RoboSherlockActivity implements
 
 					// this is where the file will be seen after the download
 					FileOutputStream f = new FileOutputStream(destFile);
-					// file input is from the url
-					InputStream in = response.getEntity().getContent();
-
-					// here's the download code
-					byte[] buffer = new byte[1024];
-					int len1 = 0;
-					long total = 0;
-
-					while ((len1 = in.read(buffer)) > 0) {
-
-						// Make sure the user can cancel the download.
-						if (isCancelled()) {
-							return null;
-						}
-
-						total += len1;
-						publishProgress((int) ((total * 100) / lenghtOfFile));
-						f.write(buffer, 0, len1);
-					}
 					
-					f.close();
+					try {
+						// file input is from the url
+						InputStream in = response.getEntity().getContent();
+
+						// here's the download code
+						byte[] buffer = new byte[1024];
+						int len1 = 0;
+						long total = 0;
+
+						while ((len1 = in.read(buffer)) > 0) {
+
+							// Make sure the user can cancel the download.
+							if (isCancelled()) {
+								return null;
+							}
+
+							total += len1;
+							publishProgress((int) ((total * 100) / lenghtOfFile));
+							f.write(buffer, 0, len1);
+						}
+					} finally {
+						f.close();
+					}
 					
 					Book book = new EpubReader().readEpub( new FileInputStream(destFile) );					
 					libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.isCopyToLibrayEnabled() );

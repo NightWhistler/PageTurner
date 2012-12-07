@@ -52,19 +52,21 @@ import org.htmlcleaner.TagNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
-import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
@@ -74,6 +76,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+
 
 
 public class BookView extends ScrollView {
@@ -107,6 +111,7 @@ public class BookView extends ScrollView {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 	
+	@SuppressLint("NewApi")
 	public BookView(Context context, AttributeSet attributes) {
 		super(context, attributes);		
 		
@@ -126,20 +131,23 @@ public class BookView extends ScrollView {
 				return BookView.this.dispatchKeyEvent(event);
 			}
 			
+			@Override
+			protected void onFocusChanged(boolean focused, int direction,
+					Rect previouslyFocusedRect) {
+				//Do nothing 
+			}
+			
 		};		
-
+		
 		childView.setCursorVisible(false);		
 		childView.setLongClickable(true);	        
         this.setVerticalFadingEdgeEnabled(false);
         childView.setFocusable(true);
         childView.setLinksClickable(true);
-        childView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT) );
-       
-        try {
-        	childView.getClass().getMethod( "setTextIsSelectable", Boolean.class )
-        		.invoke(childView, true);
-        } catch ( Exception nme ) {
-        	//Ignore
+        childView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT) );       
+        
+        if ( Build.VERSION.SDK_INT >= 11 ) {
+        	childView.setTextIsSelectable(true);
         }
         
         this.setSmoothScrollingEnabled(false);        
@@ -197,6 +205,7 @@ public class BookView extends ScrollView {
 		this.loader = new ResourceLoader(fileName);
 	}
 	
+	
 	@Override
 	public void setOnTouchListener(OnTouchListener l) {		
 		super.setOnTouchListener(l);
@@ -241,6 +250,15 @@ public class BookView extends ScrollView {
 		}
 	}	
 	
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public void setTextSelectionCallback(TextSelectionCallback callback ) {
+		if ( Build.VERSION.SDK_INT >= 11 ) {
+			this.childView.setCustomSelectionActionModeCallback(
+				new TextSelectionActions(callback, this));
+		}
+	}
+	
 	public int getLineSpacing() {
 		return lineSpacing;
 	}
@@ -276,6 +294,19 @@ public class BookView extends ScrollView {
 	
 	public int getVerticalMargin() {
 		return verticalMargin;
+	}
+	
+	public int getSelectionStart() {
+		return childView.getSelectionStart();
+	}
+	
+	public int getSelectionEnd() {
+		return childView.getSelectionEnd();
+	}
+	
+	public String getSelectedText() {
+		return childView.getText().subSequence(
+				getSelectionStart(), getSelectionEnd() ).toString();
 	}
 	
 	public void goBackInHistory() {
@@ -377,8 +408,6 @@ public class BookView extends ScrollView {
 		if ( childView == null ) {
 			return null;
 		}
-		
-		//childView.setse
 		
 		CharSequence text = this.childView.getText();
 		
@@ -654,6 +683,7 @@ public class BookView extends ScrollView {
 		public LinkTagHandler() {
 			this.externalProtocols = new ArrayList<String>();
 			externalProtocols.add("http://");
+			externalProtocols.add("epub://");
 			externalProtocols.add("https://");
 			externalProtocols.add("http://");
 			externalProtocols.add("ftp://");
@@ -664,11 +694,13 @@ public class BookView extends ScrollView {
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 				int start, int end) {
 			
-			final String href = node.getAttributeByName("href");
+			String href = node.getAttributeByName("href");
 			
 			if ( href == null ) {
 				return;
-			}
+			}			
+			
+			final String linkHref = href;
 			
 			//First check if it should be a normal URL link
 			for ( String protocol: this.externalProtocols ) {
@@ -683,7 +715,7 @@ public class BookView extends ScrollView {
 					
 				@Override
 				public void onClick(View widget) {
-					navigateTo(spine.resolveHref(href));					
+					navigateTo(spine.resolveHref(linkHref));					
 				}
 			};
 				

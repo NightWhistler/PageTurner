@@ -25,18 +25,7 @@ public class TextSelectionActions implements ActionMode.Callback {
 	}
 
 	@Override
-	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-		// TODO Auto-generated method stub
-		menu.add(R.string.wikipedia_lookup)
-			.setOnMenuItemClickListener(
-				new MenuItem.OnMenuItemClickListener() {
-
-					@Override
-					public boolean onMenuItemClick(MenuItem item) {
-						callBack.lookupWikipedia(bookView.getSelectedText());
-						return true;
-					}
-				});
+	public boolean onCreateActionMode(ActionMode mode, Menu menu) {		
 
 		if (callBack.isDictionaryAvailable()) {
 			menu.add(R.string.dictionary_lookup)

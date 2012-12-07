@@ -131,12 +131,6 @@ public class BookView extends ScrollView {
 				return BookView.this.dispatchKeyEvent(event);
 			}
 			
-			@Override
-			protected void onFocusChanged(boolean focused, int direction,
-					Rect previouslyFocusedRect) {
-				//Do nothing 
-			}
-			
 		};		
 		
 		childView.setCursorVisible(false);		
@@ -950,7 +944,10 @@ public class BookView extends ScrollView {
 			if ( enableScrolling ) {
 				this.strategy = new ScrollingStrategy(this, this.getContext());
 			} else {
-				this.strategy = new SinglePageStrategy(this);
+				
+				
+				
+				this.strategy = new FixedPagesStrategy(this);
 			}
 
 			if ( ! wasNull ) {				

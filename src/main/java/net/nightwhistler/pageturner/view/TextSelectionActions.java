@@ -27,6 +27,8 @@ public class TextSelectionActions implements ActionMode.Callback {
 	@Override
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {		
 
+		menu.removeItem(android.R.id.selectAll);
+		
 		if (callBack.isDictionaryAvailable()) {
 			menu.add(R.string.dictionary_lookup)
 				.setOnMenuItemClickListener(new OnMenuItemClickListener() {

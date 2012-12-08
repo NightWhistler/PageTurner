@@ -550,7 +550,7 @@ public class BookView extends ScrollView {
 		//navigateTo(progress.getIndex(), progress.getOffset() );
 		
 		this.prevPos = this.getPosition();
-		this.strategy.setPosition(searchResult.getOffset());
+		this.strategy.setPosition(searchResult.getStart());
 		
 		this.prevIndex = this.getIndex();
 		
@@ -1079,7 +1079,7 @@ public class BookView extends ScrollView {
 				for ( SearchTextTask.SearchResult searchResult: this.searchResults ) {
 					if ( searchResult.getIndex() == spine.getPosition() ) {
 						result.setSpan(new BackgroundColorSpan(Color.YELLOW),
-								searchResult.getOffset(), searchResult.getEnd(),
+								searchResult.getStart(), searchResult.getEnd(),
 								Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );								
 					}
 				}

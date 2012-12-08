@@ -76,7 +76,7 @@ public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResul
 		SearchTextTask.SearchResult progress = results.get(position);
 
 		deviceView.setText( progress.getDisplay() );
-		dateView.setText( "(" + progress.getIndex() + " / " + progress.getOffset() + ")" );
+		dateView.setText( progress.getPercentage() + "%" );
 
 		return rowView;
 

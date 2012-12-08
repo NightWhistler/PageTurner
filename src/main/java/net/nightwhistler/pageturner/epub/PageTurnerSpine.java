@@ -311,6 +311,10 @@ public class PageTurnerSpine {
 	 * @return
 	 */
 	public int getProgressPercentage(double progressInPart) {		
+		return getProgressPercentage(getPosition(), progressInPart);				
+	}
+	
+	private int getProgressPercentage(int index, double progressInPart) {
 		
 		if ( this.entries == null ) {
 			return -1;
@@ -320,16 +324,35 @@ public class PageTurnerSpine {
 		
 		List<Double> percentages = getRelativeSizes();
 		
-		for ( int i=0; i < percentages.size() && i < this.position; i++ ) {
+		for ( int i=0; i < percentages.size() && i < index; i++ ) {
 			uptoHere += percentages.get( i );
 		}  
 		
-		double thisPart = percentages.get(this.position);
+		double thisPart = percentages.get(index);
 		
 		double progress = uptoHere + (progressInPart * thisPart);
 		
-		return (int) (progress * 100);		
+		return (int) (progress * 100);	
 	}
+	
+	/**
+	 * Returns the progress percentage for the given text position 
+	 * in the given index.
+	 * 
+	 * @param index
+	 * @param position
+	 * @return
+	 */
+	public int getProgressPercentage(int index, int position) {
+		if ( this.entries == null || index >= entries.size() ) {
+			return -1;
+		}
+		
+		double progressInPart = ( (double)position / (double) entries.get(index).size);
+		return getProgressPercentage(index, progressInPart);		
+	}
+	
+	
 	
 	/**
 	 * Returns a list of doubles representing the relative size of each spine index.

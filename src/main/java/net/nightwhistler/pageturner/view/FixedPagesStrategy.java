@@ -53,7 +53,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		StaticLayout layout = new StaticLayout(this.text, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
 		layout.draw(new Canvas());
 		
-		int pageHeight = bookView.getHeight() - ( 3 * bookView.getVerticalMargin());
+		int pageHeight = bookView.getHeight() - ( 2 * bookView.getVerticalMargin());
 		
 		int totalLines = layout.getLineCount();
 		int pageNum = 0;
@@ -65,7 +65,12 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 			bottomLine = layout.getLineForVertical( (pageNum + 1) * pageHeight );
 			
 			int pageOffset = layout.getLineStart(topLine);
-			this.pageOffsets.add(pageOffset);
+			
+			//Make sure we don't enter the same offset twice
+			if (pageOffsets.isEmpty() ||  pageOffset != this.pageOffsets.get(this.pageOffsets.size() -1)) {			
+				this.pageOffsets.add(pageOffset);
+			}
+			
 			pageNum++;
 		}		
 		

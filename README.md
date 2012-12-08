@@ -24,7 +24,11 @@ Building PageTurner
 2.   Unzip
 3.   Update 
 
-        tools/android update sdk --no-ui
+        sdk/tools/android update sdk --no-ui
+4. On Ubuntu install ia32-libs
+
+        apt-get install ia32-libs
+5. Add sdk/tools/ and sdk/platform-tools to your PATH
 
 # Install USB drivers for your device
 
@@ -34,13 +38,31 @@ Building PageTurner
         List of devices attached 
         015d18ad5c14000c        device
 
-
 # Install Maven 3
 
-To build PageTurner, you will need Apache Maven 3 (http://maven.apache.org/download.html) instead of Ant. 
-See http://code.google.com/p/maven-android-plugin/wiki/GettingStarted for more info about getting a working setup for building Android apps with Maven.
+1. Download Maven 3 tarball http://maven.apache.org/download.html
+2. Puth maven/bin on your path
 
-PageTurner uses a repository which is accessed through HTTPS using a self-signed certificate. 
+# Example PATH setup in .bashrc
+
+    export ANDROID_HOME=$HOME/projects/adt-bundle-linux/sdk/
+    if [ $(uname -m) == 'x86_64' ]; then
+        export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/jre
+    else
+        export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-i386/jre
+    fi
+
+    PATH=$HOME/projects/apache-maven-3.0.4/bin:$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+
+# Build PageTurner
+Once everything is in place you can build PageTurner and install it on your device with 
+
+    mvn clean install
+    mvn android:deploy
+
+# Maven HTTPS SSL
+
+This section is not necessary for building PageTurner. PageTurner uses a repository which is accessed through HTTPS using a self-signed certificate. 
 A trust-store is included in trust.jks, password 'pageturner'
 
 To use it set the MAVEN_OPTS environment option or change your .mavenrc file to:
@@ -50,12 +72,7 @@ To use it set the MAVEN_OPTS environment option or change your .mavenrc file to:
 
 See http://maven.apache.org/guides/mini/guide-repository-ssl.html for more details.
 
-# Build PageTurner
 
-Once everything is in place you can build PageTurner and install it on your device with 
-
-    mvn clean install
-    mvn android:deploy
 
 Eclipse
 -------

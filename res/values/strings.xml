@@ -120,6 +120,7 @@
     <string name="search_hits">Searching...\nFound %d matches.</string>
     <string name="search_cancelled">Search cancelled.</string>
     <string name="search_no_matches">Search did not find any matches.</string>
+    <string name="search_results">Search results</string>
     
     <!-- Preferences -->    
         

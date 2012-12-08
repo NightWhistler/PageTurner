@@ -116,4 +116,5 @@
     <string name="search_hits">Bezig met zoeken...\n%d resultaten gevonden.</string>
     <string name="search_cancelled">Zoeken geannuleerd</string>
     <string name="search_no_matches">Er zijn geen resultaten gevonden.</string>
+    <string name="search_results">Zoekresultaten</string>
 </resources>

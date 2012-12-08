@@ -1476,7 +1476,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 				super.onProgressUpdate(values);
 				LOG.debug("Found match at index="
 						+ values[0].getIndex() + ", offset="
-						+ values[0].getOffset()
+						+ values[0].getStart()
 						+ " with context "
 						+ values[0].getDisplay());
 
@@ -1536,7 +1536,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 	private void showSearchResultDialog(
 			final List<SearchTextTask.SearchResult> results) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Search results");
+		builder.setTitle(R.string.search_results);
 
 		SearchResultAdapter adapter = new SearchResultAdapter(this, bookView,
 				results);

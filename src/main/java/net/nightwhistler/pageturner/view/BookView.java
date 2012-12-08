@@ -76,6 +76,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -115,6 +116,7 @@ public class BookView extends ScrollView {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 
+	private Map<String, Drawable> imageCache = new HashMap<String, Drawable>();
 	
 	@SuppressLint("NewApi")
 	public BookView(Context context, AttributeSet attributes) {
@@ -765,16 +767,27 @@ public class BookView extends ScrollView {
 		}
 	}
 	
+	private void setImageSpan( SpannableStringBuilder builder, Drawable drawable, int start, int end ) {
+		builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		
+		if ( spine.isCover() ) {
+			builder.setSpan(new CenterSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		}
+	}
+	
 	private class ImageCallback implements ResourceCallback {
 		
 		private SpannableStringBuilder builder;
 		private int start;
 		private int end;
 		
-		public ImageCallback(SpannableStringBuilder builder, int start, int end) {
+		private String storedHref;
+		
+		public ImageCallback(String href, SpannableStringBuilder builder, int start, int end) {
 			this.builder = builder;
 			this.start = start;
 			this.end = end;
+			this.storedHref = href;
 		}
 		
 		@Override
@@ -790,20 +803,21 @@ public class BookView extends ScrollView {
 				
 			} catch (OutOfMemoryError outofmem) {
 				LOG.error("Could not load image", outofmem);
+				imageCache.clear();
 			}
 			
 			if ( bitmap != null ) {
 				Drawable drawable = new FastBitmapDrawable( bitmap );				
 				drawable.setBounds(0,0, bitmap.getWidth() - 1, bitmap.getHeight() - 1);
-				builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				setImageSpan(builder, drawable, start, end);
 				
-				if ( spine.isCover() ) {
-					builder.setSpan(new CenterSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				}
-				
+				LOG.debug("Storing image in cache: " + storedHref );
+				imageCache.put(storedHref, drawable);
 			}
 						
 		}
+		
+		
 		
 		private Bitmap getBitmap(InputStream input) {
 			
@@ -861,8 +875,17 @@ public class BookView extends ScrollView {
 			}
 	        builder.append("\uFFFC");
 	        
-	        loader.registerCallback(spine.resolveHref(src), 
-	        		new ImageCallback(builder, start, builder.length()));
+	        String resolvedHref = spine.resolveHref(src);
+	        
+	        if ( imageCache.containsKey(resolvedHref) ) {
+	        	Drawable drawable = imageCache.get(resolvedHref);
+	        	setImageSpan(builder, drawable, start, builder.length());
+	        	LOG.debug("Got cached href: " + resolvedHref );
+	        } else {
+	        	LOG.debug("Loading href: " + resolvedHref );
+	        	loader.registerCallback(resolvedHref, 
+	        		new ImageCallback(resolvedHref, builder, start, builder.length()));
+	        }
 		}				
 		
 	}
@@ -1029,8 +1052,7 @@ public class BookView extends ScrollView {
 		    	offsets = new ArrayList<List<Integer>>();	    
 
 		    	for ( int i=0; i < spine.size(); i++ ) {	    	
-		    		CharSequence text = spanner.fromHtml( spine.getResourceForIndex(i).getReader() );
-		    		offsets.add( FixedPagesStrategy.getPageOffsets(this, text) );
+		    		offsets.add( getOffsetsForResource(spine.getResourceForIndex(i)));
 		    	}
 		    	
 		    	configuration.setPageOffsets(file, offsets);
@@ -1043,6 +1065,14 @@ public class BookView extends ScrollView {
 	    
     	spine.setPageOffsets(offsets);
 	    	    
+	}	
+	
+	private List<Integer> getOffsetsForResource( Resource res ) throws IOException { 
+		
+		CharSequence text = spanner.fromHtml( res.getReader() );
+		loader.load();
+		
+		return FixedPagesStrategy.getPageOffsets(this, text);			
 	}
 	
 	private void initBook() throws IOException {	

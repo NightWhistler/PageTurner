@@ -3,7 +3,7 @@
     <string name="app_name">Page Turner</string>
     <string name="title">Titolo</string>
     <string name="app_desc">Page Turner è un lettore di e-book con sincronizzazione, che permette di sincronizzare il punto in cui si sta leggendo su più di un apparecchio.</string>
-    <string name="browse">Sfoglia...</string>
+    <string name="browse">Sfoglia…</string>
     <string name="open_file">Apri file ePub</string>
     <string name="open_library">I miei libri</string>
 
@@ -28,7 +28,7 @@
     
     <string name="cloud_bm">Segnalibri "cloud"</string>
     <string name="toc_label">Indice</string>
-    <string name="syncing">"Sincronizzazione in corso..."</string>
+    <string name="syncing">"Sincronizzazione in corso…"</string>
     <string name="sync_failed">Sincronizzazione fallita</string>
     <string name="connection_fail">Impossibile connettersi al server di sincronizzazione.</string>    
     
@@ -45,14 +45,14 @@
     <string name="delete">Rimuovi</string>
     <string name="scan_books">Scansiona libri</string>    
     
-    <string name="importing_books">Importazione libri...</string>
+    <string name="importing_books">Importazione libri…</string>
     <string name="scanning_epub">Scansione file ePub.</string>
     <string name="importing">Importazione %1$d di %2$d</string>
     <string name="scan_folders">Scansione file ePub.\nCartelle scansionate: %d</string>
     <string name="import_errors">Trovati errori in alcuni file durante l\'importazione:</string>
     <string name="no_books_found">Nessun libro trovato.</string>
     <string name="no_bks_fnd_text">Non sono stati trovati libri sull\'apparecchio.\nSi possono scaricare libri su gutenberg.org o feedbooks.com</string>
-    <string name="loading_library">Caricamento libreria...</string>
+    <string name="loading_library">Caricamento libreria…</string>
     <string name="scan_bks_question">Non ci sono libri nella libreria.\nEffettuare una scansione dei file per trovare libri?</string>   
     <string name="brightness">Luminosità</string> 
         

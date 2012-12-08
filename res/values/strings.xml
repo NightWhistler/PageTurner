@@ -3,7 +3,7 @@
     <string name="app_name">Page Turner</string>
     <string name="title">Title</string>
     <string name="app_desc">Page Turner is a syncing e-book reader that allows you to sync your reading progress over multiple devices.</string>
-    <string name="browse">Browse...</string>
+    <string name="browse">Browse…</string>
     <string name="open_file">Open ePub file</string>
     <string name="open_library">My Books</string>
 
@@ -28,7 +28,7 @@
     
     <string name="cloud_bm">Cloud bookmarks</string>
     <string name="toc_label">Table of contents</string>
-    <string name="syncing">"Syncing progress..."</string>
+    <string name="syncing">"Syncing progress…"</string>
     <string name="sync_failed">Sync failed</string>
     <string name="connection_fail">Could not connect to the sync server.</string>    
     
@@ -45,14 +45,14 @@
     <string name="delete">Delete</string>
     <string name="scan_books">Scan for books</string>    
     
-    <string name="importing_books">Importing books...</string>
+    <string name="importing_books">Importing books…</string>
     <string name="scanning_epub">Scanning for EPUB files.</string>
     <string name="importing">Importing %1$d of %2$d</string>
     <string name="scan_folders">Scanning for EPUB files.\nFolders scanned: %d</string>
     <string name="import_errors">Some files had errors while importing:</string>
     <string name="no_books_found">No books found.</string>
     <string name="no_bks_fnd_text">No books were found on your device.\nYou can download books at gutenberg.org or feedbooks.com</string>
-    <string name="loading_library">Loading library...</string>
+    <string name="loading_library">Loading library…</string>
     <string name="scan_bks_question">There are no books in your library.\nWould you like to scan your device for books?</string>    
     <string name="brightness">Brightness</string>    
         
@@ -102,11 +102,11 @@
     <string name="read">Read now</string>
     
     <string name="download">Download books</string>
-    <string name="downloading">Downloading book...</string>
+    <string name="downloading">Downloading book…</string>
     <string name="feed_failed">Could not contact the site. Please try again.</string>
     <string name="book_failed">Could not download the book. Please try again.</string>
 
-    <string name="browse">Browse...</string>
+    <string name="browse">Browse…</string>
     
     <string name="search_books">Search for books</string>
     <string name="enter_query">Please enter a search-term</string>

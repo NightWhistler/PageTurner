@@ -4,7 +4,7 @@
     <string name="title">Titel</string>
     <string name="app_desc">Page Turner ist ein synchronisiertes E-Buch Programm. Es ermöglicht
 die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</string>
-    <string name="browse">Durchsuchen...</string>
+    <string name="browse">Durchsuchen…</string>
     <string name="open_file">EPUB Datei öffnen</string>
     <string name="open_library">Meine Bücher</string>
 
@@ -29,7 +29,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     
     <string name="cloud_bm">Internet Lesezeichen</string>
     <string name="toc_label">Inhaltsverzeichnis</string>
-    <string name="syncing">"Synchronisiere..."</string>
+    <string name="syncing">"Synchronisiere…"</string>
     <string name="sync_failed">Synchronisation fehlgeschlagen</string>
     <string name="connection_fail">Konnte nicht mit Synchronisationsserver verbinden.</string>    
     
@@ -46,14 +46,14 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="delete">Lüschen</string>
     <string name="scan_books">Nach Büchern suchen</string>    
     
-    <string name="importing_books">Bücher importieren...</string>
+    <string name="importing_books">Bücher importieren…</string>
     <string name="scanning_epub">Nach EPUB Dateien suchen.</string>
     <string name="importing">Importiere %1$d von %2$d</string>
     <string name="scan_folders">Nach EPUB Dateien suchen.\n%d Ordner durchsucht</string>
     <string name="import_errors">Einige Dateien verursachten Fehler beim Importieren:</string>
     <string name="no_books_found">Keine Bücher gefunden.</string>
     <string name="no_bks_fnd_text">Keine Bücher wurden auf Deinem Gerät gefunden.\nDu kannst Bücher bei gutenberg.org oder feedbooks.com herunterladen.</string>
-    <string name="loading_library">Bücherregal wird geladen...</string>
+    <string name="loading_library">Bücherregal wird geladen…</string>
     <string name="scan_bks_question">Es sind keine Bücher in Deinem Bücherregal.\nMöchtest Du Dein Gerät nach Büchern durchsuchen lassen?</string>    
     
     <string name="brightness">Helligkeit</string>
@@ -105,12 +105,12 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="read">Jetzt lesen</string>
     
      <string name="download">Bücher herunterladen</string>
-    <string name="downloading">Buch wird heruntergeladen...</string>     
+    <string name="downloading">Buch wird heruntergeladen…</string>     
     
     <string name="feed_failed">Konnte die Seite nicht kontaktieren. Bitte nochmals versuchen.</string>
      <string name="book_failed">Konnte das Buch nicht laden. Bitte nochmals versuchen.</string>
 
-     <string name="browse">Suchen...</string>
+     <string name="browse">Suchen…</string>
      
      <string name="search_books">Nach Büchern suchen</string>
      <string name="enter_query">Bitte Suchbegriff eingeben</string>

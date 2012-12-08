@@ -3,7 +3,7 @@
     <string name="app_name">Page Turner</string>
     <string name="title">عنوان</string>
     <string name="app_desc">Page Turner کتابخوان همگامی‌ست که امکان همگام کردن روند پیشرفت مطالعه‌تان را در دستگاه‌های چندگانه فراهم می‌کند.</string>
-    <string name="browse">مرور ...</string> <!-- Browse ... -->
+    <string name="browse">مرور …</string> <!-- Browse … -->
     <string name="open_file">پروندهٔ ای‌پاپ را باز کن</string> <!-- Open ePub file -->
     <string name="open_library">کتاب‌های من</string> <!-- My Books -->
 
@@ -23,12 +23,12 @@
     <string name="google_lookup">جست-و-جو در گوگل</string> <!-- Search on Google -->    
     <string name="word_select">عبارت «%s» را انتخاب کردید.</string> <!-- "You selected '%s' -->    
         
-    <string name="loading_wait">در حال بار شدن، لطفاً صبر کنید...</string> <!-- Loading, please wait -->
+    <string name="loading_wait">در حال بار شدن، لطفاً صبر کنید…</string> <!-- Loading, please wait -->
     <string name="install_oi">لطفاً نرم‌افزار OI File Manager را از فروشگاه اندروید نصب کنید.</string> <!-- Please install OI File Manager from the Android Market. -->    
     
     <string name="cloud_bm">نشان‌های ابر</string> <!-- Cloud bookmarks -->
     <string name="toc_label">فهرست</string> <!-- Table of contents -->
-    <string name="syncing">«همگام‌سازی روند مطالعه ...»</string> <!-- "Syncing progress..." -->
+    <string name="syncing">«همگام‌سازی روند مطالعه …»</string> <!-- "Syncing progress…" -->
     <string name="sync_failed">همگام‌سازی انجام نشد</string> <!-- Sync failed -->
     <string name="connection_fail">اتصال به کارساز همگام‌ساز امکان‌پذیر نیست.</string> <!-- Could not connect to the sync server. -->    
     
@@ -45,14 +45,14 @@
     <string name="delete">خذف از کتابخانه</string> <!-- Delete from library -->
     <string name="scan_books">پویش کتاب‌ها</string> <!-- Scan for books -->    
     
-    <string name="importing_books">واردکردن کتاب‌ها</string> <!-- Importing books... -->
+    <string name="importing_books">واردکردن کتاب‌ها</string> <!-- Importing books… -->
     <string name="scanning_epub">پویش پرونده‌های ای‌پاب</string> <!-- Scanning for EPUB files. -->
     <string name="importing">ورود %1$d از %2$d</string> <!-- Importing %1$d of %2$d -->
     <string name="scan_folders">پویش پرونده‌های ای‌پاب.\nپرونده‌های پویش شده: %d</string> <!-- Scanning for EPUB files.\nFolders scanned: %d -->
     <string name="import_errors">برخی از کتاب‌ها هنگام ورد خطا داشتند.</string> <!-- Some files had errors while importing: -->
     <string name="no_books_found">کتابی پیدا نشد.</string> <!-- No books found. -->
     <string name="no_bks_fnd_text">هیچ کتابی در دستگاه‌تان پیدا نشد. \nبا مراجعه به وبگاه‌های gutenberg.org و feedbooks.com کتاب بگیرید.</string> <!-- No books were found on your device.\nYou can download books at gutenberg.org or feedbooks.com -->
-    <string name="loading_library">بارشدن کتابخانه</string> <!-- Loading library... -->
+    <string name="loading_library">بارشدن کتابخانه</string> <!-- Loading library… -->
     <string name="scan_bks_question">هیچ کتابی در کتابخانه‌تان نیست.\nآیا مایلید دستگاه‌تان را برای کتاب بپویید؟</string> <!-- There are no books in your library.\nWould you like to scan your device for books? -->    
     <string name="brightness">درخشندگی</string> <!-- Brightness -->    
         
@@ -102,6 +102,6 @@
     <string name="read"></string> <!-- Read now -->
     
     <string name="download">بارگیری کتاب‌ها</string> <!-- Download books -->
-    <string name="downloading">درحال بارگیری کتاب ...</string> <!-- Downloading book... -->
+    <string name="downloading">درحال بارگیری کتاب …</string> <!-- Downloading book… -->
         
 </resources>

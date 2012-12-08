@@ -429,6 +429,14 @@ public class CatalogActivity extends RoboSherlockActivity implements
 					if (!destFolder.exists()) {
 						destFolder.mkdirs();
 					}
+					
+					/**
+					 * Make sure we always store downloaded files as .epub, 
+					 * so they show up in scans later on.
+					 */
+					if ( ! fileName.endsWith(".epub") ) {
+						fileName = fileName + ".epub";
+					}
 
 					destFile = new File(destFolder, URLDecoder.decode(fileName));
 

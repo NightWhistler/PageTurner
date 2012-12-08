@@ -27,7 +27,7 @@
           
      
      <item android:id="@+id/search_text"          
-          android:title="Search text"
+          android:title="@string/search_text"
           android:icon="@drawable/zoom"
           android:showAsAction="ifRoom" />
      

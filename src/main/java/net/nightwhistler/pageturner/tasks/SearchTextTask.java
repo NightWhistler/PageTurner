@@ -67,7 +67,8 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 					}
 					
 					String text = "..." + spanned.subSequence(from, to).toString() + "...";
-					SearchResult res = new SearchResult(text, index, matcher.start(), matcher.end() );
+					SearchResult res = new SearchResult(text, index, matcher.start(), matcher.end(),
+							spine.getProgressPercentage(index, matcher.start()));
 					
 					this.publishProgress( res );
 					result.add(res);
@@ -85,14 +86,17 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 		
 		private String display;
 		private int index;
-		private int offset;
+		private int start;
 		private int end;
 		
-		public SearchResult(String display, int index, int offset, int end ) {
+		private int percentage;
+		
+		public SearchResult(String display, int index, int offset, int end, int percentage ) {
 			this.display = display;
 			this.index = index;
-			this.offset = offset;
+			this.start = offset;
 			this.end = end;
+			this.percentage = percentage;
 		}
 		
 		public String getDisplay() {
@@ -103,12 +107,16 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 			return index;
 		}
 		
-		public int getOffset() {
-			return offset;
+		public int getStart() {
+			return start;
 		}
 		
 		public int getEnd() {
 			return end;
+		}
+		
+		public int getPercentage() {
+			return percentage;
 		}
 		
 	}

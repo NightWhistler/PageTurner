@@ -21,10 +21,12 @@ package net.nightwhistler.pageturner.view;
 
 import java.util.List;
 
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,12 +45,15 @@ public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResul
 
 	private List<SearchTextTask.SearchResult> results;
 	private BookView bookView;
+	
+	private Configuration config;
 
 	public SearchResultAdapter(Context context, BookView bookView, 
-			List<SearchTextTask.SearchResult> books) {
+			List<SearchTextTask.SearchResult> books, Configuration config) {
 		super(context, R.id.deviceName, books);
 		this.results = books;
 		this.bookView = bookView;
+		this.config = config;
 	}
 
 	@Override
@@ -69,10 +74,18 @@ public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResul
 		} else {
 			rowView = convertView;
 		}
+		
+		
 
 		TextView deviceView = (TextView) rowView.findViewById(R.id.deviceName);
 		TextView dateView = (TextView) rowView.findViewById(R.id.timeStamp );
-
+		
+		if ( Build.VERSION.SDK_INT < 11 ) {
+			deviceView.setTextColor( config.getTextColor() );
+			dateView.setTextColor( config.getTextColor() );
+			rowView.setBackgroundColor(config.getBackgroundColor());
+		}
+		
 		SearchTextTask.SearchResult progress = results.get(position);
 
 		deviceView.setText( progress.getDisplay() );

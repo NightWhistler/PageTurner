@@ -22,11 +22,12 @@ package net.nightwhistler.pageturner.view;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,11 +47,14 @@ public class ProgressListAdapter extends ArrayAdapter<BookProgress> implements
 	private List<BookProgress> books;
 	private BookView bookView;
 
+	private Configuration config;
+	
 	public ProgressListAdapter(Context context, BookView bookView, 
-			List<BookProgress> books) {
+			List<BookProgress> books, Configuration config) {
 		super(context, R.id.deviceName, books);
 		this.books = books;
 		this.bookView = bookView;
+		this.config = config;
 	}
 
 	@Override
@@ -72,14 +76,22 @@ public class ProgressListAdapter extends ArrayAdapter<BookProgress> implements
 		} else {
 			rowView = convertView;
 		}
+		
+		
 
 		TextView deviceView = (TextView) rowView.findViewById(R.id.deviceName);
 		TextView dateView = (TextView) rowView.findViewById(R.id.timeStamp );
-
+		
+		if ( Build.VERSION.SDK_INT < 11 ) {
+			deviceView.setTextColor( config.getTextColor() );
+			dateView.setTextColor( config.getTextColor() );
+			rowView.setBackgroundColor(config.getBackgroundColor());
+		}
+		
 		BookProgress progress = books.get(position);
 
 		deviceView.setText( progress.getDeviceName() + " - " + progress.getPercentage() + "%" );
-		dateView.setText( new SimpleDateFormat().format(progress.getTimeStamp()) );
+		dateView.setText( SimpleDateFormat.getDateTimeInstance().format(progress.getTimeStamp()) );
 
 		return rowView;
 

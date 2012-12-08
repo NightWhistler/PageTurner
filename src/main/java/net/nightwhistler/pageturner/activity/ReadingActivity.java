@@ -443,6 +443,8 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 	}
 
 	private void restartActivity() {
+		
+		onStop();		
 		Intent intent = new Intent(this, ReadingActivity.class);
 		intent.setData(Uri.parse(this.fileName));
 		startActivity(intent);
@@ -1368,7 +1370,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		builder.setTitle(getString(R.string.cloud_bm));
 
 		ProgressListAdapter adapter = new ProgressListAdapter(this, bookView,
-				results);
+				results, config);
 		builder.setAdapter(adapter, adapter);
 
 		AlertDialog dialog = builder.create();
@@ -1444,6 +1446,8 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		final ProgressDialog searchProgress = new ProgressDialog(this);
 		searchProgress.setOwnerActivity(this);
 		searchProgress.setCancelable(true);
+		searchProgress.setMax(100);
+		searchProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
@@ -1472,16 +1476,22 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 			@Override
 			protected void onProgressUpdate(
 					SearchResult... values) {
-				i++;
+				
 				super.onProgressUpdate(values);
 				LOG.debug("Found match at index="
 						+ values[0].getIndex() + ", offset="
 						+ values[0].getStart()
 						+ " with context "
 						+ values[0].getDisplay());
-
-				String update = String.format(getString(R.string.search_hits), i);
-				searchProgress.setTitle(update);
+				SearchResult res = values[0];
+				
+				if ( res.getDisplay() != null ) {
+					i++;
+					String update = String.format(getString(R.string.search_hits), i);
+					searchProgress.setTitle(update);
+				}
+				
+				searchProgress.setProgress( res.getPercentage() );				
 			}
 
 			@Override
@@ -1539,7 +1549,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		builder.setTitle(R.string.search_results);
 
 		SearchResultAdapter adapter = new SearchResultAdapter(this, bookView,
-				results);
+				results, config);
 		builder.setAdapter(adapter, adapter);
 
 		AlertDialog dialog = builder.create();

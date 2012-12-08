@@ -55,7 +55,11 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 			for ( int index=0; index < spine.size(); index++ ) {
 				
 				spine.navigateByIndex(index);
+				
+				int progress = spine.getProgressPercentage(index, 0);
 								
+				publishProgress( new SearchResult(null, index, 0, 0, progress) );
+				
 				Spanned spanned = spanner.fromHtml(spine.getCurrentResource().getReader());				
 				Matcher matcher = pattern.matcher(spanned);
 				

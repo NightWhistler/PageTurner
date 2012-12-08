@@ -440,5 +440,16 @@ public class Configuration {
 	public String getLibraryFolder() {
 		return getPageTurnerFolder() + "/Books";
 	}
-	
+
+	/*
+	  Returns the bytes of available memory left on the heap. Not
+	  totally sure if it works reliably.
+	 */
+	public long getAvailableBytesOfMemory()
+	{
+		Runtime runtime = Runtime.getRuntime();
+		long maxHeapMemoryBytes = runtime.maxMemory();
+		long allocatedMemoryBytes = runtime.totalMemory() - runtime.freeMemory();
+		return (maxHeapMemoryBytes - allocatedMemoryBytes);
+	}
 }

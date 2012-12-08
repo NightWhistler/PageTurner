@@ -41,6 +41,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	public void clearText() {
 		this.text = new SpannedString("");
 		this.childView.setText(text);
+		this.pageOffsets = new ArrayList<Integer>();
 	}
 	
 	private void loadPages() {
@@ -48,21 +49,22 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		this.pageOffsets = new ArrayList<Integer>();
 		
 		TextPaint textPaint = childView.getPaint();
-		int boundedWidth = childView.getWidth();
+		int boundedWidth = bookView.getWidth();
 
 		StaticLayout layout = new StaticLayout(this.text, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
 		layout.draw(new Canvas());
 		
-		int pageHeight = bookView.getHeight() - ( 2 * bookView.getVerticalMargin());
+		int pageHeight = bookView.getHeight() - ( 2* bookView.getVerticalMargin() );
+		pageHeight = (int) (pageHeight * 0.85d); //Use 90% of available space
 		
 		int totalLines = layout.getLineCount();
-		int pageNum = 0;
+		int currentPageNum = 0;
 		int topLine = 0;
 		int bottomLine = 0;
 		
 		while ( bottomLine < totalLines -1 ) {
-			topLine = layout.getLineForVertical( pageNum * pageHeight );
-			bottomLine = layout.getLineForVertical( (pageNum + 1) * pageHeight );
+			topLine = layout.getLineForVertical( currentPageNum * pageHeight );
+			bottomLine = layout.getLineForVertical( (currentPageNum + 1) * pageHeight );
 			
 			int pageOffset = layout.getLineStart(topLine);
 			
@@ -71,7 +73,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 				this.pageOffsets.add(pageOffset);
 			}
 			
-			pageNum++;
+			currentPageNum++;
 		}		
 		
 	}
@@ -119,8 +121,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	
 	@Override
 	public void setPosition(int pos) {
-		this.storedPosition = pos;
-		updatePosition();
+		this.storedPosition = pos;		
 	}
 	
 	@Override

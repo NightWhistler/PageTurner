@@ -45,6 +45,7 @@ import net.nightwhistler.pageturner.view.NavGestureDetector;
 import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import net.nightwhistler.pageturner.view.SearchResultAdapter;
 import net.nightwhistler.pageturner.view.TextSelectionCallback;
+import net.nightwhistler.pageturner.view.BookView.LayoutCallback;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 
@@ -54,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -89,6 +91,7 @@ import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -102,7 +105,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 
-public class ReadingActivity extends RoboSherlockActivity implements BookViewListener, TextSelectionCallback {
+public class ReadingActivity extends RoboSherlockActivity implements BookViewListener, TextSelectionCallback, LayoutCallback {
 
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
@@ -261,6 +264,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		this.bookView.setSpanner(RoboGuice.getInjector(this).getInstance(
 				HtmlSpanner.class));
 		this.bookView.setTextSelectionCallback(this);
+		this.bookView.setLayoutCallback(this);
 
 		this.oldBrightness = config.isBrightnessControlEnabled();
 		this.oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
@@ -315,6 +319,15 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 			// changed
 		}
 		super.onPause();
+	}
+	
+	@Override
+	public void requestLayout() {		
+		
+		viewSwitcher.layout(0, 0, viewSwitcher.getWidth(),
+				viewSwitcher.getHeight());
+		bookView.layout(0, 0, viewSwitcher.getWidth(),
+				viewSwitcher.getHeight());		
 	}
 
 	private void updateFileName(Bundle savedInstanceState, String fileName) {
@@ -1439,6 +1452,10 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 
 	private void onSearchClick() {
 
+		final ProgressDialog searchProgress = new ProgressDialog(this);
+		searchProgress.setOwnerActivity(this);
+		searchProgress.setCancelable(true);
+		
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 		alert.setTitle(R.string.search_books);
@@ -1447,57 +1464,82 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		// Set an EditText view to get user input
 		final EditText input = new EditText(this);
 		alert.setView(input);
+		
+		final SearchTextTask task = new SearchTextTask(bookView
+				.getBook()) {
+
+			int i = 0;
+
+			@Override
+			protected void onPreExecute() {						
+				super.onPreExecute();
+				//Hide on-screen keyboard if it is showing		
+				
+				InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+			    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+				
+			}
+
+			@Override
+			protected void onProgressUpdate(
+					SearchResult... values) {
+				i++;
+				super.onProgressUpdate(values);
+				LOG.debug("Found match at index="
+						+ values[0].getIndex() + ", offset="
+						+ values[0].getOffset()
+						+ " with context "
+						+ values[0].getDisplay());
+
+				searchProgress.setTitle("Searching...\nFound " + i
+						+ " hits.");
+			}
+
+			@Override
+			protected void onCancelled() {
+				Toast.makeText(ReadingActivity.this, "Search cancelled.", Toast.LENGTH_LONG).show();
+			}
+
+			protected void onPostExecute(
+					java.util.List<SearchResult> result) {
+
+				searchProgress.dismiss();
+				
+				if ( ! isCancelled() ) {
+					if (result.size() > 0) {
+						showSearchResultDialog(result);
+					} else {
+						Toast.makeText(ReadingActivity.this, "Search returned 0 hits", Toast.LENGTH_LONG).show();
+					}
+				} 
+			};
+		};
+		
+		searchProgress.setOnCancelListener(new DialogInterface.OnCancelListener() {
+			
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				task.cancel(true);				
+			}
+		});
 
 		alert.setPositiveButton(android.R.string.search_go,
 				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						CharSequence value = input.getText();
+			public void onClick(DialogInterface dialog, int whichButton) {
+				CharSequence value = input.getText();								
 
-						SearchTextTask task = new SearchTextTask(bookView
-								.getBook()) {
-
-							int i = 0;
-
-							@Override
-							protected void onProgressUpdate(
-									SearchResult... values) {
-								i++;
-								super.onProgressUpdate(values);
-								LOG.debug("Found match at index="
-										+ values[0].getIndex() + ", offset="
-										+ values[0].getOffset()
-										+ " with context "
-										+ values[0].getDisplay());
-
-								waitDialog.setTitle("Searching...\nFound " + i
-										+ " hits.");
-							}
-
-							protected void onPostExecute(
-									java.util.List<SearchResult> result) {
-								
-								waitDialog.hide();
-								
-								if (result.size() > 0) {
-									showSearchResultDialog(result);
-								} else {
-									Toast.makeText(ReadingActivity.this, "Search returned 0 hits", Toast.LENGTH_LONG).show();
-								}
-							};
-						};
-
-						waitDialog.setTitle("Searching... please wait.");
-						waitDialog.show();
-						task.execute(value.toString());
-					}
-				});
+				searchProgress.setTitle("Searching... please wait.");
+				searchProgress.show();
+				task.execute(value.toString());
+			}
+		});
 
 		alert.setNegativeButton(android.R.string.cancel,
 				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						// Canceled.
-					}
-				});
+			public void onClick(DialogInterface dialog, int whichButton) {
+				// Canceled.
+			}
+		});		
 
 		alert.show();
 	}

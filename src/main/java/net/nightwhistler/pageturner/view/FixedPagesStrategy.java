@@ -133,6 +133,10 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	}
 	
 	public int getPosition() {
+		if ( this.pageOffsets.isEmpty() ) {
+			return storedPosition;
+		}
+		
 		return this.pageOffsets.get(this.pageNum);
 	}
 	

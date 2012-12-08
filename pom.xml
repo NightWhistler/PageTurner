@@ -106,7 +106,7 @@
 		<dependency>
 			<groupId>net.nightwhistler.htmlspanner</groupId>
 			<artifactId>htmlspanner</artifactId>
-			<version>0.2</version>
+			<version>0.3-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 
@@ -123,14 +123,14 @@
 			<version>4.2.3</version>
 			<scope>compile</scope>
 		</dependency>
-
+ 
 		<dependency>
 			<groupId>com.actionbarsherlock</groupId>
 			<artifactId>actionbarsherlock</artifactId>
 			<version>4.2.0</version>
 			<type>apklib</type>
 		</dependency>
-
+ 
 		<dependency>
 			<groupId>com.github.rtyley</groupId>
 			<artifactId>roboguice-sherlock</artifactId>

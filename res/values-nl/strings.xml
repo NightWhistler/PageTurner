@@ -110,4 +110,11 @@
     <string name="buy_now">Nu kopen</string>
     <string name="enter_email">Cloud sync is momenteel uitgeschakeld. Voer a.u.b. een e-mail adres in bij voorkeuren om het in te schakelen.</string>
     <string name="add_to_library">Toevoegen aan mijn boeken</string>
+    
+     <string name="search_wait">Bezig met zoeken... even geduld a.u.b.</string>
+    <string name="search_text">Tekst zoeken</string>
+    <string name="search_hits">Bezig met zoeken...\n%d resultaten gevonden.</string>
+    <string name="search_cancelled">Zoeken geannuleerd</string>
+    <string name="search_no_matches">Er zijn geen resultaten gevonden.</string>
+    <string name="search_results">Zoekresultaten</string>
 </resources>

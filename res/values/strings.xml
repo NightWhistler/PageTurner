@@ -114,7 +114,15 @@
     
     <string name="enter_email">Cloud sync is currently disabled. To enable it, please enter an e-mail address in the preferences.</string>
     <string name="add_to_library">Add to library</string>
-        
+    
+    <string name="search_wait">Searching... please wait.</string>
+    <string name="search_text">Text search</string>
+    <string name="search_hits">Searching...\nFound %d matches.</string>
+    <string name="search_cancelled">Search cancelled.</string>
+    <string name="search_no_matches">Search did not find any matches.</string>
+    <string name="search_results">Search results</string>
+    
+    <!-- Preferences -->    
         
     <string name="pref_sync_settings">Sync settings</string>
     <string name="pref_email">E-mail address</string>

@@ -39,6 +39,7 @@ import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
+import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.MediaType;
@@ -57,7 +58,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -67,6 +68,7 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
@@ -107,9 +109,10 @@ public class BookView extends ScrollView {
 	
 	private int horizontalMargin = 0;
 	private int verticalMargin = 0;
-	private int lineSpacing = 0;
+	private int lineSpacing = 0;	
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
+
 	
 	@SuppressLint("NewApi")
 	public BookView(Context context, AttributeSet attributes) {
@@ -125,16 +128,11 @@ public class BookView extends ScrollView {
 				
 				int tableWidth = (int) ( this.getWidth() * 0.9 );
 				tableHandler.setTableWidth( tableWidth );
+				
 			}
 			
 			public boolean dispatchKeyEvent(KeyEvent event) {
 				return BookView.this.dispatchKeyEvent(event);
-			}
-			
-			@Override
-			protected void onFocusChanged(boolean focused, int direction,
-					Rect previouslyFocusedRect) {
-				//Do nothing 
 			}
 			
 		};		
@@ -175,7 +173,8 @@ public class BookView extends ScrollView {
         
         spanner.registerHandler("p", new AnchorHandler(spanner.getHandlerFor("p") ));
         spanner.registerHandler("table", tableHandler);
-	}	
+	}
+	
 	
 	/**
 	 * Returns if we're at the start of the book, i.e. displaying the title page.
@@ -311,15 +310,26 @@ public class BookView extends ScrollView {
 	
 	public void goBackInHistory() {
 		
-		this.strategy.clearText();
-		this.spine.navigateByIndex( this.prevIndex );
-		strategy.setPosition(this.prevPos);
+		if ( this.prevIndex == this.getIndex() ) {
+			strategy.setPosition(prevPos);
+			
+			this.storedAnchor = null;
+			this.prevIndex = -1;
+			this.prevPos = -1;
+
+			restorePosition();
+			
+		} else {		
+			this.strategy.clearText();
+			this.spine.navigateByIndex( this.prevIndex );
+			strategy.setPosition(this.prevPos);
 		
-		this.storedAnchor = null;
-		this.prevIndex = -1;
-		this.prevPos = -1;
+			this.storedAnchor = null;
+			this.prevIndex = -1;
+			this.prevPos = -1;
 		
-		loadText();
+			loadText();
+		}
 	}
 	
 	public void clear() {
@@ -347,6 +357,10 @@ public class BookView extends ScrollView {
 	
 	void loadText() {		
         new LoadTextTask().execute();        
+	}
+	
+	private void loadText(List<SearchTextTask.SearchResult> hightListResults ) {
+		new LoadTextTask(hightListResults).execute();
 	}
 	
 	public void setFontFamily(FontFamily family) {
@@ -495,15 +509,21 @@ public class BookView extends ScrollView {
 		
 		if ( ! "".equals(anchor) ) {
 			this.storedAnchor = anchor;
-		}
+		}		
 		
-		this.strategy.clearText();
-		this.strategy.setPosition(0);
-		
-		if ( this.spine.navigateByHref(href) ) {
-			loadText();
-		} else {			
-			new LoadTextTask().execute(href);
+		//Just an anchor and no href; resolve it on this page
+		if ( href.length() == 0 ){
+			restorePosition();
+		} else {
+
+			this.strategy.clearText();
+			this.strategy.setPosition(0);
+			
+			if (this.spine.navigateByHref(href) ) {		
+				loadText();
+			} else {			
+				new LoadTextTask().execute(href);
+			}
 		}
 	}	
 	
@@ -542,6 +562,22 @@ public class BookView extends ScrollView {
 		
 		doNavigation(index);
 	}	
+	
+	public void navigateBySearchResult( List<SearchTextTask.SearchResult> result, int selectedResultIndex  ) {
+		SearchTextTask.SearchResult searchResult = result.get(selectedResultIndex);
+		//navigateTo(progress.getIndex(), progress.getOffset() );
+		
+		this.prevPos = this.getPosition();
+		this.strategy.setPosition(searchResult.getStart());
+		
+		this.prevIndex = this.getIndex();
+		
+		this.storedIndex = searchResult.getIndex();
+		this.strategy.clearText();
+		this.spine.navigateByIndex(searchResult.getIndex());
+
+		loadText(result);
+	}
 	
 	private void doNavigation( int index ) {
 
@@ -950,7 +986,10 @@ public class BookView extends ScrollView {
 			if ( enableScrolling ) {
 				this.strategy = new ScrollingStrategy(this, this.getContext());
 			} else {
-				this.strategy = new SinglePageStrategy(this);
+				
+				
+				
+				this.strategy = new FixedPagesStrategy(this);
 			}
 
 			if ( ! wasNull ) {				
@@ -1005,6 +1044,16 @@ public class BookView extends ScrollView {
 		
 		private String error;
 		
+		private List<SearchTextTask.SearchResult> searchResults = new ArrayList<SearchTextTask.SearchResult>();
+		
+		public LoadTextTask() {
+		
+		}
+		
+		LoadTextTask(List<SearchTextTask.SearchResult> searchResults ) {
+			this.searchResults = searchResults;
+		}		
+		
 		@Override
 		protected void onPreExecute() {
 			this.wasBookLoaded = book != null;
@@ -1041,8 +1090,18 @@ public class BookView extends ScrollView {
 			}			
 			
 			try {
-				Spanned result = spanner.fromHtml(resource.getReader());
+				Spannable result = spanner.fromHtml(resource.getReader());
 				loader.load(); //Load all image resources.
+				
+				//Highlight search results (if any)
+				for ( SearchTextTask.SearchResult searchResult: this.searchResults ) {
+					if ( searchResult.getIndex() == spine.getPosition() ) {
+						result.setSpan(new BackgroundColorSpan(Color.YELLOW),
+								searchResult.getStart(), searchResult.getEnd(),
+								Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );								
+					}
+				}
+				
 				return result;
 			} catch (IOException io ) {
 				return new SpannableString( "Could not load text: " + io.getMessage() );
@@ -1060,7 +1119,7 @@ public class BookView extends ScrollView {
 					errorOnBookOpening(this.error);
 					return;
 				}
-			}
+			}			
 			
 			restorePosition();
 			strategy.loadText( result );			

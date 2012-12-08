@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
+import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import nl.siegmann.epublib.domain.Book;
 
@@ -31,7 +32,9 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 		DummyHandler dummy = new DummyHandler();
 		
         spanner.registerHandler("img", dummy );
-        spanner.registerHandler("image", dummy );        
+        spanner.registerHandler("image", dummy );
+        
+        spanner.registerHandler("table", new TableHandler() );
 	}	
 	
 

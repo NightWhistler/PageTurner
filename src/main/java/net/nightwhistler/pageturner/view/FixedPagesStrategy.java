@@ -49,13 +49,13 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		this.pageOffsets = new ArrayList<Integer>();
 		
 		TextPaint textPaint = childView.getPaint();
-		int boundedWidth = bookView.getWidth();
+		int boundedWidth = childView.getWidth();
 
 		StaticLayout layout = new StaticLayout(this.text, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
 		layout.draw(new Canvas());
 		
 		int pageHeight = bookView.getHeight() - ( 2* bookView.getVerticalMargin() );
-		pageHeight = (int) (pageHeight * 0.85d); //Use 90% of available space
+		pageHeight = (int) (pageHeight * 0.95d); //Use 90% of available space
 		
 		int totalLines = layout.getLineCount();
 		int currentPageNum = 0;

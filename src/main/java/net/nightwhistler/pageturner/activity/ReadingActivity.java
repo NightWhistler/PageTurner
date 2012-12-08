@@ -45,7 +45,6 @@ import net.nightwhistler.pageturner.view.NavGestureDetector;
 import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import net.nightwhistler.pageturner.view.SearchResultAdapter;
 import net.nightwhistler.pageturner.view.TextSelectionCallback;
-import net.nightwhistler.pageturner.view.BookView.LayoutCallback;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 
@@ -105,7 +104,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 
-public class ReadingActivity extends RoboSherlockActivity implements BookViewListener, TextSelectionCallback, LayoutCallback {
+public class ReadingActivity extends RoboSherlockActivity implements BookViewListener, TextSelectionCallback {
 
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
@@ -264,8 +263,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		this.bookView.setSpanner(RoboGuice.getInjector(this).getInstance(
 				HtmlSpanner.class));
 		this.bookView.setTextSelectionCallback(this);
-		this.bookView.setLayoutCallback(this);
-
+		
 		this.oldBrightness = config.isBrightnessControlEnabled();
 		this.oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
 		this.oldFontName = config.getFontFamily().getName();
@@ -319,16 +317,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 			// changed
 		}
 		super.onPause();
-	}
-	
-	@Override
-	public void requestLayout() {		
-		
-		viewSwitcher.layout(0, 0, viewSwitcher.getWidth(),
-				viewSwitcher.getHeight());
-		bookView.layout(0, 0, viewSwitcher.getWidth(),
-				viewSwitcher.getHeight());		
-	}
+	}	
 
 	private void updateFileName(Bundle savedInstanceState, String fileName) {
 

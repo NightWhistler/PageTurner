@@ -107,17 +107,10 @@ public class BookView extends ScrollView {
 	
 	private int horizontalMargin = 0;
 	private int verticalMargin = 0;
-	private int lineSpacing = 0;
-	
-	private int parentHeight;
-	
-	private LayoutCallback layoutCallback;
+	private int lineSpacing = 0;	
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
-	
-	public static interface LayoutCallback {
-		void requestLayout();
-	}
+
 	
 	@SuppressLint("NewApi")
 	public BookView(Context context, AttributeSet attributes) {
@@ -177,17 +170,8 @@ public class BookView extends ScrollView {
         
         spanner.registerHandler("p", new AnchorHandler(spanner.getHandlerFor("p") ));
         spanner.registerHandler("table", tableHandler);
-	}	
-	
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {		
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		this.parentHeight = MeasureSpec.getSize(heightMeasureSpec);
 	}
 	
-	public void setLayoutCallback(LayoutCallback layoutCallback) {
-		this.layoutCallback = layoutCallback;
-	}
 	
 	/**
 	 * Returns if we're at the start of the book, i.e. displaying the title page.
@@ -1075,11 +1059,7 @@ public class BookView extends ScrollView {
 					errorOnBookOpening(this.error);
 					return;
 				}
-			}	
-			
-			if ( layoutCallback != null ) {
-				layoutCallback.requestLayout();
-			}
+			}			
 			
 			restorePosition();
 			strategy.loadText( result );			

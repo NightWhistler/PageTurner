@@ -41,20 +41,19 @@ import android.widget.TextView;
 public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResult> implements 
 	DialogInterface.OnClickListener {
 
-	private List<SearchTextTask.SearchResult> books;
+	private List<SearchTextTask.SearchResult> results;
 	private BookView bookView;
 
 	public SearchResultAdapter(Context context, BookView bookView, 
 			List<SearchTextTask.SearchResult> books) {
 		super(context, R.id.deviceName, books);
-		this.books = books;
+		this.results = books;
 		this.bookView = bookView;
 	}
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-		SearchTextTask.SearchResult progress = books.get(which);
-		bookView.navigateTo(progress.getIndex(), progress.getOffset() );    		
+		bookView.navigateBySearchResult(this.results, which);    		
 	}
 
 	@Override
@@ -74,9 +73,8 @@ public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResul
 		TextView deviceView = (TextView) rowView.findViewById(R.id.deviceName);
 		TextView dateView = (TextView) rowView.findViewById(R.id.timeStamp );
 
-		SearchTextTask.SearchResult progress = books.get(position);
+		SearchTextTask.SearchResult progress = results.get(position);
 
-		//deviceView.setTextColor( Color.BLACK );
 		deviceView.setText( progress.getDisplay() );
 		dateView.setText( "(" + progress.getIndex() + " / " + progress.getOffset() + ")" );
 

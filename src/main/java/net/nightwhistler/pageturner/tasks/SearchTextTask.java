@@ -67,7 +67,7 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 					}
 					
 					String text = "..." + spanned.subSequence(from, to).toString() + "...";
-					SearchResult res = new SearchResult(text, index, matcher.start() );
+					SearchResult res = new SearchResult(text, index, matcher.start(), matcher.end() );
 					
 					this.publishProgress( res );
 					result.add(res);
@@ -86,11 +86,13 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 		private String display;
 		private int index;
 		private int offset;
+		private int end;
 		
-		public SearchResult(String display, int index, int offset ) {
+		public SearchResult(String display, int index, int offset, int end ) {
 			this.display = display;
 			this.index = index;
 			this.offset = offset;
+			this.end = end;
 		}
 		
 		public String getDisplay() {
@@ -103,6 +105,10 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 		
 		public int getOffset() {
 			return offset;
+		}
+		
+		public int getEnd() {
+			return end;
 		}
 		
 	}

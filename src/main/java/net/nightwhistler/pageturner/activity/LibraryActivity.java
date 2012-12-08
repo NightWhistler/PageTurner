@@ -72,6 +72,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -344,7 +345,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 	
 	
 	private void startImport(File startFolder, boolean copy) {		
-		ImportTask importTask = new ImportTask(this, libraryService, this, copy);
+		ImportTask importTask = new ImportTask(this, libraryService, this, config, copy);
 		importDialog.setOnCancelListener(importTask);
 		importDialog.show();		
 				
@@ -641,7 +642,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 	@Override
 	public void importStatusUpdate(String update) {
 		importDialog.setMessage(update);
-	}
+	}	
 	
 	public void onAlphabetBarClick( KeyedQueryResult<LibraryBook> result, Character c ) {
 		

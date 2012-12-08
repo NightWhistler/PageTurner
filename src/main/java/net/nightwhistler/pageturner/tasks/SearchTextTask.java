@@ -31,9 +31,7 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 		DummyHandler dummy = new DummyHandler();
 		
         spanner.registerHandler("img", dummy );
-        spanner.registerHandler("image", dummy );
-        
-        spanner.registerHandler("table", dummy );
+        spanner.registerHandler("image", dummy );        
 	}	
 	
 
@@ -125,7 +123,8 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 				int start, int end) {
-			//Don't do anything			
+
+			 builder.append("\uFFFC");
 		}
 	}
 }

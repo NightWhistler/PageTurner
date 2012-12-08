@@ -258,6 +258,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 
 		this.viewSwitcher.setOnTouchListener(gestureListener);
 		this.bookView.setOnTouchListener(gestureListener);
+		this.bookView.setConfiguration(config);
 
 		this.bookView.addListener(this);
 		this.bookView.setSpanner(RoboGuice.getInjector(this).getInstance(
@@ -356,7 +357,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 	}
 
 	@Override
-	public void progressUpdate(int progressPercentage) {
+	public void progressUpdate(int progressPercentage, int pageNumber, int totalPages) {
 
 		// Work-around for calculation errors and weird values.
 		if (progressPercentage < 0 || progressPercentage > 100) {
@@ -364,7 +365,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		}
 
 		this.progressPercentage = progressPercentage;
-		percentageField.setText("" + progressPercentage + "%  ");
+		percentageField.setText("" + progressPercentage + "%  " + pageNumber + " / " + totalPages);
 
 		this.progressBar.setProgress(progressPercentage);
 		this.progressBar.setMax(100);
@@ -1413,7 +1414,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
 		if (this.bookView != null) {
-
+		
 			outState.putInt(POS_KEY, this.bookView.getPosition());
 			outState.putInt(IDX_KEY, this.bookView.getIndex());
 

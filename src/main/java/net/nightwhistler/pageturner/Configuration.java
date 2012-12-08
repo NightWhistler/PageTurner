@@ -19,11 +19,15 @@
 
 package net.nightwhistler.pageturner;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-import roboguice.inject.ContextSingleton;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import net.nightwhistler.htmlspanner.FontFamily;
+import roboguice.inject.ContextSingleton;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -32,40 +36,51 @@ import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.google.inject.Inject;
 
 /**
- * Application configuration class which provides a friendly
- * API to the various settings available.
+ * Application configuration class which provides a friendly API to the various
+ * settings available.
  * 
  * @author Alex Kuiper
- *
+ * 
  */
 @ContextSingleton
-public class Configuration {	
-	
+public class Configuration {
+
 	private SharedPreferences settings;
 	private Context context;
-	
+
 	private FontFamily cachedFamily;
 
-	public static enum ScrollStyle { ROLLING_BLIND, PAGE_TIMER }
-	
-	public static enum AnimationStyle { CURL, SLIDE, NONE }
-	
-	public static enum OrientationLock { PORTRAIT, LANDSCAPE, REVERSE_PORTRAIT, REVERSE_LANDSCAPE, NO_LOCK }
-	
-	public static enum ColourProfile { DAY, NIGHT }
-	
-	public static enum LibraryView { BOOKCASE, LIST }
-	
-	public static enum CoverLabelOption { ALWAYS, NEVER, WITHOUT_COVER }
-	
+	public static enum ScrollStyle {
+		ROLLING_BLIND, PAGE_TIMER
+	}
+
+	public static enum AnimationStyle {
+		CURL, SLIDE, NONE
+	}
+
+	public static enum OrientationLock {
+		PORTRAIT, LANDSCAPE, REVERSE_PORTRAIT, REVERSE_LANDSCAPE, NO_LOCK
+	}
+
+	public static enum ColourProfile {
+		DAY, NIGHT
+	}
+
+	public static enum LibraryView {
+		BOOKCASE, LIST
+	}
+
+	public static enum CoverLabelOption {
+		ALWAYS, NEVER, WITHOUT_COVER
+	}
+
 	public static enum LibrarySelection {
-		 BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
-	}	
-	
+		BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
+	}
+
 	public static final String KEY_POS = "offset:";
 	public static final String KEY_IDX = "index:";
 	public static final String KEY_NAV_TAP_V = "nav_tap_v";
@@ -73,7 +88,7 @@ public class Configuration {
 	public static final String KEY_NAV_SWIPE_H = "nav_swipe_h";
 	public static final String KEY_NAV_SWIPE_V = "nav_swipe_v";
 	public static final String KEY_NAV_VOL = "nav_vol";
-	
+
 	public static final String KEY_EMAIL = "email";
 	public static final String KEY_FULL_SCREEN = "full_screen";
 	public static final String KEY_COPY_TO_LIB = "copy_to_library";
@@ -83,134 +98,172 @@ public class Configuration {
 	public static final String KEY_LAST_FILE = "last_file";
 	public static final String KEY_DEVICE_NAME = "device_name";
 	public static final String KEY_TEXT_SIZE = "itext_size";
-	
+
 	public static final String KEY_MARGIN_H = "margin_h";
 	public static final String KEY_MARGIN_V = "margin_v";
-	
+
 	public static final String KEY_LINE_SPACING = "line_spacing";
-	
+
 	public static final String KEY_NIGHT_MODE = "night_mode";
 	public static final String KEY_SCREEN_ORIENTATION = "screen_orientation";
 	public static final String KEY_FONT_FACE = "font_face";
-	
+
 	public static final String PREFIX_DAY = "day";
 	public static final String PREFIX_NIGHT = "night";
-	
+
 	public static final String KEY_BRIGHTNESS = "bright";
 	public static final String KEY_BACKGROUND = "bg";
 	public static final String KEY_LINK = "link";
 	public static final String KEY_TEXT = "text";
-	
+
 	public static final String KEY_BRIGHTNESS_CTRL = "set_brightness";
 	public static final String KEY_SCROLL_STYLE = "scroll_style";
 	public static final String KEY_SCROLL_SPEED = "scroll_speed";
-	
+
 	public static final String KEY_H_ANIMATION = "h_animation";
 	public static final String KEY_V_ANIMATION = "v_animation";
-	
+
 	public static final String KEY_LIB_VIEW = "library_view";
 	public static final String KEY_LIB_SEL = "library_selection";
-	
-	public static final String ACCESS_KEY = "access_key";	
+
+	public static final String ACCESS_KEY = "access_key";
 	public static final String CALIBRE_SERVER = "calibre_server";
 	public static final String CALIBRE_USER = "calibre_user";
 	public static final String CALIBRE_PASSWORD = "calibre_password";
-	
+
 	public static final String KEY_COVER_LABELS = "cover_labels";
-	
+
 	public static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
-	
+
+	public static final String KEY_OFFSETS = "offsets";
+
 	@Inject
 	public Configuration(Context context) {
 		this.settings = PreferenceManager.getDefaultSharedPreferences(context);
-		this.context = context;			
+		this.context = context;
 	}
-	
+
 	public boolean isVerticalTappingEnabled() {
 		return settings.getBoolean(KEY_NAV_TAP_V, true);
 	}
-	
+
 	public boolean isHorizontalTappingEnabled() {
 		return settings.getBoolean(KEY_NAV_TAP_H, true);
 	}
-	
+
 	public boolean isHorizontalSwipeEnabled() {
 		return settings.getBoolean(KEY_NAV_SWIPE_H, true);
 	}
-	
+
 	public boolean isVerticalSwipeEnabled() {
 		return settings.getBoolean(KEY_NAV_SWIPE_V, true)
-			&& ! isScrollingEnabled();
+				&& !isScrollingEnabled();
 	}
-	
+
 	public int getLastPosition(String fileName) {
-		
-		String bookHash = Integer.toHexString( fileName.hashCode() );
-		
+
+		String bookHash = Integer.toHexString(fileName.hashCode());
+
 		int pos = settings.getInt(KEY_POS + bookHash, -1);
-		
-		if ( pos != -1 ) {
+
+		if (pos != -1) {
 			return pos;
 		}
-		
-		//Fall-back for older settings.
-		return settings.getInt(KEY_POS + fileName, -1 );
+
+		// Fall-back for older settings.
+		return settings.getInt(KEY_POS + fileName, -1);
 	}
-	
+
+	public void setPageOffsets(String fileName, List<List<Integer>> offsets) {
+		String bookHash = Integer.toHexString(fileName.hashCode());
+
+		JSONArray array = new JSONArray(offsets);
+		updateValue(KEY_OFFSETS + bookHash, array.toString());
+	}
+
+	public List<List<Integer>> getPageOffsets(String fileName) {
+		String bookHash = Integer.toHexString(fileName.hashCode());
+		String data = settings.getString(KEY_OFFSETS + bookHash, "[]");
+
+		List<List<Integer>> result = new ArrayList<List<Integer>>();
+
+		try {
+			JSONArray jsonArray = new JSONArray(data);
+
+			for (int i = 0; i < jsonArray.length(); i++) {
+				List<Integer> sublist = new ArrayList<Integer>();
+
+				JSONArray subArray = new JSONArray(jsonArray.getString(i));
+
+				for (int j = 0; j < subArray.length(); j++) {
+					int val = subArray.getInt(j);
+					sublist.add(val);
+				}
+
+				result.add(sublist);
+			}
+
+			return result;
+
+		} catch (JSONException j) {
+			return null;
+		}
+	}
+
 	public void setLastPosition(String fileName, int position) {
-		String bookHash = Integer.toHexString( fileName.hashCode() );
+		String bookHash = Integer.toHexString(fileName.hashCode());
 		updateValue(KEY_POS + bookHash, position);
 	}
-	
+
 	public int getLastIndex(String fileName) {
-		String bookHash = Integer.toHexString( fileName.hashCode() );
-		
+		String bookHash = Integer.toHexString(fileName.hashCode());
+
 		int pos = settings.getInt(KEY_IDX + bookHash, -1);
-		
-		if ( pos != -1 ) {
+
+		if (pos != -1) {
 			return pos;
 		}
-		
-		//Fall-back for older settings.
-		return settings.getInt(KEY_IDX + fileName, -1 );		
+
+		// Fall-back for older settings.
+		return settings.getInt(KEY_IDX + fileName, -1);
 	}
-	
+
 	public void setLastIndex(String fileName, int index) {
-		String bookHash = Integer.toHexString( fileName.hashCode() );
+		String bookHash = Integer.toHexString(fileName.hashCode());
 		updateValue(KEY_IDX + bookHash, index);
 	}
 
 	public boolean isVolumeKeyNavEnabled() {
 		return settings.getBoolean(KEY_NAV_VOL, false);
 	}
-	
+
 	public String getSynchronizationEmail() {
 		return settings.getString(KEY_EMAIL, "").trim();
 	}
-	
+
 	public String getSynchronizationAccessKey() {
 		return settings.getString(ACCESS_KEY, "").trim();
 	}
-	
+
 	public boolean isSyncEnabled() {
 		String email = getSynchronizationEmail();
 		String accessKey = getSynchronizationAccessKey();
-		
+
 		return email.length() > 0 && accessKey.length() > 0;
 	}
-	
+
 	public boolean isFullScreenEnabled() {
 		return settings.getBoolean(KEY_FULL_SCREEN, false);
 	}
-	
+
 	public boolean isCopyToLibrayEnabled() {
 		return settings.getBoolean(KEY_COPY_TO_LIB, true);
 	}
-	
+
 	public boolean isStripWhiteSpaceEnabled() {
 		return settings.getBoolean(KEY_STRIP_WHITESPACE, false);
 	}
-	
+
 	public boolean isScrollingEnabled() {
 		return settings.getBoolean(KEY_SCROLLING, false);
 	}
@@ -218,141 +271,148 @@ public class Configuration {
 	public String getLastOpenedFile() {
 		return settings.getString(KEY_LAST_FILE, "");
 	}
-	
+
 	public void setLastOpenedFile(String fileName) {
 		updateValue(KEY_LAST_FILE, fileName);
 	}
-	
+
 	public String getDeviceName() {
 		return settings.getString(KEY_DEVICE_NAME, Build.MODEL);
 	}
-	
+
 	public int getTextSize() {
-		return settings.getInt(KEY_TEXT_SIZE, 16);  
+		return settings.getInt(KEY_TEXT_SIZE, 16);
 	}
-	
-	public void setTextSize(int textSize) {		
-        updateValue(KEY_TEXT_SIZE, textSize);    
+
+	public void setTextSize(int textSize) {
+		updateValue(KEY_TEXT_SIZE, textSize);
 	}
-	
+
 	public int getHorizontalMargin() {
 		return settings.getInt(KEY_MARGIN_H, 15);
 	}
-	
+
 	public int getVerticalMargin() {
 		return settings.getInt(KEY_MARGIN_V, 15);
-	}	
-	
+	}
+
 	public int getLineSpacing() {
 		return settings.getInt(KEY_LINE_SPACING, 0);
 	}
-	
+
 	public boolean isKeepScreenOn() {
 		return settings.getBoolean(KEY_KEEP_SCREEN_ON, false);
-	}	
-	
+	}
+
 	public int getTheme() {
-		if ( getColourProfile() == ColourProfile.NIGHT ) {
+		if (getColourProfile() == ColourProfile.NIGHT) {
 			return R.style.Theme_Sherlock;
 		} else {
 			return R.style.Theme_Sherlock_Light_DarkActionBar;
 		}
-		
+
 	}
-	
+
 	public void setColourProfile(ColourProfile profile) {
-		if ( profile == ColourProfile.DAY ) {
+		if (profile == ColourProfile.DAY) {
 			updateValue(KEY_NIGHT_MODE, false);
 		} else {
 			updateValue(KEY_NIGHT_MODE, true);
 		}
 	}
-	
+
 	public CoverLabelOption getCoverLabelOption() {
-		return CoverLabelOption.valueOf(
-				settings.getString(KEY_COVER_LABELS, 
-						CoverLabelOption.ALWAYS.name().toLowerCase()) );
+		return CoverLabelOption.valueOf(settings.getString(KEY_COVER_LABELS,
+				CoverLabelOption.ALWAYS.name().toLowerCase()));
 	}
-	
+
 	public ColourProfile getColourProfile() {
-		if ( settings.getBoolean(KEY_NIGHT_MODE, false) ) {
+		if (settings.getBoolean(KEY_NIGHT_MODE, false)) {
 			return ColourProfile.NIGHT;
 		} else {
 			return ColourProfile.DAY;
 		}
 	}
-	
+
 	public OrientationLock getScreenOrientation() {
-		String orientation = settings.getString(KEY_SCREEN_ORIENTATION, OrientationLock.NO_LOCK.name().toLowerCase());
+		String orientation = settings.getString(KEY_SCREEN_ORIENTATION,
+				OrientationLock.NO_LOCK.name().toLowerCase());
 		return OrientationLock.valueOf(orientation.toUpperCase());
-	}	
-	
-	private void updateValue( String key, Object value ) {
-		
+	}
+
+	private void updateValue(String key, Object value) {
+
 		SharedPreferences.Editor editor = settings.edit();
-        
-		if ( value instanceof String ) {
-			editor.putString(key, (String) value );
-		} else if ( value instanceof Integer ) {
-			editor.putInt(key, (Integer) value );
-		} else if ( value instanceof Boolean ) {
-			editor.putBoolean(key, (Boolean) value );
+
+		if (value instanceof String) {
+			editor.putString(key, (String) value);
+		} else if (value instanceof Integer) {
+			editor.putInt(key, (Integer) value);
+		} else if (value instanceof Boolean) {
+			editor.putBoolean(key, (Boolean) value);
 		} else {
-			throw new IllegalArgumentException("Unsupported type: " + value.getClass().getSimpleName() );
-		}		
-		
-        editor.commit();    
-	}	
-	
-	private FontFamily loadFamilyFromAssets(String key, String baseName ) {
-		Typeface basic = Typeface.createFromAsset(context.getAssets(), baseName + ".otf");
-		Typeface boldFace = Typeface.createFromAsset(context.getAssets(), baseName + "-Bold.otf");
-		Typeface italicFace = Typeface.createFromAsset(context.getAssets(), baseName + "-Italic.otf");
-		Typeface biFace = Typeface.createFromAsset(context.getAssets(), baseName + "-BoldItalic.otf");
-		
+			throw new IllegalArgumentException("Unsupported type: "
+					+ value.getClass().getSimpleName());
+		}
+
+		editor.commit();
+	}
+
+	private FontFamily loadFamilyFromAssets(String key, String baseName) {
+		Typeface basic = Typeface.createFromAsset(context.getAssets(), baseName
+				+ ".otf");
+		Typeface boldFace = Typeface.createFromAsset(context.getAssets(),
+				baseName + "-Bold.otf");
+		Typeface italicFace = Typeface.createFromAsset(context.getAssets(),
+				baseName + "-Italic.otf");
+		Typeface biFace = Typeface.createFromAsset(context.getAssets(),
+				baseName + "-BoldItalic.otf");
+
 		FontFamily fam = new FontFamily(key, basic);
 		fam.setBoldTypeface(boldFace);
 		fam.setItalicTypeface(italicFace);
 		fam.setBoldItalicTypeface(biFace);
-		
+
 		return fam;
 	}
-	
+
 	public FontFamily getFontFamily() {
-		
-		String fontFace = settings.getString(KEY_FONT_FACE, "gen_book_bas");   
-		
-		if ( cachedFamily != null && fontFace.equals( cachedFamily.getName() )) {
+
+		String fontFace = settings.getString(KEY_FONT_FACE, "gen_book_bas");
+
+		if (cachedFamily != null && fontFace.equals(cachedFamily.getName())) {
 			return cachedFamily;
 		}
-    	
-    	if ( "gen_book_bas".equals(fontFace) ) {
-    		return this.cachedFamily = loadFamilyFromAssets(fontFace, "GentiumBookBasic");    		
-    	}
-    	if ("gen_bas".equals(fontFace)) {
-    		return this.cachedFamily = loadFamilyFromAssets(fontFace, "GentiumBasic");    		
-    	} 
-    	
-    	Typeface face = Typeface.SANS_SERIF;
-    	
-    	if ("sans".equals(fontFace) ) {
-    		face = Typeface.SANS_SERIF;
-    	} else if ("serif".equals(fontFace)) {
-    		face = Typeface.SERIF;
-    	} else if ("mono".equals(fontFace)) {
-    		face = Typeface.MONOSPACE;
-    	}  
-    	
-    	return this.cachedFamily = new FontFamily(fontFace, face);
+
+		if ("gen_book_bas".equals(fontFace)) {
+			return this.cachedFamily = loadFamilyFromAssets(fontFace,
+					"GentiumBookBasic");
+		}
+		if ("gen_bas".equals(fontFace)) {
+			return this.cachedFamily = loadFamilyFromAssets(fontFace,
+					"GentiumBasic");
+		}
+
+		Typeface face = Typeface.SANS_SERIF;
+
+		if ("sans".equals(fontFace)) {
+			face = Typeface.SANS_SERIF;
+		} else if ("serif".equals(fontFace)) {
+			face = Typeface.SERIF;
+		} else if ("mono".equals(fontFace)) {
+			face = Typeface.MONOSPACE;
+		}
+
+		return this.cachedFamily = new FontFamily(fontFace, face);
 	}
-	
+
 	public int getBrightNess() {
-		//Brightness 0 means black screen :)
-		return Math.max(1, getProfileSetting(KEY_BRIGHTNESS, 50, 50));		
+		// Brightness 0 means black screen :)
+		return Math.max(1, getProfileSetting(KEY_BRIGHTNESS, 50, 50));
 	}
-	
+
 	public void setBrightness(int brightness) {
-		if (getColourProfile() == ColourProfile.DAY ) {
+		if (getColourProfile() == ColourProfile.DAY) {
 			updateValue("day_bright", brightness);
 		} else {
 			updateValue("night_bright", brightness);
@@ -360,7 +420,7 @@ public class Configuration {
 	}
 
 	public int getBackgroundColor() {
-		return getProfileSetting(KEY_BACKGROUND, Color.WHITE, Color.BLACK);		
+		return getProfileSetting(KEY_BACKGROUND, Color.WHITE, Color.BLACK);
 	}
 
 	public int getTextColor() {
@@ -370,46 +430,51 @@ public class Configuration {
 	public int getLinkColor() {
 		return getProfileSetting(KEY_LINK, Color.BLUE, Color.rgb(255, 165, 0));
 	}
-	
-	private int getProfileSetting(String setting, int dayDefault, int nightDefault) {
-		
-		if ( getColourProfile() == ColourProfile.NIGHT ) {			
-			return settings.getInt( PREFIX_NIGHT + "_" + setting, nightDefault );
+
+	private int getProfileSetting(String setting, int dayDefault,
+			int nightDefault) {
+
+		if (getColourProfile() == ColourProfile.NIGHT) {
+			return settings.getInt(PREFIX_NIGHT + "_" + setting, nightDefault);
 		} else {
-			return settings.getInt(PREFIX_DAY + "_" + setting, dayDefault );
+			return settings.getInt(PREFIX_DAY + "_" + setting, dayDefault);
 		}
-		
+
 	}
- 
+
 	public boolean isBrightnessControlEnabled() {
 		return settings.getBoolean(KEY_BRIGHTNESS_CTRL, false);
 	}
 
 	public ScrollStyle getAutoScrollStyle() {
-		String style = settings.getString(KEY_SCROLL_STYLE, ScrollStyle.ROLLING_BLIND.name().toLowerCase());
-		if ( "rolling_blind".equals(style) ) {
+		String style = settings.getString(KEY_SCROLL_STYLE,
+				ScrollStyle.ROLLING_BLIND.name().toLowerCase());
+		if ("rolling_blind".equals(style)) {
 			return ScrollStyle.ROLLING_BLIND;
 		} else {
 			return ScrollStyle.PAGE_TIMER;
-		}		
+		}
 	}
-	
+
 	public int getScrollSpeed() {
 		return settings.getInt(KEY_SCROLL_SPEED, 20);
 	}
-	
+
 	public AnimationStyle getHorizontalAnim() {
-		String animH = settings.getString(KEY_H_ANIMATION, AnimationStyle.CURL.name().toLowerCase());
-    	return AnimationStyle.valueOf(animH.toUpperCase());
+		String animH = settings.getString(KEY_H_ANIMATION, AnimationStyle.CURL
+				.name().toLowerCase());
+		return AnimationStyle.valueOf(animH.toUpperCase());
 	}
-	
+
 	public AnimationStyle getVerticalAnim() {
-		String animV = settings.getString(KEY_V_ANIMATION, AnimationStyle.SLIDE.name().toLowerCase());
+		String animV = settings.getString(KEY_V_ANIMATION, AnimationStyle.SLIDE
+				.name().toLowerCase());
 		return AnimationStyle.valueOf(animV.toUpperCase());
 	}
 
 	public LibraryView getLibraryView() {
-		String libView = settings.getString(KEY_LIB_VIEW, LibraryView.BOOKCASE.name().toLowerCase());
+		String libView = settings.getString(KEY_LIB_VIEW, LibraryView.BOOKCASE
+				.name().toLowerCase());
 		return LibraryView.valueOf(libView.toUpperCase());
 	}
 
@@ -417,28 +482,29 @@ public class Configuration {
 		String libView = viewStyle.name().toLowerCase();
 		updateValue(KEY_LIB_VIEW, libView);
 	}
-	
+
 	public LibrarySelection getLastLibraryQuery() {
-		String query = settings.getString(KEY_LIB_SEL, LibrarySelection.LAST_ADDED.name().toLowerCase() );
+		String query = settings.getString(KEY_LIB_SEL,
+				LibrarySelection.LAST_ADDED.name().toLowerCase());
 		return LibrarySelection.valueOf(query.toUpperCase());
 	}
-	
+
 	public void setLastLibraryQuery(LibrarySelection sel) {
-		updateValue(KEY_LIB_SEL, sel.name().toLowerCase() );
+		updateValue(KEY_LIB_SEL, sel.name().toLowerCase());
 	}
-	
+
 	public String getCalibreServer() {
 		return settings.getString(CALIBRE_SERVER, "");
 	}
-	
+
 	public String getCalibreUser() {
 		return settings.getString(CALIBRE_USER, "");
 	}
-	
+
 	public String getCalibrePassword() {
 		return settings.getString(CALIBRE_PASSWORD, "");
 	}
-	
+
 	public String getStorageBase() {
 		return Environment.getExternalStorageDirectory().getAbsolutePath();
 	}
@@ -446,13 +512,13 @@ public class Configuration {
 	public String getPageTurnerFolder() {
 		return getStorageBase() + "/PageTurner";
 	}
-	
+
 	public String getDownloadsFolder() {
 		return getPageTurnerFolder() + "/Downloads";
 	}
-	
+
 	public String getLibraryFolder() {
 		return getPageTurnerFolder() + "/Books";
 	}
-	
+
 }

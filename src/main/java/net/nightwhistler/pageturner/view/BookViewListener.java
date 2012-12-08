@@ -61,7 +61,7 @@ public interface BookViewListener {
 	void parseEntryComplete( int entry, String name );
 	
 	/** Indicates how far we've progressed in the book **/
-	void progressUpdate( int progressPercentage );
+	void progressUpdate( int progressPercentage, int pageNumber, int totalPages );
 	
 	/**
 	 * Generated when the user long-presses on a word in the text

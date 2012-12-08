@@ -36,6 +36,7 @@ import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
@@ -62,6 +63,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -78,9 +80,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
-
-
 
 public class BookView extends ScrollView {
     	
@@ -110,6 +109,8 @@ public class BookView extends ScrollView {
 	private int horizontalMargin = 0;
 	private int verticalMargin = 0;
 	private int lineSpacing = 0;	
+	
+	private Configuration configuration;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 
@@ -173,6 +174,10 @@ public class BookView extends ScrollView {
         
         spanner.registerHandler("p", new AnchorHandler(spanner.getHandlerFor("p") ));
         spanner.registerHandler("table", tableHandler);
+	}
+	
+	public void setConfiguration(Configuration configuration) {
+		this.configuration = configuration;
 	}
 	
 	
@@ -961,10 +966,14 @@ public class BookView extends ScrollView {
 		
 			if ( progress != -1 ) {
 				for ( BookViewListener listener: this.listeners ) {
-					listener.progressUpdate(progress);
+					listener.progressUpdate(progress, spine.getPageNumberFor(getIndex(), getPosition() ), spine.getTotalNumberOfPages() );
 				}		
 			}
 		}
+	}
+	
+	public void saveInstanceState(Bundle outState) {
+		
 	}
 	
 	public void setEnableScrolling(boolean enableScrolling) {
@@ -1006,7 +1015,30 @@ public class BookView extends ScrollView {
 		
 		this.book = book;
 		this.spine = new PageTurnerSpine(book);	   
-	    this.spine.navigateByIndex( this.storedIndex );	    
+		
+	    this.spine.navigateByIndex( this.storedIndex );	
+	    
+	    List<List<Integer>> offsets = this.configuration.getPageOffsets(this.fileName);
+	    
+	    if ( offsets == null || offsets.isEmpty() ) {
+	    	try {
+		    	offsets = new ArrayList<List<Integer>>();	    
+
+		    	for ( int i=0; i < spine.size(); i++ ) {	    	
+		    		CharSequence text = spanner.fromHtml( spine.getResourceForIndex(i).getReader() );
+		    		offsets.add( FixedPagesStrategy.getPageOffsets(this, text) );
+		    	}
+		    	
+		    	configuration.setPageOffsets(fileName, offsets);
+		    	
+		    } catch (IOException io) {
+		    	LOG.error("Could not read pagenumers", io );
+		    }
+	
+	    }
+	    
+    	spine.setPageOffsets(offsets);
+	    	    
 	}
 	
 	private void initBook() throws IOException {	
@@ -1034,6 +1066,8 @@ public class BookView extends ScrollView {
         
        	Book newBook = epubReader.readEpubLazy(fileName, "UTF-8", Arrays.asList(lazyTypes));
         setBook( newBook );
+        
+        
 	}	
 	
 	private class LoadTextTask extends AsyncTask<String, Integer, Spanned> {

@@ -44,14 +44,14 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		this.pageOffsets = new ArrayList<Integer>();
 	}
 	
-	private void loadPages() {
+	public static List<Integer> getPageOffsets( BookView bookView, CharSequence text ) {
 		
-		this.pageOffsets = new ArrayList<Integer>();
+		List<Integer> pageOffsets = new ArrayList<Integer>();
 		
-		TextPaint textPaint = childView.getPaint();
-		int boundedWidth = childView.getWidth();
+		TextPaint textPaint = bookView.getInnerView().getPaint();
+		int boundedWidth = bookView.getInnerView().getWidth();
 
-		StaticLayout layout = new StaticLayout(this.text, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
+		StaticLayout layout = new StaticLayout(text, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
 		layout.draw(new Canvas());
 		
 		int pageHeight = bookView.getHeight() - ( 2* bookView.getVerticalMargin() );
@@ -69,13 +69,14 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 			int pageOffset = layout.getLineStart(topLine);
 			
 			//Make sure we don't enter the same offset twice
-			if (pageOffsets.isEmpty() ||  pageOffset != this.pageOffsets.get(this.pageOffsets.size() -1)) {			
-				this.pageOffsets.add(pageOffset);
+			if (pageOffsets.isEmpty() ||  pageOffset != pageOffsets.get(pageOffsets.size() -1)) {			
+				pageOffsets.add(pageOffset);
 			}
 			
 			currentPageNum++;
-		}		
+		}	
 		
+		return pageOffsets;		
 	}
 	
 	
@@ -199,7 +200,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	public void loadText(Spanned text) {
 		this.text = text;
 		this.pageNum = 0;
-		loadPages();
+		this.pageOffsets = getPageOffsets(bookView, text);
 		updatePosition();
 	}
 }

@@ -70,6 +70,7 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
+import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
@@ -1016,9 +1017,12 @@ public class BookView extends ScrollView {
 		this.book = book;
 		this.spine = new PageTurnerSpine(book);	   
 		
+		String file = StringUtil.substringAfterLast(fileName, 
+				'/' );
+		
 	    this.spine.navigateByIndex( this.storedIndex );	
 	    
-	    List<List<Integer>> offsets = this.configuration.getPageOffsets(this.fileName);
+	    List<List<Integer>> offsets = this.configuration.getPageOffsets(file);
 	    
 	    if ( offsets == null || offsets.isEmpty() ) {
 	    	try {
@@ -1029,7 +1033,7 @@ public class BookView extends ScrollView {
 		    		offsets.add( FixedPagesStrategy.getPageOffsets(this, text) );
 		    	}
 		    	
-		    	configuration.setPageOffsets(fileName, offsets);
+		    	configuration.setPageOffsets(file, offsets);
 		    	
 		    } catch (IOException io) {
 		    	LOG.error("Could not read pagenumers", io );

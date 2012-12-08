@@ -8,14 +8,14 @@
         android:id="@+id/deviceName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Phone - 15%"
+        android:text="@string/default_device_name_and_progress"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/timeStamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="01-01-2012 13:44"
+        android:text="@string/default_timestamp"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </LinearLayout>

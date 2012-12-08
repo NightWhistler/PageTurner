@@ -27,14 +27,14 @@
         android:id="@+id/itemTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Large Text"
+        android:text="@string/large_text"
         android:textAppearance="?android:attr/textAppearanceLarge" />
     
      <TextView
             android:id="@+id/itemAuthor"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="by Someone"
+            android:text="@string/no_author_byline"
             android:textAppearance="?android:attr/textAppearanceMedium" />
         
         <ImageView    		
@@ -51,7 +51,7 @@
         android:id="@+id/itemDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Small Text"
+        android:text="@string/small_text"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <Button

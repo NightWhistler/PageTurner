@@ -19,7 +19,7 @@
         android:id="@+id/bookLabel"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Small Text"
+        android:text="@string/small_text"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:gravity="center"
         android:layout_gravity="bottom"                

@@ -113,7 +113,7 @@
     <string name="buy_now">Buy now</string>
 
 	<string name="no_author_byline">by John Doe</string>
-    <string name="zero_percent">0%  </string>
+	<string name="zero_percent">0%  </string>
 	<string name="default_timestamp">01-01-2012 13:44</string>
 	<string name="default_device_name_and_progress">Phone - 15%</string>
 	<string name="ebook_path">/sdcard/eBooks</string>
@@ -124,6 +124,4 @@
 	<string name="default_last_read">Last read: never</string>
 	<string name="default_filename">book.epub</string>
 	<string name="default_book_title">Title of the book</string>
-
-        
 </resources>

@@ -1447,7 +1447,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-		alert.setTitle(R.string.search_books);
+		alert.setTitle(R.string.search_text);
 		alert.setMessage(R.string.enter_query);
 
 		// Set an EditText view to get user input
@@ -1480,13 +1480,13 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 						+ " with context "
 						+ values[0].getDisplay());
 
-				searchProgress.setTitle("Searching...\nFound " + i
-						+ " hits.");
+				String update = String.format(getString(R.string.search_hits), i);
+				searchProgress.setTitle(update);
 			}
 
 			@Override
 			protected void onCancelled() {
-				Toast.makeText(ReadingActivity.this, "Search cancelled.", Toast.LENGTH_LONG).show();
+				Toast.makeText(ReadingActivity.this, R.string.search_cancelled, Toast.LENGTH_LONG).show();
 			}
 
 			protected void onPostExecute(
@@ -1498,7 +1498,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 					if (result.size() > 0) {
 						showSearchResultDialog(result);
 					} else {
-						Toast.makeText(ReadingActivity.this, "Search returned 0 hits", Toast.LENGTH_LONG).show();
+						Toast.makeText(ReadingActivity.this, R.string.search_no_matches , Toast.LENGTH_LONG).show();
 					}
 				} 
 			};
@@ -1517,7 +1517,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 			public void onClick(DialogInterface dialog, int whichButton) {
 				CharSequence value = input.getText();								
 
-				searchProgress.setTitle("Searching... please wait.");
+				searchProgress.setTitle(R.string.search_wait);
 				searchProgress.show();
 				task.execute(value.toString());
 			}

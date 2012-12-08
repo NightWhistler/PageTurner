@@ -128,6 +128,7 @@ public class BookView extends ScrollView {
 				
 				int tableWidth = (int) ( this.getWidth() * 0.9 );
 				tableHandler.setTableWidth( tableWidth );
+				
 			}
 			
 			public boolean dispatchKeyEvent(KeyEvent event) {
@@ -309,15 +310,26 @@ public class BookView extends ScrollView {
 	
 	public void goBackInHistory() {
 		
-		this.strategy.clearText();
-		this.spine.navigateByIndex( this.prevIndex );
-		strategy.setPosition(this.prevPos);
+		if ( this.prevIndex == this.getIndex() ) {
+			strategy.setPosition(prevPos);
+			
+			this.storedAnchor = null;
+			this.prevIndex = -1;
+			this.prevPos = -1;
+
+			restorePosition();
+			
+		} else {		
+			this.strategy.clearText();
+			this.spine.navigateByIndex( this.prevIndex );
+			strategy.setPosition(this.prevPos);
 		
-		this.storedAnchor = null;
-		this.prevIndex = -1;
-		this.prevPos = -1;
+			this.storedAnchor = null;
+			this.prevIndex = -1;
+			this.prevPos = -1;
 		
-		loadText();
+			loadText();
+		}
 	}
 	
 	public void clear() {
@@ -497,15 +509,21 @@ public class BookView extends ScrollView {
 		
 		if ( ! "".equals(anchor) ) {
 			this.storedAnchor = anchor;
-		}
+		}		
 		
-		this.strategy.clearText();
-		this.strategy.setPosition(0);
-		
-		if ( this.spine.navigateByHref(href) ) {
-			loadText();
-		} else {			
-			new LoadTextTask().execute(href);
+		//Just an anchor and no href; resolve it on this page
+		if ( href.length() == 0 ){
+			restorePosition();
+		} else {
+
+			this.strategy.clearText();
+			this.strategy.setPosition(0);
+			
+			if (this.spine.navigateByHref(href) ) {		
+				loadText();
+			} else {			
+				new LoadTextTask().execute(href);
+			}
 		}
 	}	
 	

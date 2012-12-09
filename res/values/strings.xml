@@ -112,20 +112,6 @@
     <string name="enter_query">Please enter a search-term</string>
     <string name="buy_now">Buy now</string>
 
-    <string name="no_author_byline">by John Doe</string>
-    <string name="zero_percent">0%  </string>
-    <string name="default_timestamp">01-01-2012 13:44</string>
-    <string name="default_device_name_and_progress">Phone - 15%</string>
-    <string name="ebook_path">/sdcard/eBooks</string>
-    <string name="folder_name">Folder Name</string>
-    <string name="small_text">Small Text</string>
-    <string name="large_text">Large Text</string>
-    <string name="default_added_to_library">Added to library: never</string>
-    <string name="default_last_read">Last read: never</string>
-    <string name="default_filename">book.epub</string>
-    <string name="default_book_title">Title of the book</string>
-
-    
     <string name="enter_email">Cloud sync is currently disabled. To enable it, please enter an e-mail address in the preferences.</string>
     <string name="add_to_library">Add to library</string>
     
@@ -228,4 +214,18 @@
     <string name="pref_nav_tap_h_summary">Tap the left/right edge of the screen to change pages.</string>
     <string name="pref_nav_tap_v">Enable tapping top/bottom</string>
     <string name="pref_nav_tap_v_summary">Tap the top/bottom edge of the screen to change pages.</string>
+
+    <!-- Translation is not needed for the strings below -->
+    <string name="no_author_byline" translatable="false">by John Doe</string>
+    <string name="zero_percent" translatable="false">0%  </string>
+    <string name="default_timestamp" translatable="false">01-01-2012 13:44</string>
+    <string name="default_device_name_and_progress" translatable="false">Phone - 15%</string>
+    <string name="ebook_path" translatable="false">/sdcard/eBooks</string>
+    <string name="folder_name" translatable="false">Folder Name</string>
+    <string name="small_text" translatable="false">Small Text</string>
+    <string name="large_text" translatable="false">Large Text</string>
+    <string name="default_added_to_library" translatable="false">Added to library: never</string>
+    <string name="default_last_read" translatable="false">Last read: never</string>
+    <string name="default_filename" translatable="false">book.epub</string>
+    <string name="default_book_title" translatable="false">Title of the book</string>
 </resources>

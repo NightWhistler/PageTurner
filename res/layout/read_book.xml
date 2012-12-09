@@ -61,7 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/opaque_white"
-                android:text="0%  "
+                android:text="@string/zero_percent"
                 android:layout_below="@id/authorField"
                                        
                 android:background="@color/translucent_black"                

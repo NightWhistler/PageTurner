@@ -175,6 +175,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	private boolean oldBrightness = false;
 	private boolean oldStripWhiteSpace = false;
 	private String oldFontName = "";
+	private boolean oldUsePageNum = false;
+	private boolean oldFullscreen = false;
 
 	private enum Orientation {
 		HORIZONTAL, VERTICAL
@@ -264,6 +266,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		this.oldBrightness = config.isBrightnessControlEnabled();
 		this.oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
 		this.oldFontName = config.getFontFamily().getName();
+		this.oldUsePageNum = config.isShowPageNumbers();
+		this.oldFullscreen = config.isFullScreenEnabled();
 
 		registerForContextMenu(bookView);
 
@@ -434,7 +438,9 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		restoreColorProfile();
 
 		// Check if we need a restart
-		if (config.isBrightnessControlEnabled() != oldBrightness
+		if (	config.isFullScreenEnabled() != oldFullscreen
+				|| config.isShowPageNumbers() != oldUsePageNum
+				|| config.isBrightnessControlEnabled() != oldBrightness
 				|| config.isStripWhiteSpaceEnabled() != oldStripWhiteSpace
 				|| !this.oldFontName.equalsIgnoreCase(config.getFontFamily()
 						.getName())) {
@@ -1462,8 +1468,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 			sendProgressUpdateToServer();
 
-			libraryService.close();
-			this.bookView.releaseResources();
+			libraryService.close();			
 		}
 
 	}

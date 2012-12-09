@@ -30,7 +30,7 @@
             android:id="@+id/bookAuthor"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="by John Doe" />
+            android:text="@string/no_author_byline" />
 
         <TextView
             android:id="@+id/addedToLibrary"

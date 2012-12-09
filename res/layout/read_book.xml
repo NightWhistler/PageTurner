@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" 
-    android:layout_width="fill_parent" 
-    android:layout_height="fill_parent"
-    android:orientation="vertical"    
-    android:id="@+id/rel"
-    >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				android:layout_width="fill_parent"
+				android:layout_height="fill_parent"
+				android:orientation="vertical"
+				android:id="@+id/rel"
+				>
 
-   
-    
     <ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
     	android:id="@+id/mainContainer"
     	android:layout_width="fill_parent"
@@ -63,7 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/opaque_white"
-                android:text="0%  "
+                android:text="@string/zero_percent"
                 android:layout_below="@id/authorField"
                                        
                 android:background="@color/translucent_black"                
@@ -75,16 +73,5 @@
         	android:layout_height="wrap_content"        
         	android:layout_below="@id/percentageField"        	        	
 			android:background="@color/translucent_black" />   
-           
-          
-         
-                
-               
-
-       
-    </RelativeLayout>
-
-   
- </RelativeLayout>
-
-
+  </RelativeLayout>
+</RelativeLayout>

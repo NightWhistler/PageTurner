@@ -3,7 +3,7 @@
     <string name="app_name">برنامج Page Turner</string>
     <string name="title">العنوان</string>
     <string name="app_desc">برنامج يقراء الكتب الإلكترونية لمختلف الأجهزة</string>
-    <string name="browse">أستعراض...</string>
+    <string name="browse">أستعراض…</string>
     <string name="open_file">فتح ملف ePub</string>
     <string name="open_library">الكتب</string>
 
@@ -28,7 +28,7 @@
     
     <string name="cloud_bm">علامات مرجعية</string>
     <string name="toc_label">جدول المحتويات</string>
-    <string name="syncing">"مستوى تقدم التزامن ..."</string>
+    <string name="syncing">"مستوى تقدم التزامن …"</string>
     <string name="sync_failed">فشل التزامن</string>
     <string name="connection_fail">لا يمكن الأتصال بمزود البيانات للتزامن</string>    
     
@@ -45,7 +45,7 @@
     <string name="delete">أحذف</string>
     <string name="scan_books">البحث عن كتب</string>    
     
-    <string name="importing_books">أستيراد الكتب ...</string>
+    <string name="importing_books">أستيراد الكتب …</string>
     <string name="scanning_epub">البحث عن ملفات EPUB</string>
     <string name="importing">أستيراد 	 %1$d 	من 	%2$d</string>
     <string name="importing">أستيراد	%1$d	من	%2$d</string>	
@@ -53,7 +53,7 @@
     <string name="import_errors">بعض الملفات يوجد بها خلل عن أستيرادها:</string>
     <string name="no_books_found">حاليا لا توجد كتب بمكتبتك </string>
     <string name="no_bks_fnd_text">لا يوجد كتب في جاهزك.\nيمكن أن تحمل الكتب من موقع gutenberg.org أو feedbooks.com </string>
-    <string name="loading_library">تحميل المكتبة ...</string>
+    <string name="loading_library">تحميل المكتبة …</string>
     <string name="scan_bks_question">لا يوجد كتب في مكتبتك.\n لتحميل الكتب من جهازك</string>    
     <string name="brightness">السطوع</string>    
         
@@ -103,11 +103,11 @@
     <string name="read">إقراء الآن</string>
     
     <string name="download">تحميل الكتب</string>
-    <string name="downloading">تحميل الكتاب ...</string>
+    <string name="downloading">تحميل الكتاب …</string>
     <string name="feed_failed">لا يمكن الاتصال بالموقع. الرجاء المحاوله مرة أخرى.</string>
     <string name="book_failed">لا يمكن تحميل الكتاب. الرجاء المحاولة مرة أخرى.</string>
 
-    <string name="browse">أستعرض ...</string>
+    <string name="browse">أستعرض …</string>
     
     <string name="search_books">البحث في الكتب</string>
     <string name="enter_query">الرجاء إدخال كلمات البحث</string>

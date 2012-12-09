@@ -19,6 +19,7 @@
 package net.nightwhistler.pageturner.library;
 
 import java.io.Serializable;
+import java.util.Locale;
 
 public class Author implements Serializable {
 
@@ -36,7 +37,7 @@ public class Author implements Serializable {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		
-		this.authorKey = firstName.toLowerCase() + "_" + lastName.toLowerCase(); 
+		this.authorKey = firstName.toLowerCase(Locale.US) + "_" + lastName.toLowerCase(Locale.US); 
 	}
 	
 	public String getAuthorKey() {

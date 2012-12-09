@@ -748,7 +748,7 @@ public class BookView extends ScrollView {
 			
 			//First check if it should be a normal URL link
 			for ( String protocol: this.externalProtocols ) {
-				if ( href.toLowerCase().startsWith(protocol)) {
+				if ( href.toLowerCase(Locale.US).startsWith(protocol)) {
 					builder.setSpan(new URLSpan(href), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					return;
 				}

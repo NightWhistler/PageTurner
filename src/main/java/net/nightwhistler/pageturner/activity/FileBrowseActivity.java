@@ -102,7 +102,7 @@ public class FileBrowseActivity extends RoboSherlockListActivity {
 			
 			if ( listing != null ) {
 				for ( File childFile: listing ) {					
-					if ( childFile.isDirectory() || childFile.getName().toLowerCase().endsWith(".epub")) {
+					if ( childFile.isDirectory() || childFile.getName().toLowerCase(Locale.US).endsWith(".epub")) {
 						items.add(childFile);
 					}
 				}

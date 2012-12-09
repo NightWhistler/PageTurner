@@ -323,7 +323,7 @@ public class Configuration {
 
 	public CoverLabelOption getCoverLabelOption() {
 		return CoverLabelOption.valueOf(settings.getString(KEY_COVER_LABELS,
-				CoverLabelOption.ALWAYS.name().toLowerCase()));
+				CoverLabelOption.ALWAYS.name().toLowerCase(Locale.US)));
 	}
 
 	public ColourProfile getColourProfile() {
@@ -336,8 +336,8 @@ public class Configuration {
 
 	public OrientationLock getScreenOrientation() {
 		String orientation = settings.getString(KEY_SCREEN_ORIENTATION,
-				OrientationLock.NO_LOCK.name().toLowerCase());
-		return OrientationLock.valueOf(orientation.toUpperCase());
+				OrientationLock.NO_LOCK.name().toLowerCase(Locale.US));
+		return OrientationLock.valueOf(orientation.toUpperCase(Locale.US));
 	}
 
 	private void updateValue(String key, Object value) {
@@ -448,7 +448,7 @@ public class Configuration {
 
 	public ScrollStyle getAutoScrollStyle() {
 		String style = settings.getString(KEY_SCROLL_STYLE,
-				ScrollStyle.ROLLING_BLIND.name().toLowerCase());
+				ScrollStyle.ROLLING_BLIND.name().toLowerCase(Locale.US));
 		if ("rolling_blind".equals(style)) {
 			return ScrollStyle.ROLLING_BLIND;
 		} else {
@@ -462,35 +462,35 @@ public class Configuration {
 
 	public AnimationStyle getHorizontalAnim() {
 		String animH = settings.getString(KEY_H_ANIMATION, AnimationStyle.CURL
-				.name().toLowerCase());
-		return AnimationStyle.valueOf(animH.toUpperCase());
+				.name().toLowerCase(Locale.US));
+		return AnimationStyle.valueOf(animH.toUpperCase(Locale.US));
 	}
 
 	public AnimationStyle getVerticalAnim() {
 		String animV = settings.getString(KEY_V_ANIMATION, AnimationStyle.SLIDE
-				.name().toLowerCase());
-		return AnimationStyle.valueOf(animV.toUpperCase());
+				.name().toLowerCase(Locale.US));
+		return AnimationStyle.valueOf(animV.toUpperCase(Locale.US));
 	}
 
 	public LibraryView getLibraryView() {
 		String libView = settings.getString(KEY_LIB_VIEW, LibraryView.BOOKCASE
-				.name().toLowerCase());
-		return LibraryView.valueOf(libView.toUpperCase());
+				.name().toLowerCase(Locale.US));
+		return LibraryView.valueOf(libView.toUpperCase(Locale.US));
 	}
 
 	public void setLibraryView(LibraryView viewStyle) {
-		String libView = viewStyle.name().toLowerCase();
+		String libView = viewStyle.name().toLowerCase(Locale.US);
 		updateValue(KEY_LIB_VIEW, libView);
 	}
 
 	public LibrarySelection getLastLibraryQuery() {
 		String query = settings.getString(KEY_LIB_SEL,
-				LibrarySelection.LAST_ADDED.name().toLowerCase());
-		return LibrarySelection.valueOf(query.toUpperCase());
+				LibrarySelection.LAST_ADDED.name().toLowerCase(Locale.US));
+		return LibrarySelection.valueOf(query.toUpperCase(Locale.US));
 	}
 
 	public void setLastLibraryQuery(LibrarySelection sel) {
-		updateValue(KEY_LIB_SEL, sel.name().toLowerCase());
+		updateValue(KEY_LIB_SEL, sel.name().toLowerCase(Locale.US));
 	}
 
 	public String getCalibreServer() {

@@ -74,14 +74,14 @@
             android:id="@+id/lastRead"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/defaul_last_read"/>    
+            android:text="@string/default_last_read"/>    
        
         
         <TextView
             android:id="@+id/addedToLibrary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@default_added_to_library"/>
+            android:text="@string/default_added_to_library"/>
         
         <ImageView    		
     		android:src="@android:drawable/divider_horizontal_dark"

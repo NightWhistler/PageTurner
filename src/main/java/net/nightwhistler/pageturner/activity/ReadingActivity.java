@@ -344,8 +344,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		int lastIndex = config.getLastIndex(fileName);
 
 		if (savedInstanceState != null) {
-			lastPos = savedInstanceState.getInt(POS_KEY, -1);
-			lastIndex = savedInstanceState.getInt(IDX_KEY, -1);
+			lastPos = savedInstanceState.getInt(POS_KEY, lastPos);
+			lastIndex = savedInstanceState.getInt(IDX_KEY, lastIndex);
 		}
 
 		this.bookView.setFileName(fileName);
@@ -1152,13 +1152,20 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	protected void onStop() {
 		super.onStop();
 
+		saveReadingPosition();
+		sendProgressUpdateToServer();
+		this.waitDialog.dismiss();
+	}
+	
+	private void saveReadingPosition() {
 		if (this.bookView != null) {
 
 			config.setLastPosition(this.fileName, this.bookView.getPosition());
 			config.setLastIndex(this.fileName, this.bookView.getIndex());
+			
+			sendProgressUpdateToServer();
 		}
-
-		this.waitDialog.dismiss();
+		
 	}
 
 	@Override
@@ -1409,8 +1416,11 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	private void launchLibrary() {
 		Intent intent = new Intent(this, LibraryActivity.class);
 		startActivity(intent);
+		
 		this.bookView.releaseResources();
-		finish();
+		saveReadingPosition();
+		
+		finish();		
 	}
 
 	private void showPickProgressDialog(final List<BookProgress> results) {

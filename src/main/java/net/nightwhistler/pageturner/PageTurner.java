@@ -19,21 +19,13 @@
 
 package net.nightwhistler.pageturner;
 
-import java.util.List;
-
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 
-import roboguice.application.RoboApplication;
+import android.app.Application;
 
-import com.google.inject.Module;
-
-@ReportsCrashes(formKey="dDFPZ3VQQ2FISUIwYzVrby0xVDdyVVE6MQ")
-public class PageTurner extends RoboApplication {
-
-	protected void addApplicationModules(List<Module> modules) {
-		modules.add(new PageTurnerModule());		
-    }
+@ReportsCrashes(formKey="dC1sc0tQUVpzdlRRMDNhMFJtbW1UaWc6MQ")
+public class PageTurner extends Application {
 	
 	@Override
 	public void onCreate() {

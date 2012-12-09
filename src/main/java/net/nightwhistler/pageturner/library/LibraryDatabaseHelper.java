@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import roboguice.inject.ContextScoped;
+import roboguice.inject.ContextSingleton;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -31,7 +31,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.google.inject.Inject;
 
-@ContextScoped
+@ContextSingleton
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	public enum Field { 

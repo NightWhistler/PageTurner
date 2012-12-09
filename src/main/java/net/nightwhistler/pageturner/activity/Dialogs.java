@@ -29,6 +29,7 @@ import android.text.Html;
 public class Dialogs {
 	
 	public static void showAboutDialog(Context context) {
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setTitle(R.string.about);
 		builder.setIcon(R.drawable.page_turner);

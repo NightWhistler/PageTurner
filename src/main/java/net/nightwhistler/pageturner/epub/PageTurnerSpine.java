@@ -41,6 +41,8 @@ public class PageTurnerSpine {
 
 	private List<SpineEntry> entries;
 	
+	private List<List<Integer>> pageOffsets;
+	
 	private int position;
 	
 	public static final String COVER_HREF = "PageTurnerCover";
@@ -81,6 +83,41 @@ public class PageTurnerSpine {
 	    	this.tocHref = book.getNcxResource().getHref();
 	    }
 	}
+	
+	public void setPageOffsets(List<List<Integer>> pageOffsets) {
+		this.pageOffsets = pageOffsets;
+	}
+	
+	public int getTotalNumberOfPages() {
+		int total = 0;
+		for ( List<Integer> pagesPerSection: pageOffsets ) {
+			total += pagesPerSection.size();
+		}
+		
+		return total;
+	}
+	
+	public int getPageNumberFor( int index, int position ) {
+		
+		int pageNum = 0;
+		
+		if ( index >= pageOffsets.size() ) {
+			return -1;
+		}
+		
+		for ( int i=0; i < index; i++ ) {
+			pageNum += pageOffsets.get(i).size();			
+		}
+		
+		List<Integer> offsets = pageOffsets.get(index);
+		
+		for ( int i=0; i < offsets.size() && offsets.get(i) < position; i++ ) {
+			pageNum++;
+		}
+		
+		return pageNum;
+	}
+	
 	
 	/**
 	 * Adds a new resource.
@@ -166,11 +203,15 @@ public class PageTurnerSpine {
 	 * @return
 	 */
 	public Resource getCurrentResource() {
+		return getResourceForIndex(position);
+	}
+	
+	public Resource getResourceForIndex( int index ) {
 		if ( entries.isEmpty() ) {
 			return null;
 		}
 		
-		return entries.get(position).resource;
+		return entries.get(index).resource;
 	}
 	
 	/**
@@ -311,6 +352,10 @@ public class PageTurnerSpine {
 	 * @return
 	 */
 	public int getProgressPercentage(double progressInPart) {		
+		return getProgressPercentage(getPosition(), progressInPart);				
+	}
+	
+	private int getProgressPercentage(int index, double progressInPart) {
 		
 		if ( this.entries == null ) {
 			return -1;
@@ -320,16 +365,35 @@ public class PageTurnerSpine {
 		
 		List<Double> percentages = getRelativeSizes();
 		
-		for ( int i=0; i < percentages.size() && i < this.position; i++ ) {
+		for ( int i=0; i < percentages.size() && i < index; i++ ) {
 			uptoHere += percentages.get( i );
 		}  
 		
-		double thisPart = percentages.get(this.position);
+		double thisPart = percentages.get(index);
 		
 		double progress = uptoHere + (progressInPart * thisPart);
 		
-		return (int) (progress * 100);		
+		return (int) (progress * 100);	
 	}
+	
+	/**
+	 * Returns the progress percentage for the given text position 
+	 * in the given index.
+	 * 
+	 * @param index
+	 * @param position
+	 * @return
+	 */
+	public int getProgressPercentage(int index, int position) {
+		if ( this.entries == null || index >= entries.size() ) {
+			return -1;
+		}
+		
+		double progressInPart = ( (double)position / (double) entries.get(index).size);
+		return getProgressPercentage(index, progressInPart);		
+	}
+	
+	
 	
 	/**
 	 * Returns a list of doubles representing the relative size of each spine index.

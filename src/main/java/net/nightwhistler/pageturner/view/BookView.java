@@ -36,9 +36,11 @@ import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
+import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.MediaType;
@@ -52,29 +54,34 @@ import org.htmlcleaner.TagNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
-import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
+import android.text.TextUtils;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
 
 public class BookView extends ScrollView {
     	
@@ -103,10 +110,15 @@ public class BookView extends ScrollView {
 	
 	private int horizontalMargin = 0;
 	private int verticalMargin = 0;
-	private int lineSpacing = 0;
+	private int lineSpacing = 0;	
+	
+	private Configuration configuration;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
+
+	private Map<String, Drawable> imageCache = new HashMap<String, Drawable>();
 	
+	@SuppressLint("NewApi")
 	public BookView(Context context, AttributeSet attributes) {
 		super(context, attributes);		
 		
@@ -120,37 +132,25 @@ public class BookView extends ScrollView {
 				
 				int tableWidth = (int) ( this.getWidth() * 0.9 );
 				tableHandler.setTableWidth( tableWidth );
+				
 			}
 			
 			public boolean dispatchKeyEvent(KeyEvent event) {
 				return BookView.this.dispatchKeyEvent(event);
-			}			
+			}
 			
-			@Override
-			protected void onSelectionChanged(int selStart, int selEnd) {
-				// TODO Auto-generated method stub
-				super.onSelectionChanged(selStart, selEnd);
-				
-				LOG.debug("Got text selection from " + selStart + " to " + selEnd );
-			}			
-			
-		};  
+		};		
 		
 		childView.setCursorVisible(false);		
 		childView.setLongClickable(true);	        
         this.setVerticalFadingEdgeEnabled(false);
         childView.setFocusable(true);
         childView.setLinksClickable(true);
-        childView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT) );
+        childView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT) );       
         
-        
-        MovementMethod m = childView.getMovementMethod();  
-        if ((m == null) || !(m instanceof LinkMovementMethod)) {  
-            if (childView.getLinksClickable()) {  
-                childView.setMovementMethod(LinkMovementMethod.getInstance());  
-            }  
-        }  
-        
+        if ( Build.VERSION.SDK_INT >= 11 ) {
+        	childView.setTextIsSelectable(true);
+        }
         
         this.setSmoothScrollingEnabled(false);        
         this.addView(childView);        
@@ -177,7 +177,12 @@ public class BookView extends ScrollView {
         
         spanner.registerHandler("p", new AnchorHandler(spanner.getHandlerFor("p") ));
         spanner.registerHandler("table", tableHandler);
-	}	
+	}
+	
+	public void setConfiguration(Configuration configuration) {
+		this.configuration = configuration;
+	}
+	
 	
 	/**
 	 * Returns if we're at the start of the book, i.e. displaying the title page.
@@ -207,6 +212,7 @@ public class BookView extends ScrollView {
 		this.loader = new ResourceLoader(fileName);
 	}
 	
+	
 	@Override
 	public void setOnTouchListener(OnTouchListener l) {		
 		super.setOnTouchListener(l);
@@ -217,22 +223,23 @@ public class BookView extends ScrollView {
 		this.spanner.setStripExtraWhiteSpace(stripWhiteSpace);
 	}	
 	
-	public boolean hasLinkAt( float x, float y ) {
+	public ClickableSpan[] getLinkAt( float x, float y ) {
 		Integer offset = findOffsetForPosition(x, y);
 		
 		if ( offset == null ) {
-			return false;
+			return null;
 		}
 		
 		Spanned text = (Spanned) childView.getText();
 		ClickableSpan[] spans = text.getSpans(offset, offset, ClickableSpan.class );
 		
-		return spans != null && spans.length > 0;
+		return spans;
 	}
 	
 	@Override
-	public boolean onTouchEvent(MotionEvent ev) {		
-		return childView.onTouchEvent(ev);
+	public boolean onTouchEvent(MotionEvent ev) {
+		childView.onTouchEvent(ev);
+		return super.onTouchEvent(ev);		
 	}	
 	
 	public boolean hasPrevPosition() {
@@ -249,6 +256,15 @@ public class BookView extends ScrollView {
 			}
 		}
 	}	
+	
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public void setTextSelectionCallback(TextSelectionCallback callback ) {
+		if ( Build.VERSION.SDK_INT >= 11 ) {
+			this.childView.setCustomSelectionActionModeCallback(
+				new TextSelectionActions(callback, this));
+		}
+	}
 	
 	public int getLineSpacing() {
 		return lineSpacing;
@@ -287,17 +303,41 @@ public class BookView extends ScrollView {
 		return verticalMargin;
 	}
 	
+	public int getSelectionStart() {
+		return childView.getSelectionStart();
+	}
+	
+	public int getSelectionEnd() {
+		return childView.getSelectionEnd();
+	}
+	
+	public String getSelectedText() {
+		return childView.getText().subSequence(
+				getSelectionStart(), getSelectionEnd() ).toString();
+	}
+	
 	public void goBackInHistory() {
 		
-		this.strategy.clearText();
-		this.spine.navigateByIndex( this.prevIndex );
-		strategy.setPosition(this.prevPos);
+		if ( this.prevIndex == this.getIndex() ) {
+			strategy.setPosition(prevPos);
+			
+			this.storedAnchor = null;
+			this.prevIndex = -1;
+			this.prevPos = -1;
+
+			restorePosition();
+			
+		} else {		
+			this.strategy.clearText();
+			this.spine.navigateByIndex( this.prevIndex );
+			strategy.setPosition(this.prevPos);
 		
-		this.storedAnchor = null;
-		this.prevIndex = -1;
-		this.prevPos = -1;
+			this.storedAnchor = null;
+			this.prevIndex = -1;
+			this.prevPos = -1;
 		
-		loadText();
+			loadText();
+		}
 	}
 	
 	public void clear() {
@@ -325,6 +365,10 @@ public class BookView extends ScrollView {
 	
 	void loadText() {		
         new LoadTextTask().execute();        
+	}
+	
+	private void loadText(List<SearchTextTask.SearchResult> hightListResults ) {
+		new LoadTextTask(hightListResults).execute();
 	}
 	
 	public void setFontFamily(FontFamily family) {
@@ -386,8 +430,6 @@ public class BookView extends ScrollView {
 		if ( childView == null ) {
 			return null;
 		}
-		
-		//childView.setse
 		
 		CharSequence text = this.childView.getText();
 		
@@ -475,15 +517,21 @@ public class BookView extends ScrollView {
 		
 		if ( ! "".equals(anchor) ) {
 			this.storedAnchor = anchor;
-		}
+		}		
 		
-		this.strategy.clearText();
-		this.strategy.setPosition(0);
-		
-		if ( this.spine.navigateByHref(href) ) {
-			loadText();
-		} else {			
-			new LoadTextTask().execute(href);
+		//Just an anchor and no href; resolve it on this page
+		if ( href.length() == 0 ){
+			restorePosition();
+		} else {
+
+			this.strategy.clearText();
+			this.strategy.setPosition(0);
+			
+			if (this.spine.navigateByHref(href) ) {		
+				loadText();
+			} else {			
+				new LoadTextTask().execute(href);
+			}
 		}
 	}	
 	
@@ -522,6 +570,22 @@ public class BookView extends ScrollView {
 		
 		doNavigation(index);
 	}	
+	
+	public void navigateBySearchResult( List<SearchTextTask.SearchResult> result, int selectedResultIndex  ) {
+		SearchTextTask.SearchResult searchResult = result.get(selectedResultIndex);
+		//navigateTo(progress.getIndex(), progress.getOffset() );
+		
+		this.prevPos = this.getPosition();
+		this.strategy.setPosition(searchResult.getStart());
+		
+		this.prevIndex = this.getIndex();
+		
+		this.storedIndex = searchResult.getIndex();
+		this.strategy.clearText();
+		this.spine.navigateByIndex(searchResult.getIndex());
+
+		loadText(result);
+	}
 	
 	private void doNavigation( int index ) {
 
@@ -663,6 +727,7 @@ public class BookView extends ScrollView {
 		public LinkTagHandler() {
 			this.externalProtocols = new ArrayList<String>();
 			externalProtocols.add("http://");
+			externalProtocols.add("epub://");
 			externalProtocols.add("https://");
 			externalProtocols.add("http://");
 			externalProtocols.add("ftp://");
@@ -673,11 +738,13 @@ public class BookView extends ScrollView {
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 				int start, int end) {
 			
-			final String href = node.getAttributeByName("href");
+			String href = node.getAttributeByName("href");
 			
 			if ( href == null ) {
 				return;
-			}
+			}			
+			
+			final String linkHref = href;
 			
 			//First check if it should be a normal URL link
 			for ( String protocol: this.externalProtocols ) {
@@ -692,11 +759,19 @@ public class BookView extends ScrollView {
 					
 				@Override
 				public void onClick(View widget) {
-					navigateTo(spine.resolveHref(href));					
+					navigateTo(spine.resolveHref(linkHref));					
 				}
 			};
 				
 			builder.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);			 
+		}
+	}
+	
+	private void setImageSpan( SpannableStringBuilder builder, Drawable drawable, int start, int end ) {
+		builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		
+		if ( spine.isCover() ) {
+			builder.setSpan(new CenterSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
 	}
 	
@@ -706,10 +781,13 @@ public class BookView extends ScrollView {
 		private int start;
 		private int end;
 		
-		public ImageCallback(SpannableStringBuilder builder, int start, int end) {
+		private String storedHref;
+		
+		public ImageCallback(String href, SpannableStringBuilder builder, int start, int end) {
 			this.builder = builder;
 			this.start = start;
 			this.end = end;
+			this.storedHref = href;
 		}
 		
 		@Override
@@ -725,20 +803,21 @@ public class BookView extends ScrollView {
 				
 			} catch (OutOfMemoryError outofmem) {
 				LOG.error("Could not load image", outofmem);
+				imageCache.clear();
 			}
 			
 			if ( bitmap != null ) {
 				Drawable drawable = new FastBitmapDrawable( bitmap );				
 				drawable.setBounds(0,0, bitmap.getWidth() - 1, bitmap.getHeight() - 1);
-				builder.setSpan( new ImageSpan(drawable), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				setImageSpan(builder, drawable, start, end);
 				
-				if ( spine.isCover() ) {
-					builder.setSpan(new CenterSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				}
-				
+				LOG.debug("Storing image in cache: " + storedHref );
+				imageCache.put(storedHref, drawable);
 			}
 						
 		}
+		
+		
 		
 		private Bitmap getBitmap(InputStream input) {
 			
@@ -796,8 +875,17 @@ public class BookView extends ScrollView {
 			}
 	        builder.append("\uFFFC");
 	        
-	        loader.registerCallback(spine.resolveHref(src), 
-	        		new ImageCallback(builder, start, builder.length()));
+	        String resolvedHref = spine.resolveHref(src);
+	        
+	        if ( imageCache.containsKey(resolvedHref) ) {
+	        	Drawable drawable = imageCache.get(resolvedHref);
+	        	setImageSpan(builder, drawable, start, builder.length());
+	        	LOG.debug("Got cached href: " + resolvedHref );
+	        } else {
+	        	LOG.debug("Loading href: " + resolvedHref );
+	        	loader.registerCallback(resolvedHref, 
+	        		new ImageCallback(resolvedHref, builder, start, builder.length()));
+	        }
 		}				
 		
 	}
@@ -902,10 +990,14 @@ public class BookView extends ScrollView {
 		
 			if ( progress != -1 ) {
 				for ( BookViewListener listener: this.listeners ) {
-					listener.progressUpdate(progress);
+					listener.progressUpdate(progress, spine.getPageNumberFor(getIndex(), getPosition() ), spine.getTotalNumberOfPages() );
 				}		
 			}
 		}
+	}
+	
+	public void saveInstanceState(Bundle outState) {
+		
 	}
 	
 	public void setEnableScrolling(boolean enableScrolling) {
@@ -927,7 +1019,10 @@ public class BookView extends ScrollView {
 			if ( enableScrolling ) {
 				this.strategy = new ScrollingStrategy(this, this.getContext());
 			} else {
-				this.strategy = new SinglePageStrategy(this);
+				
+				
+				
+				this.strategy = new FixedPagesStrategy(this);
 			}
 
 			if ( ! wasNull ) {				
@@ -944,7 +1039,40 @@ public class BookView extends ScrollView {
 		
 		this.book = book;
 		this.spine = new PageTurnerSpine(book);	   
-	    this.spine.navigateByIndex( this.storedIndex );	    
+		
+		String file = StringUtil.substringAfterLast(fileName, 
+				'/' );
+		
+	    this.spine.navigateByIndex( this.storedIndex );	
+	    
+	    List<List<Integer>> offsets = this.configuration.getPageOffsets(file);
+	    
+	    if ( offsets == null || offsets.isEmpty() ) {
+	    	try {
+		    	offsets = new ArrayList<List<Integer>>();	    
+
+		    	for ( int i=0; i < spine.size(); i++ ) {	    	
+		    		offsets.add( getOffsetsForResource(spine.getResourceForIndex(i)));
+		    	}
+		    	
+		    	configuration.setPageOffsets(file, offsets);
+		    	
+		    } catch (IOException io) {
+		    	LOG.error("Could not read pagenumers", io );
+		    }
+	
+	    }
+	    
+    	spine.setPageOffsets(offsets);
+	    	    
+	}	
+	
+	private List<Integer> getOffsetsForResource( Resource res ) throws IOException { 
+		
+		CharSequence text = spanner.fromHtml( res.getReader() );
+		loader.load();
+		
+		return FixedPagesStrategy.getPageOffsets(this, text);			
 	}
 	
 	private void initBook() throws IOException {	
@@ -972,6 +1100,8 @@ public class BookView extends ScrollView {
         
        	Book newBook = epubReader.readEpubLazy(fileName, "UTF-8", Arrays.asList(lazyTypes));
         setBook( newBook );
+        
+        
 	}	
 	
 	private class LoadTextTask extends AsyncTask<String, Integer, Spanned> {
@@ -981,6 +1111,16 @@ public class BookView extends ScrollView {
 		private boolean wasBookLoaded;
 		
 		private String error;
+		
+		private List<SearchTextTask.SearchResult> searchResults = new ArrayList<SearchTextTask.SearchResult>();
+		
+		public LoadTextTask() {
+		
+		}
+		
+		LoadTextTask(List<SearchTextTask.SearchResult> searchResults ) {
+			this.searchResults = searchResults;
+		}		
 		
 		@Override
 		protected void onPreExecute() {
@@ -1018,8 +1158,18 @@ public class BookView extends ScrollView {
 			}			
 			
 			try {
-				Spanned result = spanner.fromHtml(resource.getReader());
+				Spannable result = spanner.fromHtml(resource.getReader());
 				loader.load(); //Load all image resources.
+				
+				//Highlight search results (if any)
+				for ( SearchTextTask.SearchResult searchResult: this.searchResults ) {
+					if ( searchResult.getIndex() == spine.getPosition() ) {
+						result.setSpan(new BackgroundColorSpan(Color.YELLOW),
+								searchResult.getStart(), searchResult.getEnd(),
+								Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );								
+					}
+				}
+				
 				return result;
 			} catch (IOException io ) {
 				return new SpannableString( "Could not load text: " + io.getMessage() );
@@ -1037,7 +1187,7 @@ public class BookView extends ScrollView {
 					errorOnBookOpening(this.error);
 					return;
 				}
-			}
+			}			
 			
 			restorePosition();
 			strategy.loadText( result );			

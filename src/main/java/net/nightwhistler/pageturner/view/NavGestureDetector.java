@@ -19,6 +19,9 @@
 
 package net.nightwhistler.pageturner.view;
 
+import android.os.Build;
+import android.text.Selection;
+import android.text.style.ClickableSpan;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -51,8 +54,14 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 	public boolean onSingleTapUp(MotionEvent e) {
 		
 		//Links get preference
-		if ( bookView.hasLinkAt(e.getX(), e.getY())) {
-			return false;
+		ClickableSpan[] spans = bookView.getLinkAt(e.getX(), e.getY() );
+		if ( spans != null && spans.length > 0 ) {
+			
+			for ( ClickableSpan span: spans ) {
+				span.onClick(bookView);
+			}
+			
+			return true;
 		}
 		
     	final int TAP_RANGE_H = bookView.getWidth() / 5;
@@ -126,11 +135,19 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 	
 	@Override
     public void onLongPress(MotionEvent e) {
-    	CharSequence word = bookView.getWordAt(e.getX(), e.getY() );
-    	
-    	if ( word != null ) {
-    		bookViewListener.onWordLongPressed(word);
-    	}
+		
+		//On older platforms we generate a popup-event.
+		if ( Build.VERSION.SDK_INT < 11 ) {
+			CharSequence word = bookView.getWordAt(e.getX(), e.getY() );
+			
+			
+
+			if ( word != null ) {
+				bookViewListener.onWordLongPressed(word);
+			}
+
+			super.onLongPress(e);
+		}
     }     
 
 

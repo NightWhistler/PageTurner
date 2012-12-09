@@ -19,20 +19,25 @@
 
 package net.nightwhistler.pageturner.activity;
 
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
+import roboguice.RoboGuice;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
-public class PageTurnerPrefsActivity extends PreferenceActivity {
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockPreferenceActivity;
 
+public class PageTurnerPrefsActivity extends RoboSherlockPreferenceActivity {
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );
 		super.onCreate(savedInstanceState);
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		if ( ! settings.contains("device_name") ) {
 	 	   SharedPreferences.Editor editor = settings.edit();

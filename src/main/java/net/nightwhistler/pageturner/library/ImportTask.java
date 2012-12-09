@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
@@ -23,6 +24,7 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	private Context context;
 	private LibraryService libraryService;
 	private ImportCallback callBack;	
+	private Configuration config;
 	
 	private boolean copyToLibrary;
 	
@@ -39,11 +41,12 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	private String importFailed = null;
 	
 	public ImportTask( Context context, LibraryService libraryService,
-			ImportCallback callBack, boolean copyToLibrary ) {
+			ImportCallback callBack, Configuration config, boolean copyToLibrary ) {
 		this.context = context;
 		this.libraryService = libraryService;
 		this.callBack = callBack;
 		this.copyToLibrary = copyToLibrary;
+		this.config = config;
 	}		
 	
 	@Override
@@ -107,8 +110,19 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 			publishProgress(UPDATE_FOLDER, foldersScanned);
 			
 		} else {
-			if ( folder.getName().endsWith(".epub") ) {
+			
+			String fileName = folder.getAbsolutePath();
+			
+			//Scan items 
+			if ( fileName.endsWith(".epub") ) {
 				items.add(folder);
+			} else if ( fileName.startsWith(config.getLibraryFolder()) 
+					|| fileName.startsWith(config.getDownloadsFolder() )) {
+					
+				if ( folder.getName().indexOf(".") == -1 ) {				
+					//Older versions downloaded files without an extension				
+					items.add(folder);
+				}
 			}
 		}
 	}
@@ -142,12 +156,12 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 		String message;
 		
 		if ( values[0] == UPDATE_IMPORT ) {
-			message = String.format(context.getString(R.string.importing), values[1], values[2]);			
+			message = String.format(context.getString(R.string.importing), values[1], values[2]);		
 		} else {
 			message = String.format(context.getString(R.string.scan_folders), values[1]);			
 		}
 		
-		callBack.importStatusUpdate(message);
+		callBack.importStatusUpdate(message);		
 	}
 	
 	@Override

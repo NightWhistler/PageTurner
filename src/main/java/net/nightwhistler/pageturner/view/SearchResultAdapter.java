@@ -19,12 +19,11 @@
 
 package net.nightwhistler.pageturner.view;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.sync.BookProgress;
+import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
@@ -41,26 +40,25 @@ import android.widget.TextView;
  * @author Alex Kuiper
  *
  */
-public class ProgressListAdapter extends ArrayAdapter<BookProgress> implements 
+public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResult> implements 
 	DialogInterface.OnClickListener {
 
-	private List<BookProgress> books;
+	private List<SearchTextTask.SearchResult> results;
 	private BookView bookView;
-
-	private Configuration config;
 	
-	public ProgressListAdapter(Context context, BookView bookView, 
-			List<BookProgress> books, Configuration config) {
+	private Configuration config;
+
+	public SearchResultAdapter(Context context, BookView bookView, 
+			List<SearchTextTask.SearchResult> books, Configuration config) {
 		super(context, R.id.deviceName, books);
-		this.books = books;
+		this.results = books;
 		this.bookView = bookView;
 		this.config = config;
 	}
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-		BookProgress progress = books.get(which);
-		bookView.navigateTo(progress.getIndex(), progress.getProgress() );    		
+		bookView.navigateBySearchResult(this.results, which);    		
 	}
 
 	@Override
@@ -88,10 +86,10 @@ public class ProgressListAdapter extends ArrayAdapter<BookProgress> implements
 			rowView.setBackgroundColor(config.getBackgroundColor());
 		}
 		
-		BookProgress progress = books.get(position);
+		SearchTextTask.SearchResult progress = results.get(position);
 
-		deviceView.setText( progress.getDeviceName() + " - " + progress.getPercentage() + "%" );
-		dateView.setText( SimpleDateFormat.getDateTimeInstance().format(progress.getTimeStamp()) );
+		deviceView.setText( progress.getDisplay() );
+		dateView.setText( progress.getPercentage() + "%" );
 
 		return rowView;
 

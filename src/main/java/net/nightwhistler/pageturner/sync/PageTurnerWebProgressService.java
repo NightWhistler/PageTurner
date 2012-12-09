@@ -54,13 +54,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import roboguice.inject.ContextScoped;
+import roboguice.inject.ContextSingleton;
 import android.content.Context;
 
 import com.google.inject.Inject;
 
 
-@ContextScoped
+@ContextSingleton
 public class PageTurnerWebProgressService implements ProgressService {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(PageTurnerWebProgressService.class);	

@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
- 
-	<item android:id="@+id/shelves_view"          
-          android:title="@string/shelves_view"
-          android:icon="@drawable/shelves" />
-          
-   <item android:id="@+id/list_view"          
-          android:title="@string/list_view"
-          android:icon="@drawable/list" />
-    
-    <item android:id="@+id/preferences"          
-          android:title="@string/prefs" 
-          android:icon="@drawable/cog"/>
-    
-     <item android:id="@+id/scan_books"          
-          android:title="@string/scan_books" 
-          android:icon="@drawable/book_refresh"/>
-     
-     <item android:id="@+id/download"
-         android:title="@string/download"
-         android:icon="@drawable/download" />
-         
-     
-     <item android:id="@+id/about"          
-          android:title="@string/about"
-          android:icon="@drawable/info" />  
+    <item
+        android:id="@+id/shelves_view"
+        android:icon="@drawable/shelves"
+        android:title="@string/shelves_view"/>
+    <item
+        android:id="@+id/list_view"
+        android:icon="@drawable/list"
+        android:title="@string/list_view"/>
+    <item
+        android:id="@+id/scan_books"
+        android:icon="@drawable/book_refresh"
+        android:title="@string/scan_books"/>
+    <item
+        android:id="@+id/download"
+        android:icon="@drawable/download"
+        android:title="@string/download"/>
+    <item
+        android:id="@+id/preferences"
+        android:icon="@drawable/cog"
+        android:showAsAction="ifRoom"
+        android:title="@string/prefs"/>
+    <item
+        android:id="@+id/about"
+        android:icon="@drawable/info"
+        android:title="@string/about"/>
+
 </menu>

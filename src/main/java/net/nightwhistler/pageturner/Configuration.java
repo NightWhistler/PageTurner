@@ -136,6 +136,8 @@ public class Configuration {
 	public static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
 
 	public static final String KEY_OFFSETS = "offsets";
+	
+	private static final String KEY_SHOW_PAGENUM = "show_pagenum";
 
 	@Inject
 	public Configuration(Context context) {
@@ -241,6 +243,10 @@ public class Configuration {
 		return settings.getString(KEY_EMAIL, "").trim();
 	}
 
+	public boolean isShowPageNumbers() {
+		return settings.getBoolean(KEY_SHOW_PAGENUM, false);
+	}
+	
 	public String getSynchronizationAccessKey() {
 		return settings.getString(ACCESS_KEY, "").trim();
 	}

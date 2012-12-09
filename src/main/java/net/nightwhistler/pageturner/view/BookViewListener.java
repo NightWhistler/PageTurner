@@ -37,6 +37,21 @@ public interface BookViewListener {
 	void bookOpened( Book book );
 	
 	/**
+	 * Event indicating we're calculating page-numbers now
+	 */
+	void calculatingPageNumbers();	
+	
+	/**
+	 * Event indicating we've started parsing the actual text.
+	 */
+	void readingFile();
+	
+	/**
+	 * Event indicating text rendering has started
+	 */
+	void renderingText();
+	
+	/**
 	 * Called if the book could not be opened for some reason.
 	 * 
 	 * @param errorMessage

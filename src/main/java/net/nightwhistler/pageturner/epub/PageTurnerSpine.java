@@ -41,7 +41,7 @@ public class PageTurnerSpine {
 
 	private List<SpineEntry> entries;
 	
-	private List<List<Integer>> pageOffsets;
+	private List<List<Integer>> pageOffsets = new ArrayList<List<Integer>>();
 	
 	private int position;
 	

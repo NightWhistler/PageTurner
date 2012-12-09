@@ -60,6 +60,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -116,7 +117,7 @@ public class BookView extends ScrollView {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 
-	private Map<String, Drawable> imageCache = new HashMap<String, Drawable>();
+	private Map<String, FastBitmapDrawable> imageCache = new HashMap<String, FastBitmapDrawable>();
 	
 	@SuppressLint("NewApi")
 	public BookView(Context context, AttributeSet attributes) {
@@ -183,6 +184,14 @@ public class BookView extends ScrollView {
 		this.configuration = configuration;
 	}
 	
+	private void clearImageCache() {
+		for ( Map.Entry<String, FastBitmapDrawable> draw: imageCache.entrySet() ) {
+			draw.getValue().destroy();
+		}
+		
+		imageCache.clear();
+	}
+	
 	
 	/**
 	 * Returns if we're at the start of the book, i.e. displaying the title page.
@@ -238,8 +247,14 @@ public class BookView extends ScrollView {
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
-		childView.onTouchEvent(ev);
-		return super.onTouchEvent(ev);		
+		
+		if ( strategy.isScrolling() ) {
+			return super.onTouchEvent(ev);
+		} else {
+			return childView.onTouchEvent(ev);	
+		}
+		
+		//return super.onTouchEvent(ev);		
 	}	
 	
 	public boolean hasPrevPosition() {
@@ -279,6 +294,11 @@ public class BookView extends ScrollView {
 				strategy.updatePosition();
 			}
 		}		
+	}
+	
+	public void releaseResources() {
+		this.strategy.clearText();
+		this.clearImageCache();
 	}
 	
 	public void setLinkColor(int color) {
@@ -803,11 +823,11 @@ public class BookView extends ScrollView {
 				
 			} catch (OutOfMemoryError outofmem) {
 				LOG.error("Could not load image", outofmem);
-				imageCache.clear();
+				clearImageCache();
 			}
 			
 			if ( bitmap != null ) {
-				Drawable drawable = new FastBitmapDrawable( bitmap );				
+				FastBitmapDrawable drawable = new FastBitmapDrawable( bitmap );				
 				drawable.setBounds(0,0, bitmap.getWidth() - 1, bitmap.getHeight() - 1);
 				setImageSpan(builder, drawable, start, end);
 				
@@ -976,6 +996,24 @@ public class BookView extends ScrollView {
 		}
 	}
 	
+	private void fireCalculatinPageNumbers() {
+		for ( BookViewListener listener: this.listeners ) {
+			listener.calculatingPageNumbers();
+		}
+	}
+	
+	private void fireOpenFile() {
+		for ( BookViewListener listener: this.listeners ) {
+			listener.readingFile();
+		}
+	}
+	
+	private void fireRenderingText() {
+		for ( BookViewListener listener: this.listeners ) {
+			listener.renderingText();
+		}
+	}
+	
 	private void progressUpdate() {		
 		
 		if ( this.spine != null && this.strategy.getText() != null && this.strategy.getText().length() > 0) {
@@ -994,11 +1032,7 @@ public class BookView extends ScrollView {
 				}		
 			}
 		}
-	}
-	
-	public void saveInstanceState(Bundle outState) {
-		
-	}
+	}	
 	
 	public void setEnableScrolling(boolean enableScrolling) {
 		
@@ -1018,10 +1052,7 @@ public class BookView extends ScrollView {
 
 			if ( enableScrolling ) {
 				this.strategy = new ScrollingStrategy(this, this.getContext());
-			} else {
-				
-				
-				
+			} else {				
 				this.strategy = new FixedPagesStrategy(this);
 			}
 
@@ -1033,78 +1064,19 @@ public class BookView extends ScrollView {
 				this.strategy.loadText(text);
 			}
 		}
-	}
-	
-	public void setBook( Book book ) {
-		
-		this.book = book;
-		this.spine = new PageTurnerSpine(book);	   
-		
-		String file = StringUtil.substringAfterLast(fileName, 
-				'/' );
-		
-	    this.spine.navigateByIndex( this.storedIndex );	
-	    
-	    List<List<Integer>> offsets = this.configuration.getPageOffsets(file);
-	    
-	    if ( offsets == null || offsets.isEmpty() ) {
-	    	try {
-		    	offsets = new ArrayList<List<Integer>>();	    
-
-		    	for ( int i=0; i < spine.size(); i++ ) {	    	
-		    		offsets.add( getOffsetsForResource(spine.getResourceForIndex(i)));
-		    	}
-		    	
-		    	configuration.setPageOffsets(file, offsets);
-		    	
-		    } catch (IOException io) {
-		    	LOG.error("Could not read pagenumers", io );
-		    }
-	
-	    }
-	    
-    	spine.setPageOffsets(offsets);
-	    	    
 	}	
 	
-	private List<Integer> getOffsetsForResource( Resource res ) throws IOException { 
-		
+	private List<Integer> getOffsetsForResource( Resource res ) throws IOException { 		
 		CharSequence text = spanner.fromHtml( res.getReader() );
 		loader.load();
 		
 		return FixedPagesStrategy.getPageOffsets(this, text);			
 	}
 	
-	private void initBook() throws IOException {	
-		
-		if ( this.fileName == null ) {
-			throw new IOException("No file-name specified.");
-		}
-						
-		// read epub file
-        EpubReader epubReader = new EpubReader();	
-       
-        MediaType[] lazyTypes = {
-        		MediatypeService.CSS, //We don't support CSS yet 
-        		
-        		MediatypeService.GIF, MediatypeService.JPG,
-        		MediatypeService.PNG, MediatypeService.SVG, //Handled by the ResourceLoader
-        		
-        		MediatypeService.OPENTYPE, MediatypeService.TTF, //We don't support custom fonts either
-        		MediatypeService.XPGT,
-        		
-        		MediatypeService.MP3, MediatypeService.MP4, //And no audio either
-        		MediatypeService.SMIL, MediatypeService.XPGT,
-        		MediatypeService.PLS
-        };
-        
-       	Book newBook = epubReader.readEpubLazy(fileName, "UTF-8", Arrays.asList(lazyTypes));
-        setBook( newBook );
-        
-        
-	}	
 	
-	private class LoadTextTask extends AsyncTask<String, Integer, Spanned> {
+	private static enum BookReadPhase { START, OPEN_FILE, CALC_PAGE_NUM, PARSE_TEXT, DONE };
+	
+	private class LoadTextTask extends AsyncTask<String, BookReadPhase, Spanned> {		
 		
 		private String name;		
 		
@@ -1125,10 +1097,81 @@ public class BookView extends ScrollView {
 		@Override
 		protected void onPreExecute() {
 			this.wasBookLoaded = book != null;
-			parseEntryStart(getIndex());
+			clearImageCache();
 		}
 		
+		private void setBook( Book book ) {
+			
+			BookView.this.book = book;
+			BookView.this.spine = new PageTurnerSpine(book);	   
+			
+			String file = StringUtil.substringAfterLast(fileName, 
+					'/' );
+			
+			BookView.this.spine.navigateByIndex( BookView.this.storedIndex );	
+		    
+			if ( configuration.isShowPageNumbers() ) {
+				
+				List<List<Integer>> offsets = configuration.getPageOffsets(file);
+
+				if ( offsets == null || offsets.isEmpty() ) {
+
+					publishProgress(BookReadPhase.CALC_PAGE_NUM);
+
+					try {
+						offsets = new ArrayList<List<Integer>>();	    
+
+						for ( int i=0; i < spine.size(); i++ ) {	    	
+							offsets.add( getOffsetsForResource(spine.getResourceForIndex(i)));
+							clearImageCache();
+						}
+
+						configuration.setPageOffsets(file, offsets);
+
+					} catch (IOException io) {
+						LOG.error("Could not read pagenumers", io );
+					}
+
+				}
+
+				spine.setPageOffsets(offsets);
+			}
+		    	    
+		}	
+		
+		private void initBook() throws IOException {	
+			
+			publishProgress(BookReadPhase.OPEN_FILE);
+			
+			if ( BookView.this.fileName == null ) {
+				throw new IOException("No file-name specified.");
+			}
+							
+			// read epub file
+	        EpubReader epubReader = new EpubReader();	
+	       
+	        MediaType[] lazyTypes = {
+	        		MediatypeService.CSS, //We don't support CSS yet 
+	        		
+	        		MediatypeService.GIF, MediatypeService.JPG,
+	        		MediatypeService.PNG, MediatypeService.SVG, //Handled by the ResourceLoader
+	        		
+	        		MediatypeService.OPENTYPE, MediatypeService.TTF, //We don't support custom fonts either
+	        		MediatypeService.XPGT,
+	        		
+	        		MediatypeService.MP3, MediatypeService.MP4, //And no audio either
+	        		MediatypeService.SMIL, MediatypeService.XPGT,
+	        		MediatypeService.PLS
+	        };
+	        
+	       	Book newBook = epubReader.readEpubLazy(fileName, "UTF-8", Arrays.asList(lazyTypes));
+	        setBook( newBook );	        
+	        
+		}	
+		
 		protected Spanned doInBackground(String...hrefs) {	
+			
+			publishProgress(BookReadPhase.START);
 			
 			if ( loader != null ) {
 				loader.clear();
@@ -1157,6 +1200,8 @@ public class BookView extends ScrollView {
 				return new SpannedString("Sorry, it looks like you clicked a dead link.\nEven books have 404s these days." );
 			}			
 			
+			publishProgress(BookReadPhase.PARSE_TEXT);
+			
 			try {
 				Spannable result = spanner.fromHtml(resource.getReader());
 				loader.load(); //Load all image resources.
@@ -1167,15 +1212,42 @@ public class BookView extends ScrollView {
 						result.setSpan(new BackgroundColorSpan(Color.YELLOW),
 								searchResult.getStart(), searchResult.getEnd(),
 								Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );								
-					}
+					}			
 				}
+				
+				publishProgress(BookReadPhase.DONE);
 				
 				return result;
 			} catch (IOException io ) {
 				return new SpannableString( "Could not load text: " + io.getMessage() );
 			}			
 	        
+			
 		}
+		
+		@Override
+		protected void onProgressUpdate(BookReadPhase... values) {
+			
+			BookReadPhase phase = values[0];
+			
+			switch (phase) {
+			case START:
+				parseEntryStart(getIndex());
+				break;
+			case OPEN_FILE:
+				fireOpenFile();				
+				break;
+			case CALC_PAGE_NUM:
+				fireCalculatinPageNumbers();
+				break;
+			case PARSE_TEXT:
+				fireRenderingText();
+				break;				
+			case DONE:
+				parseEntryComplete(spine.getPosition(), this.name);
+				break;
+			}
+		}		
 		
 		@Override
 		protected void onPostExecute(final Spanned result) {
@@ -1190,9 +1262,7 @@ public class BookView extends ScrollView {
 			}			
 			
 			restorePosition();
-			strategy.loadText( result );			
-			
-			parseEntryComplete(spine.getPosition(), this.name);
+			strategy.loadText( result );
 		}
 	}	
 }

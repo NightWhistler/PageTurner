@@ -117,4 +117,16 @@
     <string name="search_cancelled">Zoeken geannuleerd</string>
     <string name="search_no_matches">Er zijn geen resultaten gevonden.</string>
     <string name="search_results">Zoekresultaten</string>
+    
+     <string name="opening_file">Bestand wordt geopend...</string>
+    <string name="calc_page_num">Berekenen van paginanummers...</string>
+    <string name="calc_page_num_desc">Dit kan enkele momenten duren&#8230;\nHet gebeurt alleen de eerste keer dat een boek geopend wordt.</string>
+    <string name="loading_text">Tekst wordt geladen...</string>
+
+    
+    
+    <string name="pref_show_pagenum">Toon paginanummers</string>
+    <string name="pref_show_pagenum_summary">Laat paginanummers zien tijdens het lezen. Maakt het  voor het eerst openen van een boek langzamer.</string>
+    
+    
 </resources>

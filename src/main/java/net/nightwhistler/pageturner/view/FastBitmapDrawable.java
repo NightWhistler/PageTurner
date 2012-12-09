@@ -23,7 +23,8 @@ import android.graphics.PixelFormat;
 import android.graphics.ColorFilter;
 
 public class FastBitmapDrawable extends Drawable {
-    private final Bitmap mBitmap;
+    
+	private Bitmap mBitmap;
 
     public FastBitmapDrawable(Bitmap b) {
         mBitmap = b;
@@ -69,5 +70,11 @@ public class FastBitmapDrawable extends Drawable {
 
     public Bitmap getBitmap() {
         return mBitmap;
+    }
+    
+    public void destroy() {
+    	this.mBitmap.recycle();
+    	this.mBitmap = null;
+    	this.setCallback(null);
     }
 }

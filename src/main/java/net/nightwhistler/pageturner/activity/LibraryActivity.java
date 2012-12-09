@@ -131,7 +131,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 	
 	private IntentCallBack intentCallBack;
 	private List<CoverCallback> callbacks = new ArrayList<CoverCallback>();
-	private Map<String, Drawable> coverCache = new HashMap<String, Drawable>();
+	private Map<String, FastBitmapDrawable> coverCache = new HashMap<String, FastBitmapDrawable>();
 	
 	private interface IntentCallBack {
 		void onResult( int resultCode, Intent data );
@@ -194,6 +194,15 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 		
 		setAlphabetBarVisible(false);
 	}	
+	
+
+	private void clearCoverCache() {
+		for ( Map.Entry<String, FastBitmapDrawable> draw: coverCache.entrySet() ) {
+			draw.getValue().destroy();
+		}
+		
+		coverCache.clear();
+	}
 	
 	private void onBookClicked( LibraryBook book ) {
 		showBookDetails(book);
@@ -549,6 +558,8 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 		this.libraryService.close();
 		//We clear the list to free up memory.
 		
+		this.clearCoverCache();
+		
 		super.onPause();
 	}
 	
@@ -835,10 +846,11 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 				view.setImageDrawable(drawable);	
 				coverCache.put(book.getFileName(), drawable);
 			} catch (OutOfMemoryError err) {
-				coverCache.clear();
+				clearCoverCache();
 			}
 		}
 	}
+	
 	
 	private class BookCaseAdapter extends KeyedResultAdapter {
 		

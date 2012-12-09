@@ -104,7 +104,8 @@ import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 
-public class ReadingActivity extends RoboSherlockActivity implements BookViewListener, TextSelectionCallback {
+public class ReadingActivity extends RoboSherlockActivity implements
+		BookViewListener, TextSelectionCallback {
 
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
@@ -186,6 +187,8 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 
 	private Toast brightnessToast;
 
+	private BroadcastReceiver mReceiver = new ScreenReceiver();
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -193,15 +196,8 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 				.getTheme());
 		super.onCreate(savedInstanceState);
 
-		// initialize receiver
-		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-		filter.addAction(Intent.ACTION_SCREEN_OFF);
-		BroadcastReceiver mReceiver = new ScreenReceiver();
-		registerReceiver(mReceiver, filter);
-
 		// Restore preferences
 		setContentView(R.layout.read_book);
-
 		this.uiHandler = new Handler();
 
 		HandlerThread bgThread = new HandlerThread("background");
@@ -264,7 +260,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		this.bookView.setSpanner(RoboGuice.getInjector(this).getInstance(
 				HtmlSpanner.class));
 		this.bookView.setTextSelectionCallback(this);
-		
+
 		this.oldBrightness = config.isBrightnessControlEnabled();
 		this.oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
 		this.oldFontName = config.getFontFamily().getName();
@@ -317,8 +313,24 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 			// this is when onPause() is called when the screen state has not
 			// changed
 		}
+
+		unregisterReceiver(mReceiver);
 		super.onPause();
-	}	
+	}
+
+	@Override
+	protected void onResume() {
+		registerReceiver();
+		super.onResume();
+	}
+
+	private void registerReceiver() {
+		// initialize receiver
+		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+		filter.addAction(Intent.ACTION_SCREEN_OFF);
+
+		registerReceiver(mReceiver, filter);
+	}
 
 	private void updateFileName(Bundle savedInstanceState, String fileName) {
 
@@ -357,15 +369,22 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 	}
 
 	@Override
-	public void progressUpdate(int progressPercentage, int pageNumber, int totalPages) {
+	public void progressUpdate(int progressPercentage, int pageNumber,
+			int totalPages) {
 
 		// Work-around for calculation errors and weird values.
 		if (progressPercentage < 0 || progressPercentage > 100) {
 			return;
 		}
-
+		
 		this.progressPercentage = progressPercentage;
-		percentageField.setText("" + progressPercentage + "%  " + pageNumber + " / " + totalPages);
+		
+		if ( config.isShowPageNumbers() ) {		
+			percentageField.setText("" + progressPercentage + "%  " + pageNumber
+				+ " / " + totalPages);
+		} else {
+			percentageField.setText("" + progressPercentage + "%" );
+		}
 
 		this.progressBar.setProgress(progressPercentage);
 		this.progressBar.setMax(100);
@@ -444,8 +463,8 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 	}
 
 	private void restartActivity() {
-		
-		onStop();		
+
+		onStop();
 		Intent intent = new Intent(this, ReadingActivity.class);
 		intent.setData(Uri.parse(this.fileName));
 		startActivity(intent);
@@ -499,206 +518,227 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		});
 
 	}
-		
-    
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        
-    	//This is a hack to give the longclick handler time
-    	//to find the word the user long clicked on.    	
-    	
-    	if ( this.selectedWord != null ) {
-    		
-    		final CharSequence word = this.selectedWord;
-    		
-    		String header = String.format(getString(R.string.word_select), selectedWord);    		
-    		menu.setHeaderTitle(header);    		
-    		        	
-        	if ( isDictionaryAvailable() ) {
-        		android.view.MenuItem item = menu.add(getString(R.string.dictionary_lookup));
-        		item.setOnMenuItemClickListener(new OnMenuItemClickListener() {					
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenu.ContextMenuInfo menuInfo) {
+
+		// This is a hack to give the longclick handler time
+		// to find the word the user long clicked on.
+
+		if (this.selectedWord != null) {
+
+			final CharSequence word = this.selectedWord;
+
+			String header = String.format(getString(R.string.word_select),
+					selectedWord);
+			menu.setHeaderTitle(header);
+
+			if (isDictionaryAvailable()) {
+				android.view.MenuItem item = menu
+						.add(getString(R.string.dictionary_lookup));
+				item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 					@Override
 					public boolean onMenuItemClick(android.view.MenuItem item) {
 						lookupDictionary(word.toString());
 						return true;
 					}
 				});
-        	}
-        	        
-        	android.view.MenuItem newItem = menu.add(getString(R.string.wikipedia_lookup));
-        	newItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {					
+			}
+
+			android.view.MenuItem newItem = menu
+					.add(getString(R.string.wikipedia_lookup));
+			newItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 				@Override
 				public boolean onMenuItemClick(android.view.MenuItem item) {
 					lookupWikipedia(word.toString());
 					return true;
 				}
-        	});				
-		            
-        	android.view.MenuItem newItem2 = menu.add(getString(R.string.google_lookup));
-        	newItem2.setOnMenuItemClickListener(new OnMenuItemClickListener() {					
+			});
+
+			android.view.MenuItem newItem2 = menu
+					.add(getString(R.string.google_lookup));
+			newItem2.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 				@Override
 				public boolean onMenuItemClick(android.view.MenuItem item) {
 					lookupGoogle(word.toString());
 					return true;
 				}
-        	});	       	
-        	
-        	
-        	this.selectedWord = null;
-    	}    	 
-    }
-    
-    @Override
-    public void highLight(int from, int to, Color color) {
-    	// TODO Auto-generated method stub
-    	
-    }
-    
-    @Override
-    public boolean isDictionaryAvailable() {
-    	return isIntentAvailable(this, getDictionaryIntent() );
-    }
-    
-    @Override
-    public void lookupDictionary(String text) {
-    	Intent intent = getDictionaryIntent();    	
-    	intent.putExtra(EXTRA_QUERY, text); //Search Query    	
-    	startActivityForResult(intent, 5);		
-    }
-    
-    @Override
-    public void lookupWikipedia(String text) {
-    	openBrowser("http://en.wikipedia.org/wiki/Special:Search?search="
-    			+ URLEncoder.encode( text ));    	
-    }
-    
-    @Override
-    public void lookupGoogle(String text) {
-    	openBrowser("http://www.google.com/search?q="
-    			+ URLEncoder.encode( text ));    	
-    }    
-    
-    
-    private Intent getDictionaryIntent() {
-    	final Intent intent = new Intent(PICK_RESULT_ACTION);
-    	
-    	intent.putExtra(EXTRA_FULLSCREEN, false); //
-    	intent.putExtra(EXTRA_HEIGHT, 400); //400pixel, if you don't specify, fill_parent"
-    	intent.putExtra(EXTRA_GRAVITY, Gravity.BOTTOM);
-    	intent.putExtra(EXTRA_MARGIN_LEFT, 100);
+			});
 
-    	return intent;
-    }
+			this.selectedWord = null;
+		}
+	}
 
-    private void openBrowser(String url) {
-    	Intent i = new Intent(Intent.ACTION_VIEW);  
-        i.setData(Uri.parse(url));  
-        startActivity(i);          
-    }
-    
-    
-    public static boolean isIntentAvailable(Context context, Intent intent) {
-    	final PackageManager packageManager = context.getPackageManager();
-    	List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-    	return list.size() > 0;
-    }
-    
-    private void restoreColorProfile() {
+	@Override
+	public void highLight(int from, int to, Color color) {
+		// TODO Auto-generated method stub
 
-    	this.bookView.setBackgroundColor(config.getBackgroundColor());
-    	this.viewSwitcher.setBackgroundColor(config.getBackgroundColor());
-    	this.bookView.setTextColor(config.getTextColor());   
-    	this.bookView.setLinkColor(config.getLinkColor());
+	}
 
-    	int brightness = config.getBrightNess();
-    	
-    	if ( config.isBrightnessControlEnabled() ) {
-    		setScreenBrightnessLevel(brightness);
-    	}  
-    }    
-    
-    private void setScreenBrightnessLevel( int level ) {
-    	WindowManager.LayoutParams lp = getWindow().getAttributes();
+	@Override
+	public boolean isDictionaryAvailable() {
+		return isIntentAvailable(this, getDictionaryIntent());
+	}
+
+	@Override
+	public void lookupDictionary(String text) {
+		Intent intent = getDictionaryIntent();
+		intent.putExtra(EXTRA_QUERY, text); // Search Query
+		startActivityForResult(intent, 5);
+	}
+
+	@Override
+	public void lookupWikipedia(String text) {
+		openBrowser("http://en.wikipedia.org/wiki/Special:Search?search="
+				+ URLEncoder.encode(text));
+	}
+
+	@Override
+	public void lookupGoogle(String text) {
+		openBrowser("http://www.google.com/search?q=" + URLEncoder.encode(text));
+	}
+
+	private Intent getDictionaryIntent() {
+		final Intent intent = new Intent(PICK_RESULT_ACTION);
+
+		intent.putExtra(EXTRA_FULLSCREEN, false); //
+		intent.putExtra(EXTRA_HEIGHT, 400); // 400pixel, if you don't specify,
+											// fill_parent"
+		intent.putExtra(EXTRA_GRAVITY, Gravity.BOTTOM);
+		intent.putExtra(EXTRA_MARGIN_LEFT, 100);
+
+		return intent;
+	}
+
+	private void openBrowser(String url) {
+		Intent i = new Intent(Intent.ACTION_VIEW);
+		i.setData(Uri.parse(url));
+		startActivity(i);
+	}
+
+	public static boolean isIntentAvailable(Context context, Intent intent) {
+		final PackageManager packageManager = context.getPackageManager();
+		List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
+				PackageManager.MATCH_DEFAULT_ONLY);
+		return list.size() > 0;
+	}
+
+	private void restoreColorProfile() {
+
+		this.bookView.setBackgroundColor(config.getBackgroundColor());
+		this.viewSwitcher.setBackgroundColor(config.getBackgroundColor());
+		this.bookView.setTextColor(config.getTextColor());
+		this.bookView.setLinkColor(config.getLinkColor());
+
+		int brightness = config.getBrightNess();
+
+		if (config.isBrightnessControlEnabled()) {
+			setScreenBrightnessLevel(brightness);
+		}
+	}
+
+	private void setScreenBrightnessLevel(int level) {
+		WindowManager.LayoutParams lp = getWindow().getAttributes();
 		lp.screenBrightness = (float) level / 100f;
 		getWindow().setAttributes(lp);
-    }
-  
-    
-    @Override
-    public void errorOnBookOpening(String errorMessage) {    	
-    	this.waitDialog.hide();    	
-    	String message = String.format(getString(R.string.error_open_bk),  errorMessage);
-        bookView.setText(new SpannedString(message));    	
-    }
-    
-    @Override
-    public void parseEntryComplete(int entry, String name) {
-    	if (name != null && ! name.equals(this.bookTitle) ) {
-    		this.titleBase = this.bookTitle + " - " + name;    		
-    	} else {
-    		this.titleBase = this.bookTitle;
-    	}
-    	
-    	setTitle(this.titleBase);
-    	this.waitDialog.hide();
-    }
-    
-    @Override
-    public void parseEntryStart(int entry) {
-    	this.viewSwitcher.clearAnimation();
-    	this.viewSwitcher.setBackgroundDrawable(null);
-    	restoreColorProfile();
-    	
-    	this.waitDialog.setTitle(getString(R.string.loading_wait));
-    	this.waitDialog.show();
-    }    
-        
-    @TargetApi(Build.VERSION_CODES.FROYO)
+	}
+
+	@Override
+	public void errorOnBookOpening(String errorMessage) {
+		this.waitDialog.hide();
+		String message = String.format(getString(R.string.error_open_bk),
+				errorMessage);
+		bookView.setText(new SpannedString(message));
+	}
+
+	@Override
+	public void parseEntryComplete(int entry, String name) {
+		if (name != null && !name.equals(this.bookTitle)) {
+			this.titleBase = this.bookTitle + " - " + name;
+		} else {
+			this.titleBase = this.bookTitle;
+		}
+
+		setTitle(this.titleBase);
+		this.waitDialog.hide();
+	}
+
+	@Override
+	public void parseEntryStart(int entry) {
+		this.viewSwitcher.clearAnimation();
+		this.viewSwitcher.setBackgroundDrawable(null);
+		restoreColorProfile();
+
+		this.waitDialog.setTitle(getString(R.string.loading_wait));
+		this.waitDialog.setMessage(null);
+		this.waitDialog.show();
+	}
+
+	@Override
+	public void calculatingPageNumbers() {
+		this.waitDialog.setTitle(R.string.calc_page_num);
+		this.waitDialog.setMessage(getString(R.string.calc_page_num_desc));
+	}
+
+	@Override
+	public void readingFile() {
+		this.waitDialog.setTitle(R.string.opening_file);
+		this.waitDialog.setMessage(null);
+	}
+
+	@Override
+	public void renderingText() {
+		this.waitDialog.setTitle(R.string.loading_text);
+		this.waitDialog.setMessage(null);
+
+	}
+
+	@TargetApi(Build.VERSION_CODES.FROYO)
 	private boolean handleVolumeButtonEvent(KeyEvent event) {
-        
-    	if (!config.isVolumeKeyNavEnabled()) {
-            return false;
-        }
-        
-        boolean invert = false;
 
-        int rotation = Surface.ROTATION_0;
-        
-        if ( Build.VERSION.SDK_INT >= 8 ) {
-        	Display display = this.getWindowManager().getDefaultDisplay();
-        	rotation = display.getRotation();        	
-        }
+		if (!config.isVolumeKeyNavEnabled()) {
+			return false;
+		}
 
-        switch ( rotation ) {
-        case Surface.ROTATION_0:
-        case Surface.ROTATION_90:
-            invert = false;
-            break;
-        case Surface.ROTATION_180:
-        case Surface.ROTATION_270:
-            invert = true;
-            break;
-        }
+		boolean invert = false;
 
-        if (event.getAction() != KeyEvent.ACTION_DOWN)
-            return false;
-        else {
-            if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP)
-                if (invert)
-                    pageDown(Orientation.HORIZONTAL);
-                else
-                    pageUp(Orientation.HORIZONTAL);
-            if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN)
-                if (invert)
-                    pageUp(Orientation.HORIZONTAL);
-                else
-                    pageDown(Orientation.HORIZONTAL);
-            return true;
-        }
-    }
-    
-    @Override
+		int rotation = Surface.ROTATION_0;
 
+		if (Build.VERSION.SDK_INT >= 8) {
+			Display display = this.getWindowManager().getDefaultDisplay();
+			rotation = display.getRotation();
+		}
+
+		switch (rotation) {
+		case Surface.ROTATION_0:
+		case Surface.ROTATION_90:
+			invert = false;
+			break;
+		case Surface.ROTATION_180:
+		case Surface.ROTATION_270:
+			invert = true;
+			break;
+		}
+
+		if (event.getAction() != KeyEvent.ACTION_DOWN)
+			return false;
+		else {
+			if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP)
+				if (invert)
+					pageDown(Orientation.HORIZONTAL);
+				else
+					pageUp(Orientation.HORIZONTAL);
+			if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN)
+				if (invert)
+					pageUp(Orientation.HORIZONTAL);
+				else
+					pageDown(Orientation.HORIZONTAL);
+			return true;
+		}
+	}
+
+	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		int action = event.getAction();
 		int keyCode = event.getKeyCode();
@@ -1154,10 +1194,10 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 						.show();
 			}
 			return true;
-			
+
 		case R.id.search_text:
-        	onSearchClick();
-        	return true;
+			onSearchClick();
+			return true;
 
 		case R.id.preferences:
 			// Cache old settings to check if we'll need a restart later
@@ -1363,6 +1403,8 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 	private void launchLibrary() {
 		Intent intent = new Intent(this, LibraryActivity.class);
 		startActivity(intent);
+		this.bookView.releaseResources();
+		finish();
 	}
 
 	private void showPickProgressDialog(final List<BookProgress> results) {
@@ -1414,15 +1456,16 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
 		if (this.bookView != null) {
-		
+
 			outState.putInt(POS_KEY, this.bookView.getPosition());
 			outState.putInt(IDX_KEY, this.bookView.getIndex());
 
 			sendProgressUpdateToServer();
 
 			libraryService.close();
-
+			this.bookView.releaseResources();
 		}
+
 	}
 
 	private void sendProgressUpdateToServer() {
@@ -1449,7 +1492,7 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		searchProgress.setCancelable(true);
 		searchProgress.setMax(100);
 		searchProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		
+
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 		alert.setTitle(R.string.search_text);
@@ -1458,88 +1501,88 @@ public class ReadingActivity extends RoboSherlockActivity implements BookViewLis
 		// Set an EditText view to get user input
 		final EditText input = new EditText(this);
 		alert.setView(input);
-		
-		final SearchTextTask task = new SearchTextTask(bookView
-				.getBook()) {
+
+		final SearchTextTask task = new SearchTextTask(bookView.getBook()) {
 
 			int i = 0;
 
 			@Override
-			protected void onPreExecute() {						
+			protected void onPreExecute() {
 				super.onPreExecute();
-				//Hide on-screen keyboard if it is showing		
-				
+				// Hide on-screen keyboard if it is showing
+
 				InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-			    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-				
+				imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
 			}
 
 			@Override
-			protected void onProgressUpdate(
-					SearchResult... values) {
-				
+			protected void onProgressUpdate(SearchResult... values) {
+
 				super.onProgressUpdate(values);
-				LOG.debug("Found match at index="
-						+ values[0].getIndex() + ", offset="
-						+ values[0].getStart()
-						+ " with context "
+				LOG.debug("Found match at index=" + values[0].getIndex()
+						+ ", offset=" + values[0].getStart() + " with context "
 						+ values[0].getDisplay());
 				SearchResult res = values[0];
-				
-				if ( res.getDisplay() != null ) {
+
+				if (res.getDisplay() != null) {
 					i++;
-					String update = String.format(getString(R.string.search_hits), i);
+					String update = String.format(
+							getString(R.string.search_hits), i);
 					searchProgress.setTitle(update);
 				}
-				
-				searchProgress.setProgress( res.getPercentage() );				
+
+				searchProgress.setProgress(res.getPercentage());
 			}
 
 			@Override
 			protected void onCancelled() {
-				Toast.makeText(ReadingActivity.this, R.string.search_cancelled, Toast.LENGTH_LONG).show();
+				Toast.makeText(ReadingActivity.this, R.string.search_cancelled,
+						Toast.LENGTH_LONG).show();
 			}
 
-			protected void onPostExecute(
-					java.util.List<SearchResult> result) {
+			protected void onPostExecute(java.util.List<SearchResult> result) {
 
 				searchProgress.dismiss();
-				
-				if ( ! isCancelled() ) {
+
+				if (!isCancelled()) {
 					if (result.size() > 0) {
 						showSearchResultDialog(result);
 					} else {
-						Toast.makeText(ReadingActivity.this, R.string.search_no_matches , Toast.LENGTH_LONG).show();
+						Toast.makeText(ReadingActivity.this,
+								R.string.search_no_matches, Toast.LENGTH_LONG)
+								.show();
 					}
-				} 
+				}
 			};
 		};
-		
-		searchProgress.setOnCancelListener(new DialogInterface.OnCancelListener() {
-			
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				task.cancel(true);				
-			}
-		});
+
+		searchProgress
+				.setOnCancelListener(new DialogInterface.OnCancelListener() {
+
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						task.cancel(true);
+					}
+				});
 
 		alert.setPositiveButton(android.R.string.search_go,
 				new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				CharSequence value = input.getText();								
+					public void onClick(DialogInterface dialog, int whichButton) {
+						CharSequence value = input.getText();
 
-				searchProgress.setTitle(R.string.search_wait);
-				searchProgress.show();
-				task.execute(value.toString());
-			}
-		});
+						searchProgress.setTitle(R.string.search_wait);
+						searchProgress.show();
+						task.execute(value.toString());
+					}
+				});
 
 		alert.setNegativeButton(android.R.string.cancel,
 				new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				// Canceled.
-			}
-		});		
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// Canceled.
+					}
+				});
 
 		alert.show();
 	}

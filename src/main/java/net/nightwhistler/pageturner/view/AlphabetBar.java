@@ -26,6 +26,10 @@ package net.nightwhistler.pageturner.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import roboguice.RoboGuice;
+
+import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.Configuration.ColourProfile;
 import net.nightwhistler.pageturner.R;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -53,7 +57,16 @@ public class AlphabetBar extends LinearLayout
     public AlphabetBar(Context context, AttributeSet attrs)
     {
         super(context, attrs);
-        setBackgroundResource(R.drawable.alphabet_bar_bg_dark);
+        
+        ColourProfile profile = RoboGuice.getInjector(context).getInstance(Configuration.class)
+        	.getColourProfile();
+        
+        if ( profile == ColourProfile.DAY ) {
+        	setBackgroundResource(R.drawable.alphabet_bar_bg);
+        } else {
+        	setBackgroundResource(R.drawable.alphabet_bar_bg_dark);
+        }
+        
         init();
     }
     

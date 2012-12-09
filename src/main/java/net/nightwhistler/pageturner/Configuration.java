@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;

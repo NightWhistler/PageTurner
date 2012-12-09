@@ -19,6 +19,7 @@
 package net.nightwhistler.pageturner.library;
 
 import java.io.Serializable;
+import java.util.Locale;
 
 public class Author implements Serializable {
 

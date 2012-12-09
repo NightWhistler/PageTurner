@@ -72,6 +72,8 @@
         <item>No bloquear orientacion</item>
         <item>Vertical</item>
         <item>Horizontal</item>
+        <item>Otro Vertical</item>
+        <item>Otro Horizontal</item>
     </string-array>  
    
     <string-array name="autoscrollLabels">

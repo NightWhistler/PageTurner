@@ -3,7 +3,7 @@
     <string name="title">Título</string>
     <string name="app_desc">Page Turner es un lector de e-books que permite sincronizar sus progresos en la lectura entre múltiples dispositivos.</string>
 
-    <string name="browse">Navegando...</string>
+    <string name="browse">Navegando…</string>
     <string name="open_file">Abrir archivo ePub</string>
     <string name="open_library">Mis Libros</string>
 
@@ -29,7 +29,7 @@
     
     <string name="cloud_bm">Marcadores Sincronizados</string>
     <string name="toc_label">Tabla de Contenidos</string>
-    <string name="syncing">"Progreso de la sincronización..."</string>
+    <string name="syncing">"Progreso de la sincronización…"</string>
     <string name="sync_failed">Sincronización fallida</string>
     <string name="connection_fail">No se puede conectar con el servidor.</string>    
     
@@ -46,14 +46,14 @@
     <string name="delete">Borrar</string>
     <string name="scan_books">Busqueda de libros</string>    
     
-    <string name="importing_books">Importando libros...</string>
+    <string name="importing_books">Importando libros…</string>
     <string name="scanning_epub">Buscando ficheros EPUB.</string>
     <string name="importing">Importando %1$d de %2$d</string>
     <string name="scan_folders">Buscando ficheros EPUB.\nCarpetas escaneadas: %d</string>
     <string name="import_errors">Error de formato en algunos ficheros:</string>
     <string name="no_books_found">No se encontraron libros.</string>
     <string name="no_bks_fnd_text">No hay libros en su dispositivo.\nPuede bajar libros de gutenberg.org o feedbooks.com</string>
-    <string name="loading_library">Cargando biblioteca...</string>
+    <string name="loading_library">Cargando biblioteca…</string>
     <string name="scan_bks_question">No hay libros en su biblioteca.\n¿Le gustaría encontrar los libros que pueda haber en su dispositivo?</string>    
     <string name="brightness">Brillo</string>    
         
@@ -72,6 +72,8 @@
         <item>No bloquear orientacion</item>
         <item>Vertical</item>
         <item>Horizontal</item>
+        <item>Otro Vertical</item>
+        <item>Otro Horizontal</item>
     </string-array>  
    
     <string-array name="autoscrollLabels">
@@ -101,13 +103,13 @@
     <string name="read">Leer ahora</string>
     
     <string name="download">Descargar libros</string>
-    <string name="downloading">Descargando libro...</string>
+    <string name="downloading">Descargando libro…</string>
     
      <string name="feed_failed">No se ha podido contactar con el sitio. Por favor intentelo de nuevo.</string>
 
 
     <string name="book_failed">No se ha podido descargar el libro. Por favor intentelo de nuevo</string>
-	<string name="browse">Navegar...</string>
+	<string name="browse">Navegar…</string>
 
 	<string name="search_books">Buscar libros</string>
 

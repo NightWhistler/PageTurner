@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Locale;
 
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
@@ -768,7 +769,7 @@ public class BookView extends ScrollView {
 			
 			//First check if it should be a normal URL link
 			for ( String protocol: this.externalProtocols ) {
-				if ( href.toLowerCase().startsWith(protocol)) {
+				if ( href.toLowerCase(Locale.US).startsWith(protocol)) {
 					builder.setSpan(new URLSpan(href), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					return;
 				}

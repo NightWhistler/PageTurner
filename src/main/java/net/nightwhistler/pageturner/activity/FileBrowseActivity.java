@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import roboguice.RoboGuice;
 
@@ -102,7 +103,7 @@ public class FileBrowseActivity extends RoboSherlockListActivity {
 			
 			if ( listing != null ) {
 				for ( File childFile: listing ) {					
-					if ( childFile.isDirectory() || childFile.getName().toLowerCase().endsWith(".epub")) {
+					if ( childFile.isDirectory() || childFile.getName().toLowerCase(Locale.US).endsWith(".epub")) {
 						items.add(childFile);
 					}
 				}

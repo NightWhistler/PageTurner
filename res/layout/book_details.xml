@@ -34,14 +34,14 @@
         	android:id="@+id/titleField"
         	android:layout_width="fill_parent"
         	android:layout_height="wrap_content"
-        	android:text="Title of the book"
+        	android:text="@string/default_book_title"
         	android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
             android:id="@+id/authorField"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="by Someone"
+            android:text="@string/no_author_byline"
             android:textAppearance="?android:attr/textAppearanceMedium" />
         
         <ImageView    		
@@ -58,7 +58,7 @@
             android:id="@+id/fileName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="book.epub"/>    
+            android:text="@string/default_filename"/>    
              
         <ImageView    		
     		android:src="@android:drawable/divider_horizontal_dark"
@@ -74,14 +74,14 @@
             android:id="@+id/lastRead"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Last read: never"/>    
+            android:text="@string/default_last_read"/>    
        
         
         <TextView
             android:id="@+id/addedToLibrary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Added to library: never"/>
+            android:text="@string/default_added_to_library"/>
         
         <ImageView    		
     		android:src="@android:drawable/divider_horizontal_dark"

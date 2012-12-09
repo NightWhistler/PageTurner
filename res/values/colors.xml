@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-   <color name="opaque_red">#f00</color>
    <color name="opaque_white">#ffffff</color>
-   <color name="translucent_red">#80ff0000</color>
    <color name="dark_grey">#888888</color>
-   <color name="black">#000000</color>
-   
-   <color name="actionbar_separator">#3A5FCD</color>
-   <color name="actionbar_background_start">#3A5FCD</color>
-   <color name="actionbar_background_end">#27408B</color>
-   
    <color name="translucent_black">#80000000</color>
-       
-   
 </resources>

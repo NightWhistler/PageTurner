@@ -28,6 +28,7 @@ import java.util.Map;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.Configuration.LibraryView;
 import net.nightwhistler.pageturner.R;
@@ -59,6 +60,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -222,7 +224,8 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.book_details);
-		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = PlatformUtil.getLayoutInflater(this);
+		
 		View layout = inflater.inflate(R.layout.book_details, null);
 		builder.setView( layout );
 		
@@ -465,7 +468,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 	private void showImportDialog() {
 		AlertDialog.Builder builder;		
 		
-		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = PlatformUtil.getLayoutInflater(this);
 		final View layout = inflater.inflate(R.layout.import_dialog, null);
 		final RadioButton scanSpecific = (RadioButton) layout.findViewById(R.id.radioScanFolder);
 		final TextView folder = (TextView) layout.findViewById(R.id.folderToScan);
@@ -697,8 +700,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 			View rowView;
 			
 			if ( convertView == null ) {			
-				LayoutInflater inflater = (LayoutInflater) context
-					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				LayoutInflater inflater = PlatformUtil.getLayoutInflater(LibraryActivity.this);
 				rowView = inflater.inflate(R.layout.book_row, parent, false);
 			} else {
 				rowView = convertView;
@@ -867,8 +869,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 			View result;
 		
 			if ( convertView == null ) {				
-				LayoutInflater inflater = (LayoutInflater) context.getSystemService(
-						Context.LAYOUT_INFLATER_SERVICE);
+				LayoutInflater inflater = PlatformUtil.getLayoutInflater(LibraryActivity.this);
 				result = inflater.inflate(R.layout.bookcase_row, parent, false);
 				
 			} else {

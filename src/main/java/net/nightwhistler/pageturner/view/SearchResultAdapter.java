@@ -22,6 +22,7 @@ package net.nightwhistler.pageturner.view;
 import java.util.List;
 
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.bookview.BookView;
@@ -68,24 +69,23 @@ public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResul
 		View rowView;
 
 		if ( convertView == null ) {
-			LayoutInflater inflater = (LayoutInflater) 
-			getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			LayoutInflater inflater = PlatformUtil.getLayoutInflater(getContext());
 
 			rowView = inflater.inflate(R.layout.progress_row, parent, false);
 		} else {
 			rowView = convertView;
 		}
-		
-		
 
 		TextView deviceView = (TextView) rowView.findViewById(R.id.deviceName);
 		TextView dateView = (TextView) rowView.findViewById(R.id.timeStamp );
 		
+		/*
 		if ( Build.VERSION.SDK_INT < 11 ) {
 			deviceView.setTextColor( config.getTextColor() );
 			dateView.setTextColor( config.getTextColor() );
 			rowView.setBackgroundColor(config.getBackgroundColor());
 		}
+		*/
 		
 		SearchTextTask.SearchResult progress = results.get(position);
 

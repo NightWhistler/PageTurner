@@ -28,6 +28,7 @@ import java.util.Locale;
 import roboguice.RoboGuice;
 
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 import android.content.Context;
 import android.content.Intent;
@@ -142,7 +143,7 @@ public class FileBrowseActivity extends RoboSherlockListActivity {
 			View rowView;		
 			final File file = getItem(position);
 
-			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			LayoutInflater inflater = PlatformUtil.getLayoutInflater(FileBrowseActivity.this);
 						
 			if ( convertView == null ) {				
 				rowView = inflater.inflate(R.layout.folder_line, parent, false);

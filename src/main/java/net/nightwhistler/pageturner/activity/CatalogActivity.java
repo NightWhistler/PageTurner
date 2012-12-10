@@ -43,6 +43,7 @@ import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.nucular.parser.Nucular;
 import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.catalog.CatalogListAdapter;
@@ -68,7 +69,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -80,14 +80,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
@@ -373,7 +371,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			View rowView;
 			final Entry entry = getItem(position);
 
-			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			LayoutInflater inflater = PlatformUtil.getLayoutInflater(CatalogActivity.this);
 			Link imgLink = entry.getThumbnailLink();
 
 			rowView = inflater.inflate(R.layout.catalog_item, parent, false);			 			
@@ -607,7 +605,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(feed.getTitle());
-		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = PlatformUtil.getLayoutInflater(this);
 		View layout = inflater.inflate(R.layout.catalog_download, null);
 		builder.setView( layout );		
 

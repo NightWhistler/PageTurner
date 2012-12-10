@@ -253,9 +253,7 @@ public class BookView extends ScrollView {
 			return super.onTouchEvent(ev);
 		} else {
 			return childView.onTouchEvent(ev);	
-		}
-		
-		//return super.onTouchEvent(ev);		
+		}		
 	}	
 	
 	public boolean hasPrevPosition() {

@@ -1,6 +1,7 @@
 package net.nightwhistler.pageturner.view;
 
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.view.bookview.BookView;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;

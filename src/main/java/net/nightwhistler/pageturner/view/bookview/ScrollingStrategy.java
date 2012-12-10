@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
-package net.nightwhistler.pageturner.view;
+package net.nightwhistler.pageturner.view.bookview;
 
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;

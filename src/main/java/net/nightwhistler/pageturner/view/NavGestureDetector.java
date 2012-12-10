@@ -19,8 +19,9 @@
 
 package net.nightwhistler.pageturner.view;
 
+import net.nightwhistler.pageturner.view.bookview.BookView;
+import net.nightwhistler.pageturner.view.bookview.BookViewListener;
 import android.os.Build;
-import android.text.Selection;
 import android.text.style.ClickableSpan;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;

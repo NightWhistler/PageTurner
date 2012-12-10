@@ -1,16 +1,15 @@
-package net.nightwhistler.pageturner.view;
+package net.nightwhistler.pageturner.view.bookview;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
-
 import android.graphics.Canvas;
+import android.text.Layout.Alignment;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.StaticLayout;
 import android.text.TextPaint;
-import android.text.Layout.Alignment;
 import android.widget.TextView;
 
 public class FixedPagesStrategy implements PageChangeStrategy {

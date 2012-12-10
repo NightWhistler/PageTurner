@@ -39,12 +39,12 @@ import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.AnimatedImageView;
-import net.nightwhistler.pageturner.view.BookView;
-import net.nightwhistler.pageturner.view.BookViewListener;
 import net.nightwhistler.pageturner.view.NavGestureDetector;
 import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import net.nightwhistler.pageturner.view.SearchResultAdapter;
 import net.nightwhistler.pageturner.view.TextSelectionCallback;
+import net.nightwhistler.pageturner.view.bookview.BookView;
+import net.nightwhistler.pageturner.view.bookview.BookViewListener;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 

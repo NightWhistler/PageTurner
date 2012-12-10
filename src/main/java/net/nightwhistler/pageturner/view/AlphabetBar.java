@@ -26,11 +26,10 @@ package net.nightwhistler.pageturner.view;
 import java.util.ArrayList;
 import java.util.List;
 
-import roboguice.RoboGuice;
-
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
 import net.nightwhistler.pageturner.R;
+import roboguice.RoboGuice;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;

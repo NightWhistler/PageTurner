@@ -17,7 +17,7 @@
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
 
-package net.nightwhistler.pageturner.view;
+package net.nightwhistler.pageturner.view.bookview;
 
 import nl.siegmann.epublib.domain.Book;
 

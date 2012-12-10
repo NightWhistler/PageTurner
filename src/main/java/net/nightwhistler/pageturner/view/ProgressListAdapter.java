@@ -25,6 +25,7 @@ import java.util.List;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.sync.BookProgress;
+import net.nightwhistler.pageturner.view.bookview.BookView;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;

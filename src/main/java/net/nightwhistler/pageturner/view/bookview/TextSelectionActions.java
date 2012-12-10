@@ -1,4 +1,4 @@
-package net.nightwhistler.pageturner.view;
+package net.nightwhistler.pageturner.view.bookview;
 
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.view.bookview.BookView;

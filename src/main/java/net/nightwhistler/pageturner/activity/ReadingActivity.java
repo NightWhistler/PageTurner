@@ -42,9 +42,9 @@ import net.nightwhistler.pageturner.view.AnimatedImageView;
 import net.nightwhistler.pageturner.view.NavGestureDetector;
 import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import net.nightwhistler.pageturner.view.SearchResultAdapter;
-import net.nightwhistler.pageturner.view.TextSelectionCallback;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import net.nightwhistler.pageturner.view.bookview.BookViewListener;
+import net.nightwhistler.pageturner.view.bookview.TextSelectionCallback;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 

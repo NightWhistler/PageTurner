@@ -43,8 +43,6 @@ import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
-import net.nightwhistler.pageturner.view.TextSelectionActions;
-import net.nightwhistler.pageturner.view.TextSelectionCallback;
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.MediaType;

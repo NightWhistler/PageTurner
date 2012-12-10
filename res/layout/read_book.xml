@@ -14,7 +14,7 @@
     
    
                 
-        <net.nightwhistler.pageturner.view.BookView 
+        <net.nightwhistler.pageturner.view.bookview.BookView 
             android:id="@+id/bookView"
         	android:layout_width="fill_parent"
 	        android:layout_height="fill_parent"

@@ -29,6 +29,7 @@ import java.util.Map;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PlatformUtil;
+import net.nightwhistler.pageturner.Configuration.ColourProfile;
 import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.Configuration.LibraryView;
 import net.nightwhistler.pageturner.R;
@@ -797,9 +798,9 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 							for ( int i=0; i < alphabetBar.getChildCount(); i++ ) {
 								View child = alphabetBar.getChildAt(i);
 								if ( child.getTag().equals(keyChar) ) {
-									child.setBackgroundColor(Color.BLUE);
-								} else {									
-									child.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
+									child.setBackgroundDrawable( getResources().getDrawable(R.drawable.list_activated_holo));
+								} else {
+									child.setBackgroundDrawable(null);
 								}
 							}							
 						}						
@@ -960,6 +961,8 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 		
 		private Character highlightChar;
 		
+		private int savedColor = -1;
+		
 		public AlphabetAdapter(Context context, int layout, int view, List<Character> input ) {
 			super(context, layout, view, input);
 			this.data = input;
@@ -968,13 +971,16 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = super.getView(position, convertView, parent);
+			
+			
+			
 			Character tag = data.get(position);
 			view.setTag( tag );
 			
 			if ( tag.equals(highlightChar) ) {
-				view.setBackgroundColor(Color.BLUE);
+				view.setBackgroundDrawable( getResources().getDrawable(R.drawable.list_activated_holo));
 			} else {
-				view.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
+				view.setBackgroundDrawable(null);
 			}
 			
 			return view;

@@ -17,15 +17,32 @@
         <net.nightwhistler.pageturner.view.bookview.BookView 
             android:id="@+id/bookView"
         	android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
-	        />
-     
+	        android:layout_height="fill_parent">	        
+          
+                
+                <view class="net.nightwhistler.pageturner.view.bookview.BookView$InnerView"               
+                    android:id="@+id/innerView"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    />
+                    
+                        
+           
+        </net.nightwhistler.pageturner.view.bookview.BookView>
 	    <net.nightwhistler.pageturner.view.AnimatedImageView
     	     android:layout_width="fill_parent"
         	android:layout_height="fill_parent" 
         	android:id="@+id/dummyView" />
     
     </ViewSwitcher>
+    
+      <TextView 
+    	android:id="@+id/pageNumberView"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/mainContainer"
+        />  
     
                 
     	<RelativeLayout 

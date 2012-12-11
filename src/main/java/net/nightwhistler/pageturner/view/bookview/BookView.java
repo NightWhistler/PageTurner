@@ -38,6 +38,7 @@ import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
@@ -79,6 +80,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -87,7 +89,7 @@ public class BookView extends ScrollView {
 	private int storedIndex;
 	private String storedAnchor;
 	
-	private TextView childView;
+	private InnerView childView;
 	
 	private Set<BookViewListener> listeners;
 	
@@ -121,42 +123,39 @@ public class BookView extends ScrollView {
 	public BookView(Context context, AttributeSet attributes) {
 		super(context, attributes);		
 		
+		
+	}	
+	
+	public void init() {
 		this.listeners = new HashSet<BookViewListener>();
-				
-		this.childView = new TextView(context) {
-			
-			protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-				super.onSizeChanged(w, h, oldw, oldh);
-				restorePosition();	
-				
-				int tableWidth = (int) ( this.getWidth() * 0.9 );
-				tableHandler.setTableWidth( tableWidth );
-				
-			}
-			
-			public boolean dispatchKeyEvent(KeyEvent event) {
-				return BookView.this.dispatchKeyEvent(event);
-			}
-			
-		};		
+		
+		this.childView = (InnerView) this.findViewById( R.id.innerView );				
+		this.childView.setBookView(this);		
 		
 		childView.setCursorVisible(false);		
 		childView.setLongClickable(true);	        
         this.setVerticalFadingEdgeEnabled(false);
         childView.setFocusable(true);
-        childView.setLinksClickable(true);
-        childView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT) );       
+        childView.setLinksClickable(true);     
         
         if ( Build.VERSION.SDK_INT >= 11 ) {
         	childView.setTextIsSelectable(true);
         }
         
-        this.setSmoothScrollingEnabled(false);        
-        this.addView(childView);        
+        this.setSmoothScrollingEnabled(false);
         
         this.anchors = new HashMap<String, Integer>();
         this.tableHandler = new TableHandler();
-	}	
+	}
+	
+	
+	
+	private void onInnerViewResize() {
+		restorePosition();	
+		
+		int tableWidth = (int) ( this.getWidth() * 0.9 );
+		tableHandler.setTableWidth( tableWidth );
+	}
 	
 	public void setSpanner(HtmlSpanner spanner) {
 		this.spanner = spanner;
@@ -1023,12 +1022,16 @@ public class BookView extends ScrollView {
 			int progress = spine.getProgressPercentage( progressInPart );
 		
 			if ( progress != -1 ) {
+				
+				int pageNumber = spine.getPageNumberFor(getIndex(), getPosition() );
+				
 				for ( BookViewListener listener: this.listeners ) {
-					listener.progressUpdate(progress, spine.getPageNumberFor(getIndex(), getPosition() ), spine.getTotalNumberOfPages() );
+					listener.progressUpdate(progress, pageNumber, spine.getTotalNumberOfPages() );
 				}		
 			}
 		}
-	}	
+	}
+	
 	
 	public void setEnableScrolling(boolean enableScrolling) {
 		
@@ -1067,6 +1070,29 @@ public class BookView extends ScrollView {
 		loader.load();
 		
 		return FixedPagesStrategy.getPageOffsets(this, text);			
+	}
+	
+	
+	public static class InnerView extends TextView {
+		
+		private BookView bookView;
+		
+		public InnerView(Context context, AttributeSet attributes) {
+			super(context, attributes);
+		}
+		
+		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+			super.onSizeChanged(w, h, oldw, oldh);
+			bookView.onInnerViewResize();			
+		}
+		
+		public boolean dispatchKeyEvent(KeyEvent event) {
+			return bookView.dispatchKeyEvent(event);
+		}
+		
+		public void setBookView(BookView bookView) {
+			this.bookView = bookView;
+		}
 	}
 	
 	

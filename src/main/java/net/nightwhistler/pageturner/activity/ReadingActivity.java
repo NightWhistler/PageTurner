@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.util.List;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.AnimationStyle;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
@@ -77,6 +78,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
@@ -159,6 +162,9 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 	@InjectView(R.id.dummyView)
 	private AnimatedImageView dummyView;
+	
+	@InjectView(R.id.pageNumberView)
+	private TextView pageNumberView;
 
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
@@ -201,6 +207,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		// Restore preferences
 		setContentView(R.layout.read_book);
 		this.uiHandler = new Handler();
+		
+		this.bookView.init();
 
 		HandlerThread bgThread = new HandlerThread("background");
 		bgThread.start();
@@ -386,12 +394,25 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		if ( config.isShowPageNumbers() ) {		
 			percentageField.setText("" + progressPercentage + "%  " + pageNumber
 				+ " / " + totalPages);
+			displayPageNumber(pageNumber);
+			
 		} else {
 			percentageField.setText("" + progressPercentage + "%" );
 		}
 
 		this.progressBar.setProgress(progressPercentage);
 		this.progressBar.setMax(100);
+	}
+	
+	private void displayPageNumber(int pageNumber) {
+		SpannableStringBuilder builder = new SpannableStringBuilder( Integer.toString(pageNumber) );
+		builder.setSpan(new CenterSpan(), 0, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
+		pageNumberView.setTextColor(config.getTextColor());
+		pageNumberView.setTextSize(config.getTextSize());
+		
+		pageNumberView.setTypeface(config.getFontFamily().getDefaultTypeface());
+		
+		pageNumberView.setText(builder);
 	}
 
 	private void updateFromPrefs() {

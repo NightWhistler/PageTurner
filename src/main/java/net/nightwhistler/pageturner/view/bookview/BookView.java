@@ -505,7 +505,7 @@ public class BookView extends ScrollView {
 	
 	private static boolean isBoundaryCharacter( char c ) {
 		char[] boundaryChars = { ' ', '.', ',','\"',
-				'\'', '\n', '\t', ':', '!'
+				'\'', '\n', '\t', ':', '!','\''
 		};
 		
 		for ( int i=0; i < boundaryChars.length; i++ ) {

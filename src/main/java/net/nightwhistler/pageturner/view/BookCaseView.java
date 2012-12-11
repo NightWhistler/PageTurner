@@ -1,5 +1,8 @@
 package net.nightwhistler.pageturner.view;
 
+import roboguice.RoboGuice;
+import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.Configuration.ColourProfile;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.QueryResult;
@@ -12,6 +15,8 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.GridView;
 
+import com.google.inject.Inject;
+
 public class BookCaseView extends GridView {
 	
 	private Bitmap background;
@@ -23,14 +28,26 @@ public class BookCaseView extends GridView {
 	
 	private LibraryBook selectedBook;	
 	
+	private Configuration config;
+	
 	public BookCaseView(Context context, AttributeSet attributes) {
 		super(context, attributes);
 				
 		this.setFocusableInTouchMode(true);
 		this.setClickable(false);
 		
-		final Bitmap shelfBackground = BitmapFactory.decodeResource(context.getResources(),
+		final Bitmap shelfBackground;
+		
+		this.config = RoboGuice.getInjector(context).getInstance(Configuration.class);
+		
+		if (config.getColourProfile() == ColourProfile.DAY ) {
+			shelfBackground = BitmapFactory.decodeResource(context.getResources(),
 				R.drawable.shelf_single);
+		} else {
+			shelfBackground = BitmapFactory.decodeResource(context.getResources(),
+					R.drawable.shelf_single_dark);
+		}
+		
 		setBackground(shelfBackground);
 		this.setFocusable(true);
 	}

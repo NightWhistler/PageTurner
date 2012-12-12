@@ -39,8 +39,7 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	private BookView bookView;
 	
 	private TextView childView;
-	private int storedPosition;
-
+	private int storedPosition = -1;
 	private double storedPercentage = -1;
 	
 	private Spanned text;
@@ -157,30 +156,36 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	}
 	
 	public void updatePosition() {
-		if ( this.storedPosition == -1 || this.childView.getText().length() == 0 ) {			
-			return; //Hopefully come back later
-		} else {
-			
-			if ( storedPercentage != -1d ) {
-				this.storedPosition = (int) (this.childView.getText().length() * storedPercentage);
-				this.storedPercentage = -1d;
-			}
-			
-			Layout layout = this.childView.getLayout();
-			
-			if ( layout != null ) {
-				int pos = Math.max(0, this.storedPosition);
-				int line = layout.getLineForOffset(pos);
-				
-				if ( line > 0 ) {
-					int newPos = layout.getLineBottom(line -1);
-					bookView.scrollTo(0, newPos);
-				} else {
-					bookView.scrollTo(0, 0);
-				}
-			}						 
+
+
+		if ( storedPosition == -1 && this.storedPercentage == -1d ) {
+			return;  //Hopefully come back later
 		}
+
+		if ( childView.getText().length() == 0 ) {
+			return;
+		}
+
+		if ( storedPercentage != -1d ) {
+			this.storedPosition = (int) (this.childView.getText().length() * storedPercentage);
+			this.storedPercentage = -1d;
+		}
+
+		Layout layout = this.childView.getLayout();
+
+		if ( layout != null ) {
+			int pos = Math.max(0, this.storedPosition);
+			int line = layout.getLineForOffset(pos);
+
+			if ( line > 0 ) {
+				int newPos = layout.getLineBottom(line -1);
+				bookView.scrollTo(0, newPos);
+			} else {
+				bookView.scrollTo(0, 0);
+			}
+		}						 
 	}
+
 	
 	@Override
 	public Spanned getText() {

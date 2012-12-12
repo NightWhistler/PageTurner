@@ -222,6 +222,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			}
 		});
 		
+		
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		
@@ -314,15 +315,16 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	
 	private void initializePageNumberView(DisplayMetrics metrics) {
 		
-		View.OnTouchListener gestureListener = new View.OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
-				onTapBottomEdge();
-				return true;
+		View.OnClickListener listener = new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				onTapBottomEdge();				
 			}
 		};
 		
 		pageNumberView.setFocusable(true);
-		pageNumberView.setOnTouchListener(gestureListener);
+		pageNumberView.setOnClickListener(listener);
 		displayPageNumber(-1);
 	}
 
@@ -433,6 +435,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		builder.setSpan(new CenterSpan(), 0, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 		pageNumberView.setTextColor(config.getTextColor());
 		pageNumberView.setTextSize(config.getTextSize());
+		pageNumberView.setBackgroundColor(config.getBackgroundColor());
 		
 		pageNumberView.setTypeface(config.getFontFamily().getDefaultTypeface());
 		

@@ -104,7 +104,7 @@ public class ScrollingStrategy implements PageChangeStrategy {
 		int length = builder.length();
 		builder.append("\uFFFC");
 		builder.append("\n");
-		builder.append("End of section. Click here to continue.");
+		builder.append( context.getString(R.string.end_of_section));
 		//If not, consider it an internal nav link.			
 		ClickableSpan span = new ClickableSpan() {
 				

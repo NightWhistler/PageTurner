@@ -45,6 +45,7 @@ import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import net.nightwhistler.pageturner.view.SearchResultAdapter;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import net.nightwhistler.pageturner.view.bookview.BookViewListener;
+import net.nightwhistler.pageturner.view.bookview.FixedPagesStrategy;
 import net.nightwhistler.pageturner.view.bookview.TextSelectionCallback;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
@@ -72,6 +73,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -81,6 +83,7 @@ import android.os.HandlerThread;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
+import android.text.TextPaint;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.Display;
@@ -139,7 +142,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	@Inject
 	private Configuration config;
 
-	@InjectView(R.id.viewSwitcher)
+	@InjectView(R.id.mainContainer)
 	private ViewSwitcher viewSwitcher;
 
 	@InjectView(R.id.bookView)
@@ -227,7 +230,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		
 		if ( config.isShowPageNumbers() ) {
-			initializePageNumberView(metrics);
+			displayPageNumber(-1); //Initializes the pagenumber view properly
 		}
 		
 		final GestureDetector gestureDetector = new GestureDetector(this, new NavGestureDetector(
@@ -311,22 +314,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 		}
 
-	}
-	
-	private void initializePageNumberView(DisplayMetrics metrics) {
-		
-		View.OnClickListener listener = new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				onTapBottomEdge();				
-			}
-		};
-		
-		pageNumberView.setFocusable(true);
-		pageNumberView.setOnClickListener(listener);
-		displayPageNumber(-1);
-	}
+	}	
 
 	/*
 	 * @see roboguice.activity.RoboActivity#onPause()
@@ -910,6 +898,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		}
 
 		Bitmap before = getBookViewSnapshot();
+		
+		this.pageNumberView.setVisibility(View.GONE);
 
 		PageCurlAnimator animator = new PageCurlAnimator(flipRight);
 
@@ -966,6 +956,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 				}
 
 				dummyView.setAnimator(null);
+				pageNumberView.setVisibility(View.VISIBLE);
 
 			} else {
 				this.animator.advanceOneFrame();
@@ -1012,6 +1003,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			viewSwitcher.showNext();
 		}
 
+		this.pageNumberView.setVisibility(View.VISIBLE);
 		bookView.setKeepScreenOn(false);
 	}
 
@@ -1026,6 +1018,30 @@ public class ReadingActivity extends RoboSherlockActivity implements
 					viewSwitcher.getHeight());
 
 			bookView.draw(canvas);
+			
+			if ( config.isShowPageNumbers() ) {
+
+				/**
+				 * FIXME: creating an intermediate bitmap here because
+				 * I can't figure out how to draw the pageNumberView
+				 * directly on the canvas and have it show up in the
+				 * right place.
+				 */
+				
+				Bitmap pageNumberBitmap = Bitmap.createBitmap(pageNumberView.getWidth(),
+						pageNumberView.getHeight(), Config.ARGB_8888);
+				Canvas pageNumberCanvas = new Canvas(pageNumberBitmap);
+								
+				pageNumberView.layout(0, 0, pageNumberView.getWidth(), pageNumberView.getHeight() );
+				pageNumberView.draw(pageNumberCanvas);
+				
+				canvas.drawBitmap(pageNumberBitmap, 0, viewSwitcher.getHeight() - pageNumberView.getHeight(), 
+						new Paint() );
+				
+				pageNumberBitmap.recycle();
+
+			}
+			
 
 			return bitmap;
 		} catch (OutOfMemoryError out) {

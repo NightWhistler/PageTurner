@@ -1048,7 +1048,7 @@ public class BookView extends ScrollView {
 			if ( enableScrolling ) {
 				this.strategy = new ScrollingStrategy(this, this.getContext());
 			} else {				
-				this.strategy = new FixedPagesStrategy(this);
+				this.strategy = new FixedPagesStrategy(this, configuration);
 			}
 
 			if ( ! wasNull ) {				
@@ -1065,7 +1065,7 @@ public class BookView extends ScrollView {
 		CharSequence text = spanner.fromHtml( res.getReader() );
 		loader.load();
 		
-		return FixedPagesStrategy.getPageOffsets(this, text);			
+		return FixedPagesStrategy.getPageOffsets(this, text, true);			
 	}
 	
 	

@@ -1,92 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rel"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+				android:layout_width="fill_parent"
+				android:layout_height="fill_parent"
+				android:orientation="vertical"
+				android:id="@+id/rel"
+				>
 
-    <LinearLayout 
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/mainContainer"
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+    <ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:id="@+id/mainContainer"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"    
+    	android:orientation="vertical">
     
-    <ViewSwitcher 
-        android:id="@+id/viewSwitcher"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="1">
-
-        <net.nightwhistler.pageturner.view.bookview.BookView
+   
+                
+        <net.nightwhistler.pageturner.view.bookview.BookView 
             android:id="@+id/bookView"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" >
-
-            <view
-                android:id="@+id/innerView"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                class="net.nightwhistler.pageturner.view.bookview.BookView$InnerView" />
-        </net.nightwhistler.pageturner.view.bookview.BookView>
-
-        <net.nightwhistler.pageturner.view.AnimatedImageView
-            android:id="@+id/dummyView"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
-    	</ViewSwitcher>
-
-    	<TextView
-        	android:id="@+id/pageNumberView"
         	android:layout_width="fill_parent"
-        	android:layout_height="wrap_content"
-        	/>
-    </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/myTitleBarLayout"
-        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent">	        
+          
+                
+                <view class="net.nightwhistler.pageturner.view.bookview.BookView$InnerView"               
+                    android:id="@+id/innerView"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    />
+                    
+                        
+           
+        </net.nightwhistler.pageturner.view.bookview.BookView>
+	    <net.nightwhistler.pageturner.view.AnimatedImageView
+    	     android:layout_width="fill_parent"
+        	android:layout_height="fill_parent" 
+        	android:id="@+id/dummyView" />
+    
+    </ViewSwitcher>
+    
+      <TextView 
+    	android:id="@+id/pageNumberView"
+        android:layout_width="fill_parent" 
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/mainContainer"
-        android:orientation="vertical"
-        android:visibility="gone" >
-
-        <TextView
-            android:id="@+id/myTitleBarTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:background="@color/translucent_black"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/opaque_white" />
-
-        <TextView
-            android:id="@+id/authorField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/myTitleBarTextView"
-            android:background="@color/translucent_black"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/opaque_white" />
-
-        <TextView
-            android:id="@+id/percentageField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/authorField"
-            android:background="@color/translucent_black"
-            android:text="@string/zero_percent"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/opaque_white" />
-
-        <SeekBar
-            android:id="@+id/titleProgress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/percentageField"
-            android:background="@color/translucent_black" />
-    </RelativeLayout>
-
+        android:layout_alignBottom="@id/mainContainer"
+        />  
+    
+                
+    	<RelativeLayout 
+        	android:id="@+id/myTitleBarLayout" 
+        	android:layout_width="fill_parent" 
+        	android:layout_height="wrap_content"
+        	android:orientation="vertical"        
+        	android:layout_alignTop="@id/mainContainer"
+        	android:visibility="gone"
+        	>   
+        	    
+         <TextView
+                android:id="@+id/myTitleBarTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"                
+                android:layout_alignParentTop="true"                             
+                android:background="@color/translucent_black"                
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@color/opaque_white" />
+        
+          <TextView
+                android:id="@+id/authorField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"                
+                android:textColor="@color/opaque_white"
+                android:layout_below="@id/myTitleBarTextView"                              
+                android:background="@color/translucent_black"                
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                 />     
+         
+           <TextView
+                android:id="@+id/percentageField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/opaque_white"
+                android:text="@string/zero_percent"
+                android:layout_below="@id/authorField"
+                                       
+                android:background="@color/translucent_black"                
+                android:textAppearance="?android:attr/textAppearanceSmall" /> 
+                
+          <SeekBar android:id="@+id/titleProgress"
+        	style="?android:attr/progressBarStyleHorizontal"
+        	android:layout_width="fill_parent"        	
+        	android:layout_height="wrap_content"        
+        	android:layout_below="@id/percentageField"        	        	
+			android:background="@color/translucent_black" />   
+  </RelativeLayout>
 </RelativeLayout>

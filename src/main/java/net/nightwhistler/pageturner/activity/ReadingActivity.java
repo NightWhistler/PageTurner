@@ -139,7 +139,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	@Inject
 	private Configuration config;
 
-	@InjectView(R.id.mainContainer)
+	@InjectView(R.id.viewSwitcher)
 	private ViewSwitcher viewSwitcher;
 
 	@InjectView(R.id.bookView)
@@ -168,9 +168,6 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
-
-	private GestureDetector gestureDetector;
-	private View.OnTouchListener gestureListener;
 
 	private String bookTitle;
 	private String titleBase;
@@ -224,14 +221,18 @@ public class ReadingActivity extends RoboSherlockActivity implements
 				return true;
 			}
 		});
-
+		
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-		this.gestureDetector = new GestureDetector(new NavGestureDetector(
+		
+		if ( config.isShowPageNumbers() ) {
+			initializePageNumberView(metrics);
+		}
+		
+		final GestureDetector gestureDetector = new GestureDetector(this, new NavGestureDetector(
 				bookView, this, metrics));
 
-		this.gestureListener = new View.OnTouchListener() {
+		View.OnTouchListener gestureListener = new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				return gestureDetector.onTouchEvent(event);
 			}
@@ -309,6 +310,20 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 		}
 
+	}
+	
+	private void initializePageNumberView(DisplayMetrics metrics) {
+		
+		View.OnTouchListener gestureListener = new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				onTapBottomEdge();
+				return true;
+			}
+		};
+		
+		pageNumberView.setFocusable(true);
+		pageNumberView.setOnTouchListener(gestureListener);
+		displayPageNumber(-1);
 	}
 
 	/*
@@ -405,7 +420,16 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	}
 	
 	private void displayPageNumber(int pageNumber) {
-		SpannableStringBuilder builder = new SpannableStringBuilder( Integer.toString(pageNumber) );
+		
+		String pageString;
+		
+		if ( pageNumber > 0 ) {
+			pageString = Integer.toString(pageNumber) + "\n";
+		} else {
+			pageString = "\n";
+		}		
+		
+		SpannableStringBuilder builder = new SpannableStringBuilder( pageString );
 		builder.setSpan(new CenterSpan(), 0, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 		pageNumberView.setTextColor(config.getTextColor());
 		pageNumberView.setTextSize(config.getTextSize());
@@ -1361,7 +1385,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	}
 
 	@Override
-	public boolean onTopBottomEdge() {
+	public boolean onTapBottomEdge() {
 		if (config.isVerticalTappingEnabled()) {
 			pageDown(Orientation.VERTICAL);
 			return true;

@@ -139,7 +139,7 @@ public interface BookViewListener {
 	 * 
 	 * @return true if the event was handled.
 	 */
-	boolean onTopBottomEdge();
+	boolean onTapBottomEdge();
 	
 	/**
 	 * Generated when the user slides a finger along the screen's left edge.

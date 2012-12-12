@@ -877,8 +877,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		bookView.pageDown();
 		Bitmap after = getBookViewSnapshot();
 
-		PageTimer timer = new PageTimer();
-		timer.setBackgroundImage(after);
+		PageTimer timer = new PageTimer(after, pageNumberView.getHeight() );
+		
 		timer.setSpeed(config.getScrollSpeed());
 
 		dummyView.setAnimator(timer);
@@ -1084,7 +1084,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			} else if (animH == AnimationStyle.SLIDE) {
 				prepareSlide(Animations.inFromRightAnimation(),
 						Animations.outToLeftAnimation());
-				this.viewSwitcher.showNext();
+				executeSlide();
 				bookView.pageDown();
 			} else {
 				bookView.pageDown();
@@ -1094,12 +1094,18 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			if (config.getVerticalAnim() == AnimationStyle.SLIDE) {
 				prepareSlide(Animations.inFromBottomAnimation(),
 						Animations.outToTopAnimation());
-				this.viewSwitcher.showNext();
+				executeSlide();
 			}
 
 			bookView.pageDown();
 		}
 
+	}
+	
+	private void executeSlide() {
+		this.pageNumberView.setVisibility(View.GONE);
+		this.viewSwitcher.showNext();
+		this.pageNumberView.setVisibility(View.VISIBLE);
 	}
 
 	private void pageUp(Orientation o) {
@@ -1119,7 +1125,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			} else if (animH == AnimationStyle.SLIDE) {
 				prepareSlide(Animations.inFromLeftAnimation(),
 						Animations.outToRightAnimation());
-				this.viewSwitcher.showNext();
+				executeSlide();
 				bookView.pageUp();
 			} else {
 				bookView.pageUp();
@@ -1130,7 +1136,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			if (config.getVerticalAnim() == AnimationStyle.SLIDE) {
 				prepareSlide(Animations.inFromTopAnimation(),
 						Animations.outToBottomAnimation());
-				this.viewSwitcher.showNext();
+				executeSlide();
 			}
 
 			bookView.pageUp();

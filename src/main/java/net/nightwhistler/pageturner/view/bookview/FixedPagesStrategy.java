@@ -58,15 +58,21 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		layout.draw(new Canvas());
 		
 		int pageHeight = bookView.getHeight() - ( 2* bookView.getVerticalMargin() );
-		pageHeight = (int) (pageHeight * 0.95d); //Use 90% of available space
+		//pageHeight = (int) (pageHeight * 0.95d); //Use 90% of available space
+
+		String bottomSpace;
 		
 		if ( includePageNumbers ) {
-			StaticLayout numLayout = new StaticLayout("0\n", textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
-			layout.draw(new Canvas());
-			
-			//Subtract the height needed to show page numbers
-			pageHeight = pageHeight - numLayout.getHeight();			
+			bottomSpace = "\n0\n";
+		} else {
+			bottomSpace = "0";
 		}
+		
+		StaticLayout numLayout = new StaticLayout(bottomSpace, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
+		layout.draw(new Canvas());
+		
+		//Subtract the height needed to show page numbers
+		pageHeight = pageHeight - numLayout.getHeight();
 				
 		
 		int totalLines = layout.getLineCount();

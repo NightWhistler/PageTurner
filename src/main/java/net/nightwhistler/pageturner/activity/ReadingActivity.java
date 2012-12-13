@@ -177,17 +177,24 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 	private String fileName;
 	private int progressPercentage;
-
-	private boolean oldBrightness = false;
-	private boolean oldStripWhiteSpace = false;
-	private String oldFontName = "";
-	private boolean oldUsePageNum = false;
-	private boolean oldFullscreen = false;
-
-	private enum Orientation {
+	
+	
+	private static enum Orientation {
 		HORIZONTAL, VERTICAL
 	}
+	
+	private static class SavedConfigState {
+		private boolean brightness;
+		private boolean stripWhiteSpace;
+		private String fontName;
+		private boolean usePageNum;
+		private boolean fullscreen;
+		private int vMargin;
+		private int hMargin;
+		private int textSize;
+	}
 
+	private SavedConfigState savedConfigState = new SavedConfigState();
 	private CharSequence selectedWord = null;
 
 	private Handler uiHandler;
@@ -242,29 +249,28 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		};
 
 		this.progressBar.setFocusable(true);
-		this.progressBar
-				.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+		this.progressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
-					private int seekValue;
+			private int seekValue;
 
-					@Override
-					public void onStopTrackingTouch(SeekBar seekBar) {
-						bookView.navigateToPercentage(this.seekValue);
-					}
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				bookView.navigateToPercentage(this.seekValue);
+			}
 
-					@Override
-					public void onStartTrackingTouch(SeekBar seekBar) {
-					}
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
 
-					@Override
-					public void onProgressChanged(SeekBar seekBar,
-							int progress, boolean fromUser) {
-						if (fromUser) {
-							seekValue = progress;
-							percentageField.setText(progress + "% ");
-						}
-					}
-				});
+			@Override
+			public void onProgressChanged(SeekBar seekBar,
+					int progress, boolean fromUser) {
+				if (fromUser) {
+					seekValue = progress;
+					percentageField.setText(progress + "% ");
+				}
+			}
+		});
 
 		this.viewSwitcher.setOnTouchListener(gestureListener);
 		this.bookView.setOnTouchListener(gestureListener);
@@ -275,14 +281,9 @@ public class ReadingActivity extends RoboSherlockActivity implements
 				HtmlSpanner.class));
 		this.bookView.setTextSelectionCallback(this);
 
-		this.oldBrightness = config.isBrightnessControlEnabled();
-		this.oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
-		this.oldFontName = config.getFontFamily().getName();
-		this.oldUsePageNum = config.isShowPageNumbers();
-		this.oldFullscreen = config.isFullScreenEnabled();
-
 		registerForContextMenu(bookView);
-
+		saveConfigState();
+		
 		String file = getIntent().getStringExtra("file_name");
 
 		if (file == null && getIntent().getData() != null) {
@@ -313,6 +314,22 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 		}
 
+	}
+	
+	private void saveConfigState() {
+		// Cache old settings to check if we'll need a restart later
+		savedConfigState.brightness = config.isBrightnessControlEnabled();
+		savedConfigState.stripWhiteSpace = config.isStripWhiteSpaceEnabled();
+	
+		savedConfigState.usePageNum = config.isShowPageNumbers();
+		savedConfigState.fullscreen = config.isFullScreenEnabled();
+		
+		savedConfigState.hMargin = config.getHorizontalMargin();
+		savedConfigState.vMargin = config.getVerticalMargin();
+		
+		savedConfigState.textSize = config.getTextSize();
+		savedConfigState.fontName = config.getFontFamily().getName();
+		
 	}
 
 	/*
@@ -365,24 +382,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		this.bookView.setIndex(lastIndex);
 
 		config.setLastOpenedFile(fileName);
-	}
-
-	/**
-	 * Immediately updates the text size in the BookView, and saves the
-	 * preference in the background.
-	 * 
-	 * @param textSize
-	 */
-	private void updateTextSize(final float textSize) {
-		bookView.setTextSize(textSize);
-		backgroundHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				config.setTextSize((int) textSize);
-			}
-		});
-	}
+	}	
 
 	@Override
 	public void progressUpdate(int progressPercentage, int pageNumber,
@@ -474,12 +474,14 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		restoreColorProfile();
 
 		// Check if we need a restart
-		if (config.isFullScreenEnabled() != oldFullscreen
-				|| config.isShowPageNumbers() != oldUsePageNum
-				|| config.isBrightnessControlEnabled() != oldBrightness
-				|| config.isStripWhiteSpaceEnabled() != oldStripWhiteSpace
-				|| !this.oldFontName.equalsIgnoreCase(config.getFontFamily()
-						.getName())) {
+		if (config.isFullScreenEnabled() != savedConfigState.fullscreen
+				|| config.isShowPageNumbers() != savedConfigState.usePageNum
+				|| config.isBrightnessControlEnabled() != savedConfigState.brightness
+				|| config.isStripWhiteSpaceEnabled() != savedConfigState.stripWhiteSpace
+				|| !config.getFontFamily().getName().equalsIgnoreCase(savedConfigState.fontName)
+				|| config.getHorizontalMargin() != savedConfigState.hMargin
+				|| config.getVerticalMargin() != savedConfigState.vMargin
+				|| config.getTextSize() != savedConfigState.textSize ) {
 			restartActivity();
 		}
 
@@ -1295,10 +1297,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			return true;
 
 		case R.id.preferences:
-			// Cache old settings to check if we'll need a restart later
-			oldBrightness = config.isBrightnessControlEnabled();
-			oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
-
+			saveConfigState();
 			Intent i = new Intent(this, PageTurnerPrefsActivity.class);
 			startActivity(i);
 			return true;

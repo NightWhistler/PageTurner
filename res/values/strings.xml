@@ -122,10 +122,10 @@
     <string name="search_no_matches">Search did not find any matches.</string>
     <string name="search_results">Search results</string>
     
-    <string name="opening_file">Opening file...</string>
-    <string name="calc_page_num">Calculating page numbers...</string>
-    <string name="calc_page_num_desc">This may take a few moments... it\'s only done the first time a book is opened.</string>
-    <string name="loading_text">Loading text...</string>
+    <string name="opening_file">Opening file…</string>
+    <string name="calc_page_num">Calculating page numbers…</string>
+    <string name="calc_page_num_desc">This may take a few moments…</string>
+    <string name="loading_text">Loading text…</string>
     
     <string name="end_of_section">End of chapter.\nClick here to continue.</string>
     

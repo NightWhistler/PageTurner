@@ -7,8 +7,8 @@
     <string name="open_file">Open ePub bestand</string>
     <string name="open_library">Mijn boeken</string>
     
-    <string name="profile_day">Schakel naar dag stand</string>  
-    <string name="profile_night">Schakel naar nacht stand</string>
+    <string name="profile_day">Schakel naar dagstand</string>  
+    <string name="profile_night">Schakel naar nachtstand</string>
     <string name="manual_sync">Synchroniseer voortgang</string>
     <string name="prefs">Instellingen</string>
     
@@ -76,7 +76,7 @@
     </string-array>  
    
     <string-array name="autoscrollLabels">
-        <item>Rolling blind</item>
+        <item>Afrollende pagina</item>
         <item>Pagina wisseling timer</item>
     </string-array>    
         
@@ -123,9 +123,102 @@
     <string name="calc_page_num_desc">Dit kan enkele momenten duren…</string>
     <string name="loading_text">Tekst wordt geladen…</string>
 
-    <string name="end_of_section">Einde van het hoofdstuk.\nKlik hier om verder te lezen.</string>
+	 <!-- Preferences -->    
+        
+    <string name="pref_sync_settings">Synchronisatie instellingen</string>
+    <string name="pref_email">E-mail adres</string>
+    <string name="pref_email_summary">Voor het koppelen van apparaten. Laat leeg om synchronisatie uit te schakelen.</string>
+    <string name="pref_email_message">Voer aub een gelding e-mail adres in.</string>
+    <string name="pref_device_name">Apparaat naam</string>
+    <string name="pref_device_name_summary">Unieke naam voor dit apparaat, om conflicten op te lossen.</string>
+    <string name="pref_device_name_message">Voer aub een naam in voor dit apparaat.</string>
+    <string name="pref_access_key">Toegangssleutel</string>
+    <string name="pref_access_key_summary">Om de synchronisatie service te gebruiken is een toegangssleutel vereist. Ga naar de site om een sleutel te krijgen.</string>
+    <string name="pref_access_key_message">Voer aub uw toegangssleutel in.</string>
+
+    <string name="pref_autoscroll_settings">Auto-scroll instellingen</string>
+    <string name="pref_scroll_style">Auto-scroll stijl</string>
+    <string name="pref_scroll_style_summary">Afrollende pagina of pagina timer.</string>
+    <string name="pref_scroll_speed">Auto-scroll snelheid</string>
+    <string name="pref_scroll_speed_summary">Hoe lang een pagina wordt weergegeven in seconden.</string>
+
+    <string name="pref_my_books_settings">Mijn Boeken instellingen</string>
+    <string name="pref_copy_to_library">Kopieren naar bibliotheek map</string>
+    <string name="pref_copy_to_library_summary">Bepaalt of PageTurner boeken naar zijn eigen bibliotheek map moet kopieren.</string>
+    <string name="pref_calibre_server">Calibre content server</string>
+    <string name="pref_calibre_server_summary">Maak verbinding met je eigen Calibre bibliotheek.</string>
+    <string name="pref_calibre_server_message">Calibre URL</string>
+    <string name="pref_calibre_server_hint">http://192.168.1.1:8080/opds</string>
+    <string name="pref_calibre_user">Gebruikersnaam</string>
+    <string name="pref_calibre_user_summary">De gebruikersnaam voor Calibre.</string>
+    <string name="pref_calibre_user_hint">calibre</string>
+    <string name="pref_calibre_password">Wachtwoord</string>
+    <string name="pref_calibre_password_summary">Het wachtwoord voor Calibre.</string>
+
+    <string name="pref_visual_settings">Weergave instellingen</string>
+    <string name="pref_full_screen">Volledig scherm</string>
+    <string name="pref_full_screen_summary">Verbergt alle status balken.</string>
+    <string name="pref_screen_orientation">Scherm orientatie</string>
+    <string name="pref_screen_orientation_summary">Vergrendeling van de scherm orientatie.</string>
+    <string name="pref_keep_screen_on">Voorkom vergrendeling</string>
+    <string name="pref_keep_screen_on_summary">Voorkomt dat het scherm vergrendelt tijdens het lezen.</string>
+    <string name="pref_set_brightness">Helderheids instellingen</string>
+    <string name="pref_set_brightness_summary">Laat PageTurner de scherm helderheid beheren.</string>
+    <string name="pref_day_bright">Scherm helderheid</string>
+    <string name="pref_day_bright_summary">Voor dagstand.</string>
+    <string name="pref_day_night">Scherm helderheid</string>
+    <string name="pref_day_night_summary">Voor nachtstand.</string>
+    <string name="pref_text_display_settings">Tekst weergave instellingen</string>
+    <string name="pref_font_face">Lettertype</string>
+    <string name="pref_font_face_summary">Lettertype voor boeken.</string>
+    <string name="pref_strip_whitespace">Verwijder lege ruimte</string>
+    <string name="pref_strip_whitespace_summary">Verwijderd onnodige lege ruimte uit boeken.</string>
+    <string name="pref_itext_size">Tekst grootte</string>
+    <string name="pref_itext_size_summary">De tekst grootte voor het weergeven van boeken.</string>
+    <string name="pref_margin_h">Horizontale marges</string>
+    <string name="pref_margin_h_summary">De hoeveelheid lege ruimte aan de zijkanten van het scherm.</string>
+    <string name="pref_margin_v">Verticale marges</string>
+    <string name="pref_margin_v_summary">De hoeveelheid lege ruimte boven en onder aan het scherm.</string>
+    <string name="pref_line_spacing">Regel afstand</string>
+    <string name="pref_line_spacing_summary">Voegt extra ruimte tussen regels toe.</string>
+
+    <string name="pref_colour_settings">Kleur instellingen</string>
+    <string name="pref_day_text">Tekst kleur</string>
+    <string name="pref_day_text_summary">Voor dagstand.</string>
+    <string name="pref_day_bg">Achtergrond kleur</string>
+    <string name="pref_day_bg_summary">Voor dagstand.</string>
+    <string name="pref_day_link">Link kleur</string>
+    <string name="pref_day_link_summary">Voor dagstand.</string>
+    <string name="pref_night_text">Tekst kleur</string>
+    <string name="pref_night_text_summary">Voor nachtstand.</string>
+    <string name="pref_night_bg">Achtergrond kleur</string>
+    <string name="pref_night_bg_summary">Voor nachtstand.</string>
+    <string name="pref_night_link">Link kleur</string>
+    <string name="pref_night_link_summary">Voor nachtstand.</string>
+
+    <string name="pref_animations">Animatie instellingen</string>
+    <string name="pref_h_animation">Horizontale animaties</string>
+    <string name="pref_h_animation_summary">Animaties bij horizontale pagina wisseling.</string>
+    <string name="pref_v_animation">Verticale animaties</string>
+    <string name="pref_v_animation_summary">Animaties bij verticale pagina wisseling.</string>
     
+    <string name="pref_navigation_settings">Navigatie instellingen</string>
+    <string name="pref_scrolling">Activeer scrollen</string>
+    <string name="pref_scrolling_summary">Maakt scrollen zoals in een browser mogelijk.</string>
+    <string name="pref_nav_vol">Gebruik volume knoppen</string>
+    <string name="pref_nav_vol_summary">Sla pagina\'s om met de volume knoppen.</string>
+    <string name="pref_nav_swipe_h">Gebruik horizontale swipe</string>
+    <string name="pref_nav_swipe_h_summary">Swipe naar links of rechts om pagina\'s om te slaan.</string>
+    <string name="pref_nav_swipe_v">Gebruik verticale swipe</string>
+    <string name="pref_nav_swipe_v_summary">Swipe op of neer om pagina\'s om te slaan.</string>
+    <string name="pref_nav_tap_h">Gebruik scherm zijkanten</string>
+    <string name="pref_nav_tap_h_summary">Tik aan de linker of rechter kant van het scherm om pagina\'s om te slaan.</string>
+    <string name="pref_nav_tap_v">Gebruik boven- en onderkant</string>
+    <string name="pref_nav_tap_v_summary">Tik aan de boven- of onderkant van het scherm om pagina\'s om te slaan.</string>
     
+    <string name="pref_show_pagenum">Show pagenumbers</string>
+    <string name="pref_show_pagenum_summary">Shows pagenumbers while reading. Makes opening a book for the first time slower.</string>
+   
     <string name="pref_show_pagenum">Toon paginanummers</string>
     <string name="pref_show_pagenum_summary">Laat paginanummers zien tijdens het lezen. Maakt het  voor het eerst openen van een boek langzamer.</string>
     

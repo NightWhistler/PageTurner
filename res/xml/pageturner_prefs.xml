@@ -295,13 +295,15 @@
             android:key="nav_vol"
             android:title="@string/pref_nav_vol"
             android:summary="@string/pref_nav_vol"
-            android:defaultValue="false" />
+            android:defaultValue="false"
+            android:dependency="scrolling" />
             
      <CheckBoxPreference			
             android:key="nav_swipe_h"
             android:title="@string/pref_nav_swipe_h"
             android:summary="@string/pref_nav_swipe_h"
-            android:defaultValue="true" /> 
+            android:defaultValue="true"
+            android:dependency="scrolling" /> 
             
      <CheckBoxPreference			
             android:key="nav_swipe_v"
@@ -314,13 +316,15 @@
             android:key="nav_tap_h"
             android:title="@string/pref_nav_tap_h"
             android:summary="@string/pref_nav_tap_h"
-            android:defaultValue="true" />       
+            android:defaultValue="true"
+            android:dependency="scrolling" />       
      
      <CheckBoxPreference			
             android:key="nav_tap_v"
             android:title="@string/pref_nav_tap_v"
             android:summary="@string/pref_nav_tap_v"
-            android:defaultValue="true" />           
+            android:defaultValue="true"
+            android:dependency="scrolling" />           
                 
     </PreferenceCategory>
     

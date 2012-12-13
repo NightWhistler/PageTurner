@@ -176,7 +176,8 @@ public class Configuration {
 		String bookHash = Integer.toHexString(fileName.hashCode());
 
 		PageOffsets offsetsObject = PageOffsets.fromValues(this, offsets);
-		updateValue(KEY_OFFSETS + bookHash, offsetsObject.toJSON() );
+		String json = offsetsObject.toJSON();
+		updateValue(KEY_OFFSETS + bookHash, json );
 	}
 
 	public List<List<Integer>> getPageOffsets(String fileName) {

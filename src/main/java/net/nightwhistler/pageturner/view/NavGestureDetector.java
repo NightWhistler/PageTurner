@@ -79,7 +79,7 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
     	if ( e.getY() < TAP_RANGE_V + yBase ) {
     		return bookViewListener.onTapTopEdge();
     	} else if ( e.getY() > (yBase + bookView.getHeight()) - TAP_RANGE_V ) {
-    		return bookViewListener.onTopBottomEdge();	
+    		return bookViewListener.onTapBottomEdge();	
     	}
     	
     	this.bookViewListener.onScreenTap();	

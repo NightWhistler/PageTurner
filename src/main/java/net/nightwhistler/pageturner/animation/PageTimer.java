@@ -28,12 +28,18 @@ import android.graphics.Rect;
 public class PageTimer implements Animator {
 	
 	private Bitmap backgroundImage;
+	private int bottom;
 	
 	private int speed = 20;
 	
 	private static final int MAX_STEP = 500;
 
 	int count = 0;
+	
+	public PageTimer(Bitmap backgroundImage, int bottom) {
+		this.backgroundImage = backgroundImage;
+		this.bottom = bottom;
+	}
 	
 	@Override
 	public void advanceOneFrame() {
@@ -51,7 +57,8 @@ public class PageTimer implements Animator {
 		paint.setStyle(Style.STROKE);
 		
 		int timerHeight = 10;
-		Rect timer = new Rect( 0, backgroundImage.getHeight() - timerHeight, backgroundImage.getWidth(), backgroundImage.getHeight() );
+		Rect timer = new Rect( 0, backgroundImage.getHeight() - (timerHeight + bottom), 
+				backgroundImage.getWidth(), backgroundImage.getHeight() - bottom );
 		canvas.drawRect(timer, paint);
 		
 		float percentage = (float) count / (float) MAX_STEP;
@@ -82,8 +89,5 @@ public class PageTimer implements Animator {
 		return count >= MAX_STEP;
 	}
 	
-	public void setBackgroundImage(Bitmap backgroundImage) {
-		this.backgroundImage = backgroundImage;
-	}
 	
 }

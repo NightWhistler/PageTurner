@@ -118,11 +118,12 @@
     <string name="search_no_matches">Er zijn geen resultaten gevonden.</string>
     <string name="search_results">Zoekresultaten</string>
     
-     <string name="opening_file">Bestand wordt geopend...</string>
-    <string name="calc_page_num">Berekenen van paginanummers...</string>
-    <string name="calc_page_num_desc">Dit kan enkele momenten duren&#8230;\nHet gebeurt alleen de eerste keer dat een boek geopend wordt.</string>
-    <string name="loading_text">Tekst wordt geladen...</string>
+     <string name="opening_file">Bestand wordt geopend…</string>
+    <string name="calc_page_num">Berekenen van paginanummers…</string>
+    <string name="calc_page_num_desc">Dit kan enkele momenten duren…</string>
+    <string name="loading_text">Tekst wordt geladen…</string>
 
+    <string name="end_of_section">Einde van het hoofdstuk.\nKlik hier om verder te lezen.</string>
     
     
     <string name="pref_show_pagenum">Toon paginanummers</string>

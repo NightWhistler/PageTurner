@@ -188,6 +188,12 @@ public class BookView extends ScrollView {
 		imageCache.clear();
 	}
 	
+	@Override
+	protected void onScrollChanged(int l, int t, int oldl, int oldt) {		
+		super.onScrollChanged(l, t, oldl, oldt);
+		progressUpdate();
+	}
+	
 	
 	/**
 	 * Returns if we're at the start of the book, i.e. displaying the title page.
@@ -394,17 +400,13 @@ public class BookView extends ScrollView {
 	
 	public void pageDown() {		
 		strategy.pageDown();
+		progressUpdate();
 	}
 	
 	public void pageUp() {
 		strategy.pageUp();
-	}
-	
-	@Override
-	public void scrollBy(int x, int y) {		
-		super.scrollBy(x, y);		
 		progressUpdate();
-	}
+	}	
 	
 	TextView getInnerView() {
 		return childView;
@@ -412,13 +414,7 @@ public class BookView extends ScrollView {
 	
 	PageTurnerSpine getSpine() {
 		return this.spine;
-	}
-	
-	@Override
-	public void scrollTo(int x, int y) {		
-		super.scrollTo(x, y);
-		progressUpdate();
-	}	
+	}		
 	
 	private Integer findOffsetForPosition(float x, float y) {
 		
@@ -1051,7 +1047,7 @@ public class BookView extends ScrollView {
 			if ( enableScrolling ) {
 				this.strategy = new ScrollingStrategy(this, this.getContext());
 			} else {				
-				this.strategy = new FixedPagesStrategy(this);
+				this.strategy = new FixedPagesStrategy(this, configuration);
 			}
 
 			if ( ! wasNull ) {				
@@ -1068,7 +1064,7 @@ public class BookView extends ScrollView {
 		CharSequence text = spanner.fromHtml( res.getReader() );
 		loader.load();
 		
-		return FixedPagesStrategy.getPageOffsets(this, text);			
+		return FixedPagesStrategy.getPageOffsets(this, text, true);			
 	}
 	
 	
@@ -1284,6 +1280,7 @@ public class BookView extends ScrollView {
 			
 			restorePosition();
 			strategy.loadText( result );
+			progressUpdate();
 		}
 	}	
 }

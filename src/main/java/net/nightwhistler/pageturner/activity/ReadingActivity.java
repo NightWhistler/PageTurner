@@ -45,6 +45,7 @@ import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import net.nightwhistler.pageturner.view.SearchResultAdapter;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import net.nightwhistler.pageturner.view.bookview.BookViewListener;
+import net.nightwhistler.pageturner.view.bookview.FixedPagesStrategy;
 import net.nightwhistler.pageturner.view.bookview.TextSelectionCallback;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
@@ -72,6 +73,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -81,6 +83,7 @@ import android.os.HandlerThread;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
+import android.text.TextPaint;
 import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.Display;
@@ -162,32 +165,36 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 	@InjectView(R.id.dummyView)
 	private AnimatedImageView dummyView;
-	
+
 	@InjectView(R.id.pageNumberView)
 	private TextView pageNumberView;
 
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
 
-	private GestureDetector gestureDetector;
-	private View.OnTouchListener gestureListener;
-
 	private String bookTitle;
 	private String titleBase;
 
 	private String fileName;
 	private int progressPercentage;
-
-	private boolean oldBrightness = false;
-	private boolean oldStripWhiteSpace = false;
-	private String oldFontName = "";
-	private boolean oldUsePageNum = false;
-	private boolean oldFullscreen = false;
-
-	private enum Orientation {
+	
+	
+	private static enum Orientation {
 		HORIZONTAL, VERTICAL
 	}
+	
+	private static class SavedConfigState {
+		private boolean brightness;
+		private boolean stripWhiteSpace;
+		private String fontName;
+		private boolean usePageNum;
+		private boolean fullscreen;
+		private int vMargin;
+		private int hMargin;
+		private int textSize;
+	}
 
+	private SavedConfigState savedConfigState = new SavedConfigState();
 	private CharSequence selectedWord = null;
 
 	private Handler uiHandler;
@@ -207,7 +214,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		// Restore preferences
 		setContentView(R.layout.read_book);
 		this.uiHandler = new Handler();
-		
+
 		this.bookView.init();
 
 		HandlerThread bgThread = new HandlerThread("background");
@@ -228,39 +235,42 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-		this.gestureDetector = new GestureDetector(new NavGestureDetector(
-				bookView, this, metrics));
+		if (config.isShowPageNumbers()) {
+			displayPageNumber(-1); // Initializes the pagenumber view properly
+		}
 
-		this.gestureListener = new View.OnTouchListener() {
+		final GestureDetector gestureDetector = new GestureDetector(this,
+				new NavGestureDetector(bookView, this, metrics));
+
+		View.OnTouchListener gestureListener = new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				return gestureDetector.onTouchEvent(event);
 			}
 		};
 
 		this.progressBar.setFocusable(true);
-		this.progressBar
-				.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+		this.progressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
-					private int seekValue;
+			private int seekValue;
 
-					@Override
-					public void onStopTrackingTouch(SeekBar seekBar) {
-						bookView.navigateToPercentage(this.seekValue);
-					}
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				bookView.navigateToPercentage(this.seekValue);
+			}
 
-					@Override
-					public void onStartTrackingTouch(SeekBar seekBar) {
-					}
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
 
-					@Override
-					public void onProgressChanged(SeekBar seekBar,
-							int progress, boolean fromUser) {
-						if (fromUser) {
-							seekValue = progress;
-							percentageField.setText(progress + "% ");
-						}
-					}
-				});
+			@Override
+			public void onProgressChanged(SeekBar seekBar,
+					int progress, boolean fromUser) {
+				if (fromUser) {
+					seekValue = progress;
+					percentageField.setText(progress + "% ");
+				}
+			}
+		});
 
 		this.viewSwitcher.setOnTouchListener(gestureListener);
 		this.bookView.setOnTouchListener(gestureListener);
@@ -271,14 +281,9 @@ public class ReadingActivity extends RoboSherlockActivity implements
 				HtmlSpanner.class));
 		this.bookView.setTextSelectionCallback(this);
 
-		this.oldBrightness = config.isBrightnessControlEnabled();
-		this.oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
-		this.oldFontName = config.getFontFamily().getName();
-		this.oldUsePageNum = config.isShowPageNumbers();
-		this.oldFullscreen = config.isFullScreenEnabled();
-
 		registerForContextMenu(bookView);
-
+		saveConfigState();
+		
 		String file = getIntent().getStringExtra("file_name");
 
 		if (file == null && getIntent().getData() != null) {
@@ -309,6 +314,22 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 		}
 
+	}
+	
+	private void saveConfigState() {
+		// Cache old settings to check if we'll need a restart later
+		savedConfigState.brightness = config.isBrightnessControlEnabled();
+		savedConfigState.stripWhiteSpace = config.isStripWhiteSpaceEnabled();
+	
+		savedConfigState.usePageNum = config.isShowPageNumbers();
+		savedConfigState.fullscreen = config.isFullScreenEnabled();
+		
+		savedConfigState.hMargin = config.getHorizontalMargin();
+		savedConfigState.vMargin = config.getVerticalMargin();
+		
+		savedConfigState.textSize = config.getTextSize();
+		savedConfigState.fontName = config.getFontFamily().getName();
+		
 	}
 
 	/*
@@ -361,24 +382,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		this.bookView.setIndex(lastIndex);
 
 		config.setLastOpenedFile(fileName);
-	}
-
-	/**
-	 * Immediately updates the text size in the BookView, and saves the
-	 * preference in the background.
-	 * 
-	 * @param textSize
-	 */
-	private void updateTextSize(final float textSize) {
-		bookView.setTextSize(textSize);
-		backgroundHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				config.setTextSize((int) textSize);
-			}
-		});
-	}
+	}	
 
 	@Override
 	public void progressUpdate(int progressPercentage, int pageNumber,
@@ -388,30 +392,41 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		if (progressPercentage < 0 || progressPercentage > 100) {
 			return;
 		}
-		
+
 		this.progressPercentage = progressPercentage;
-		
-		if ( config.isShowPageNumbers() ) {		
-			percentageField.setText("" + progressPercentage + "%  " + pageNumber
-				+ " / " + totalPages);
+
+		if (config.isShowPageNumbers()) {
+			percentageField.setText("" + progressPercentage + "%  "
+					+ pageNumber + " / " + totalPages);
 			displayPageNumber(pageNumber);
-			
+
 		} else {
-			percentageField.setText("" + progressPercentage + "%" );
+			percentageField.setText("" + progressPercentage + "%");
 		}
 
 		this.progressBar.setProgress(progressPercentage);
 		this.progressBar.setMax(100);
 	}
-	
+
 	private void displayPageNumber(int pageNumber) {
-		SpannableStringBuilder builder = new SpannableStringBuilder( Integer.toString(pageNumber) );
-		builder.setSpan(new CenterSpan(), 0, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
+
+		String pageString;
+
+		if (pageNumber > 0) {
+			pageString = Integer.toString(pageNumber) + "\n";
+		} else {
+			pageString = "\n";
+		}
+
+		SpannableStringBuilder builder = new SpannableStringBuilder(pageString);
+		builder.setSpan(new CenterSpan(), 0, builder.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		pageNumberView.setTextColor(config.getTextColor());
 		pageNumberView.setTextSize(config.getTextSize());
-		
+		pageNumberView.setBackgroundColor(config.getBackgroundColor());
+
 		pageNumberView.setTypeface(config.getFontFamily().getDefaultTypeface());
-		
+
 		pageNumberView.setText(builder);
 	}
 
@@ -459,12 +474,14 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		restoreColorProfile();
 
 		// Check if we need a restart
-		if (	config.isFullScreenEnabled() != oldFullscreen
-				|| config.isShowPageNumbers() != oldUsePageNum
-				|| config.isBrightnessControlEnabled() != oldBrightness
-				|| config.isStripWhiteSpaceEnabled() != oldStripWhiteSpace
-				|| !this.oldFontName.equalsIgnoreCase(config.getFontFamily()
-						.getName())) {
+		if (config.isFullScreenEnabled() != savedConfigState.fullscreen
+				|| config.isShowPageNumbers() != savedConfigState.usePageNum
+				|| config.isBrightnessControlEnabled() != savedConfigState.brightness
+				|| config.isStripWhiteSpaceEnabled() != savedConfigState.stripWhiteSpace
+				|| !config.getFontFamily().getName().equalsIgnoreCase(savedConfigState.fontName)
+				|| config.getHorizontalMargin() != savedConfigState.hMargin
+				|| config.getVerticalMargin() != savedConfigState.vMargin
+				|| config.getTextSize() != savedConfigState.textSize ) {
 			restartActivity();
 		}
 
@@ -862,8 +879,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		bookView.pageDown();
 		Bitmap after = getBookViewSnapshot();
 
-		PageTimer timer = new PageTimer();
-		timer.setBackgroundImage(after);
+		PageTimer timer = new PageTimer(after, pageNumberView.getHeight());
+
 		timer.setSpeed(config.getScrollSpeed());
 
 		dummyView.setAnimator(timer);
@@ -883,6 +900,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		}
 
 		Bitmap before = getBookViewSnapshot();
+
+		this.pageNumberView.setVisibility(View.GONE);
 
 		PageCurlAnimator animator = new PageCurlAnimator(flipRight);
 
@@ -939,6 +958,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 				}
 
 				dummyView.setAnimator(null);
+				pageNumberView.setVisibility(View.VISIBLE);
 
 			} else {
 				this.animator.advanceOneFrame();
@@ -985,6 +1005,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			viewSwitcher.showNext();
 		}
 
+		this.pageNumberView.setVisibility(View.VISIBLE);
 		bookView.setKeepScreenOn(false);
 	}
 
@@ -1000,6 +1021,30 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 			bookView.draw(canvas);
 
+			if (config.isShowPageNumbers()) {
+
+				/**
+				 * FIXME: creating an intermediate bitmap here because I can't
+				 * figure out how to draw the pageNumberView directly on the
+				 * canvas and have it show up in the right place.
+				 */
+
+				Bitmap pageNumberBitmap = Bitmap.createBitmap(
+						pageNumberView.getWidth(), pageNumberView.getHeight(),
+						Config.ARGB_8888);
+				Canvas pageNumberCanvas = new Canvas(pageNumberBitmap);
+
+				pageNumberView.layout(0, 0, pageNumberView.getWidth(),
+						pageNumberView.getHeight());
+				pageNumberView.draw(pageNumberCanvas);
+
+				canvas.drawBitmap(pageNumberBitmap, 0, viewSwitcher.getHeight()
+						- pageNumberView.getHeight(), new Paint());
+
+				pageNumberBitmap.recycle();
+
+			}
+
 			return bitmap;
 		} catch (OutOfMemoryError out) {
 			viewSwitcher.setBackgroundColor(config.getBackgroundColor());
@@ -1013,6 +1058,20 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		Bitmap bitmap = getBookViewSnapshot();
 		dummyView.setImageBitmap(bitmap);
 
+		this.pageNumberView.setVisibility(View.GONE);
+
+		inAnim.setAnimationListener(new Animation.AnimationListener() {
+
+			public void onAnimationStart(Animation animation) {}
+
+			public void onAnimationRepeat(Animation animation) {}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				onSlideFinished();
+			}
+		});
+		
 		viewSwitcher.layout(0, 0, viewSwitcher.getWidth(),
 				viewSwitcher.getHeight());
 		dummyView.layout(0, 0, viewSwitcher.getWidth(),
@@ -1022,6 +1081,10 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 		this.viewSwitcher.setInAnimation(inAnim);
 		this.viewSwitcher.setOutAnimation(outAnim);
+	}
+
+	private void onSlideFinished() {
+		this.pageNumberView.setVisibility(View.VISIBLE);
 	}
 
 	private void pageDown(Orientation o) {
@@ -1041,7 +1104,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			} else if (animH == AnimationStyle.SLIDE) {
 				prepareSlide(Animations.inFromRightAnimation(),
 						Animations.outToLeftAnimation());
-				this.viewSwitcher.showNext();
+				viewSwitcher.showNext();
 				bookView.pageDown();
 			} else {
 				bookView.pageDown();
@@ -1051,7 +1114,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			if (config.getVerticalAnim() == AnimationStyle.SLIDE) {
 				prepareSlide(Animations.inFromBottomAnimation(),
 						Animations.outToTopAnimation());
-				this.viewSwitcher.showNext();
+				viewSwitcher.showNext();
 			}
 
 			bookView.pageDown();
@@ -1076,7 +1139,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			} else if (animH == AnimationStyle.SLIDE) {
 				prepareSlide(Animations.inFromLeftAnimation(),
 						Animations.outToRightAnimation());
-				this.viewSwitcher.showNext();
+				viewSwitcher.showNext();
 				bookView.pageUp();
 			} else {
 				bookView.pageUp();
@@ -1087,7 +1150,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			if (config.getVerticalAnim() == AnimationStyle.SLIDE) {
 				prepareSlide(Animations.inFromTopAnimation(),
 						Animations.outToBottomAnimation());
-				this.viewSwitcher.showNext();
+				viewSwitcher.showNext();
 			}
 
 			bookView.pageUp();
@@ -1177,7 +1240,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		sendProgressUpdateToServer();
 		this.waitDialog.dismiss();
 	}
-	
+
 	private void saveReadingPosition() {
 		if (this.bookView != null) {
 
@@ -1191,7 +1254,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 				sendProgressUpdateToServer();
 			}
 		}
-		
+
 	}
 
 	@Override
@@ -1239,10 +1302,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			return true;
 
 		case R.id.preferences:
-			// Cache old settings to check if we'll need a restart later
-			oldBrightness = config.isBrightnessControlEnabled();
-			oldStripWhiteSpace = config.isStripWhiteSpaceEnabled();
-
+			saveConfigState();
 			Intent i = new Intent(this, PageTurnerPrefsActivity.class);
 			startActivity(i);
 			return true;
@@ -1366,7 +1426,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	}
 
 	@Override
-	public boolean onTopBottomEdge() {
+	public boolean onTapBottomEdge() {
 		if (config.isVerticalTappingEnabled()) {
 			pageDown(Orientation.VERTICAL);
 			return true;
@@ -1504,7 +1564,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 			sendProgressUpdateToServer();
 
-			libraryService.close();			
+			libraryService.close();
 		}
 
 	}

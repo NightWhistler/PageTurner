@@ -3,6 +3,7 @@ package net.nightwhistler.pageturner.view.bookview;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import android.graphics.Canvas;
 import android.text.Layout.Alignment;
@@ -23,11 +24,14 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	private BookView bookView;
 	private TextView childView;
 	
-	private int storedPosition = -1;
+	private Configuration config;
 	
-	public FixedPagesStrategy(BookView bookView) {
+	private int storedPosition = -1;
+		
+	public FixedPagesStrategy(BookView bookView, Configuration config) {
 		this.bookView = bookView;
 		this.childView = bookView.getInnerView();
+		this.config = config;
 	}
 	
 	@Override
@@ -43,18 +47,33 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		this.pageOffsets = new ArrayList<Integer>();
 	}
 	
-	public static List<Integer> getPageOffsets( BookView bookView, CharSequence text ) {
+	public static List<Integer> getPageOffsets( BookView bookView, CharSequence text, boolean includePageNumbers ) {
 		
 		List<Integer> pageOffsets = new ArrayList<Integer>();
 		
 		TextPaint textPaint = bookView.getInnerView().getPaint();
 		int boundedWidth = bookView.getInnerView().getWidth();
-
+		
 		StaticLayout layout = new StaticLayout(text, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
 		layout.draw(new Canvas());
 		
 		int pageHeight = bookView.getHeight() - ( 2* bookView.getVerticalMargin() );
-		pageHeight = (int) (pageHeight * 0.95d); //Use 90% of available space
+		//pageHeight = (int) (pageHeight * 0.95d); //Use 90% of available space
+
+		String bottomSpace;
+		
+		if ( includePageNumbers ) {
+			bottomSpace = "\n0\n";
+		} else {
+			bottomSpace = "0";
+		}
+		
+		StaticLayout numLayout = new StaticLayout(bottomSpace, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
+		layout.draw(new Canvas());
+		
+		//Subtract the height needed to show page numbers
+		pageHeight = pageHeight - numLayout.getHeight();
+				
 		
 		int totalLines = layout.getLineCount();
 		int currentPageNum = 0;
@@ -199,7 +218,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	public void loadText(Spanned text) {
 		this.text = text;
 		this.pageNum = 0;
-		this.pageOffsets = getPageOffsets(bookView, text);
+		this.pageOffsets = getPageOffsets(bookView, text, config.isShowPageNumbers() );
 		updatePosition();
 	}
 }

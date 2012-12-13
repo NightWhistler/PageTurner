@@ -19,13 +19,8 @@
 
 package net.nightwhistler.pageturner;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import net.nightwhistler.htmlspanner.FontFamily;
 import roboguice.inject.ContextSingleton;
@@ -180,37 +175,21 @@ public class Configuration {
 	public void setPageOffsets(String fileName, List<List<Integer>> offsets) {
 		String bookHash = Integer.toHexString(fileName.hashCode());
 
-		JSONArray array = new JSONArray(offsets);
-		updateValue(KEY_OFFSETS + bookHash, array.toString());
+		PageOffsets offsetsObject = PageOffsets.fromValues(this, offsets);
+		updateValue(KEY_OFFSETS + bookHash, offsetsObject.toJSON() );
 	}
 
 	public List<List<Integer>> getPageOffsets(String fileName) {
 		String bookHash = Integer.toHexString(fileName.hashCode());
-		String data = settings.getString(KEY_OFFSETS + bookHash, "[]");
+		String data = settings.getString(KEY_OFFSETS + bookHash, "");
 
-		List<List<Integer>> result = new ArrayList<List<Integer>>();
-
-		try {
-			JSONArray jsonArray = new JSONArray(data);
-
-			for (int i = 0; i < jsonArray.length(); i++) {
-				List<Integer> sublist = new ArrayList<Integer>();
-
-				JSONArray subArray = new JSONArray(jsonArray.getString(i));
-
-				for (int j = 0; j < subArray.length(); j++) {
-					int val = subArray.getInt(j);
-					sublist.add(val);
-				}
-
-				result.add(sublist);
-			}
-
-			return result;
-
-		} catch (JSONException j) {
+		PageOffsets offsets = PageOffsets.fromJSON(data);
+		
+		if ( offsets == null || ! offsets.isValid(this) ) {
 			return null;
 		}
+		
+		return offsets.getOffsets();
 	}
 
 	public void setLastPosition(String fileName, int position) {

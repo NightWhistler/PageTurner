@@ -675,6 +675,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 		this.bookView.setBackgroundColor(config.getBackgroundColor());
 		this.viewSwitcher.setBackgroundColor(config.getBackgroundColor());
+		this.pageNumberView.setBackgroundColor(config.getBackgroundColor());
+		
 		this.bookView.setTextColor(config.getTextColor());
 		this.bookView.setLinkColor(config.getLinkColor());
 

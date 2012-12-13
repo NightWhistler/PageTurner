@@ -118,14 +118,13 @@ public class BookView extends ScrollView {
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 
 	private Map<String, FastBitmapDrawable> imageCache = new HashMap<String, FastBitmapDrawable>();
-	
-	@SuppressLint("NewApi")
+		
 	public BookView(Context context, AttributeSet attributes) {
-		super(context, attributes);		
-		
-		
+		super(context, attributes);
 	}	
 	
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void init() {
 		this.listeners = new HashSet<BookViewListener>();
 		

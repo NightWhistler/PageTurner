@@ -1244,10 +1244,15 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	private void saveReadingPosition() {
 		if (this.bookView != null) {
 
-			config.setLastPosition(this.fileName, this.bookView.getPosition());
-			config.setLastIndex(this.fileName, this.bookView.getIndex());
-
-			sendProgressUpdateToServer();
+			int index = this.bookView.getIndex();
+			int position = this.bookView.getPosition();
+			
+			if ( index != -1 && position != -1 ) {			
+				config.setLastPosition(this.fileName, position);
+				config.setLastIndex(this.fileName, index);
+			
+				sendProgressUpdateToServer();
+			}
 		}
 
 	}
@@ -1497,11 +1502,11 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	private void launchLibrary() {
 		Intent intent = new Intent(this, LibraryActivity.class);
 		startActivity(intent);
-
-		this.bookView.releaseResources();
+		
 		saveReadingPosition();
-
-		finish();
+		this.bookView.releaseResources();		
+		
+		finish();		
 	}
 
 	private void showPickProgressDialog(final List<BookProgress> results) {
@@ -1564,7 +1569,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 	}
 
-	private void sendProgressUpdateToServer() {
+	private void sendProgressUpdateToServer(final int index, final int position) {
 
 		libraryService.updateReadingProgress(fileName, progressPercentage);
 
@@ -1573,12 +1578,19 @@ public class ReadingActivity extends RoboSherlockActivity implements
 			public void run() {
 				try {
 					progressService.storeProgress(fileName,
-							bookView.getIndex(), bookView.getPosition(),
+							index, position,
 							progressPercentage);
 				} catch (AccessException a) {
 				}
 			}
-		});
+		});		
+	}
+	
+	private void sendProgressUpdateToServer() {
+		final int index = bookView.getIndex();
+		final int position = bookView.getPosition();
+		
+		sendProgressUpdateToServer(index, position);
 	}
 
 	private void onSearchClick() {

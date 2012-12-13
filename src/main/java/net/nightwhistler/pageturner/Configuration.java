@@ -142,15 +142,15 @@ public class Configuration {
 	}
 
 	public boolean isVerticalTappingEnabled() {
-		return settings.getBoolean(KEY_NAV_TAP_V, true);
+		return ! isScrollingEnabled() && settings.getBoolean(KEY_NAV_TAP_V, true);
 	}
 
 	public boolean isHorizontalTappingEnabled() {
-		return settings.getBoolean(KEY_NAV_TAP_H, true);
+		return ! isScrollingEnabled() && settings.getBoolean(KEY_NAV_TAP_H, true);
 	}
 
 	public boolean isHorizontalSwipeEnabled() {
-		return settings.getBoolean(KEY_NAV_SWIPE_H, true);
+		return ! isScrollingEnabled() && settings.getBoolean(KEY_NAV_SWIPE_H, true);
 	}
 
 	public boolean isVerticalSwipeEnabled() {
@@ -217,7 +217,7 @@ public class Configuration {
 	}
 
 	public boolean isVolumeKeyNavEnabled() {
-		return settings.getBoolean(KEY_NAV_VOL, false);
+		return !isScrollingEnabled() && settings.getBoolean(KEY_NAV_VOL, false);
 	}
 
 	public String getSynchronizationEmail() {

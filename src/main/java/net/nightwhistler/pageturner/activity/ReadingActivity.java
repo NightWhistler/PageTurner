@@ -192,6 +192,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		private int vMargin;
 		private int hMargin;
 		private int textSize;
+		private boolean scrolling;
 	}
 
 	private SavedConfigState savedConfigState = new SavedConfigState();
@@ -329,6 +330,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		
 		savedConfigState.textSize = config.getTextSize();
 		savedConfigState.fontName = config.getFontFamily().getName();
+		savedConfigState.scrolling = config.isScrollingEnabled();
 		
 	}
 
@@ -481,7 +483,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 				|| !config.getFontFamily().getName().equalsIgnoreCase(savedConfigState.fontName)
 				|| config.getHorizontalMargin() != savedConfigState.hMargin
 				|| config.getVerticalMargin() != savedConfigState.vMargin
-				|| config.getTextSize() != savedConfigState.textSize ) {
+				|| config.getTextSize() != savedConfigState.textSize 
+				|| config.isScrollingEnabled() != savedConfigState.scrolling ) {
 			restartActivity();
 		}
 

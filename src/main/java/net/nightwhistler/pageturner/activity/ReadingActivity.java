@@ -718,7 +718,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		this.viewSwitcher.clearAnimation();
 		this.viewSwitcher.setBackgroundDrawable(null);
 		restoreColorProfile();
-
+		displayPageNumber(-1); //Clear page number
+		
 		this.waitDialog.setTitle(getString(R.string.loading_wait));
 		this.waitDialog.setMessage(null);
 		this.waitDialog.show();

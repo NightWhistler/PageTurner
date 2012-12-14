@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Page Turner</string>
+    <string name="app_name">PageTurner</string>
     <string name="title">Title</string>
-    <string name="app_desc">Page Turner is a syncing e-book reader that allows you to sync your reading progress over multiple devices.</string>
+    <string name="app_desc">PageTurner is a syncing e-book reader that allows you to sync your reading progress over multiple devices.</string>
     <string name="browse">Browse…</string>
     <string name="open_file">Open ePub file</string>
     <string name="open_library">My Books</string>

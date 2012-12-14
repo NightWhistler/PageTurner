@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Page Turner</string>
+    <string name="app_name">PageTurner</string>
     <string name="title">Titel</string>
-    <string name="app_desc">Page Turner ist ein synchronisiertes E-Buch Programm. Es ermöglicht
+    <string name="app_desc">PageTurner ist ein synchronisiertes E-Buch Programm. Es ermöglicht
 die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</string>
     <string name="browse">Durchsuchen…</string>
     <string name="open_file">EPUB Datei öffnen</string>

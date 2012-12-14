@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Page Turner</string>
+    <string name="app_name">PageTurner</string>
     <string name="title">Título</string>
-    <string name="app_desc">Page Turner es un lector de e-books que permite sincronizar sus progresos en la lectura entre múltiples dispositivos.</string>
+    <string name="app_desc">PageTurner es un lector de e-books que permite sincronizar sus progresos en la lectura entre múltiples dispositivos.</string>
 
     <string name="browse">Navegando…</string>
     <string name="open_file">Abrir archivo ePub</string>

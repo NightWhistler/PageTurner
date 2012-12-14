@@ -397,7 +397,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 		this.progressPercentage = progressPercentage;
 
-		if (config.isShowPageNumbers()) {
+		if (config.isShowPageNumbers() && pageNumber > 0) {
 			percentageField.setText("" + progressPercentage + "%  "
 					+ pageNumber + " / " + totalPages);
 			displayPageNumber(pageNumber);
@@ -722,13 +722,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		this.waitDialog.setTitle(getString(R.string.loading_wait));
 		this.waitDialog.setMessage(null);
 		this.waitDialog.show();
-	}
-
-	@Override
-	public void calculatingPageNumbers() {
-		this.waitDialog.setTitle(R.string.calc_page_num);
-		this.waitDialog.setMessage(getString(R.string.calc_page_num_desc));
-	}
+	}	
 
 	@Override
 	public void readingFile() {

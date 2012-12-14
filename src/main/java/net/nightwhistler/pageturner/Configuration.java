@@ -225,7 +225,7 @@ public class Configuration {
 	}
 
 	public boolean isShowPageNumbers() {
-		return settings.getBoolean(KEY_SHOW_PAGENUM, false);
+		return settings.getBoolean(KEY_SHOW_PAGENUM, true);
 	}
 	
 	public String getSynchronizationAccessKey() {

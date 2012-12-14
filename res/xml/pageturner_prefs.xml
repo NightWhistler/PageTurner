@@ -110,7 +110,7 @@
             android:key="show_pagenum"
             android:title="@string/pref_show_pagenum"
             android:summary="@string/pref_show_pagenum_summary"
-            android:defaultValue="false" />	
+            android:defaultValue="true" />	
 	
     <ListPreference
      	android:title="@string/pref_screen_orientation"

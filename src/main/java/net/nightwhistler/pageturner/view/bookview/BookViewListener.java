@@ -37,11 +37,6 @@ public interface BookViewListener {
 	void bookOpened( Book book );
 	
 	/**
-	 * Event indicating we're calculating page-numbers now
-	 */
-	void calculatingPageNumbers();	
-	
-	/**
 	 * Event indicating we've started parsing the actual text.
 	 */
 	void readingFile();

@@ -1519,8 +1519,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(getString(R.string.cloud_bm));
 
-		ProgressListAdapter adapter = new ProgressListAdapter(this, bookView,
-				results, config);
+		ProgressListAdapter adapter = new ProgressListAdapter(this, bookView, results);
 		builder.setAdapter(adapter, adapter);
 
 		AlertDialog dialog = builder.create();
@@ -1705,8 +1704,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.search_results);
 
-		SearchResultAdapter adapter = new SearchResultAdapter(this, bookView,
-				results, config);
+		SearchResultAdapter adapter = new SearchResultAdapter(this, bookView, results);
 		builder.setAdapter(adapter, adapter);
 
 		AlertDialog dialog = builder.create();

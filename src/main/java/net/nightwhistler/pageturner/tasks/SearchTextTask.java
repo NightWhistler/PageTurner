@@ -71,7 +71,7 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 						return null;
 					}
 					
-					String text = "..." + spanned.subSequence(from, to).toString() + "...";
+					String text = "…" + spanned.subSequence(from, to).toString().trim() + "…";
 					SearchResult res = new SearchResult(text, index, matcher.start(), matcher.end(),
 							spine.getProgressPercentage(index, matcher.start()));
 					

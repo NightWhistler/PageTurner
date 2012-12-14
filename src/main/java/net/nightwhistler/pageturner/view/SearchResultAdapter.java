@@ -28,6 +28,7 @@ import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,14 +49,11 @@ public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResul
 	private List<SearchTextTask.SearchResult> results;
 	private BookView bookView;
 	
-	private Configuration config;
-
 	public SearchResultAdapter(Context context, BookView bookView, 
-			List<SearchTextTask.SearchResult> books, Configuration config) {
+			List<SearchTextTask.SearchResult> books) {
 		super(context, R.id.deviceName, books);
 		this.results = books;
-		this.bookView = bookView;
-		this.config = config;
+		this.bookView = bookView;	
 	}
 
 	@Override
@@ -77,20 +75,17 @@ public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResul
 		}
 
 		TextView deviceView = (TextView) rowView.findViewById(R.id.deviceName);
-		TextView dateView = (TextView) rowView.findViewById(R.id.timeStamp );
-		
-		/*
+		TextView percentageView = (TextView) rowView.findViewById(R.id.timeStamp );
+				
 		if ( Build.VERSION.SDK_INT < 11 ) {
-			deviceView.setTextColor( config.getTextColor() );
-			dateView.setTextColor( config.getTextColor() );
-			rowView.setBackgroundColor(config.getBackgroundColor());
+			deviceView.setTextColor( Color.BLACK );
+			percentageView.setTextColor( Color.BLACK );			
 		}
-		*/
-		
+			
 		SearchTextTask.SearchResult progress = results.get(position);
 
 		deviceView.setText( progress.getDisplay() );
-		dateView.setText( progress.getPercentage() + "%" );
+		percentageView.setText( progress.getPercentage() + "%" );
 
 		return rowView;
 

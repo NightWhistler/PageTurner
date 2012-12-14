@@ -23,11 +23,13 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,15 +49,12 @@ public class ProgressListAdapter extends ArrayAdapter<BookProgress> implements
 
 	private List<BookProgress> books;
 	private BookView bookView;
-
-	private Configuration config;
 	
 	public ProgressListAdapter(Context context, BookView bookView, 
-			List<BookProgress> books, Configuration config) {
+			List<BookProgress> books) {
 		super(context, R.id.deviceName, books);
 		this.books = books;
-		this.bookView = bookView;
-		this.config = config;
+		this.bookView = bookView;		
 	}
 
 	@Override
@@ -70,24 +69,20 @@ public class ProgressListAdapter extends ArrayAdapter<BookProgress> implements
 		View rowView;
 
 		if ( convertView == null ) {
-			LayoutInflater inflater = (LayoutInflater) 
-			getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
+			LayoutInflater inflater = PlatformUtil.getLayoutInflater(getContext());
 			rowView = inflater.inflate(R.layout.progress_row, parent, false);
 		} else {
 			rowView = convertView;
-		}
-		
+		}		
 		
 
 		TextView deviceView = (TextView) rowView.findViewById(R.id.deviceName);
 		TextView dateView = (TextView) rowView.findViewById(R.id.timeStamp );
 		
 		if ( Build.VERSION.SDK_INT < 11 ) {
-			deviceView.setTextColor( config.getTextColor() );
-			dateView.setTextColor( config.getTextColor() );
-			rowView.setBackgroundColor(config.getBackgroundColor());
-		}
+			deviceView.setTextColor( Color.BLACK );
+			dateView.setTextColor( Color.BLACK );			
+		}	
 		
 		BookProgress progress = books.get(position);
 

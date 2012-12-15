@@ -280,8 +280,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		this.bookView.addListener(this);
 		this.bookView.setSpanner(RoboGuice.getInjector(this).getInstance(
 				HtmlSpanner.class));
-		this.bookView.setTextSelectionCallback(this);
-
+		
 		registerForContextMenu(bookView);
 		saveConfigState();
 		

@@ -137,11 +137,13 @@ public class BookView extends ScrollView {
 		this.setVerticalFadingEdgeEnabled(false);
 		childView.setFocusable(true);
 		childView.setLinksClickable(true);
-
+/*
+		FIXME: disabled text selection for now.
 		if (Build.VERSION.SDK_INT >= 11) {
 			childView.setTextIsSelectable(true);
 		}
-
+*/
+		
 		this.setSmoothScrollingEnabled(false);
 
 		this.anchors = new HashMap<String, Integer>();
@@ -277,6 +279,7 @@ public class BookView extends ScrollView {
 		}
 	}
 
+	/*
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setTextSelectionCallback(TextSelectionCallback callback) {
 		if (Build.VERSION.SDK_INT >= 11) {
@@ -285,6 +288,7 @@ public class BookView extends ScrollView {
 							callback, this));
 		}
 	}
+	*/
 
 	public int getLineSpacing() {
 		return lineSpacing;

@@ -56,7 +56,6 @@ import org.htmlcleaner.TagNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -65,6 +64,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -79,7 +79,6 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -113,6 +112,8 @@ public class BookView extends ScrollView {
 	private int lineSpacing = 0;
 
 	private Configuration configuration;
+	
+	private Handler scrollHandler;
 
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 
@@ -120,6 +121,8 @@ public class BookView extends ScrollView {
 
 	public BookView(Context context, AttributeSet attributes) {
 		super(context, attributes);
+		
+		this.scrollHandler = new Handler();
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -1296,6 +1299,20 @@ public class BookView extends ScrollView {
 
 			if (needToCalcPageNumbers) {
 				new CalculatePageNumbersTask().execute(new Void[0]);
+			}
+			
+			/**
+			 * This is a hack for scrolling not updating to the right position 
+			 * on Android 4+
+			 */
+			if ( strategy.isScrolling() ) {
+				scrollHandler.postDelayed(new Runnable() {
+					
+					@Override
+					public void run() {
+						restorePosition();						
+					}
+				}, 100);
 			}
 		}
 	}

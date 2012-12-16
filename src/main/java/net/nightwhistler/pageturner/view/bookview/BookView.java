@@ -1399,7 +1399,8 @@ public class BookView extends ScrollView {
 					offsets.add(getOffsetsForResource(i));
 				}
 
-				configuration.setPageOffsets(fileName, offsets);
+				String file = StringUtil.substringAfterLast(fileName, '/');
+				configuration.setPageOffsets(file, offsets);
 
 				return offsets;
 

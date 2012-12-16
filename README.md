@@ -77,25 +77,12 @@ See http://maven.apache.org/guides/mini/guide-repository-ssl.html for more detai
 Eclipse
 -------
 
-You can either use the Maven Eclipse and Maven Eclipse Android plugin
+1.   Clone the repo and update the submodules
 
-OR
+        git clone https://github.com/NightWhistler/PageTurner.git
+        cd PageTurner
+        git submodule --init --recursive update
 
-You can follow these steps to only use Maven for dependencies:
-
-1.   Download and unpack the sources        
-2.   Run    
-
-        mvn -Djavax.net.ssl.trustStore=trust.jks 
-            -Djavax.net.ssl.trustStorePassword=pageturner
-            -DexcludeTransitive=true
-            dependency:copy-dependencies
-        
-     inside the source folder
-3.   Create a libs folder
-4.   Copy all JAR files in target/dependency to the libs folder
-5.   There are also .apklib files in the target/dependency folder. 
-     Rename these to .zip, and unpack them. These are library projects,
-     and you can add them as a normal library project now.
-6.   In Eclipse, select "New Android Project" -> "From existing source" and
-     point it to the folder you unpacked PageTurner in.
+2.   In Eclipse, select "File" -> "Import" -> "Existing Android Code Into Workspace" and
+     navigate to PageTurner/apklibs/ActionBarSherlock/library and import it
+3.   Import the main PageTurner project as in step 2

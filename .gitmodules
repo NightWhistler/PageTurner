@@ -1,0 +1,3 @@
+[submodule "apklibs/ActionBarSherlock"]
+	path = apklibs/ActionBarSherlock
+	url = https://github.com/JakeWharton/ActionBarSherlock.git

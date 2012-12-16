@@ -140,6 +140,7 @@
 	</dependencies>
 
 	<build>
+		<sourceDirectory>src</sourceDirectory>
 		<finalName>${project.artifactId}</finalName>
 		<pluginManagement>
 			<plugins>

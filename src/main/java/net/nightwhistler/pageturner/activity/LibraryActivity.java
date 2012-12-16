@@ -161,7 +161,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 		
 		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
 			
-			this.bookAdapter = new BookCaseAdapter(this);
+			this.bookAdapter = new BookCaseAdapter();
 			this.bookCaseView.setAdapter(bookAdapter);			
 			
 			if ( switcher.getDisplayedChild() == 0 ) {
@@ -387,7 +387,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 			public boolean onMenuItemClick(MenuItem item) {
 				
 				if ( switcher.getDisplayedChild() == 0 ) {
-					bookAdapter = new BookCaseAdapter(LibraryActivity.this);
+					bookAdapter = new BookCaseAdapter();
 					bookCaseView.setAdapter(bookAdapter);	
 					config.setLibraryView(LibraryView.BOOKCASE);					
 				} else {
@@ -856,12 +856,6 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 	
 	
 	private class BookCaseAdapter extends KeyedResultAdapter {
-		
-		private Context context;
-		
-		public BookCaseAdapter(Context context) {
-			this.context = context;
-		}	
 		
 		@Override
 		public View getView(final int index, final LibraryBook object, View convertView,

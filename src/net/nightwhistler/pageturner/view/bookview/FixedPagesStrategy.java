@@ -85,13 +85,17 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 			bottomLine = layout.getLineForVertical( (currentPageNum + 1) * pageHeight );
 			
 			int pageOffset = layout.getLineStart(topLine);
+			int pageEnd = layout.getLineEnd(bottomLine);
 			
-			//Make sure we don't enter the same offset twice
-			if (pageOffsets.isEmpty() ||  pageOffset != pageOffsets.get(pageOffsets.size() -1)) {			
-				pageOffsets.add(pageOffset);
+			if (! text.subSequence(pageOffset, pageEnd).toString().trim().isEmpty() ) {
+
+				//Make sure we don't enter the same offset twice
+				if (pageOffsets.isEmpty() ||  pageOffset != pageOffsets.get(pageOffsets.size() -1)) {			
+					pageOffsets.add(pageOffset);
+				}
+
+				currentPageNum++;
 			}
-			
-			currentPageNum++;
 		}	
 		
 		return pageOffsets;		

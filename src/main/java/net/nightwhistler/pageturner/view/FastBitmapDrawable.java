@@ -18,21 +18,35 @@ package net.nightwhistler.pageturner.view;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 
 public class FastBitmapDrawable extends Drawable {
     
 	private Bitmap mBitmap;
+	
+	private int width;
+	private int height;
+	
+	private Paint paint = new Paint();
 
     public FastBitmapDrawable(Bitmap b) {
         mBitmap = b;
+        this.width = b.getWidth();
+        this.height = b.getHeight();
     }
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(mBitmap, 0.0f, 0.0f, null);
+    	if ( mBitmap != null ) {
+    		canvas.drawBitmap(mBitmap, 0.0f, 0.0f, null);
+    	} else {
+    		paint.setColor(Color.GRAY);
+    		canvas.drawRect(0, 0, width, height, paint);
+    	}
     }
 
     @Override
@@ -50,22 +64,22 @@ public class FastBitmapDrawable extends Drawable {
 
     @Override
     public int getIntrinsicWidth() {
-        return mBitmap.getWidth();
+        return width;
     }
 
     @Override
     public int getIntrinsicHeight() {
-        return mBitmap.getHeight();
+        return height;
     }
 
     @Override
     public int getMinimumWidth() {
-        return mBitmap.getWidth();
+        return width;
     }
 
     @Override
     public int getMinimumHeight() {
-        return mBitmap.getHeight();
+        return height;
     }
 
     public Bitmap getBitmap() {

@@ -61,7 +61,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
@@ -160,7 +163,7 @@ public class BookView extends ScrollView {
 	public void setSpanner(HtmlSpanner spanner) {
 		this.spanner = spanner;
 
-		ImageTagHandler imgHandler = new ImageTagHandler();
+		ImageTagHandler imgHandler = new ImageTagHandler(false);
 		spanner.registerHandler("img", imgHandler);
 		spanner.registerHandler("image", imgHandler);
 
@@ -814,18 +817,45 @@ public class BookView extends ScrollView {
 		private int end;
 
 		private String storedHref;
+		
+		private boolean fakeImages;
 
 		public ImageCallback(String href, SpannableStringBuilder builder,
-				int start, int end) {
+				int start, int end, boolean fakeImages) {
 			this.builder = builder;
 			this.start = start;
 			this.end = end;
 			this.storedHref = href;
+			this.fakeImages = fakeImages;
 		}
 
 		@Override
 		public void onLoadResource(String href, InputStream input) {
 
+			if ( fakeImages ) {
+				LOG.debug("Faking image for href: " + href);
+				setFakeImage(input);
+			} else {
+				LOG.debug("Loading real image for href: " + href);
+				setBitmapDrawable(input);
+			}
+
+		}
+		
+		private void setFakeImage(InputStream input) {
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inJustDecodeBounds = true;
+			BitmapFactory.decodeStream(input, null, options);
+			
+			int[] sizes = calculateSize(options.outWidth, options.outHeight );
+			
+			ShapeDrawable draw = new ShapeDrawable(new RectShape());
+			draw.setBounds(0, 0, sizes[0], sizes[1]);
+			
+			setImageSpan(builder, draw, start, end);
+		}
+		
+		private void setBitmapDrawable(InputStream input) {
 			Bitmap bitmap = null;
 			try {
 				bitmap = getBitmap(input);
@@ -841,55 +871,34 @@ public class BookView extends ScrollView {
 			}
 
 			if (bitmap != null) {
+				
 				FastBitmapDrawable drawable = new FastBitmapDrawable(bitmap);
+				
 				drawable.setBounds(0, 0, bitmap.getWidth() - 1,
 						bitmap.getHeight() - 1);
 				setImageSpan(builder, drawable, start, end);
 
 				LOG.debug("Storing image in cache: " + storedHref);
-				imageCache.put(storedHref, drawable);
+							
+				imageCache.put(storedHref, drawable);				
 			}
-
-		}
+		}		
+		
 
 		private Bitmap getBitmap(InputStream input) {
 
 			// BitmapDrawable draw = new BitmapDrawable(getResources(), input);
 			Bitmap originalBitmap = BitmapFactory.decodeStream(input);
-
-			int screenHeight = getHeight() - (verticalMargin * 2);
-			int screenWidth = getWidth() - (horizontalMargin * 2);
-
+		
 			if (originalBitmap != null) {
 				int originalWidth = originalBitmap.getWidth();
 				int originalHeight = originalBitmap.getHeight();
 
-				// We scale to screen width for the cover or if the image is too
-				// wide.
-				if (originalWidth > screenWidth
-						|| originalHeight > screenHeight || spine.isCover()) {
-
-					float ratio = (float) originalWidth
-							/ (float) originalHeight;
-
-					int targetHeight = screenHeight - 1;
-					int targetWidth = (int) (targetHeight * ratio);
-
-					if (targetWidth > screenWidth - 1) {
-						targetWidth = screenWidth - 1;
-						targetHeight = (int) (targetWidth * (1 / ratio));
-					}
-
-					LOG.debug("Rescaling from " + originalWidth + "x"
-							+ originalHeight + " to " + targetWidth + "x"
-							+ targetHeight);
-
-					if (targetWidth <= 0 || targetHeight <= 0) {
-						return null;
-					}
-
-					// android.graphics.Bitmap.createScaledBitmap should do the
-					// same.
+				int[] targetSizes = calculateSize(originalWidth, originalHeight);
+				int targetWidth = targetSizes[0];
+				int targetHeight = targetSizes[1];
+				
+				if ( targetHeight != originalHeight || targetWidth != originalWidth ) {					
 					return Bitmap.createScaledBitmap(originalBitmap,
 							targetWidth, targetHeight, true);
 				}
@@ -898,8 +907,49 @@ public class BookView extends ScrollView {
 			return originalBitmap;
 		}
 	}
+	
+	private int[] calculateSize(int originalWidth, int originalHeight ) {
+		int[] result = new int[] { originalWidth, originalHeight };		
+		
+		int screenHeight = getHeight() - (verticalMargin * 2);
+		int screenWidth = getWidth() - (horizontalMargin * 2);
+		
+		// We scale to screen width for the cover or if the image is too
+		// wide.
+		if (originalWidth > screenWidth
+				|| originalHeight > screenHeight || spine.isCover()) {
+
+			float ratio = (float) originalWidth
+					/ (float) originalHeight;
+
+			int targetHeight = screenHeight - 1;
+			int targetWidth = (int) (targetHeight * ratio);
+
+			if (targetWidth > screenWidth - 1) {
+				targetWidth = screenWidth - 1;
+				targetHeight = (int) (targetWidth * (1 / ratio));
+			}
+
+			LOG.debug("Rescaling from " + originalWidth + "x"
+					+ originalHeight + " to " + targetWidth + "x"
+					+ targetHeight);
+
+			if (targetWidth > 0 || targetHeight > 0) {
+				result[0] = targetWidth;
+				result[1] = targetHeight;
+			}
+		}
+		
+		return result;		
+	}
 
 	private class ImageTagHandler extends TagNodeHandler {
+
+		private boolean fakeImages;
+
+		public ImageTagHandler(boolean fakeImages) {
+			this.fakeImages = fakeImages;
+		}
 
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
@@ -917,16 +967,17 @@ public class BookView extends ScrollView {
 
 			String resolvedHref = spine.resolveHref(src);
 
-			if (imageCache.containsKey(resolvedHref)) {
+			if (imageCache.containsKey(resolvedHref) && ! fakeImages ) {
 				Drawable drawable = imageCache.get(resolvedHref);
 				setImageSpan(builder, drawable, start, builder.length());
 				LOG.debug("Got cached href: " + resolvedHref);
 			} else {
 				LOG.debug("Loading href: " + resolvedHref);
 				loader.registerCallback(resolvedHref, new ImageCallback(
-						resolvedHref, builder, start, builder.length()));
+						resolvedHref, builder, start, builder.length(), fakeImages));
 			}
 		}
+
 
 	}
 
@@ -1088,13 +1139,28 @@ public class BookView extends ScrollView {
 		}
 	}
 
-	private List<Integer> getOffsetsForResource(Resource res)
+	private List<Integer> getOffsetsForResource(int spineIndex )
 			throws IOException {
-		CharSequence text = spanner.fromHtml(res.getReader());
-		loader.load();
-
+		
+		HtmlSpanner mySpanner = new HtmlSpanner();
+		mySpanner.registerHandler("table", tableHandler );
+		mySpanner.registerHandler("img", new ImageTagHandler(true));
+		mySpanner.registerHandler("image", new ImageTagHandler(true));
+		
+		CharSequence text;
+		
+		if ( spineIndex == getIndex() ) {
+			text = strategy.getText();
+		} else {
+			Resource res = spine.getResourceForIndex(spineIndex);
+			text = mySpanner.fromHtml(res.getReader());
+			loader.load();
+		}
+		
 		return FixedPagesStrategy.getPageOffsets(this, text, true);
 	}
+	
+	
 
 	public static class InnerView extends TextView {
 
@@ -1330,9 +1396,7 @@ public class BookView extends ScrollView {
 				List<List<Integer>> offsets = new ArrayList<List<Integer>>();
 
 				for (int i = 0; i < spine.size(); i++) {
-					offsets.add(getOffsetsForResource(spine
-							.getResourceForIndex(i)));
-					clearImageCache();
+					offsets.add(getOffsetsForResource(i));
 				}
 
 				configuration.setPageOffsets(fileName, offsets);

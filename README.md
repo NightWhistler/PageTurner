@@ -86,9 +86,9 @@ You can follow these steps to only use Maven for dependencies:
 1.   Download and unpack the sources        
 2.   Run    
 
-        mvn -Djavax.net.ssl.trustStore=trust.jks 
-            -Djavax.net.ssl.trustStorePassword=pageturner
-            -DexcludeTransitive=true
+        mvn -Djavax.net.ssl.trustStore=trust.jks \
+            -Djavax.net.ssl.trustStorePassword=pageturner \
+            -DexcludeTransitive=true \
             dependency:copy-dependencies
         
      inside the source folder

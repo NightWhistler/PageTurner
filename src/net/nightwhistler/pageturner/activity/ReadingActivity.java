@@ -178,6 +178,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	private String fileName;
 	private int progressPercentage;
 	
+	private int currentPageNumber = -1;	
 	
 	private static enum Orientation {
 		HORIZONTAL, VERTICAL
@@ -389,6 +390,8 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	public void progressUpdate(int progressPercentage, int pageNumber,
 			int totalPages) {
 
+		this.currentPageNumber = pageNumber;
+		
 		// Work-around for calculation errors and weird values.
 		if (progressPercentage < 0 || progressPercentage > 100) {
 			return;
@@ -399,10 +402,10 @@ public class ReadingActivity extends RoboSherlockActivity implements
 		if (config.isShowPageNumbers() && pageNumber > 0) {
 			percentageField.setText("" + progressPercentage + "%  "
 					+ pageNumber + " / " + totalPages);
-			displayPageNumber(pageNumber);
+			displayPageNumber(pageNumber);			
 
 		} else {
-			percentageField.setText("" + progressPercentage + "%");
+			percentageField.setText("" + progressPercentage + "%");			
 		}
 
 		this.progressBar.setProgress(progressPercentage);
@@ -1083,7 +1086,9 @@ public class ReadingActivity extends RoboSherlockActivity implements
 	}
 
 	private void onSlideFinished() {
-		this.pageNumberView.setVisibility(View.VISIBLE);
+		if ( currentPageNumber > 0 ) {
+			this.pageNumberView.setVisibility(View.VISIBLE);
+		}
 	}
 
 	private void pageDown(Orientation o) {

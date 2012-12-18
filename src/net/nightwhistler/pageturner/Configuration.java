@@ -76,6 +76,9 @@ public class Configuration {
 	public static enum LibrarySelection {
 		BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
 	}
+	
+	public static final String BASE_OPDS_FEED = "http://www.pageturner-reader.org/opds/feeds.xml";
+	public static final String BASE_SYNC_URL = "http://api.pageturner-reader.org/progress/";
 
 	public static final String KEY_POS = "offset:";
 	public static final String KEY_IDX = "index:";
@@ -139,6 +142,14 @@ public class Configuration {
 	public Configuration(Context context) {
 		this.settings = PreferenceManager.getDefaultSharedPreferences(context);
 		this.context = context;
+	}
+	
+	public String getBaseOPDSFeed() {
+		return BASE_OPDS_FEED;
+	}
+	
+	public String getSyncServerURL() {
+		return BASE_SYNC_URL;
 	}
 
 	public boolean isVerticalTappingEnabled() {

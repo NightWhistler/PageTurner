@@ -61,7 +61,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
@@ -599,8 +598,7 @@ public class BookView extends ScrollView {
 			List<SearchTextTask.SearchResult> result, int selectedResultIndex) {
 		SearchTextTask.SearchResult searchResult = result
 				.get(selectedResultIndex);
-		// navigateTo(progress.getIndex(), progress.getOffset() );
-
+		
 		this.prevPos = this.getPosition();
 		this.strategy.setPosition(searchResult.getStart());
 

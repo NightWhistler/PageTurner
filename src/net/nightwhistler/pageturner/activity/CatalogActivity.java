@@ -371,7 +371,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			View rowView;
 			final Entry entry = getItem(position);
 
-			LayoutInflater inflater = PlatformUtil.getLayoutInflater(CatalogActivity.this);
+			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			Link imgLink = entry.getThumbnailLink();
 
 			rowView = inflater.inflate(R.layout.catalog_item, parent, false);			 			

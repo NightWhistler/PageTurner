@@ -701,7 +701,7 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 			View rowView;
 			
 			if ( convertView == null ) {			
-				LayoutInflater inflater = PlatformUtil.getLayoutInflater(LibraryActivity.this);
+				LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				rowView = inflater.inflate(R.layout.book_row, parent, false);
 			} else {
 				rowView = convertView;

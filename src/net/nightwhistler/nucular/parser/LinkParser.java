@@ -34,12 +34,11 @@ public class LinkParser extends ElementParser {
 	
 	@Override
 	public void setAttributes(Map<String, String> attributes) {
-		Link link = new Link();
+		Link link = new Link(
+				attributes.get("href"),
+				attributes.get("type"),
+				attributes.get("rel"));
 		
-		link.setHref(attributes.get("href"));
-		link.setRel(attributes.get("rel"));
-		link.setType(attributes.get("type"));
-				
 		this.element.addLink(link);
 	}
 	

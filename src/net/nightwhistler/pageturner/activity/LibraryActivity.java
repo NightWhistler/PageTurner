@@ -447,7 +447,9 @@ public class LibraryActivity extends RoboSherlockActivity implements ImportCallb
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-				showDownloadDialog();
+				Intent intent = new Intent(LibraryActivity.this, CatalogActivity.class);    					
+    			startActivityIfNeeded(intent, 99);
+    		
 				return true;
 			}
 		});

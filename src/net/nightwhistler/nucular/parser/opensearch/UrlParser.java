@@ -16,12 +16,11 @@ public class UrlParser extends ElementParser {
 	
 	@Override
 	public void setAttributes(Map<String, String> attributes) {
-		Link link = new Link();
+		Link link = new Link(
+				attributes.get("template"),
+				attributes.get("type"),
+				attributes.get("rel"));
 		
-		link.setHref(attributes.get("template"));
-		link.setRel(attributes.get("rel"));
-		link.setType(attributes.get("type"));
-				
 		this.element.addLink(link);
 	}
 

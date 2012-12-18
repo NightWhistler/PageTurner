@@ -25,6 +25,12 @@ public class Link {
 	private String type;
 	private String rel;
 	
+	public Link( String href, String type, String rel ) {
+		this.href = href;
+		this.type = type;
+		this.rel = rel;
+	}
+	
 	private byte[] binData;
 	
 	public String getHref() {
@@ -39,6 +45,7 @@ public class Link {
 	public void setType(String type) {
 		this.type = type;
 	}
+	
 	public String getRel() {
 		return rel;
 	}

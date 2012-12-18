@@ -93,10 +93,12 @@ import com.google.inject.Inject;
 
 public class CatalogActivity extends RoboSherlockActivity implements
 		OnItemClickListener {
+	
+	private static final int ABBREV_TEXT_LEN = 150;
 
 	private String baseURL;
-	private String user;
-	private String password;
+	private String user = "";
+	private String password = "";
 
 	private CatalogListAdapter adapter;
 
@@ -149,9 +151,11 @@ public class CatalogActivity extends RoboSherlockActivity implements
 
 		Intent intent = getIntent();
 
+		/*
 		this.baseURL = intent.getStringExtra("url");
 		this.user = intent.getStringExtra("user");
 		this.password = intent.getStringExtra("password");
+		*/
 
 		Uri uri = intent.getData();
 
@@ -159,7 +163,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			String downloadUrl = uri.toString().replace("epub://", "http://");
 			new DownloadFileTask(false).execute(downloadUrl);
 		} else {
-			new LoadOPDSTask().execute(baseURL);
+			loadURL("http://www.pageturner-reader.org/opds/feeds.xml");			
 		}
 	}
 
@@ -244,7 +248,13 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		}
 
 		try {
-			String target = new URL(new URL(base), url).toString();
+			String target = url;
+			
+			if ( this.baseURL != null ) {
+				target = new URL(new URL(base), url).toString();
+			}
+			
+			this.baseURL = target;
 			LOG.info("Loading " + target);
 
 			navStack.push(target);
@@ -376,7 +386,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 
 			rowView = inflater.inflate(R.layout.catalog_item, parent, false);			 			
 
-			loadBookDetails( rowView, entry, imgLink );
+			loadBookDetails( rowView, entry, imgLink, true );
 			return rowView;
 		}
 	}
@@ -523,7 +533,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		}
 	}
 
-	private void loadBookDetails(View layout, Entry entry, Link imageLink ) {
+	private void loadBookDetails(View layout, Entry entry, Link imageLink, boolean abbreviateText ) {
 		
 		HtmlSpanner spanner = new HtmlSpanner();
 		
@@ -536,14 +546,21 @@ public class CatalogActivity extends RoboSherlockActivity implements
 
 		title.setText(entry.getTitle());
 
+		CharSequence text;
+		
 		if (entry.getContent() != null) {
-			desc.setText(spanner.fromHtml(entry.getContent().getText()));
+			text = spanner.fromHtml(entry.getContent().getText());
 		} else if (entry.getSummary() != null) {
-			desc.setText(spanner.fromHtml(entry.getSummary()));
+			text = spanner.fromHtml(entry.getSummary());
 		} else {
-			desc.setText("");
+			text = "";
 		}
-
+		
+		if (abbreviateText && text.length() > ABBREV_TEXT_LEN ) {
+			text = text.subSequence(0, ABBREV_TEXT_LEN) + "…";
+		}
+		
+		desc.setText(text);
 	}
 	
 	private void loadImageLink(ImageView icon, Link imageLink ) {
@@ -673,7 +690,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		
 		final Link imgLink = entry.getImageLink();
 		
-		loadBookDetails(layout, entry, imgLink);
+		loadBookDetails(layout, entry, imgLink, false);
 		final ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
 		
 		linkListener = new LinkListener() {
@@ -804,6 +821,10 @@ public class CatalogActivity extends RoboSherlockActivity implements
 						imageLink = entry.getImageLink();
 					} else {
 						imageLink = entry.getThumbnailLink();
+						
+						if ( imageLink == null ) {
+							imageLink = entry.getImageLink();
+						}
 					}
 
 					if (imageLink != null) {

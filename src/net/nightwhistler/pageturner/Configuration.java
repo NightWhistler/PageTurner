@@ -245,7 +245,24 @@ public class Configuration {
 			}
 		}catch (JSONException js) {}
 		
+		importOldCalibreSite(result);
 		return result;
+	}
+	
+	private void importOldCalibreSite(List<CustomOPDSSite> sites) {
+
+		if ( this.getCalibreServer() != null ) {
+			CustomOPDSSite calibre = new CustomOPDSSite();
+			calibre.setName(context.getString(R.string.pref_calibre_server));
+			calibre.setUrl( getCalibreServer() );
+			calibre.setUserName( getCalibreUser() );
+			calibre.setPassword(getCalibrePassword());
+			
+			sites.add(calibre);
+			
+			updateValue(CALIBRE_SERVER, null);
+		}
+
 	}
 	
 	public void storeCustomOPDSSites(List<CustomOPDSSite> sites ) {

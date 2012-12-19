@@ -116,8 +116,141 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
      <string name="enter_query">Bitte Suchbegriff eingeben</string>
      <string name="buy_now">Jetzt kaufen</string>
 
-    
+    <!-- Not yet translated -->
 
+    <string name="enter_email">Cloud sync is currently disabled. To enable it, please enter an e-mail address in the preferences.</string>
+    <string name="add_to_library">Add to library</string>
+    
+    <string name="search_wait">Searching… please wait.</string>
+    <string name="search_text">Text search</string>
+    <string name="search_hits">Searching…\nFound %d matches.</string>
+    <string name="search_cancelled">Search cancelled.</string>
+    <string name="search_no_matches">Search did not find any matches.</string>
+    <string name="search_results">Search results</string>
+    
+    <string name="opening_file">Opening file…</string>
+    <string name="loading_text">Loading text…</string>
+    
+    <string name="end_of_section">End of chapter.\nClick here to continue.</string>
+ 
+    
+    <!-- Preferences -->    
+        
+    <string name="pref_sync_settings">Synchronisation</string>
+    <string name="pref_email">E-Mailadresse</string>
+    <string name="pref_email_summary">Wird zum Synchronisieren des Lesefortschritts verwendet. Leer lassen um diese Funktion nicht zu nutzen.</string>
+    <string name="pref_email_message">Bitte eine gültige E-Mailadresse eingeben.</string>
+    <string name="pref_device_name">Gerätename</string>
+    <string name="pref_device_name_summary">Eindeutiger Gerätename, um Synchronisationskonflikte zu beheben.</string>
+    <string name="pref_device_name_message">Bitte einen eindeutigen Gerätename eingeben.</string>
+    <string name="pref_access_key">Zugangsschlüssel</string>
+    <string name="pref_access_key_summary">Ein Zugangsschlüssel ist für die Synchronisation notwendig. Gehe auf pageturner-reader.org um mehr Informationen zu erhalten.</string>
+    <string name="pref_access_key_message">Bitte Deinen Zugangsschlüssel eingeben.</string>
+
+    <string name="pref_autoscroll_settings">Autorollen</string>
+    <string name="pref_scroll_style">Autorollen Stil</string>
+    <string name="pref_scroll_style_summary">Blindes Rollen oder zeitgesteuert</string>
+    <string name="pref_scroll_speed">Autorollen Geschwindigkeit</string>
+    <string name="pref_scroll_speed_summary">Wie lange wird eine Seite angezeigt.</string>
+
+    <string name="pref_my_books_settings">Meine Bücher</string>
+    <string name="pref_copy_to_library">In Buchregal kopieren</string>
+    <string name="pref_copy_to_library_summary">Soll PageTurner die Buchdateien in seinen eigenen Buchregal Ordner kopieren?</string>
+    <string name="pref_calibre_server">Calibre content server</string>
+    <string name="pref_calibre_server_summary">Connect to your own Calibre library</string>
+    <string name="pref_calibre_server_message">Calibre URL</string>
+    <string name="pref_calibre_server_hint">Ex. http://192.168.1.1:8080/opds</string>
+
+    <string name="pref_calibre_password_summary">Calibre password</string>
+
+    <string name="pref_visual_settings">Darstellung</string>
+    <string name="pref_full_screen">Vollbild</string>
+    <string name="pref_full_screen_summary">Statusbalken werden ausgeblendet.</string>
+    <string name="pref_screen_orientation">Bildschirmausrichtung</string>
+    <string name="pref_screen_orientation_summary">Bildschirmausrichtung darf fixiert werden</string>
+    <string name="pref_keep_screen_on">Bildschirm anlassen</string>
+    <string name="pref_keep_screen_on_summary">Bildschirm nicht während des Lesens sperren</string>
+    <string name="pref_set_brightness">Helligkeit</string>
+    <string name="pref_set_brightness_summary">PageTurner darf die Bildschirmhelligkeit ändern</string>
+    <string name="pref_day_bright">Bildschirmhelligkeit</string>
+    <string name="pref_day_bright_summary">Für den Tagmodus</string>
+    <string name="pref_day_night">Bildschirmhelligkeit</string>
+    <string name="pref_day_night_summary">Fuer den Nachtmodus</string>
+    <string name="pref_text_display_settings">Textdarstellung</string>
+    <string name="pref_font_face">Schriftart</string>
+    <string name="pref_font_face_summary">Hauptschriftart für die Textdarstellung</string>
+    <string name="pref_strip_whitespace">Zeilenumbrüche entfernen</string>
+    <string name="pref_strip_whitespace_summary">Entferne unnötige Zeilenumbrüche.</string>
+    <string name="pref_itext_size">Schriftgröße</string>
+    <string name="pref_itext_size_summary">Die Schriftgröße für den Buchinhalt.</string>
+    <string name="pref_margin_h">Horizontaler Seitenrand</string>
+    <string name="pref_margin_h_summary">Rand rechts und links vom Buchtext.</string>
+    <string name="pref_margin_v">Vertikaler Seitenrand</string>
+    <string name="pref_margin_v_summary">Rand oben und unten vom Buchtext.</string>
+    <string name="pref_line_spacing">Zeilenabstand</string>
+    <string name="pref_line_spacing_summary">Vergrößere den Zeilenabstand.</string>
+
+    <string name="pref_colour_settings">Farben</string>
+    <string name="pref_day_text">Schriftfarbe</string>
+    <string name="pref_day_text_summary">Für den Tagmodus</string>
+    <string name="pref_day_bg">Hintergrundfarbe</string>
+    <string name="pref_day_bg_summary">Für den Tagmodus</string>
+    <string name="pref_day_link">Linkfarbe</string>
+    <string name="pref_day_link_summary">Für den Tagmodus</string>
+    <string name="pref_night_text">Schriftfarbe</string>
+    <string name="pref_night_text_summary">Für den Nachtmodus</string>
+    <string name="pref_night_bg">Hintergrundfarbe</string>
+    <string name="pref_night_bg_summary">Für den Nachtmodus</string>
+    <string name="pref_night_link">Linkfarbe</string>
+    <string name="pref_night_link_summary">Für den Nachtmodus</string>
+
+    <string name="pref_animations">Animationen</string>
+    <string name="pref_h_animation">Horizontale Animationen</string>
+    <string name="pref_h_animation_summary">Animationen für den horizontalen Seitenwechsel</string>
+    <string name="pref_v_animation">Vertikale Animationen</string>
+    <string name="pref_v_animation_summary">Animationen für den vertikalen Seitenwechsel</string>
+    
+    <string name="pref_navigation_settings">Navigation</string>
+    <string name="pref_scrolling">Rollen</string>
+    <string name="pref_scrolling_summary">Rollen wie im Browser aktivieren</string>
+    <string name="pref_nav_vol">Lautstärketasten benutzen</string>
+    <string name="pref_nav_vol_summary">Benutze die Lautstärketasten zum Rollen.</string>
+    <string name="pref_nav_swipe_h">Horizontales Streichen aktivieren</string>
+    <string name="pref_nav_swipe_h_summary">Streiche nach Rechts oder Links über den Bildschirm um Seiten zu wechseln.</string>
+    <string name="pref_nav_swipe_v">Vertikales Streichen aktivieren</string>
+    <string name="pref_nav_swipe_v_summary">Streiche nach oben oder unten um die Seiten zu wechseln.</string>
+    <string name="pref_nav_tap_h">Antippen rechte/links aktivieren</string>
+    <string name="pref_nav_tap_h_summary">Tippe auf den rechten oder linken Rand um die Seite zu wechseln.</string>
+    <string name="pref_nav_tap_v">Antippen oben/unten aktivieren</string>
+    <string name="pref_nav_tap_v_summary">Tippe auf den oberen oder unteren Rand um die Seite zu wechseln.</string>
+   
+  
+    <!-- Not yet translated -->
+   
+    <string name="pref_calibre_user">User name</string>
+    <string name="pref_calibre_user_summary">Your calibre user name</string>
+    <string name="pref_calibre_user_hint">calibre</string>
+    <string name="pref_calibre_password">Password</string>
+    <string name="pref_calibre_password_summary">Your calibre password</string>
+
+    <string name="pref_show_pagenum">Show pagenumbers</string>
+    <string name="pref_show_pagenum_summary">Shows pagenumbers while reading. It may take a few seconds for pagenumbers to be displayed the first time.</string>
+ 
+ 
+
+    <!-- Translation is not needed for the strings below -->
+    <string name="no_author_byline" translatable="false">by John Doe</string>
+    <string name="zero_percent" translatable="false">0%  </string>
+    <string name="default_timestamp" translatable="false">01-01-2012 13:44</string>
+    <string name="default_device_name_and_progress" translatable="false">Phone - 15%</string>
+    <string name="ebook_path" translatable="false">/sdcard/eBooks</string>
+    <string name="folder_name" translatable="false">Folder Name</string>
+    <string name="small_text" translatable="false">Small Text</string>
+    <string name="large_text" translatable="false">Large Text</string>
+    <string name="default_added_to_library" translatable="false">Added to library: never</string>
+    <string name="default_last_read" translatable="false">Last read: never</string>
+    <string name="default_filename" translatable="false">book.epub</string>
+    <string name="default_book_title" translatable="false">Title of the book</string>
     
         
 </resources>

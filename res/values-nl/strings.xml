@@ -123,6 +123,8 @@
     <string name="calc_page_num_desc">Dit kan enkele momenten duren…</string>
     <string name="loading_text">Tekst wordt geladen…</string>
 
+    <string name="end_of_section">Einde van het hoofdstuk.\nKlik hier om verder te gaan.</string>
+
 	 <!-- Preferences -->    
         
     <string name="pref_sync_settings">Synchronisatie instellingen</string>
@@ -216,11 +218,9 @@
     <string name="pref_nav_tap_v">Gebruik boven- en onderkant</string>
     <string name="pref_nav_tap_v_summary">Tik aan de boven- of onderkant van het scherm om pagina\'s om te slaan.</string>
     
-    <string name="pref_show_pagenum">Show pagenumbers</string>
-    <string name="pref_show_pagenum_summary">Shows pagenumbers while reading. Makes opening a book for the first time slower.</string>
    
     <string name="pref_show_pagenum">Toon paginanummers</string>
-    <string name="pref_show_pagenum_summary">Laat paginanummers zien tijdens het lezen. Maakt het  voor het eerst openen van een boek langzamer.</string>
+    <string name="pref_show_pagenum_summary">Laat paginanummers zien tijdens het lezen. Het kan een paar seconden duren voordat pagina-nummers getoond worden.</string>
     
     
 </resources>

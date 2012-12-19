@@ -1,69 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="net.nightwhistler.pageturner"
-      android:versionCode="17"
-      android:versionName="2.0-dev"
-      android:installLocation="auto">
-    
+    package="net.nightwhistler.pageturner"
+    android:installLocation="auto"
+    android:versionCode="17"
+    android:versionName="2.0-dev" >
+
     <uses-sdk
         android:minSdkVersion="7"
         android:targetSdkVersion="14" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    
-    <application android:label="@string/app_name" 
-        android:icon="@drawable/page_turner"
-        android:description="@string/app_desc"        
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
         android:name="net.nightwhistler.pageturner.PageTurner"
+        android:description="@string/app_desc"
+        android:icon="@drawable/page_turner"
+        android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         >
-
-        <activity android:name=".activity.ReadingActivity"
-                  android:label="@string/app_name"> 
-                  
+        <activity
+            android:name="net.nightwhistler.pageturner.activity.ReadingActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-    			<category android:name="android.intent.category.DEFAULT" />
-    			<category android:name="android.intent.category.BROWSABLE" />    			
-    			
-    			 <data android:mimeType="application/epub+zip" />
-                 <data android:pathPattern=".*\\.epub" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:mimeType="application/epub+zip" />
+                <data android:pathPattern=".*\\.epub" />
             </intent-filter>
-            
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
- 
+        </activity>
+        <activity
+            android:name="net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity"
+            android:label="@string/prefs" />
+        <activity
+            android:name="net.nightwhistler.pageturner.activity.LibraryActivity"
+            android:label="@string/library" />
+        <activity
+            android:name="net.nightwhistler.pageturner.activity.FileBrowseActivity"
+            android:label="@string/browse" />
+        
+        <activity
+            android:name="net.nightwhistler.pageturner.activity.CatalogActivity"
+            android:label="Catalog" >
+         
+         
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="epub" />
+            </intent-filter>
         </activity>
         
-        <activity android:name=".activity.PageTurnerPrefsActivity"
-                  android:label="@string/prefs" /> 
-                  
-               
-        <activity android:name=".activity.LibraryActivity"
-                  android:label="@string/library" />
-        
-        <activity android:name=".activity.FileBrowseActivity"
-                  android:label="Browse" />
-        
-        <activity android:name=".activity.CatalogActivity"
-                  android:label="Catalog">
-            
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.BROWSABLE" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data android:scheme="epub" />
-			</intent-filter>
+        <activity
+            android:name="net.nightwhistler.pageturner.activity.ManageSitesActivity"
+            android:label="@string/title_activity_manage_sites" >
         </activity>
- 
-        <activity android:name="org.acra.CrashReportDialog"
-        	android:theme="@android:style/Theme.Dialog"
-        	android:launchMode="singleInstance"
-        	android:excludeFromRecents="true"
-        	android:finishOnTaskLaunch="true" />
         
+        <activity
+            android:name="org.acra.CrashReportDialog"
+            android:excludeFromRecents="true"
+            android:finishOnTaskLaunch="true"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Dialog" />
+       
     </application>
-</manifest> 
+
+</manifest>

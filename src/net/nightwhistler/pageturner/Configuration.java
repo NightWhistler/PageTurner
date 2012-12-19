@@ -19,8 +19,13 @@
 
 package net.nightwhistler.pageturner;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import net.nightwhistler.htmlspanner.FontFamily;
 import roboguice.inject.ContextSingleton;
@@ -134,9 +139,10 @@ public class Configuration {
 
 	public static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
 
-	public static final String KEY_OFFSETS = "offsets";
+	public static final String KEY_OFFSETS = "offsets";	
+	public static final String KEY_SHOW_PAGENUM = "show_pagenum";
 	
-	private static final String KEY_SHOW_PAGENUM = "show_pagenum";
+	public static final String KEY_OPDS_SITES = "opds_sites";
 
 	@Inject
 	public Configuration(Context context) {
@@ -220,6 +226,36 @@ public class Configuration {
 
 		// Fall-back for older settings.
 		return settings.getInt(KEY_IDX + fileName, -1);
+	}
+	
+	public List<CustomOPDSSite> getCustomOPDSSites() {
+		
+		String sites = settings.getString(KEY_OPDS_SITES, "");
+		
+		List<CustomOPDSSite> result = new ArrayList<CustomOPDSSite>();
+		try {
+			JSONArray array = new JSONArray(sites);
+			for ( int i=0; i < array.length(); i++ ) {
+				JSONObject obj = array.getJSONObject(i);
+				CustomOPDSSite site = CustomOPDSSite.fromJSON(obj);
+				
+				if ( site != null ) {
+					result.add(site);
+				}
+			}
+		}catch (JSONException js) {}
+		
+		return result;
+	}
+	
+	public void storeCustomOPDSSites(List<CustomOPDSSite> sites ) {
+		
+		JSONArray array = new JSONArray();
+		for ( CustomOPDSSite site: sites ) {
+			array.put( site.toJSON() );
+		}
+		
+		updateValue(KEY_OPDS_SITES, array.toString() );
 	}
 
 	public void setLastIndex(String fileName, int index) {

@@ -150,20 +150,13 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		super.onCreate(savedInstanceState);
 
 		Intent intent = getIntent();
-
-		/*
-		this.baseURL = intent.getStringExtra("url");
-		this.user = intent.getStringExtra("user");
-		this.password = intent.getStringExtra("password");
-		*/
-
 		Uri uri = intent.getData();
 
 		if (uri != null && uri.toString().startsWith("epub://")) {
 			String downloadUrl = uri.toString().replace("epub://", "http://");
 			new DownloadFileTask(false).execute(downloadUrl);
 		} else {
-			loadURL("http://www.pageturner-reader.org/opds/feeds.xml");			
+			loadURL(config.getBaseOPDSFeed());			
 		}
 	}
 
@@ -288,7 +281,10 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			.setEnabled(false)
 			.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
+		menu.add("Manage sites")
+			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
+		
 		return true;
 
 	}
@@ -317,6 +313,8 @@ public class CatalogActivity extends RoboSherlockActivity implements
 				enabled = nextEnabled;
 			} else if ( item.getTitle().equals("Search") ) {
 				enabled = searchEnabled;
+			} else {
+				enabled = true;
 			}
 			
 			item.setEnabled(enabled);
@@ -345,7 +343,11 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			}
 		} else if ( item.getTitle().equals("Search")) {
 			onSearchClick();
-		} else {		
+		} else if ( item.getTitle().equals("Manage sites")) {
+			Intent intent = new Intent(this, ManageSitesActivity.class);
+			startActivity(intent);
+		}
+		else {		
 			finish();
 		}
 		return true;

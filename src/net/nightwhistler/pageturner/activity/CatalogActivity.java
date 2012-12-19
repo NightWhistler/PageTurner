@@ -43,6 +43,7 @@ import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.nucular.parser.Nucular;
 import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.R;
@@ -95,6 +96,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		OnItemClickListener {
 	
 	private static final int ABBREV_TEXT_LEN = 150;
+	private static final String CUSTOM_SITES_ID = "IdCustomSites";
 
 	private String baseURL;
 	private String user = "";
@@ -155,8 +157,8 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		if (uri != null && uri.toString().startsWith("epub://")) {
 			String downloadUrl = uri.toString().replace("epub://", "http://");
 			new DownloadFileTask(false).execute(downloadUrl);
-		} else {
-			loadURL(config.getBaseOPDSFeed());			
+		} else {						
+			loadURL(config.getBaseOPDSFeed());
 		}
 	}
 
@@ -204,8 +206,11 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			long arg3) {
 
 		Entry entry = adapter.getItem(position);
-
-		if (entry.getAtomLink() != null) {
+		
+		if ( entry.getId() != null && entry.getId().equals(CUSTOM_SITES_ID) ) {
+			navStack.add(CUSTOM_SITES_ID);
+			loadCustomSiteFeed();
+		} else if (entry.getAtomLink() != null) {
 			String href = entry.getAtomLink().getHref();
 			loadURL(entry, href);
 		} else {
@@ -214,7 +219,38 @@ public class CatalogActivity extends RoboSherlockActivity implements
 	}
 
 	private boolean isLeafEntry(Feed feed) {
-		return feed.getEntries().size() == 1;
+		
+		/**
+		 * A feed is a leaf if it isn't our custom
+		 * sites feed and only has 1 entry.
+		 */
+		
+		return feed.getEntries().size() == 1
+				&& ( feed.getId() == null
+				|| ! feed.getId().equals(CUSTOM_SITES_ID));
+	}
+	
+	private void loadCustomSiteFeed() {
+		Feed customSites = new Feed();
+		customSites.setTitle(getString(R.string.custom_site));
+		
+		List<CustomOPDSSite> sites = config.getCustomOPDSSites();
+		
+		for ( CustomOPDSSite site: sites ) {
+			Entry entry = new Entry();
+			entry.setTitle(site.getName());
+			entry.setSummary(site.getDescription());
+			
+			Link link = new Link(site.getUrl(), AtomConstants.TYPE_ATOM, AtomConstants.REL_BUY);
+			entry.addLink(link);
+			
+			customSites.addEntry(entry);
+		}
+		
+		customSites.setId(CUSTOM_SITES_ID);
+		
+		setNewFeed(customSites);
+		
 	}
 
 	private void loadFakeFeed(Entry entry) {
@@ -232,6 +268,8 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		loadURL(null, url);
 	}
 
+	 
+	
 	private void loadURL(Entry entry, String url) {
 
 		String base = baseURL;
@@ -243,7 +281,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		try {
 			String target = url;
 			
-			if ( this.baseURL != null ) {
+			if ( base != null && ! base.equals(CUSTOM_SITES_ID)) {
 				target = new URL(new URL(base), url).toString();
 			}
 			
@@ -279,10 +317,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		menu.add("Search").setIcon(R.drawable.zoom)
 			.setVisible(false)
 			.setEnabled(false)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
-		menu.add("Manage sites")
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+			.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);		
 
 		
 		return true;
@@ -343,11 +378,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			}
 		} else if ( item.getTitle().equals("Search")) {
 			onSearchClick();
-		} else if ( item.getTitle().equals("Manage sites")) {
-			Intent intent = new Intent(this, ManageSitesActivity.class);
-			startActivity(intent);
-		}
-		else {		
+		} else {		
 			finish();
 		}
 		return true;
@@ -371,7 +402,9 @@ public class CatalogActivity extends RoboSherlockActivity implements
 
 		if (navStack.isEmpty()) {
 			new LoadOPDSTask().execute(baseURL);
-		} else {
+		} else if ( navStack.peek().equals(CUSTOM_SITES_ID) ) {
+			loadCustomSiteFeed();
+		}else {
 			new LoadOPDSTask().execute(navStack.peek());
 		}
 	}
@@ -767,6 +800,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			implements OnCancelListener {
 
 		private Entry previousEntry;
+		private boolean isBaseFeed;
 
 		public LoadOPDSTask() {
 			// leave previousEntry null
@@ -792,13 +826,15 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		protected Feed doInBackground(String... params) {
 
 			String baseUrl = params[0];
+			
+			this.isBaseFeed = baseUrl.equals(config.getBaseOPDSFeed());
 
 			if (baseUrl == null || baseUrl.trim().length() == 0) {
 				return null;
 			}
 
 			baseUrl = baseUrl.trim();
-
+			
 			try {
 				HttpParams httpParams = new BasicHttpParams();
 				DefaultHttpClient client = new DefaultHttpClient(httpParams);
@@ -896,6 +932,16 @@ public class CatalogActivity extends RoboSherlockActivity implements
 				setNewFeed(null);
 			}
 		}
+		
+		private void addCustomSitesEntry(Feed feed) {
+
+			Entry entry = new Entry();
+			entry.setTitle(getString(R.string.custom_site));
+			entry.setSummary(getString(R.string.custom_site_desc));
+			entry.setId(CUSTOM_SITES_ID);
+
+			feed.addEntry(entry);
+		}
 
 		@Override
 		protected void onProgressUpdate(Object... values) {
@@ -923,6 +969,10 @@ public class CatalogActivity extends RoboSherlockActivity implements
 						loadFakeFeed(previousEntry);
 						return;
 					}
+				}
+				
+				if ( isBaseFeed ) {
+					addCustomSitesEntry(result);
 				}
 
 				setNewFeed(result);

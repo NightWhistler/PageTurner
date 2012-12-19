@@ -3,14 +3,8 @@
 
     <item
         android:id="@+id/addSite"
+        android:icon="@drawable/add"
         android:showAsAction="ifRoom"
-        android:title="@string/add_site"/>
-      
-    <item
-        android:id="@+id/preferences"
-        android:icon="@drawable/cog"
-        android:showAsAction="ifRoom"
-        android:title="@string/prefs"/>
-  
+        android:title="@string/add_site"/> 
     
 </menu>

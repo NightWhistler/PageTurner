@@ -64,8 +64,13 @@
         
         <activity
             android:name="net.nightwhistler.pageturner.activity.ManageSitesActivity"
-            android:label="@string/title_activity_manage_sites" >
-        </activity>
+            android:label="@string/pref_manage_sites" >
+                   
+        	<intent-filter>
+           		<action android:name="net.nightwhistler.pageturner.activitiy.ManageSitesActivity" />
+           		<category android:name="android.intent.category.DEFAULT" />
+       		</intent-filter>
+        </activity>        
         
         <activity
             android:name="org.acra.CrashReportDialog"

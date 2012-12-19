@@ -111,7 +111,7 @@
     
     <string name="custom_site">My custom OPDS sites</string>
     <string name="add_site">Add custom site</string>
-    <string name="custom_site_desc">Your own OPDS sites. Select "add site" to add new sites.</string>
+    <string name="custom_site_desc">Your own OPDS / Calibre sites. You can add sites from the Preferences screen.</string>
     <string name="site_name">Site name</string>
     <string name="site_url">Site URL</string>
     <string name="site_desc">Description</string>
@@ -208,6 +208,10 @@
     <string name="pref_show_pagenum">Show pagenumbers</string>
     <string name="pref_show_pagenum_summary">Shows pagenumbers while reading. Makes opening a book for the first time slower.</string>
 
+    <string name="pref_manage_sites">Manage OPDS / Calibre Catalogs</string>
+    <string name="pref_manage_sites_summary">Add and remove custom online catalogs and Calibre servers.</string>
+    
+    
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>
     <string name="zero_percent" translatable="false">0%  </string>
@@ -223,6 +227,7 @@
     <string name="default_book_title" translatable="false">Title of the book</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_manage_sites">Manage OPDS Sites</string>
+    
+    
 
 </resources>

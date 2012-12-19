@@ -3,6 +3,8 @@ package net.nightwhistler.pageturner.activity;
 import java.util.ArrayList;
 import java.util.List;
 
+import roboguice.RoboGuice;
+
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.PlatformUtil;
@@ -25,6 +27,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockPreferenceActivity;
 import com.google.inject.Inject;
 
 public class ManageSitesActivity extends RoboSherlockListActivity {
@@ -36,12 +39,14 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );
 		super.onCreate(savedInstanceState);		
 	
 		List<CustomOPDSSite> sites = config.getCustomOPDSSites();
 			
 		this.adapter = new CustomOPDSSiteAdapter(sites);
 		setListAdapter(this.adapter);
+		registerForContextMenu(getListView());
 	}
 	
 	@Override

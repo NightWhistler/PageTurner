@@ -71,6 +71,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -97,6 +98,8 @@ public class CatalogActivity extends RoboSherlockActivity implements
 	
 	private static final int ABBREV_TEXT_LEN = 150;
 	private static final String CUSTOM_SITES_ID = "IdCustomSites";
+	
+	private static final int MAX_THUMBNAIL_WIDTH = 85;
 
 	private String baseURL;
 	private String user = "";
@@ -417,7 +420,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			final Entry entry = getItem(position);
 
 			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			Link imgLink = entry.getThumbnailLink();
+			final Link imgLink = getImageLink(getFeed(), entry);
 
 			rowView = inflater.inflate(R.layout.catalog_item, parent, false);			 			
 
@@ -577,7 +580,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 				.findViewById(R.id.itemDescription);
 
 		ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
-		loadImageLink(icon, imageLink);
+		loadImageLink(icon, imageLink, abbreviateText);
 
 		title.setText(entry.getTitle());
 
@@ -598,16 +601,40 @@ public class CatalogActivity extends RoboSherlockActivity implements
 		desc.setText(text);
 	}
 	
-	private void loadImageLink(ImageView icon, Link imageLink ) {
+	private void loadImageLink(ImageView icon, Link imageLink, boolean scaleToThumbnail ) {
 
-		if (imageLink != null && imageLink.getBinData() != null) {
-			byte[] data = imageLink.getBinData();
-			icon.setImageBitmap(BitmapFactory.decodeByteArray(data, 0,
-					data.length));
-		} else {
-			icon.setImageDrawable(getResources().getDrawable(
-					R.drawable.unknown_cover));
+		try {
+
+			if (imageLink != null && imageLink.getBinData() != null) {
+				byte[] data = imageLink.getBinData();
+
+				Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,
+						data.length);
+
+				if ( scaleToThumbnail && bitmap.getWidth() > MAX_THUMBNAIL_WIDTH ) {
+					int newHeight = getThumbnailWidth(bitmap.getHeight(), bitmap.getWidth() );
+					icon.setImageBitmap( Bitmap.createScaledBitmap(bitmap,
+							MAX_THUMBNAIL_WIDTH, newHeight, true));
+					bitmap.recycle();				
+				} else {
+					icon.setImageBitmap(bitmap);
+				}
+				
+				return;
+			} 
+		} catch (OutOfMemoryError mem ) {
+
 		}
+		
+		icon.setImageDrawable(getResources().getDrawable(
+					R.drawable.unknown_cover));
+		
+	}
+	
+	private int getThumbnailWidth( int originalHeight, int originalWidth ) {
+		float factor = (float) originalHeight / (float) originalWidth;
+		
+		return (int) (MAX_THUMBNAIL_WIDTH * factor);
 	}
 	
 	private void loadImageLink(Map<String, byte[]> cache, Link imageLink,
@@ -723,7 +750,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			authorTextView.setText("");
 		}
 		
-		final Link imgLink = entry.getImageLink();
+		final Link imgLink = getImageLink(feed, entry);
 		
 		loadBookDetails(layout, entry, imgLink, false);
 		final ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
@@ -732,7 +759,7 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			
 			@Override
 			public void linkUpdated() {
-				loadImageLink(icon, imgLink);				
+				loadImageLink(icon, imgLink, false);				
 			}
 		};
 		
@@ -795,6 +822,30 @@ public class CatalogActivity extends RoboSherlockActivity implements
 			setNewFeed(result);
 		}
 	}
+	
+	/**
+	 * Selects the right image link for an entry, based on preference.
+	 * 
+	 * @param feed
+	 * @param entry
+	 * @return
+	 */
+	private Link getImageLink(Feed feed, Entry entry) {
+		Link[] linkOptions;
+
+		if (isLeafEntry(feed)) {
+			linkOptions = new Link[] { entry.getImageLink(), entry.getThumbnailLink() };
+		} else {
+			linkOptions = new Link[] { entry.getThumbnailLink(), entry.getImageLink() };						
+		}
+		
+		Link imageLink = null;					
+		for ( int i=0; imageLink == null && i < linkOptions.length; i++ ) {
+			imageLink = linkOptions[i];
+		}
+		
+		return imageLink;
+	}
 
 	private class LoadOPDSTask extends AsyncTask<String, Object, Feed>
 			implements OnCancelListener {
@@ -847,23 +898,13 @@ public class CatalogActivity extends RoboSherlockActivity implements
 						.getContent());
 				List<Link> remoteImages = new ArrayList<Link>();
 
-				for (Entry entry : feed.getEntries()) {
+				for (final Entry entry : feed.getEntries()) {
 
 					if (isCancelled()) {
 						return feed;
 					}
 
-					Link imageLink;
-
-					if (isLeafEntry(feed)) {
-						imageLink = entry.getImageLink();
-					} else {
-						imageLink = entry.getThumbnailLink();
-						
-						if ( imageLink == null ) {
-							imageLink = entry.getImageLink();
-						}
-					}
+					Link imageLink = getImageLink(feed, entry);
 
 					if (imageLink != null) {
 						String href = imageLink.getHref();

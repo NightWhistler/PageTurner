@@ -713,6 +713,7 @@ public class ReadingActivity extends RoboSherlockActivity implements
 
 		setTitle(this.titleBase);
 		this.waitDialog.hide();
+		supportInvalidateOptionsMenu();
 	}
 
 	@Override

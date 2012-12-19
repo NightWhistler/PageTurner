@@ -251,7 +251,7 @@ public class Configuration {
 	
 	private void importOldCalibreSite(List<CustomOPDSSite> sites) {
 
-		if ( this.getCalibreServer() != null ) {
+		if ( this.getCalibreServer() != null && this.getCalibreServer().length() > 0 ) {
 			CustomOPDSSite calibre = new CustomOPDSSite();
 			calibre.setName(context.getString(R.string.pref_calibre_server));
 			calibre.setUrl( getCalibreServer() );
@@ -261,6 +261,8 @@ public class Configuration {
 			sites.add(calibre);
 			
 			updateValue(CALIBRE_SERVER, null);
+			
+			storeCustomOPDSSites(sites);
 		}
 
 	}
@@ -394,8 +396,10 @@ public class Configuration {
 	private void updateValue(String key, Object value) {
 
 		SharedPreferences.Editor editor = settings.edit();
-
-		if (value instanceof String) {
+		
+		if ( value == null ) {
+			editor.remove(key);
+		} else if (value instanceof String) {
 			editor.putString(key, (String) value);
 		} else if (value instanceof Integer) {
 			editor.putInt(key, (Integer) value);

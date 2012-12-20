@@ -236,21 +236,5 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="pref_show_pagenum">Show pagenumbers</string>
     <string name="pref_show_pagenum_summary">Shows pagenumbers while reading. It may take a few seconds for pagenumbers to be displayed the first time.</string>
  
- 
 
-    <!-- Translation is not needed for the strings below -->
-    <string name="no_author_byline" translatable="false">by John Doe</string>
-    <string name="zero_percent" translatable="false">0%  </string>
-    <string name="default_timestamp" translatable="false">01-01-2012 13:44</string>
-    <string name="default_device_name_and_progress" translatable="false">Phone - 15%</string>
-    <string name="ebook_path" translatable="false">/sdcard/eBooks</string>
-    <string name="folder_name" translatable="false">Folder Name</string>
-    <string name="small_text" translatable="false">Small Text</string>
-    <string name="large_text" translatable="false">Large Text</string>
-    <string name="default_added_to_library" translatable="false">Added to library: never</string>
-    <string name="default_last_read" translatable="false">Last read: never</string>
-    <string name="default_filename" translatable="false">book.epub</string>
-    <string name="default_book_title" translatable="false">Title of the book</string>
-    
-        
 </resources>

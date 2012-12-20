@@ -528,7 +528,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	private void restartActivity() {
 
 		onStop();
-		Intent intent = new Intent(getActivity(), ReadingFragment.class);
+		Intent intent = new Intent(getActivity(), ReadingActivity.class);
 		intent.setData(Uri.parse(this.fileName));
 		startActivity(intent);
 		getActivity().finish();

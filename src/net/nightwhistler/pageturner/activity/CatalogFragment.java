@@ -87,8 +87,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	private static final int MAX_THUMBNAIL_WIDTH = 85;
 	
 	private String baseURL;
-	private String user;
-	private String password;
+	private String user = "";
+	private String password = "";
 
 	private CatalogListAdapter adapter;
 
@@ -149,10 +149,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		Intent intent = getActivity().getIntent();
-
-		this.baseURL = intent.getStringExtra("url");
-		this.user = intent.getStringExtra("user");
-		this.password = intent.getStringExtra("password");
 
 		Uri uri = intent.getData();
 

@@ -103,8 +103,6 @@
     <string name="search_no_matches">Search did not find any matches.</string>
     <string name="search_results">Search results</string>
     <string name="opening_file">Opening file…</string>
-    <string name="calc_page_num">Calculating page numbers…</string>
-    <string name="calc_page_num_desc">This may take a few moments…</string>
     <string name="loading_text">Loading text…</string>
     <string name="end_of_section">End of chapter.\nClick here to continue.</string>
     
@@ -206,7 +204,7 @@
     <string name="pref_nav_tap_v">Enable tapping top/bottom</string>
     <string name="pref_nav_tap_v_summary">Tap the top/bottom edge of the screen to change pages.</string>
     <string name="pref_show_pagenum">Show pagenumbers</string>
-    <string name="pref_show_pagenum_summary">Shows pagenumbers while reading. Makes opening a book for the first time slower.</string>
+    <string name="pref_show_pagenum_summary">Shows pagenumbers while reading. It may take a few seconds for pagenumbers to be displayed the first time.</string>
 
     <string name="pref_manage_sites">Manage OPDS / Calibre Catalogs</string>
     <string name="pref_manage_sites_summary">Add and remove custom online catalogs and Calibre servers.</string>

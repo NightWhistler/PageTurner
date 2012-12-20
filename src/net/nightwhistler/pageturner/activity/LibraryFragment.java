@@ -21,6 +21,7 @@ import net.nightwhistler.pageturner.library.KeyedResultAdapter;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.QueryResult;
+import net.nightwhistler.pageturner.utils.DialogFragmentUtils;
 import net.nightwhistler.pageturner.view.BookCaseView;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 
@@ -65,11 +66,11 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
+import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockDialogFragment;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 
 public class LibraryFragment extends RoboSherlockFragment implements ImportCallback, OnItemClickListener {
-	
 	@Inject 
 	private LibraryService libraryService;
 	
@@ -208,7 +209,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	}
 	
 	private void showBookDetails( final LibraryBook libraryBook ) {
-		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.book_details);
 		LayoutInflater inflater = PlatformUtil.getLayoutInflater(getActivity());
@@ -277,11 +277,11 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			}
 		});
 		
-		builder.show();
+		DialogFragmentUtils.fromBuilder(builder)
+				.show(getFragmentManager(), "fragment_dialog_book_details");
 	}
 	
 	private void showDownloadDialog() {
-		
 		final List<String> names = new ArrayList<String>(){{ 
 				add("Feedbooks");
 				add("Smashwords");
@@ -322,31 +322,32 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			}
 		}
 				
-
-    	AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-    	builder.setTitle(R.string.download);    	
-    	
-    	builder.setItems(names.toArray(new String[names.size()]),
-    			new DialogInterface.OnClickListener() {
-    		public void onClick(DialogInterface dialog, int item) {
-    			Intent intent = new Intent(getActivity(), CatalogActivity.class);
-    			
-    			intent.putExtra("url", addresses.get(item));
-    			intent.putExtra("user", users.get(item));
-    			intent.putExtra("password", passwords.get(item));
-    			    					
-    			getActivity().startActivityIfNeeded(intent, 99);
-    		}
-    	});
-
-    	builder.show();
+	
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setTitle(R.string.download);    	
+		
+		builder.setItems(names.toArray(new String[names.size()]),
+				new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int item) {
+				Intent intent = new Intent(getActivity(), CatalogActivity.class);
+				
+				intent.putExtra("url", addresses.get(item));
+				intent.putExtra("user", users.get(item));
+				intent.putExtra("password", passwords.get(item));
+				    					
+				getActivity().startActivityIfNeeded(intent, 99);
+			}
+		});
+		
+		DialogFragmentUtils.fromBuilder(builder)
+				.show(getFragmentManager(), "fragment_dialog_download");
 	}	
 	
-	
-	private void startImport(File startFolder, boolean copy) {		
+	private void startImportFiles(File startFolder, boolean copy) {		
 		ImportTask importTask = new ImportTask(getActivity(), libraryService, this, config, copy);
 		importDialog.setOnCancelListener(importTask);
-		importDialog.show();		
+		DialogFragmentUtils.fromDialog(importDialog)
+				.show(getFragmentManager(), "fragment_dialog_import");		
 				
 		this.oldKeepScreenOn = listView.getKeepScreenOn();
 		listView.setKeepScreenOn(true);
@@ -411,7 +412,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {	
-				showImportDialog();
+				showScanDeviceDialog();
 				return true;
 			}
 		});		
@@ -421,7 +422,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-				Dialogs.showAboutDialog(getActivity());
+				new Dialogs.AboutDialogFragment()
+						.show(getFragmentManager(), Dialogs.AboutDialogFragment.TAG);
 				return true;
 			}
 		});
@@ -445,7 +447,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		menu.findItem(R.id.list_view).setVisible(bookCaseActive);
 	}
 	
-	private void showImportDialog() {
+	private void showScanDeviceDialog() {
 		AlertDialog.Builder builder;		
 		
 		LayoutInflater inflater = PlatformUtil.getLayoutInflater(getActivity());
@@ -479,9 +481,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				dialog.dismiss();
 				
 				if ( scanSpecific.isChecked() ) {
-					startImport(new File(folder.getText().toString()), copyToLibrary.isChecked() );
+					startImportFiles(new File(folder.getText().toString()), copyToLibrary.isChecked() );
 				} else {
-					startImport(new File(config.getStorageBase()), copyToLibrary.isChecked());
+					startImportFiles(new File(config.getStorageBase()), copyToLibrary.isChecked());
 				}				
 			}
 		};
@@ -497,7 +499,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			}
 		};
 		
-		this.intentCallBack = new IntentCallBack() {
+		intentCallBack = new IntentCallBack() {
 			
 			@Override
 			public void onResult(int resultCode, Intent data) {
@@ -512,8 +514,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		builder.setTitle(R.string.import_books);
 		builder.setPositiveButton(android.R.string.ok, okListener );
 		builder.setNegativeButton(android.R.string.cancel, null );
-		
-		builder.show();
+		DialogFragmentUtils.fromBuilder(builder)
+				.show(getFragmentManager(), "fragment_dialog_scan_device");
 	}	
 	
 	@Override
@@ -575,11 +577,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		}
 	}
 	
-	
 	@Override
 	public void importComplete(int booksImported, List<String> errors) {
-		
-		importDialog.hide();			
+		importDialog.hide();		
 		
 		OnClickListener dismiss = new OnClickListener() {
 			
@@ -598,7 +598,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			
 			builder.setNeutralButton(android.R.string.ok, dismiss );
 			
-			builder.show();
+			DialogFragmentUtils.fromBuilder(builder)
+					.show(getFragmentManager(), "fragment_dialog_import_empty");
 		}
 		
 		listView.setKeepScreenOn(oldKeepScreenOn);
@@ -617,7 +618,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			builder.setMessage( getString(R.string.no_bks_fnd_text) );
 			builder.setNeutralButton(android.R.string.ok, dismiss);
 			
-			builder.show();
+			DialogFragmentUtils.fromBuilder(builder)
+					.show(getFragmentManager(), "fragment_dialog_import_no_books");
 		}
 	}	
 	
@@ -629,7 +631,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		builder.setTitle(R.string.import_failed);
 		builder.setMessage(reason);
 		builder.setNeutralButton(android.R.string.ok, null);
-		builder.show();
+		DialogFragmentUtils.fromBuilder(builder)
+				.show(getFragmentManager(), "fragment_dialog_import_failed");
 	}
 	
 	@Override
@@ -893,7 +896,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();				
-				showImportDialog();
+				showScanDeviceDialog();
 			}
 		});
 		
@@ -980,7 +983,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		@Override
 		protected void onPreExecute() {
 			waitDialog.setTitle(R.string.loading_library);
-			waitDialog.show();
+			DialogFragmentUtils.fromDialog(waitDialog)
+					.show(getFragmentManager(), "fragment_dialog_wait");
 			
 			coverCache.clear();
 		}
@@ -1055,7 +1059,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			if ( sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
 				askedUserToImport = true;
 				buildImportQuestionDialog();
-				importQuestion.show();
+				DialogFragmentUtils.fromDialog(importQuestion)
+						.show(getFragmentManager(), "fragment_dialog_import_question");
 			}
 		}
 		

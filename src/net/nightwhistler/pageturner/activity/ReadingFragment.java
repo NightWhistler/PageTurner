@@ -39,6 +39,7 @@ import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
+import net.nightwhistler.pageturner.utils.DialogFragmentUtils;
 import net.nightwhistler.pageturner.view.AnimatedImageView;
 import net.nightwhistler.pageturner.view.NavGestureDetector;
 import net.nightwhistler.pageturner.view.ProgressListAdapter;
@@ -117,6 +118,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
+	private static final String WAIT_DIALOG_TAG = "fragment_dialog_wait";
 
 	protected static final int REQUEST_CODE_GET_CONTENT = 2;
 
@@ -733,7 +735,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		this.waitDialog.setTitle(getString(R.string.loading_wait));
 		this.waitDialog.setMessage(null);
-		this.waitDialog.show();
+		DialogFragmentUtils.fromDialog(waitDialog)
+				.show(getFragmentManager(), WAIT_DIALOG_TAG);
 	}	
 
 	@Override
@@ -1315,7 +1318,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return true;
 
 		case R.id.show_toc:
-			this.tocDialog.show();
+			DialogFragmentUtils.fromDialog(tocDialog)
+					.show(getFragmentManager(), "fragment_dialog_toc");
 			return true;
 
 		case R.id.open_file:
@@ -1331,7 +1335,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return true;
 
 		case R.id.about:
-			Dialogs.showAboutDialog(getActivity());
+			new Dialogs.AboutDialogFragment()
+					.show(getFragmentManager(), Dialogs.AboutDialogFragment.TAG);
 			return true;
 
 		default:
@@ -1524,9 +1529,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		ProgressListAdapter adapter = new ProgressListAdapter(getActivity(), bookView, results);
 		builder.setAdapter(adapter, adapter);
 
-		AlertDialog dialog = builder.create();
-		dialog.setOwnerActivity(getActivity());
-		dialog.show();
+		DialogFragmentUtils.fromBuilder(builder)
+				.show(getFragmentManager(), "fragment_dialog_pick_progress");
 	}
 
 	private void initTocDialog() {
@@ -1607,14 +1611,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		searchProgress.setMax(100);
 		searchProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 
-		AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+		AlertDialog.Builder bulder = new AlertDialog.Builder(getActivity());
 
-		alert.setTitle(R.string.search_text);
-		alert.setMessage(R.string.enter_query);
+		bulder.setTitle(R.string.search_text);
+		bulder.setMessage(R.string.enter_query);
 
 		// Set an EditText view to get user input
 		final EditText input = new EditText(getActivity());
-		alert.setView(input);
+		bulder.setView(input);
 
 		final SearchTextTask task = new SearchTextTask(bookView.getBook()) {
 
@@ -1680,7 +1684,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					}
 				});
 
-		alert.setPositiveButton(android.R.string.search_go,
+		bulder.setPositiveButton(android.R.string.search_go,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						CharSequence value = input.getText();
@@ -1691,14 +1695,15 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					}
 				});
 
-		alert.setNegativeButton(android.R.string.cancel,
+		bulder.setNegativeButton(android.R.string.cancel,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// Canceled.
 					}
 				});
 
-		alert.show();
+		DialogFragmentUtils.fromBuilder(bulder)
+				.show(getFragmentManager(), "fragment_dialog_search_progress");
 	}
 
 	private void showSearchResultDialog(
@@ -1709,9 +1714,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		SearchResultAdapter adapter = new SearchResultAdapter(getActivity(), bookView, results);
 		builder.setAdapter(adapter, adapter);
 
-		AlertDialog dialog = builder.create();
-		dialog.setOwnerActivity(getActivity());
-		dialog.show();
+		DialogFragmentUtils.fromBuilder(builder)
+				.show(getFragmentManager(), "fragment_dialog_search_result");
 	}
 
 	private class ManualProgressSync extends
@@ -1722,7 +1726,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		@Override
 		protected void onPreExecute() {
 			waitDialog.setTitle(R.string.syncing);
-			waitDialog.show();
+			DialogFragmentUtils.fromDialog(waitDialog)
+					.show(getFragmentManager(), "fragment_dialog");
 		}
 
 		@Override
@@ -1741,18 +1746,18 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 			if (progress == null) {
 
-				AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+				AlertDialog.Builder builder = new AlertDialog.Builder(
 						getActivity());
 
-				alertDialog.setTitle(R.string.sync_failed);
+				builder.setTitle(R.string.sync_failed);
 
 				if (accessDenied) {
-					alertDialog.setMessage(R.string.access_denied);
+					builder.setMessage(R.string.access_denied);
 				} else {
-					alertDialog.setMessage(R.string.connection_fail);
+					builder.setMessage(R.string.connection_fail);
 				}
 
-				alertDialog.setNeutralButton(android.R.string.ok,
+				builder.setNeutralButton(android.R.string.ok,
 						new OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int which) {
@@ -1760,7 +1765,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 							}
 						});
 
-				alertDialog.show();
+				DialogFragmentUtils.fromBuilder(builder)
+						.show(getFragmentManager(), "fragment_dialog_sync_failed");
 
 			} else {
 				showPickProgressDialog(progress);
@@ -1774,7 +1780,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		@Override
 		protected void onPreExecute() {
 			waitDialog.setTitle(R.string.syncing);
-			waitDialog.show();
+			DialogFragmentUtils.fromDialog(waitDialog)
+					.show(getFragmentManager(), WAIT_DIALOG_TAG);
 		}
 
 		@Override

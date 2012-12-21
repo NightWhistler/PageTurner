@@ -126,6 +126,7 @@
     <string name="loading_text">Loading text…</string>
     
     <string name="end_of_section">End of chapter.\nClick here to continue.</string>
+    <string name="download_complete">Download complete.\nThe book has been added to your library</string>
     
     <!-- Preferences -->    
         

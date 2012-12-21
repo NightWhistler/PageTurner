@@ -486,20 +486,19 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 			if (!isCancelled() && failure == null) {
 				
-				Intent intent;
-				
 				if ( openAfterDownload ) {				
+					Intent intent;
+					
 					intent = new Intent(getActivity().getBaseContext(),
 						ReadingActivity.class);
 					intent.setData(Uri.parse(destFile.getAbsolutePath()));
-					
-				} else {
-					intent = new Intent(getActivity().getBaseContext(), LibraryActivity.class);					
-					config.setLastLibraryQuery(LibrarySelection.LAST_ADDED);
-				}
 				
-				startActivity(intent);
-				getActivity().finish();				
+					startActivity(intent);
+					getActivity().finish();			
+				} else {
+					Toast.makeText(getActivity(), R.string.download_complete,
+							Toast.LENGTH_LONG).show();
+				}
 				
 			} else if (failure != null) {
 				Toast.makeText(getActivity(), R.string.book_failed,

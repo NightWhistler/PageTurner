@@ -88,7 +88,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
 	private static final int MAX_THUMBNAIL_WIDTH = 85;
     
-    private String baseURL;
+    private String baseURL = "";
 	private String user = "";
 	private String password = "";
 

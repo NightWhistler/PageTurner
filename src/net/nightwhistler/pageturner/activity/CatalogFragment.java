@@ -31,7 +31,6 @@ import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.catalog.CatalogListAdapter;
 import net.nightwhistler.pageturner.library.LibraryService;
-import net.nightwhistler.pageturner.utils.DialogFragmentUtils;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 
@@ -165,16 +164,16 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 	public void onSearchClick() {
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 
-		builder.setTitle(R.string.search_books);
-		builder.setMessage(R.string.enter_query);
+		alert.setTitle(R.string.search_books);
+		alert.setMessage(R.string.enter_query);
 
 		// Set an EditText view to get user input
 		final EditText input = new EditText(getActivity());
-		builder.setView(input);
+		alert.setView(input);
 
-		builder.setPositiveButton(android.R.string.search_go,
+		alert.setPositiveButton(android.R.string.search_go,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						CharSequence value = input.getText();
@@ -192,15 +191,14 @@ public class CatalogFragment extends RoboSherlockFragment implements
 					}
 				});
 
-		builder.setNegativeButton(android.R.string.cancel,
+		alert.setNegativeButton(android.R.string.cancel,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// Canceled.
 					}
 				});
 
-		DialogFragmentUtils.fromBuilder(builder)
-				.show(getFragmentManager(), "fragment_dialog_search");
+		alert.show();
 	}
 
 	@Override
@@ -433,8 +431,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		protected void onPreExecute() {
 			super.onPreExecute();			
 			downloadDialog.setMessage(getString(R.string.downloading));
-			DialogFragmentUtils.fromDialog(downloadDialog)
-					.show(getFragmentManager(), "fragment_dialog_download");
+			downloadDialog.show();
 		}
 
 		@Override
@@ -749,8 +746,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			}
 		};
 		
-		DialogFragmentUtils.fromBuilder(builder)
-				.show(getFragmentManager(), "fragment_dialog_show_item");
+		builder.show();
 	}
 
 	private void setNewFeed(Feed result) {		
@@ -785,8 +781,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		@Override
 		protected void onPreExecute() {
 			waitDialog.setTitle(getString(R.string.loading_wait));
-			DialogFragmentUtils.fromDialog(waitDialog)
-					.show(getFragmentManager(), WAIT_DIALOG_KEY);
+			waitDialog.show();
 		}
 
 		@Override
@@ -853,8 +848,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		protected void onPreExecute() {
 			waitDialog.setTitle(getString(R.string.loading_wait));
 			waitDialog.setOnCancelListener(this);
-			DialogFragmentUtils.fromDialog(waitDialog)
-					.show(getFragmentManager(), WAIT_DIALOG_KEY);
+			waitDialog.show();
 		}
 
 		@Override

@@ -281,7 +281,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	}
 	
 		
-	
 	private void startImport(File startFolder, boolean copy) {		
 		ImportTask importTask = new ImportTask(getActivity(), libraryService, this, config, copy);
 		importDialog.setOnCancelListener(importTask);

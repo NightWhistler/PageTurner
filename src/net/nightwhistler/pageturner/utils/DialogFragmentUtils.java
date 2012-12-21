@@ -40,25 +40,12 @@ public final class DialogFragmentUtils {
 	 * @return a DialogFragment
 	 */
 	public static DialogFragment fromDialog(final Dialog dialog) {
-		RoboSherlockDialogFragment fragment = new RoboSherlockDialogFragment() {
+		return new RoboSherlockDialogFragment() {
 			@Override
 			public Dialog onCreateDialog(Bundle savedInstanceState) {
 				return dialog;
 			}
-			
-			@Override
-			public void onDestroyView() {
-				
-				if (getDialog() != null && getRetainInstance()) {
-				    getDialog().setOnDismissListener(null);
-				}
-				
-				super.onDestroyView();
-			}
 		};
-		
-		fragment.setRetainInstance(true);
-		return fragment;
 	}
 
 	/**

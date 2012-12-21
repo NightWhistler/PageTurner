@@ -1581,6 +1581,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private void sendProgressUpdateToServer(final int index, final int position) {
 
+		/*
+		 * If either percentage or position is 0 or -1,
+		 * chances are good this update would be invalid
+		 */
+		if ( progressPercentage < 1 || position < 1 ) {
+			return;
+		}
+		
 		libraryService.updateReadingProgress(fileName, progressPercentage);
 
 		backgroundHandler.post(new Runnable() {

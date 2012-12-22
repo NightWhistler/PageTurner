@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">PageTurner</string>
+    
+    <string name="app_name" translatable="false">PageTurner</string>
+    
     <string name="title">Title</string>
     <string name="app_desc">PageTurner is a syncing e-book reader that allows you to sync your reading progress over multiple devices.</string>
     <string name="browse">Browse…</string>
@@ -221,8 +223,8 @@
     <string name="pref_nav_tap_v">Enable tapping top/bottom</string>
     <string name="pref_nav_tap_v_summary">Tap the top/bottom edge of the screen to change pages.</string>
     
-    <string name="pref_show_pagenum">Show pagenumbers</string>
-    <string name="pref_show_pagenum_summary">Shows pagenumbers while reading. It may take a few seconds for pagenumbers to be displayed the first time.</string>
+    <string name="pref_show_pagenum">Show page numbers</string>
+    <string name="pref_show_pagenum_summary">Shows page numbers while reading. It may take a few seconds for page numbers to be displayed the first time.</string>
 
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>

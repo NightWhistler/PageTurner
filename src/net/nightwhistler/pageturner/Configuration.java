@@ -268,7 +268,7 @@ public class Configuration {
 	}
 
 	public int getTextSize() {
-		return settings.getInt(KEY_TEXT_SIZE, 16);
+		return settings.getInt(KEY_TEXT_SIZE, 18);
 	}
 
 	public void setTextSize(int textSize) {
@@ -276,11 +276,11 @@ public class Configuration {
 	}
 
 	public int getHorizontalMargin() {
-		return settings.getInt(KEY_MARGIN_H, 15);
+		return settings.getInt(KEY_MARGIN_H, 30);
 	}
 
 	public int getVerticalMargin() {
-		return settings.getInt(KEY_MARGIN_V, 15);
+		return settings.getInt(KEY_MARGIN_V, 25);
 	}
 
 	public int getLineSpacing() {

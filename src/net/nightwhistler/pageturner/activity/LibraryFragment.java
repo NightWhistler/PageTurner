@@ -12,6 +12,7 @@ import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.Configuration.ColourProfile;
 import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.Configuration.LibraryView;
 import net.nightwhistler.pageturner.library.ImportCallback;
@@ -39,6 +40,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -330,9 +332,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         MenuItem list = menu.findItem(R.id.list_view);        
         list.setOnMenuItemClickListener(toggleListener);
 		
-        MenuItem prefs = menu.findItem(R.id.preferences);		
-		
-		prefs.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+        menu.findItem(R.id.preferences)		
+			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
@@ -343,9 +344,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			}
 		});
 		
-		MenuItem scan = menu.findItem(R.id.scan_books);		
-		
-		scan.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		menu.findItem(R.id.scan_books)		
+			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {	
@@ -354,8 +354,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			}
 		});		
 		
-		MenuItem about = menu.findItem(R.id.about);
-		about.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		menu.findItem(R.id.about)
+			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
@@ -364,8 +364,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			}
 		});
 		
-		MenuItem download = menu.findItem(R.id.download);
-		download.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		menu.findItem(R.id.download)
+			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
@@ -375,7 +375,35 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				return true;
 			}
 		});
+		
+		menu.findItem(R.id.profile_day)
+			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switchToColourProfile(ColourProfile.DAY);
+				return true;
+			}
+		});
+		
+		menu.findItem(R.id.profile_night)
+			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switchToColourProfile(ColourProfile.NIGHT);
+				return true;
+			}
+		});
 	}	
+	
+	private void switchToColourProfile( ColourProfile profile ) {
+		config.setColourProfile(profile);
+		Intent intent = new Intent(getActivity(), LibraryActivity.class);		
+		startActivity(intent);
+		onStop();
+		getActivity().finish();
+	}
 	
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
@@ -383,6 +411,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		menu.findItem(R.id.shelves_view).setVisible(! bookCaseActive);
 		menu.findItem(R.id.list_view).setVisible(bookCaseActive);
+		menu.findItem(R.id.profile_day).setVisible(config.getColourProfile() == ColourProfile.NIGHT);
+		menu.findItem(R.id.profile_night).setVisible(config.getColourProfile() == ColourProfile.DAY);
 	}
 	
 	private void showImportDialog() {

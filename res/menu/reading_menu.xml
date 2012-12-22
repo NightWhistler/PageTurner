@@ -9,22 +9,24 @@
     <item android:id="@+id/open_library"          
           android:title="@string/open_library"
           android:icon="@drawable/book_star" />
-           
+   
+    
+     <item android:id="@+id/manual_sync"          
+          android:title="@string/manual_sync"
+          android:icon="@drawable/cloud_refresh"
+          android:showAsAction="ifRoom" /> 
+    
     <item android:id="@+id/profile_day"          
           android:title="@string/profile_day"
           android:icon="@drawable/sun"
+          android:showAsAction="ifRoom"
           />
           
     <item android:id="@+id/profile_night"          
           android:title="@string/profile_night"
           android:icon="@drawable/moon"
-          />       
-   
-     <item android:id="@+id/manual_sync"          
-          android:title="@string/manual_sync"
-          android:icon="@drawable/cloud_refresh"
-          android:showAsAction="ifRoom" /> 
-          
+          android:showAsAction="ifRoom"
+          />                 
      
      <item android:id="@+id/search_text"          
           android:title="@string/search_text"
@@ -35,7 +37,7 @@
     <item android:id="@+id/preferences"          
           android:title="@string/prefs" 
           android:icon="@drawable/cog"
-          android:showAsAction="ifRoom"/>
+          android:showAsAction="always"/>
    
     <item android:id="@+id/show_toc"          
           android:title="@string/show_toc"

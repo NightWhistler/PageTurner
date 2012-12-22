@@ -529,6 +529,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		Intent intent = new Intent(getActivity(), ReadingActivity.class);
 		intent.setData(Uri.parse(this.fileName));
 		startActivity(intent);
+		this.libraryService.close();
 		getActivity().finish();
 	}
 
@@ -552,6 +553,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.titleBase = this.bookTitle;
 		getActivity().setTitle(titleBase);
 		this.titleBar.setText(titleBase);
+		
+		getActivity().supportInvalidateOptionsMenu();
 
 		if (book.getMetadata() != null
 				&& !book.getMetadata().getAuthors().isEmpty()) {
@@ -573,7 +576,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				}
 			}
 		});
-
+		
+		updateFromPrefs();
 	}
 
 	@Override
@@ -719,9 +723,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			this.titleBase = this.bookTitle;
 		}
 
-		getActivity().setTitle(this.titleBase);
-		this.waitDialog.hide();
-		getActivity().supportInvalidateOptionsMenu();
+		if ( getActivity() != null ) {
+			getActivity().setTitle(this.titleBase);
+		}
+
+		this.waitDialog.hide();		
 	}
 
 	@Override

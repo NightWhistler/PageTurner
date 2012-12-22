@@ -190,7 +190,7 @@
 				android:title="@string/pref_itext_size"
 				android:dialogTitle="@string/pref_itext_size"
 				android:summary="@string/pref_itext_size_summary"				
-				android:defaultValue="16"
+				android:defaultValue="18"
 				android:max="48"
 				/>	
 				
@@ -199,7 +199,7 @@
 				android:title="@string/pref_margin_h"
 				android:summary="@string/pref_margin_h_summary"
 				android:dialogTitle="@string/pref_margin_h"								
-				android:defaultValue="15"
+				android:defaultValue="30"
 				android:max="150"				
 				/>    					
 	
@@ -208,7 +208,7 @@
 				android:title="@string/pref_margin_v"
 				android:summary="@string/pref_margin_v_summary"
 				android:dialogTitle="@string/pref_margin_v"								
-				android:defaultValue="15"
+				android:defaultValue="25"
 				android:max="150"				
 				/>  
 	<com.hlidskialf.android.preference.SeekBarPreference

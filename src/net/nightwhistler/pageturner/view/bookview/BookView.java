@@ -397,13 +397,24 @@ public class BookView extends ScrollView {
 	}
 
 	void loadText() {
-		new LoadTextTask().execute();
+		executeTask( new LoadTextTask() );
 	}
 
 	private void loadText(List<SearchTextTask.SearchResult> hightListResults) {
-		new LoadTextTask(hightListResults).execute();
+		executeTask( new LoadTextTask(hightListResults) );
 	}
-
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private <A, B, C> void executeTask( AsyncTask<A, B, C> task, A... params ) {
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+		}
+		else {
+			task.execute(params);
+		}
+	}
+	
+	
 	public void setFontFamily(FontFamily family) {
 		this.childView.setTypeface(family.getDefaultTypeface());
 		this.tableHandler.setTypeFace(family.getDefaultTypeface());
@@ -551,8 +562,8 @@ public class BookView extends ScrollView {
 
 			if (this.spine.navigateByHref(href)) {
 				loadText();
-			} else {
-				new LoadTextTask().execute(href);
+			} else {				
+				executeTask(new LoadTextTask(), href);					
 			}
 		}
 	}
@@ -1366,7 +1377,7 @@ public class BookView extends ScrollView {
 			progressUpdate();
 
 			if (needToCalcPageNumbers) {
-				new CalculatePageNumbersTask().execute(new Void[0]);
+				executeTask( new CalculatePageNumbersTask() );
 			}
 			
 			/**
@@ -1386,9 +1397,9 @@ public class BookView extends ScrollView {
 	}
 
 	private class CalculatePageNumbersTask extends
-			AsyncTask<Void, Void, List<List<Integer>>> {
+			AsyncTask<Object, Void, List<List<Integer>>> {
 		@Override
-		protected List<List<Integer>> doInBackground(Void... params) {
+		protected List<List<Integer>> doInBackground(Object... params) {
 
 			try {
 				List<List<Integer>> offsets = new ArrayList<List<Integer>>();

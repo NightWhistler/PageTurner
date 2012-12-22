@@ -158,7 +158,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			String downloadUrl = uri.toString().replace("epub://", "http://");
 			new DownloadFileTask(false).execute(downloadUrl);
 		} else {
-			new LoadOPDSTask().execute(baseURL);
+			new LoadOPDSTask().execute(config.getBaseOPDSFeed());
 		}
 	}
 

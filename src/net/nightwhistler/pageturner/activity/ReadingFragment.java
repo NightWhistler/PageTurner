@@ -1252,8 +1252,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public void onStop() {
 		super.onStop();
 
-		saveReadingPosition();
-		sendProgressUpdateToServer();
+		saveReadingPosition();		
 		this.waitDialog.dismiss();
 	}
 
@@ -1267,7 +1266,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				config.setLastPosition(this.fileName, position);
 				config.setLastIndex(this.fileName, index);
 			
-				sendProgressUpdateToServer();
+				sendProgressUpdateToServer(index, position);
 			}
 		}
 
@@ -1590,13 +1589,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if ( progressPercentage < 1 || position < 1 ) {
 			return;
 		}
-		
-		libraryService.updateReadingProgress(fileName, progressPercentage);
 
 		backgroundHandler.post(new Runnable() {
 			@Override
 			public void run() {
 				try {
+					libraryService.updateReadingProgress(fileName, progressPercentage);
 					progressService.storeProgress(fileName,
 							index, position,
 							progressPercentage);

@@ -9,14 +9,31 @@
         android:id="@+id/list_view"
         android:icon="@drawable/list"
         android:title="@string/list_view"/>
+    
+   <item android:id="@+id/profile_day"          
+          android:title="@string/profile_day"
+          android:icon="@drawable/sun"
+          android:showAsAction="ifRoom"
+          />
+          
+    <item android:id="@+id/profile_night"          
+          android:title="@string/profile_night"
+          android:icon="@drawable/moon"
+          android:showAsAction="ifRoom"
+          />                 
+    
     <item
         android:id="@+id/scan_books"
         android:icon="@drawable/book_refresh"
-        android:title="@string/scan_books"/>
+        android:title="@string/scan_books"
+        />
+    
     <item
         android:id="@+id/download"
         android:icon="@drawable/download"
-        android:title="@string/download"/>
+        android:title="@string/download"
+        />
+    
     <item
         android:id="@+id/preferences"
         android:icon="@drawable/cog"

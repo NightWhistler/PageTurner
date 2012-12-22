@@ -79,6 +79,8 @@ import com.google.inject.Inject;
 public class CatalogFragment extends RoboSherlockFragment implements
 		OnItemClickListener {
 
+	private static final String STATE_NAV_ARRAY_KEY = "nav_array";
+
 	private String baseURL;
 	private String user;
 	private String password;
@@ -112,6 +114,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (savedInstanceState != null) {
+			List<String> navList = savedInstanceState.getStringArrayList(STATE_NAV_ARRAY_KEY);
+			if (navList != null && navList.size() > 0) {
+				navStack.addAll(navList);
+			}
+		}
 		this.adapter = new DownloadingCatalogAdapter();
 	}
 
@@ -141,19 +149,33 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
 		Intent intent = getActivity().getIntent();
 
 		this.baseURL = intent.getStringExtra("url");
 		this.user = intent.getStringExtra("user");
 		this.password = intent.getStringExtra("password");
 
-		Uri uri = intent.getData();
-
-		if (uri != null && uri.toString().startsWith("epub://")) {
-			String downloadUrl = uri.toString().replace("epub://", "http://");
-			new DownloadFileTask(false).execute(downloadUrl);
+		if (!navStack.empty()) {
+			new LoadOPDSTask().execute(navStack.peek());
 		} else {
-			new LoadOPDSTask().execute(baseURL);
+			Uri uri = intent.getData();
+
+			if (uri != null && uri.toString().startsWith("epub://")) {
+				String downloadUrl = uri.toString().replace("epub://", "http://");
+				new DownloadFileTask(false).execute(downloadUrl);
+			} else {
+				new LoadOPDSTask().execute(baseURL);
+			}
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (!navStack.empty()) {
+			ArrayList<String> navList = new ArrayList<String>(navStack);
+			outState.putStringArrayList(STATE_NAV_ARRAY_KEY, navList);
 		}
 	}
 

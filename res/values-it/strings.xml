@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">PageTurner</string>
+    
     <string name="title">Titolo</string>
     <string name="app_desc">PageTurner è un lettore di e-book con sincronizzazione, che permette di sincronizzare il punto in cui si sta leggendo su più di un apparecchio.</string>
     <string name="browse">Sfoglia…</string>

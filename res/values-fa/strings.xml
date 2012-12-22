@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">PageTurner</string>
+    
     <string name="title">عنوان</string>
     <string name="app_desc">PageTurner کتابخوان همگامی‌ست که امکان همگام کردن روند پیشرفت مطالعه‌تان را در دستگاه‌های چندگانه فراهم می‌کند.</string>
     <string name="browse">مرور …</string> <!-- Browse … -->

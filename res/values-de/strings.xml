@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
+    <string name="app_name">PageTurner</string>
     <string name="title">Titel</string>
     <string name="app_desc">PageTurner ist ein synchronisiertes E-Buch Programm. Es ermöglicht
 die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</string>
@@ -118,20 +118,20 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
 
     <!-- Not yet translated -->
 
-    <string name="enter_email">Cloud Sync ist derzeit deaktiviert. Um sie zu aktivieren, geben Sie bitte eine E-Mail-Adresse in den Einstellungen.</string>
-    <string name="add_to_library">In den meine Bücher</string>
+    <string name="enter_email">Synchronisation ist momentan nicht möglich. Bitte eine E-Mailadresse unter Einstellungen hinzufügen um die Synchronisation zu nutzen.</string>
+    <string name="add_to_library">Zu Bücherregal hinzufügen</string>
     
-    <string name="search_wait">Suche… Bitte warten.</string>
-    <string name="search_text">Volltextsuche</string>
-    <string name="search_hits">Suche…\n%d Übereinstimmungen gefunden.</string>
+    <string name="search_wait">Suche… bitte warten.</string>
+    <string name="search_text">Text Suche</string>
+    <string name="search_hits">Suche…\n%d Treffer gefunden.</string>
     <string name="search_cancelled">Suche abgebrochen.</string>
-    <string name="search_no_matches">Suche brachte keine Treffer.</string>
+    <string name="search_no_matches">Keine Suchergebnisse gefunden.</string>
     <string name="search_results">Suchergebnisse</string>
     
-    <string name="opening_file">Öffnen der Datei…</string>
-    <string name="loading_text">Loading text…</string>
+    <string name="opening_file">Öffne Datei…</string>
+    <string name="loading_text">Lade Text…</string>
     
-    <string name="end_of_section">Ende des Kapitels.\nKlicken Sie hier, um fortzufahren.</string>
+    <string name="end_of_section">Ende des Kapitels.\nHier antippen um weiterzulesen.</string>
  
     
     <!-- Preferences -->    
@@ -156,12 +156,12 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="pref_my_books_settings">Meine Bücher</string>
     <string name="pref_copy_to_library">In Buchregal kopieren</string>
     <string name="pref_copy_to_library_summary">Soll PageTurner die Buchdateien in seinen eigenen Buchregal Ordner kopieren?</string>
-    <string name="pref_calibre_server">Calibre content server</string>
-    <string name="pref_calibre_server_summary">Connect to your own Calibre library</string>
+    <string name="pref_calibre_server">Calibre Server</string>
+    <string name="pref_calibre_server_summary">Verbinde zu Deiner eigenen Calibre Bücherei</string>
     <string name="pref_calibre_server_message">Calibre URL</string>
-    <string name="pref_calibre_server_hint">Ex. http://192.168.1.1:8080/opds</string>
+    <string name="pref_calibre_server_hint">zB. http://192.168.1.1:8080/opds</string>
 
-    <string name="pref_calibre_password_summary">Calibre password</string>
+    <string name="pref_calibre_password_summary">Calibre Kennwort</string>
 
     <string name="pref_visual_settings">Darstellung</string>
     <string name="pref_full_screen">Vollbild</string>
@@ -228,13 +228,29 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <!-- Not yet translated -->
    
     <string name="pref_calibre_user">Benutzername</string>
-    <string name="pref_calibre_user_summary">Ihr Calibre Benutzernamen</string>
+    <string name="pref_calibre_user_summary">Dein Calibre Benutzername</string>
     <string name="pref_calibre_user_hint">calibre</string>
-    <string name="pref_calibre_password">Passwort</string>
-    <string name="pref_calibre_password_summary">Ihr Calibre Passwort</string>
+    <string name="pref_calibre_password">Kennwort</string>
+    <string name="pref_calibre_password_summary">Dein Calibre Kennwort</string>
 
     <string name="pref_show_pagenum">Zeige Seitenzahlen</string>
-    <string name="pref_show_pagenum_summary">Zeigt Seitenzahlen beim Lesen. Es kann ein paar Sekunden dauern für Seitenzahlen das erste Mal angezeigt werden.</string>
+    <string name="pref_show_pagenum_summary">Zeige Seitenzahlen während des Lesens. Es kann ein paar Sekunden dauern bis sie zum ersten mal dargestellt werden.</string>
+ 
  
 
+    <!-- Translation is not needed for the strings below -->
+    <string name="no_author_byline" translatable="false">by John Doe</string>
+    <string name="zero_percent" translatable="false">0%  </string>
+    <string name="default_timestamp" translatable="false">01-01-2012 13:44</string>
+    <string name="default_device_name_and_progress" translatable="false">Phone - 15%</string>
+    <string name="ebook_path" translatable="false">/sdcard/eBooks</string>
+    <string name="folder_name" translatable="false">Folder Name</string>
+    <string name="small_text" translatable="false">Small Text</string>
+    <string name="large_text" translatable="false">Large Text</string>
+    <string name="default_added_to_library" translatable="false">Added to library: never</string>
+    <string name="default_last_read" translatable="false">Last read: never</string>
+    <string name="default_filename" translatable="false">book.epub</string>
+    <string name="default_book_title" translatable="false">Title of the book</string>
+    
+        
 </resources>

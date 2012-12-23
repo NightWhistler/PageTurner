@@ -165,11 +165,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		} else {
 			Uri uri = intent.getData();
 
-		if (uri != null && uri.toString().startsWith("epub://")) {
-			String downloadUrl = uri.toString().replace("epub://", "http://");
-			new DownloadFileTask(false).execute(downloadUrl);
-		} else {
-			new LoadOPDSTask().execute(config.getBaseOPDSFeed());
+			if (uri != null && uri.toString().startsWith("epub://")) {
+				String downloadUrl = uri.toString().replace("epub://", "http://");
+				new DownloadFileTask(false).execute(downloadUrl);
+			} else {
+				new LoadOPDSTask().execute(config.getBaseOPDSFeed());
+			}
 		}
 	}
 

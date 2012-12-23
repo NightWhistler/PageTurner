@@ -81,6 +81,7 @@ import com.google.inject.Inject;
 public class CatalogFragment extends RoboSherlockFragment implements
 		OnItemClickListener {
 	
+    private static final String STATE_NAV_ARRAY_KEY = "nav_array";
     private static final String WAIT_DIALOG_KEY = "fragment_dialog_wait";
 	
     private static final int ABBREV_TEXT_LEN = 150;
@@ -121,6 +122,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (savedInstanceState != null) {
+			List<String> navList = savedInstanceState.getStringArrayList(STATE_NAV_ARRAY_KEY);
+			if (navList != null && navList.size() > 0) {
+				navStack.addAll(navList);
+			}
+		}
 		this.adapter = new DownloadingCatalogAdapter();
 	}
 
@@ -150,15 +157,28 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
 		Intent intent = getActivity().getIntent();
 
-		Uri uri = intent.getData();
+		if (!navStack.empty()) {
+			new LoadOPDSTask().execute(navStack.peek());
+		} else {
+			Uri uri = intent.getData();
 
 		if (uri != null && uri.toString().startsWith("epub://")) {
 			String downloadUrl = uri.toString().replace("epub://", "http://");
 			new DownloadFileTask(false).execute(downloadUrl);
 		} else {
 			new LoadOPDSTask().execute(config.getBaseOPDSFeed());
+		}
+	}
+
+    @Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (!navStack.empty()) {
+			ArrayList<String> navList = new ArrayList<String>(navStack);
+			outState.putStringArrayList(STATE_NAV_ARRAY_KEY, navList);
 		}
 	}
 
@@ -529,6 +549,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		@Override
 		protected void onPostExecute(String unused) {
+			
+			if ( !isAdded() || getActivity() == null ) {
+				return;
+			}
+			
 			downloadDialog.hide();
 
 			if (!isCancelled() && failure == null) {
@@ -951,6 +976,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		@Override
 		protected void onPostExecute(Feed result) {
+			
+			if ( !isAdded() || getActivity() == null ) {
+				return;
+			}
+			
 			if (result == null) {
 				setNewFeed(null);
 			}
@@ -969,6 +999,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		@Override
 		protected void onProgressUpdate(Object... values) {
 			if (values == null || values.length == 0) {
+				return;
+			}
+			
+			if ( !isAdded() || getActivity() == null ) {
 				return;
 			}
 

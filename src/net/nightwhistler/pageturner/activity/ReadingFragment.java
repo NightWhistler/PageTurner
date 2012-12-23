@@ -942,22 +942,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		animator.SetCurlSpeed(bookView.getWidth() / 8);
 
 		animator.setBackgroundColor(config.getBackgroundColor());
-
-		LOG.debug("Before size: w=" + before.getWidth() + " h="
-				+ before.getHeight());
-
+		
 		if (flipRight) {
 			bookView.pageDown();
 			Bitmap after = getBookViewSnapshot();
-			LOG.debug("After size: w=" + after.getWidth() + " h="
-					+ after.getHeight());
+			
 			animator.setBackgroundBitmap(after);
 			animator.setForegroundBitmap(before);
 		} else {
 			bookView.pageUp();
 			Bitmap after = getBookViewSnapshot();
-			LOG.debug("After size: w=" + after.getWidth() + " h="
-					+ after.getHeight());
+			
 			animator.setBackgroundBitmap(before);
 			animator.setForegroundBitmap(after);
 		}

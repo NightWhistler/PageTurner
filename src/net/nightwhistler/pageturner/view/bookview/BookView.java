@@ -245,12 +245,14 @@ public class BookView extends ScrollView {
 	public ClickableSpan[] getLinkAt(float x, float y) {
 		Integer offset = findOffsetForPosition(x, y);
 
-		if (offset == null) {
+		CharSequence text = childView.getText();
+		
+		if (offset == null || ! (text instanceof Spanned)) {
 			return null;
-		}
+		} 
 
-		Spanned text = (Spanned) childView.getText();
-		ClickableSpan[] spans = text.getSpans(offset, offset,
+		Spanned spannedText = (Spanned) text;
+		ClickableSpan[] spans = spannedText.getSpans(offset, offset,
 				ClickableSpan.class);
 
 		return spans;
@@ -955,9 +957,9 @@ public class BookView extends ScrollView {
 	private class ImageTagHandler extends TagNodeHandler {
 
 		private boolean fakeImages;
-
+		
 		public ImageTagHandler(boolean fakeImages) {
-			this.fakeImages = fakeImages;
+			this.fakeImages = fakeImages;			
 		}
 
 		@Override
@@ -982,11 +984,14 @@ public class BookView extends ScrollView {
 				LOG.debug("Got cached href: " + resolvedHref);
 			} else {
 				LOG.debug("Loading href: " + resolvedHref);
-				loader.registerCallback(resolvedHref, new ImageCallback(
+				this.registerCallback(resolvedHref, new ImageCallback(
 						resolvedHref, builder, start, builder.length(), fakeImages));
 			}
 		}
-
+		
+		protected void registerCallback(String resolvedHref, ImageCallback callback ) {
+			BookView.this.loader.registerCallback(resolvedHref, callback);
+		}
 
 	}
 
@@ -1152,9 +1157,17 @@ public class BookView extends ScrollView {
 			throws IOException {
 		
 		HtmlSpanner mySpanner = new HtmlSpanner();
+		final ResourceLoader privateLoader = new ResourceLoader(fileName);
+		
+		ImageTagHandler tagHandler = new ImageTagHandler(true) {
+			protected void registerCallback(String resolvedHref, ImageCallback callback) {
+				privateLoader.registerCallback(resolvedHref, callback);
+			}
+		};
+		
 		mySpanner.registerHandler("table", tableHandler );
-		mySpanner.registerHandler("img", new ImageTagHandler(true));
-		mySpanner.registerHandler("image", new ImageTagHandler(true));
+		mySpanner.registerHandler("img", tagHandler);
+		mySpanner.registerHandler("image", tagHandler);
 		
 		CharSequence text;
 		
@@ -1163,7 +1176,7 @@ public class BookView extends ScrollView {
 		} else {
 			Resource res = spine.getResourceForIndex(spineIndex);
 			text = mySpanner.fromHtml(res.getReader());
-			loader.load();
+			privateLoader.load();
 		}
 		
 		return FixedPagesStrategy.getPageOffsets(this, text, true);

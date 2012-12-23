@@ -49,6 +49,10 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	
 	public static List<Integer> getPageOffsets( BookView bookView, CharSequence text, boolean includePageNumbers ) {
 		
+		if ( text == null ) {
+			return new ArrayList<Integer>();
+		}
+		
 		List<Integer> pageOffsets = new ArrayList<Integer>();
 		
 		TextPaint textPaint = bookView.getInnerView().getPaint();

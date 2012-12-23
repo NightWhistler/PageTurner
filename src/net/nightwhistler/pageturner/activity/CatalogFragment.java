@@ -504,6 +504,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		@Override
 		protected void onPostExecute(String unused) {
+			
+			if ( !isAdded() || getActivity() == null ) {
+				return;
+			}
+			
 			downloadDialog.hide();
 
 			if (!isCancelled() && failure == null) {
@@ -874,6 +879,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		@Override
 		protected void onPostExecute(Feed result) {
+			
+			if ( !isAdded() || getActivity() == null ) {
+				return;
+			}
+			
 			if (result == null) {
 				setNewFeed(null);
 			}
@@ -882,6 +892,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		@Override
 		protected void onProgressUpdate(Object... values) {
 			if (values == null || values.length == 0) {
+				return;
+			}
+			
+			if ( !isAdded() || getActivity() == null ) {
 				return;
 			}
 

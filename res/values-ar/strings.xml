@@ -112,6 +112,124 @@
     <string name="search_books">البحث في الكتب</string>
     <string name="enter_query">الرجاء إدخال كلمات البحث</string>
     <string name="buy_now">أشتري الآن</string>
-        
+    
+    
+    <!-- Not yet translated -->
+    <string name="enter_email">Cloud sync is currently disabled. To enable it, please enter an e-mail address in the preferences.</string>
+    <string name="add_to_library">Add to library</string>
+    
+    <string name="search_wait">Searching… please wait.</string>
+    <string name="search_text">Text search</string>
+    <string name="search_hits">Searching…\nFound %d matches.</string>
+    <string name="search_cancelled">Search cancelled.</string>
+    <string name="search_no_matches">Search did not find any matches.</string>
+    <string name="search_results">Search results</string>
+    
+    <string name="opening_file">Opening file…</string>
+    <string name="loading_text">Loading text…</string>
+    
+    <string name="end_of_section">End of chapter.\nClick here to continue.</string>
+    <string name="download_complete">Download complete.\nThe book has been added to your library</string>
+    
+
+    
+    <!-- Preferences -->     
+    <string name="pref_sync_settings">أعداد التزامن</string>
+    <string name="pref_email">عنوان البريد الإلكتروني</string>
+    <string name="pref_email_summary">يستخدم من أجل تزامن جاهزك مع خادم المكتبة ، أتركه فارغا لتعديل هذا الخيار</string>
+    <string name="pref_email_message">الرجاء إدخال بريد ألكتروني صالح</string>
+    <string name="pref_device_name">أسم الجهاز</string>
+    <string name="pref_device_name_summary">أستخدم أسم جهاز فريد حتى لا يعمل تشابك مع بيانات الأجهزة الأخرى</string>
+    <string name="pref_device_name_message">الرجاء إدخال أسم لجهازك</string>
+    <string name="pref_access_key">مفتاح الدخول</string>
+    <string name="pref_access_key_summary">مفتاح الدخول مطلوب من أجل خدمة التزامن مع مزود المكتبة ، الرجاء زيارة الموقع للحصول على المفاتح</string>
+    <string name="pref_access_key_message">الرجاء أدخال مفتاح الدخول</string>
+
+    <string name="pref_autoscroll_settings">أعدادات التصفح التلقائي</string>
+    <string name="pref_scroll_style">نمط التصفح التلقائي</string>
+    <string name="pref_scroll_style_summary">تغير الصفحات أو توقيت التغير التلقائي</string>
+    <string name="pref_scroll_speed">سرعة التصفح التلقائي</string>
+    <string name="pref_scroll_speed_summary">كم عدد الثواني لعرض الصفحة.</string>
+
+    <string name="pref_my_books_settings">أعدادات الكتب</string>
+    <string name="pref_copy_to_library">نسخ إلى مجلد المكتبة</string>
+    <string name="pref_copy_to_library_summary">البرنامج سيقوم بنسخ الملفات في مجلد المكتبة</string>
+    <string name="pref_visual_settings">الأعدادات الأفتراضيه</string>
+    <string name="pref_full_screen">أستعراض الصفحة بالكامل</string>
+    <string name="pref_full_screen_summary">أخفاء جميع الخيارات في أسفل الشاشة</string>
+    <string name="pref_screen_orientation">التحكم بتجاه الشاشه</string>
+    <string name="pref_screen_orientation_summary">يسمح لك بالتحكم في أتجاه الشاشة أثناء القراءة</string>
+    <string name="pref_keep_screen_on">أبقي على الشاشة مفتوحة</string>
+    <string name="pref_keep_screen_on_summary">لن نقلق الشاشة أثناء القراءة</string>
+    <string name="pref_set_brightness">ضبط السطوع</string>
+    <string name="pref_set_brightness_summary">أترك البرنامج يتحكم في سطوع الشاشة</string>
+    <string name="pref_day_bright">سطوع الشاشة</string>
+    <string name="pref_day_bright_summary"> في النمط العادي</string>
+    <string name="pref_day_night">سطوع الشاشة</string>
+    <string name="pref_day_night_summary">في نمط الليل</string>
+    <string name="pref_text_display_settings">أعدادات عرض النص</string>
+    <string name="pref_font_face">شكل الخط</string>
+    <string name="pref_font_face_summary">الخط الرئيسي لعرض النص</string>
+    <string name="pref_strip_whitespace">أزالت الفراغات</string>
+    <string name="pref_strip_whitespace_summary">أزالت الفراغات بين السطور</string>
+    <string name="pref_itext_size">حجم الخط</string>
+    <string name="pref_itext_size_summary">حجم الخط المستخدم لعرض نص الكتاب</string>
+    <string name="pref_margin_h">الهوامش الأفقية</string>
+    <string name="pref_margin_h_summary">مسافة حافة الشاشة من اليسار واليمين</string>
+    <string name="pref_margin_v">الهوامش العمودية</string>
+    <string name="pref_margin_v_summary">مسافة حافة الشاشة من الأسفل والأعلى</string>
+    <string name="pref_line_spacing">تباعد الأسطر</string>
+    <string name="pref_line_spacing_summary">زيادة التباعد بين الأسطر</string>
+
+    <string name="pref_colour_settings">أعدادات اللون</string>
+    <string name="pref_day_text">لون النص</string>
+    <string name="pref_day_text_summary">في نمط النهار</string>
+    <string name="pref_day_bg">لون الخلفية</string>
+    <string name="pref_day_bg_summary">في نمط النهار</string>
+    <string name="pref_day_link">لون الرابط</string>
+    <string name="pref_day_link_summary">في نمط النهار</string>
+    <string name="pref_night_text">لون النص</string>
+    <string name="pref_night_text_summary">في نمط الليل</string>
+    <string name="pref_night_bg">لون الخلفية</string>
+    <string name="pref_night_bg_summary">في نمط الليل</string>
+    <string name="pref_night_link">لون الرابط</string>
+    <string name="pref_night_link_summary">في نمط الليل</string>
+
+    <string name="pref_animations">الحراكات</string>
+    <string name="pref_h_animation">حركة التصفح الأفقي</string>
+    <string name="pref_h_animation_summary">حركة عرض الصفحة في الوضع الأفقي</string>
+    <string name="pref_v_animation">حركة التصفح الرأسي</string>
+    <string name="pref_v_animation_summary">حركة عرض الصفحة في الوضع الرأسي</string>
+    
+    <string name="pref_navigation_settings">أعدادات التصفح</string>
+    <string name="pref_scrolling">تفعيل الائحة</string>
+    <string name="pref_scrolling_summary">تفعيل التصفح بنمط الائحة</string>
+    <string name="pref_nav_vol">تفعيل زر الصوت</string>
+    <string name="pref_nav_vol_summary">أنقاص أو زيادة الصوت من أجل قلب الصفحة</string>
+    <string name="pref_nav_swipe_h">تفعيل التصفح الأفقي</string>
+    <string name="pref_nav_swipe_h_summary">تغير التصفح من اليسار إلى اليمين</string>
+    <string name="pref_nav_swipe_v">تفعيل التصفح الرأسي</string>
+    <string name="pref_nav_swipe_v_summary">تغير التصفح من أعلاء إلى أسفل</string>
+    <string name="pref_nav_tap_h">تفعيل النقر الجانبي</string>
+    <string name="pref_nav_tap_h_summary">النقر على حافة الشاشة اليمين واليسار من أجل قلب الصفحة</string>
+    <string name="pref_nav_tap_v">تفعيل النقر الأعلى والأسفل </string>
+    <string name="pref_nav_tap_v_summary">النقر على حافة الشاشة الأعلى والأسفل من أجل قلب الصفحة</string>
+    
+   <!-- Not yet translated --> 
+    
+    <string name="pref_calibre_server">Calibre content server</string>
+    <string name="pref_calibre_server_summary">Connect to your own Calibre library</string>
+    <string name="pref_calibre_server_message">Calibre URL</string>
+    <string name="pref_calibre_server_hint">http://192.168.1.1:8080/opds</string>
+
+    <string name="pref_calibre_user">User name</string>
+    <string name="pref_calibre_user_summary">Your calibre user name</string>
+    <string name="pref_calibre_user_hint">calibre</string>
+    <string name="pref_calibre_password">Password</string>
+    <string name="pref_calibre_password_summary">Your calibre password</string>
+
+    <string name="pref_show_pagenum">Show page numbers</string>
+    <string name="pref_show_pagenum_summary">Shows page numbers while reading. It may take a few seconds for page numbers to be displayed the first time.</string>
+
         
 </resources>

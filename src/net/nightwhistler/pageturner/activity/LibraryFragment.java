@@ -594,6 +594,10 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	@Override
 	public void importCancelled() {
 		
+		if ( !isAdded() || getActivity() == null ) {
+			return;
+		}
+		
 		listView.setKeepScreenOn(oldKeepScreenOn);
 		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
 		
@@ -608,6 +612,10 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	@Override
 	public void importComplete(int booksImported, List<String> errors) {
+		
+		if ( !isAdded() || getActivity() == null ) {
+			return;
+		}
 		
 		importDialog.hide();			
 		
@@ -654,6 +662,11 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	@Override
 	public void importFailed(String reason) {
+		
+		if ( !isAdded() || getActivity() == null ) {
+			return;
+		}
+		
 		importDialog.hide();
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.import_failed);
@@ -664,6 +677,11 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	@Override
 	public void importStatusUpdate(String update) {
+		
+		if ( !isAdded() || getActivity() == null ) {
+			return;
+		}
+		
 		importDialog.setMessage(update);
 	}	
 	
@@ -1053,6 +1071,11 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		@Override
 		protected void onPostExecute(QueryResult<LibraryBook> result) {
+			
+			if ( !isAdded() || getActivity() == null ) {
+				return;
+			}
+			
 			bookAdapter.setResult(result);			
 			
 			if ( result instanceof KeyedQueryResult && result.getSize() >= ALPHABET_THRESHOLD ) {

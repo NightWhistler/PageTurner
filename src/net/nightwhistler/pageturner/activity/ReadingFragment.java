@@ -402,6 +402,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public void progressUpdate(int progressPercentage, int pageNumber,
 			int totalPages) {
 
+		if ( ! isAdded() || getActivity() == null ) {
+			return;
+		}
+		
 		this.currentPageNumber = pageNumber;
 		
 		// Work-around for calculation errors and weird values.
@@ -521,7 +525,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		default:
 			getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 		}
-	}
+	}	
 
 	private void restartActivity() {
 
@@ -548,6 +552,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	@Override
 	public void bookOpened(final Book book) {
+		
+		if ( ! isAdded() || getActivity() == null ) {
+			return;
+		}
 
 		this.bookTitle = book.getTitle();
 		this.titleBase = this.bookTitle;
@@ -717,21 +725,29 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	@Override
 	public void parseEntryComplete(int entry, String name) {
+		
+		if ( ! isAdded() || getActivity() == null ) {
+			return;
+		}
+		
 		if (name != null && !name.equals(this.bookTitle)) {
 			this.titleBase = this.bookTitle + " - " + name;
 		} else {
 			this.titleBase = this.bookTitle;
 		}
-
-		if ( getActivity() != null ) {
-			getActivity().setTitle(this.titleBase);
-		}
+		
+		getActivity().setTitle(this.titleBase);		
 
 		this.waitDialog.hide();		
 	}
 
 	@Override
-	public void parseEntryStart(int entry) {
+	public void parseEntryStart(int entry) {	
+		
+		if ( ! isAdded() || getActivity() == null ) {
+			return;
+		}
+		
 		this.viewSwitcher.clearAnimation();
 		this.viewSwitcher.setBackgroundDrawable(null);
 		restoreColorProfile();
@@ -904,7 +920,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private void doPageCurl(boolean flipRight) {
 
-		if (isAnimating()) {
+		if (isAnimating() || bookView == null ) {
 			return;
 		}
 
@@ -1598,7 +1614,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					progressService.storeProgress(fileName,
 							index, position,
 							progressPercentage);
-				} catch (AccessException a) {
+				} catch (Exception e) {
+					LOG.error("Error saving progress", e);
 				}
 			}
 		});		

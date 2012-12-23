@@ -245,12 +245,14 @@ public class BookView extends ScrollView {
 	public ClickableSpan[] getLinkAt(float x, float y) {
 		Integer offset = findOffsetForPosition(x, y);
 
-		if (offset == null) {
+		CharSequence text = childView.getText();
+		
+		if (offset == null || ! (text instanceof Spanned)) {
 			return null;
-		}
+		} 
 
-		Spanned text = (Spanned) childView.getText();
-		ClickableSpan[] spans = text.getSpans(offset, offset,
+		Spanned spannedText = (Spanned) text;
+		ClickableSpan[] spans = spannedText.getSpans(offset, offset,
 				ClickableSpan.class);
 
 		return spans;

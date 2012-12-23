@@ -100,5 +100,141 @@
     <string name="list_view">Passa alla visualizzazione elenco</string>    
 	<string name="shelves_view">Passare alla visualizzazione libreria</string>
     <string name="read">Leggi ora</string>
+ 
+
+    <!-- Not yet translated -->
+ 
+     <string name="download">Download books</string>
+    <string name="downloading">Downloading book…</string>
+    <string name="feed_failed">Could not contact the site. Please try again.</string>
+    <string name="book_failed">Could not download the book. Please try again.</string>
+
+    <string name="browse">Browse…</string>
+    
+    <string name="search_books">Search for books</string>
+    <string name="enter_query">Please enter a search-term</string>
+    <string name="buy_now">Buy now</string>
+
+    <string name="enter_email">Cloud sync is currently disabled. To enable it, please enter an e-mail address in the preferences.</string>
+    <string name="add_to_library">Add to library</string>
+    
+    <string name="search_wait">Searching… please wait.</string>
+    <string name="search_text">Text search</string>
+    <string name="search_hits">Searching…\nFound %d matches.</string>
+    <string name="search_cancelled">Search cancelled.</string>
+    <string name="search_no_matches">Search did not find any matches.</string>
+    <string name="search_results">Search results</string>
+    
+    <string name="opening_file">Opening file…</string>
+    <string name="loading_text">Loading text…</string>
+    
+    <string name="end_of_section">End of chapter.\nClick here to continue.</string>
+    <string name="download_complete">Download complete.\nThe book has been added to your library</string>
+    
+    <!-- Preferences -->    
         
+
+
+    <string name="pref_email">Indirizzo e-mail</string>
+    <string name="pref_email_summary">Utilizzato per sincronizzare il punto di lettura con altri apparecchi. Lasciare in bianco per disabilitare.</string>
+    <string name="pref_email_message">Inserire un indirizzo e-mail valido</string>
+    <string name="pref_device_name">Nome apparecchio</string>
+    <string name="pref_device_name_summary">Nome univoco di questo apparecchio, per risoluzione conflitti.</string>
+    <string name="pref_device_name_message">Inserire un nome per questo apparecchio.</string>
+    <string name="pref_autoscroll_settings">Impostazioni scorrimento automatico</string>
+
+    <string name="pref_scroll_style">Stile scorrimento automatico</string>
+    <string name="pref_scroll_style_summary">Scorrimento continuo o timer</string>
+    <string name="pref_scroll_speed">Velocità scorrimento automatico</string>
+    <string name="pref_scroll_speed_summary">Per quanti secondi ogni pagina sarà visualizzata.</string>
+
+    <string name="pref_my_books_settings">Impostazioni libreria</string>
+    <string name="pref_copy_to_library">Copia in cartella libreria</string>
+    <string name="pref_copy_to_library_summary">PageTurner copierà i file in una cartella specifica</string>
+ 
+    <string name="pref_visual_settings">Impostazioni visive</string>
+    <string name="pref_full_screen">Schermo intero</string>
+    <string name="pref_full_screen_summary">Nasconde tutte le barre di stato.</string>
+    <string name="pref_screen_orientation">Orientamento schermo</string>
+    <string name="pref_screen_orientation_summary">Permette di bloccare l'orientamento dello schermo</string>
+   <string name="pref_set_brightness">Controlli luminosità</string>
+    <string name="pref_set_brightness_summary">Permette a PageTurner di controllare la luminosità dello schermo</string>
+    <string name="pref_day_bright">Luminosità schermo</string>
+    <string name="pref_day_bright_summary">In modalità diurna</string>
+    <string name="pref_day_night">Luminosità schermo</string>
+    <string name="pref_day_night_summary">In modalità notturna</string>
+    <string name="pref_text_display_settings">Impostazioni testo</string>
+    <string name="pref_font_face">Carattere</string>
+    <string name="pref_font_face_summary">Carattere per la visualizzazione del testo</string>
+    <string name="pref_strip_whitespace">Togli spazi bianchi</string>
+    <string name="pref_strip_whitespace_summary">Elimina eventuali linee lasciate vuote.</string>
+    <string name="pref_itext_size">Dimensione testo</string>
+    <string name="pref_itext_size_summary">La dimensione del carattere usato per visualizzare i libri.</string>
+    <string name="pref_margin_h">Margini orizzontali</string>
+    <string name="pref_margin_h_summary">Spazio vuoto alla destra e alla sinistra del libro.</string>
+    <string name="pref_margin_v">Margini verticali</string>
+    <string name="pref_margin_v_summary">Spazio vuoto sopra e sotto il testo nella pagina.</string>
+    <string name="pref_line_spacing">Spaziatura</string>
+    <string name="pref_line_spacing_summary">Aggiunge ulteriore spazio verticale tra le righe.</string>
+
+    <string name="pref_day_text">Colore testo</string>
+    <string name="pref_day_text_summary">In modalità diurna</string>
+    <string name="pref_day_bg">Colore sfondo</string>
+    <string name="pref_day_bg_summary">In modalità diurna</string>
+    <string name="pref_day_link">Colore collegamenti</string>
+    <string name="pref_day_link_summary">In modalità diurna</string>
+    <string name="pref_night_text">Colore testo</string>
+    <string name="pref_night_text_summary">In modalità notturna</string>
+    <string name="pref_night_bg">Colore sfondo</string>
+    <string name="pref_night_bg_summary">In modalità notturna</string>
+    <string name="pref_night_link">Colore collegamenti</string>
+    <string name="pref_night_link_summary">In modalità notturna</string>
+
+    <string name="pref_animations">Animazioni</string>
+    <string name="pref_h_animation">Animazione orizzontale</string>
+    <string name="pref_h_animation_summary">Animazione cambiamento pagina orizzontale</string>
+    <string name="pref_v_animation">Animazione verticale</string>
+    <string name="pref_v_animation_summary">Animazione cambiamento pagina verticale</string>
+    
+    <string name="pref_navigation_settings">Impostazioni navigazione</string>
+    <string name="pref_scrolling">Abilita scorrimento</string>
+    <string name="pref_scrolling_summary">Abilita scorrimento stile browser</string>
+    <string name="pref_nav_vol">Abilita controlli volume</string>
+    <string name="pref_nav_vol_summary">Premere i tasti volume su/giù per cambiare pagina.</string>
+    <string name="pref_nav_swipe_h">Trascinamento orizzontale</string>
+    <string name="pref_nav_swipe_h_summary">Trascinare a destra/sinistra per cambiare pagina.</string>
+    <string name="pref_nav_swipe_v">Trascinamento verticale</string>
+    <string name="pref_nav_swipe_v_summary">Trascina in alto/basso per cambiare pagina.</string>
+    <string name="pref_nav_tap_h">Colpetto sui lati</string>
+    <string name="pref_nav_tap_h_summary">Toccare il lato sinistro/destro dello schermo per cambiare pagina.</string>
+    <string name="pref_nav_tap_v">Colpetto in alto/basso</string>
+    <string name="pref_nav_tap_v_summary">Toccare il bordo in alto/basso dello schermo per cambiare pagina.</string>
+    
+
+    <!-- Not yet translated -->
+    
+    <string name="pref_sync_settings">Sync settings</string>
+    <string name="pref_keep_screen_on">Keep screen on</string>
+    <string name="pref_keep_screen_on_summary">Prevents the screen from locking while reading</string>
+ 
+    <string name="pref_show_pagenum">Show page numbers</string>
+    <string name="pref_show_pagenum_summary">Shows page numbers while reading. It may take a few seconds for page numbers to be displayed the first time.</string>
+
+    <string name="pref_colour_settings">Colour settings</string>
+    <string name="pref_calibre_server">Calibre content server</string>
+    <string name="pref_calibre_server_summary">Connect to your own Calibre library</string>
+    <string name="pref_calibre_server_message">Calibre URL</string>
+    <string name="pref_calibre_server_hint">http://192.168.1.1:8080/opds</string>
+    <string name="pref_calibre_user">User name</string>
+    <string name="pref_calibre_user_summary">Your calibre user name</string>
+    <string name="pref_calibre_user_hint">calibre</string>
+    <string name="pref_calibre_password">Password</string>
+    <string name="pref_calibre_password_summary">Your calibre password</string>
+
+    <string name="pref_access_key">Access Key</string>
+    <string name="pref_access_key_summary">An access key is required to use the synchronization service. Visit the site to learn how to get a key.</string>
+    <string name="pref_access_key_message">Please enter your access key.</string>
+
+
+ 
 </resources>

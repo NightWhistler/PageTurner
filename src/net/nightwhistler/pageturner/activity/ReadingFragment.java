@@ -798,21 +798,26 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			break;
 		}
 
-		if (event.getAction() != KeyEvent.ACTION_DOWN)
-			return false;
-		else {
-			if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP)
-				if (invert)
-					pageDown(Orientation.HORIZONTAL);
-				else
-					pageUp(Orientation.HORIZONTAL);
-			if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN)
-				if (invert)
-					pageUp(Orientation.HORIZONTAL);
-				else
-					pageDown(Orientation.HORIZONTAL);
+		if (event.getAction() != KeyEvent.ACTION_DOWN) {
 			return true;
-		}
+        }
+
+        if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP) {
+			if (invert) {
+				pageDown(Orientation.HORIZONTAL);
+            }
+			else {
+				pageUp(Orientation.HORIZONTAL);
+            }
+		} else if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
+			if (invert) {
+				pageUp(Orientation.HORIZONTAL);
+            } else {
+				pageDown(Orientation.HORIZONTAL);
+            }
+        }
+	    
+        return true;
 	}
 
 	public boolean dispatchKeyEvent(KeyEvent event) {

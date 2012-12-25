@@ -48,6 +48,7 @@ public class ReadingActivity extends RoboSherlockFragmentActivity {
 		setTheme( theme );
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_reading);
+
 		readingFragment = (ReadingFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_reading);
 	}
 

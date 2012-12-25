@@ -20,7 +20,13 @@
             backward-compatibility can go here.
         -->
         <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:actionBarStyle">@style/Widget.MyTheme.ActionBar</item>
     </style>
+
+     <style name="Widget.MyTheme.ActionBar" parent="Widget.Sherlock.ActionBar">
+            <item name="android:background">#80000000</item>
+            <item name="background">#80000000</item>
+     </style>
    
      <style name="LightFullScreen" parent="Theme.Sherlock.Light.DarkActionBar">
         <!--

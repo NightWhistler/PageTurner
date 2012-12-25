@@ -12,6 +12,30 @@
             backward-compatibility can go here.
         -->
     </style>
+   
+     <style name="DarkFullScreen" parent="Theme.Sherlock">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:actionBarStyle">@style/Widget.MyTheme.ActionBar</item>
+    </style>
+
+     <style name="Widget.MyTheme.ActionBar" parent="Widget.Sherlock.ActionBar">
+            <item name="android:background">#80000000</item>
+            <item name="background">#80000000</item>
+     </style>
+   
+     <style name="LightFullScreen" parent="Theme.Sherlock.Light.DarkActionBar">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
     
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">

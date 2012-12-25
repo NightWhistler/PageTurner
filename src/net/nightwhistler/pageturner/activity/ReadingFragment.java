@@ -222,7 +222,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_reading, container, false);		
+        if ( config.isFullScreenEnabled() ) {
+            return inflater.inflate(R.layout.fragment_reading_fs, container, false);
+        } else {
+		    return inflater.inflate(R.layout.fragment_reading, container, false);
+        }
 	}
 	
 	@Override
@@ -798,21 +802,26 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			break;
 		}
 
-		if (event.getAction() != KeyEvent.ACTION_DOWN)
-			return false;
-		else {
-			if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP)
-				if (invert)
-					pageDown(Orientation.HORIZONTAL);
-				else
-					pageUp(Orientation.HORIZONTAL);
-			if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN)
-				if (invert)
-					pageUp(Orientation.HORIZONTAL);
-				else
-					pageDown(Orientation.HORIZONTAL);
+		if (event.getAction() != KeyEvent.ACTION_DOWN) {
 			return true;
-		}
+        }
+
+        if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP) {
+			if (invert) {
+				pageDown(Orientation.HORIZONTAL);
+            }
+			else {
+				pageUp(Orientation.HORIZONTAL);
+            }
+		} else if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
+			if (invert) {
+				pageUp(Orientation.HORIZONTAL);
+            } else {
+				pageDown(Orientation.HORIZONTAL);
+            }
+        }
+	    
+        return true;
 	}
 
 	public boolean dispatchKeyEvent(KeyEvent event) {

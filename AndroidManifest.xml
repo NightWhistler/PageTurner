@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.nightwhistler.pageturner"
-      android:versionCode="18"
+      android:versionCode="21"
       android:versionName="2.1-dev"
       android:installLocation="auto">
     

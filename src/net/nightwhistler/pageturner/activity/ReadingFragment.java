@@ -283,9 +283,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		DisplayMetrics metrics = new DisplayMetrics();
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-		if (config.isShowPageNumbers()) {
-			displayPageNumber(-1); // Initializes the pagenumber view properly
-		}
+		displayPageNumber(-1); // Initializes the pagenumber view properly
 
 		final GestureDetector gestureDetector = new GestureDetector(getActivity(),
 				new NavGestureDetector(bookView, this, metrics));

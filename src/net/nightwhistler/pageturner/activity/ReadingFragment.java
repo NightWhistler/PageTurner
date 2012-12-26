@@ -445,7 +445,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		pageNumberView.setTextColor(config.getTextColor());
 		pageNumberView.setTextSize(config.getTextSize());
-		pageNumberView.setBackgroundColor(config.getBackgroundColor());
 
 		pageNumberView.setTypeface(config.getFontFamily().getDefaultTypeface());
 
@@ -699,7 +698,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		this.bookView.setBackgroundColor(config.getBackgroundColor());
 		this.viewSwitcher.setBackgroundColor(config.getBackgroundColor());
-		this.pageNumberView.setBackgroundColor(config.getBackgroundColor());
 		
 		this.bookView.setTextColor(config.getTextColor());
 		this.bookView.setLinkColor(config.getLinkColor());

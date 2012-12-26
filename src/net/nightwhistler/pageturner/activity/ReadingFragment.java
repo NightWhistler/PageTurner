@@ -283,9 +283,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		DisplayMetrics metrics = new DisplayMetrics();
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-		if (config.isShowPageNumbers()) {
-			displayPageNumber(-1); // Initializes the pagenumber view properly
-		}
+		displayPageNumber(-1); // Initializes the pagenumber view properly
 
 		final GestureDetector gestureDetector = new GestureDetector(getActivity(),
 				new NavGestureDetector(bookView, this, metrics));
@@ -447,7 +445,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		pageNumberView.setTextColor(config.getTextColor());
 		pageNumberView.setTextSize(config.getTextSize());
-		pageNumberView.setBackgroundColor(config.getBackgroundColor());
 
 		pageNumberView.setTypeface(config.getFontFamily().getDefaultTypeface());
 
@@ -701,7 +698,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		this.bookView.setBackgroundColor(config.getBackgroundColor());
 		this.viewSwitcher.setBackgroundColor(config.getBackgroundColor());
-		this.pageNumberView.setBackgroundColor(config.getBackgroundColor());
 		
 		this.bookView.setTextColor(config.getTextColor());
 		this.bookView.setLinkColor(config.getLinkColor());

@@ -69,7 +69,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		if ( includePageNumbers ) {
 			bottomSpace = "\n0\n";
 		} else {
-			bottomSpace = "0";
+			bottomSpace = "\n";
 		}
 		
 		StaticLayout numLayout = new StaticLayout(bottomSpace, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);

@@ -117,24 +117,26 @@
 
 	<string name="buy_now">Comprar</string>
 
-    <string name="enter_email">Sincronización a la nube está actualmente desactivada. Para activarlo, por favor, escriba una dirección de correo electrónico en las preferencias.</string>
-    <string name="add_to_library">Añadir a la biblioteca</string>
+
+    <string name="enter_email">La sincronización en la nube está desactivada. Para activarla, por favor introduzca su e-mail en las preferencias.</string>
+
+    <string name="add_to_library">Añadir a la biblioteca.</string>
     
     <string name="search_wait">Buscando… por favor espere.</string>
-    <string name="search_text">Buscar texto</string>
-    <string name="search_hits">Buscando…\n%d resultados coinciden.</string>
-    <string name="search_cancelled">Búsqueda cancelado.</string>
-    <string name="search_no_matches">Búsqueda no coincidió con ningún resultado.</string>
-    <string name="search_results">Resultados de la búsqueda</string>
+    <string name="search_text">Busca de texto</string>
+    <string name="search_hits">Buscando…\nEncontradas %d coincidencias.</string>
+    <string name="search_cancelled">Busqueda cancelada.</string>
+    <string name="search_no_matches">No se han encontrado coincidencias.</string>
+    <string name="search_results">Resultado de la busqueda</string>
     
     <string name="opening_file">Abriendo archivo…</string>
-    <string name="loading_text">Cargando texto…</string>
+    <string name="loading_text">Cargando Texto…</string>
     
-    <string name="end_of_section">Fin del capítulo.\nOprima aquí para continuar.</string>
+    <string name="end_of_section">Final del capítulo.\nClick para continuar.</string>
     
-    <!-- Preferences -->
+    <!-- Preferences -->    
         
-    <string name="pref_sync_settings">Ajustes de sincronización</string>
+    <string name="pref_sync_settings">Preferencias de sincronización</string>
     <string name="pref_email">Correo electrónico</string>
     <string name="pref_email_summary">Se usa para sincronizar sus progresos de lectura entre dispositivos. Déjelo en blanco para desactivar la sincronización</string>
     <string name="pref_email_message">Por favor introduzca un correo electrónico válido.</string>
@@ -162,7 +164,7 @@
     <string name="pref_calibre_user_summary">Su nombre de usuario de Calibre.</string>
     <string name="pref_calibre_user_hint">calibre</string>
     <string name="pref_calibre_password">Contraseña</string>
-    <string name="pref_calibre_password_summary">Su contraseña de Calibre..</string>
+    <string name="pref_calibre_password_summary">Su contraseña de Calibre.</string>
 
     <string name="pref_visual_settings">Preferencias Visuales</string>
     <string name="pref_full_screen">Pantalla completa</string>
@@ -226,7 +228,7 @@
     <string name="pref_nav_tap_v">Activar pulsación superior/inferior</string>
     <string name="pref_nav_tap_v_summary">Toque los márgenes superior o inferior para pasar página.</string>
     
-    <string name="pref_show_pagenum">Mostrar números de página</string>
-    <string name="pref_show_pagenum_summary">Muestra los números de página mientras lee. Puede tomar unos segundos para que los números de página se muestre por primera vez.</string>      
+    <string name="pref_show_pagenum">Mostrar número de página</string>
+    <string name="pref_show_pagenum_summary">Mostrar número de página durante la lectura. La primera vez puede tardar algo en mostrar el número de página.</string>      
 </resources>
 

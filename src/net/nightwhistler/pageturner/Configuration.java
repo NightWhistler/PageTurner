@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -19,8 +19,11 @@
 
 package net.nightwhistler.pageturner;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
 
 import net.nightwhistler.htmlspanner.FontFamily;
 import roboguice.inject.ContextSingleton;
@@ -37,9 +40,9 @@ import com.google.inject.Inject;
 /**
  * Application configuration class which provides a friendly API to the various
  * settings available.
- * 
+ *
  * @author Alex Kuiper
- * 
+ *
  */
 @ContextSingleton
 public class Configuration {
@@ -132,8 +135,21 @@ public class Configuration {
 	public static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
 
 	public static final String KEY_OFFSETS = "offsets";
-	
+
 	private static final String KEY_SHOW_PAGENUM = "show_pagenum";
+
+	private static final Map<String, String> KNOWN_FONTS = getKnownFonts();
+
+	private static Map<String, String> getKnownFonts() {
+		Map<String, String> result = new HashMap<String, String>();
+		result.put("gen_bas", "GentiumBasic");
+		result.put("gen_book_bas", "GentiumBookBasic");
+		return Collections.unmodifiableMap(result);
+	}
+
+        // Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink based Android device
+        // NB: Believe product/model field is "NOOK" on a Nook Touch and 'NookColor' on a Nook Color
+        public static final Boolean IS_NOOK_TOUCH = "NOOK".equals(Build.PRODUCT);
 
 	@Inject
 	public Configuration(Context context) {
@@ -185,11 +201,11 @@ public class Configuration {
 		String data = settings.getString(KEY_OFFSETS + bookHash, "");
 
 		PageOffsets offsets = PageOffsets.fromJSON(data);
-		
+
 		if ( offsets == null || ! offsets.isValid(this) ) {
 			return null;
 		}
-		
+
 		return offsets.getOffsets();
 	}
 
@@ -227,7 +243,7 @@ public class Configuration {
 	public boolean isShowPageNumbers() {
 		return settings.getBoolean(KEY_SHOW_PAGENUM, true);
 	}
-	
+
 	public String getSynchronizationAccessKey() {
 		return settings.getString(ACCESS_KEY, "").trim();
 	}
@@ -371,13 +387,13 @@ public class Configuration {
 			return cachedFamily;
 		}
 
-		if ("gen_book_bas".equals(fontFace)) {
+		if(KNOWN_FONTS.containsKey(fontFace)) {
+			if (IS_NOOK_TOUCH) { // OpenType font support doesn't work on the Nook Touch, use less expressive TTF
+				Typeface face = Typeface.createFromAsset(context.getAssets(), fontFace + ".ttf");
+				return this.cachedFamily = new FontFamily(fontFace, face);
+			}
 			return this.cachedFamily = loadFamilyFromAssets(fontFace,
-					"GentiumBookBasic");
-		}
-		if ("gen_bas".equals(fontFace)) {
-			return this.cachedFamily = loadFamilyFromAssets(fontFace,
-					"GentiumBasic");
+									KNOWN_FONTS.get(fontFace));
 		}
 
 		Typeface face = Typeface.SANS_SERIF;

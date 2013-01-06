@@ -25,6 +25,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.nightwhistler.htmlspanner.FontFamily;
 import roboguice.inject.ContextSingleton;
 import android.content.Context;
@@ -137,6 +140,9 @@ public class Configuration {
 	public static final String KEY_OFFSETS = "offsets";
 
 	private static final String KEY_SHOW_PAGENUM = "show_pagenum";
+
+	private static final Logger LOG = LoggerFactory
+			.getLogger(Configuration.class);
 
 	private static final Map<String, String> KNOWN_FONTS = getKnownFonts();
 

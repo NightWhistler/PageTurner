@@ -161,6 +161,20 @@ public class Configuration {
 	public Configuration(Context context) {
 		this.settings = PreferenceManager.getDefaultSharedPreferences(context);
 		this.context = context;
+
+		// For Nook Touch, preset some different default values that work better w/ e-ink
+		if(IS_NOOK_TOUCH && this.settings.getString(KEY_DEVICE_NAME, null) == null) {
+			SharedPreferences.Editor editor = this.settings.edit();
+			editor.putInt(KEY_TEXT_SIZE, 32);
+			editor.putString(KEY_SCROLL_STYLE, "timer"); // enum is ScrollStyle.PAGE_TIMER
+			final String no_animation = AnimationStyle.NONE.name().toLowerCase(Locale.US);
+			editor.putString(KEY_H_ANIMATION, no_animation);
+			editor.putString(KEY_V_ANIMATION, no_animation);
+			editor.putInt(PREFIX_DAY + "_" + KEY_LINK, Color.rgb(0x40,0x40,0x40));
+			editor.putInt(PREFIX_NIGHT + "_" + KEY_TEXT, Color.WHITE);
+			editor.putInt(PREFIX_NIGHT + "_" + KEY_LINK, Color.rgb(0xb0,0xb0,0xb0));
+			editor.commit();
+		}
 	}
 
 	public boolean isVerticalTappingEnabled() {

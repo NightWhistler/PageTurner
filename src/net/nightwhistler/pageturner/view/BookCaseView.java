@@ -40,15 +40,16 @@ public class BookCaseView extends GridView {
 		
 		this.config = RoboGuice.getInjector(context).getInstance(Configuration.class);
 		
-		if (config.getColourProfile() == ColourProfile.DAY ) {
-			shelfBackground = BitmapFactory.decodeResource(context.getResources(),
-				R.drawable.shelf_single);
-		} else {
-			shelfBackground = BitmapFactory.decodeResource(context.getResources(),
-					R.drawable.shelf_single_dark);
+		if(!Configuration.IS_NOOK_TOUCH) {
+			if (config.getColourProfile() == ColourProfile.DAY ) {
+				shelfBackground = BitmapFactory.decodeResource(context.getResources(),
+									R.drawable.shelf_single);
+			} else {
+				shelfBackground = BitmapFactory.decodeResource(context.getResources(),
+									R.drawable.shelf_single_dark);
+			}
+			setBackground(shelfBackground);
 		}
-		
-		setBackground(shelfBackground);
 		this.setFocusable(true);
 	}
 	
@@ -86,19 +87,20 @@ public class BookCaseView extends GridView {
         final int height = getHeight();
         final Bitmap background = this.background;
 
-        for (int x = 0; x < width; x += shelfWidth) {
-            for (int y = top; y < height; y += shelfHeight) {
-                canvas.drawBitmap(background, x, y, null);
-            }
-            
-            //This draws the top pixels of the shelf above the current one
-            
-            Rect source = new Rect(0, mShelfHeight - top, mShelfWidth, mShelfHeight);
-            Rect dest = new Rect(x, 0, x + mShelfWidth, top );            	
-            	
-            canvas.drawBitmap(background, source, dest, null);            
-        }        
-        
+	if(background != null) {
+		for (int x = 0; x < width; x += shelfWidth) {
+			for (int y = top; y < height; y += shelfHeight) {
+				canvas.drawBitmap(background, x, y, null);
+			}
+			
+			//This draws the top pixels of the shelf above the current one
+			
+			Rect source = new Rect(0, mShelfHeight - top, mShelfWidth, mShelfHeight);
+			Rect dest = new Rect(x, 0, x + mShelfWidth, top );
+			
+			canvas.drawBitmap(background, source, dest, null);
+		}
+	}        
 
         super.dispatchDraw(canvas);
 	}

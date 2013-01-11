@@ -141,6 +141,8 @@ public class Configuration {
 
 	private static final String KEY_SHOW_PAGENUM = "show_pagenum";
 
+	private static final String KEY_NOOK_TOP_BUTTONS_DIRECTION = "nook_touch_top_buttons_direction";
+
 	private static final Logger LOG = LoggerFactory
 			.getLogger(Configuration.class);
 
@@ -254,6 +256,11 @@ public class Configuration {
 
 	public boolean isVolumeKeyNavEnabled() {
 		return !isScrollingEnabled() && settings.getBoolean(KEY_NAV_VOL, false);
+	}
+
+	public boolean isNookUpButtonForward() {
+		return !isScrollingEnabled()
+			&& "forward".equals(settings.getString(KEY_NOOK_TOP_BUTTONS_DIRECTION, "backward"));
 	}
 
 	public String getSynchronizationEmail() {

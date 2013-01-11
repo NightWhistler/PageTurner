@@ -828,6 +828,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		int action = event.getAction();
 		int keyCode = event.getKeyCode();
 
+		final int KEYCODE_NOOK_TOUCH_BUTTON_LEFT_TOP = 92;
+		final int KEYCODE_NOOK_TOUCH_BUTTON_LEFT_BOTTOM = 93;
+		final int KEYCODE_NOOK_TOUCH_BUTTON_RIGHT_TOP = 94;
+		final int KEYCODE_NOOK_TOUCH_BUTTON_RIGHT_BOTTOM = 95;
+                boolean nook_touch_up_press = false;
+
 		if (isAnimating() && action == KeyEvent.ACTION_DOWN) {
 			stopAnimating();
 			return true;
@@ -866,8 +872,19 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				}
 			}
 
+		case KEYCODE_NOOK_TOUCH_BUTTON_LEFT_TOP:
+		case KEYCODE_NOOK_TOUCH_BUTTON_RIGHT_TOP:
+                    nook_touch_up_press = true;
+		case KEYCODE_NOOK_TOUCH_BUTTON_LEFT_BOTTOM:
+		case KEYCODE_NOOK_TOUCH_BUTTON_RIGHT_BOTTOM:
+                    if(!Configuration.IS_NOOK_TOUCH || action == KeyEvent.ACTION_UP)
+                        return false;
+                    if(nook_touch_up_press == config.isNookUpButtonForward())
+                        pageDown(Orientation.HORIZONTAL);
+                    else
+                        pageUp(Orientation.HORIZONTAL);
+                    return true;
 		}
-
 		return false;
 	}
 

@@ -81,6 +81,11 @@
         <item>Rolling blind</item>
         <item>Page change timer</item>
     </string-array>    
+
+    <string-array name="nook_touch_direction_labels">
+        <item>Top buttons move forward</item>
+        <item>Bottom buttons move forward</item>
+    </string-array>
         
     <string-array name="libraryQueries">
         <item>Most recently read books</item>
@@ -225,6 +230,9 @@
     
     <string name="pref_show_pagenum">Show page numbers</string>
     <string name="pref_show_pagenum_summary">Shows page numbers while reading. It may take a few seconds for page numbers to be displayed the first time.</string>
+   <string name="pref_nook_touch">Nook Touch Preferences</string>
+   <string name="pref_nook_touch_button_nav">Button Navigation</string>
+   <string name="pref_nook_touch_button_nav_summary">How should the buttons on the side of the Nook turn the page?</string>
 
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>

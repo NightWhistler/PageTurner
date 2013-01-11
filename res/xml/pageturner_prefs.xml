@@ -35,6 +35,20 @@
 	</PreferenceCategory>
 
 	<PreferenceCategory
+            android:key="nook_prefs"
+            android:title="@string/pref_nook_touch">
+
+          <ListPreference
+              android:key="nook_touch_top_buttons_direction"
+              android:title="@string/pref_nook_touch_button_nav"
+              android:summary="@string/pref_nook_touch_button_nav_summary"
+              android:defaultValue="backward"
+              android:entries="@array/nook_touch_direction_labels"
+              android:entryValues="@array/nook_touch_directions" />
+
+        </PreferenceCategory>
+
+	<PreferenceCategory
                 android:title="@string/pref_autoscroll_settings">  		
 
  <ListPreference

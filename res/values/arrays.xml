@@ -26,6 +26,11 @@
         <item>rolling_blind</item>
         <item>timer</item>
     </string-array>
+
+   <string-array name="nook_touch_directions">
+        <item>forward</item>
+        <item>backward</item>
+    </string-array>
  
    <string-array name="fonts">
         <item>gen_book_bas</item>

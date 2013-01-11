@@ -25,7 +25,9 @@ import roboguice.RoboGuice;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockPreferenceActivity;
 
@@ -47,7 +49,11 @@ public class PageTurnerPrefsActivity extends RoboSherlockPreferenceActivity {
 		}
 		
 		addPreferencesFromResource(R.xml.pageturner_prefs);
-		
+
+                if(!Configuration.IS_NOOK_TOUCH) {
+                    final PreferenceScreen screen = getPreferenceScreen();
+                    screen.removePreference(screen.findPreference("nook_prefs"));
+                }
 	}
 	
 }

@@ -175,7 +175,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="pref_day_bright">Bildschirmhelligkeit</string>
     <string name="pref_day_bright_summary">Für den Tagmodus</string>
     <string name="pref_day_night">Bildschirmhelligkeit</string>
-    <string name="pref_day_night_summary">Fuer den Nachtmodus</string>
+    <string name="pref_day_night_summary">Für den Nachtmodus</string>
     <string name="pref_text_display_settings">Textdarstellung</string>
     <string name="pref_font_face">Schriftart</string>
     <string name="pref_font_face_summary">Hauptschriftart für die Textdarstellung</string>

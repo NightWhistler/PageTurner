@@ -59,8 +59,8 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="brightness">Helligkeit</string>
         
     <string-array name="v_animLabels">
-        <item>Slide</item>
-        <item>None</item>        
+        <item>Schieben</item>
+        <item>Keine</item>        
     </string-array>
     
     <string-array name="h_animLabels">

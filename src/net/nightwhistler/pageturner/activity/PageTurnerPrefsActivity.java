@@ -51,8 +51,8 @@ public class PageTurnerPrefsActivity extends RoboSherlockPreferenceActivity {
 		addPreferencesFromResource(R.xml.pageturner_prefs);
 
                 if(!Configuration.IS_NOOK_TOUCH) {
-                    final PreferenceScreen screen = getPreferenceScreen();
-                    screen.removePreference(screen.findPreference("nook_prefs"));
+			final PreferenceScreen screen = getPreferenceScreen();
+			screen.removePreference(screen.findPreference("nook_prefs"));
                 }
 	}
 	

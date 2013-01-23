@@ -159,6 +159,10 @@ public class Configuration {
         // NB: Believe product/model field is "NOOK" on a Nook Touch and 'NookColor' on a Nook Color
         public static final Boolean IS_NOOK_TOUCH = "NOOK".equals(Build.PRODUCT);
 
+	// Flag for any e-ink device. Currently only supports Nook Touch but could expand
+	// to other devices like the Sony PRS-T1
+	public static final Boolean IS_EINK_DEVICE = IS_NOOK_TOUCH;
+
 	@Inject
 	public Configuration(Context context) {
 		this.settings = PreferenceManager.getDefaultSharedPreferences(context);

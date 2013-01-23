@@ -40,7 +40,7 @@ public class BookCaseView extends GridView {
 		
 		this.config = RoboGuice.getInjector(context).getInstance(Configuration.class);
 		
-		if(!Configuration.IS_NOOK_TOUCH) {
+		if(!Configuration.IS_EINK_DEVICE) {
 			if (config.getColourProfile() == ColourProfile.DAY ) {
 				shelfBackground = BitmapFactory.decodeResource(context.getResources(),
 									R.drawable.shelf_single);

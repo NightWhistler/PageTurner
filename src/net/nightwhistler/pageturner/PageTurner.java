@@ -30,8 +30,8 @@ public class PageTurner extends Application {
 	@Override
 	public void onCreate() {
 		ACRA.init(this);
-		if(Configuration.IS_NOOK_TOUCH) { // Nook touch only supports dark-on-light dialogs so override the app theme on this device
-			setTheme(android.R.style.Theme_Light);
+		if(Configuration.IS_EINK_DEVICE) { // e-ink looks better with dark-on-light (esp. Nook Touch where theming breaks light-on-dark
+			setTheme(R.style.Theme_Sherlock_Light);
 		}
 		super.onCreate();
 	}

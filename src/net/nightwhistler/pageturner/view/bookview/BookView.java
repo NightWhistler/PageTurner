@@ -1343,6 +1343,7 @@ public class BookView extends ScrollView {
 				}
 
 				publishProgress(BookReadPhase.DONE);
+                strategy.loadText(result);
 
 				return result;
 			} catch (IOException io) {
@@ -1386,7 +1387,7 @@ public class BookView extends ScrollView {
 			}
 
 			restorePosition();
-			strategy.loadText(result);
+			strategy.updateGUI();
 			progressUpdate();
 
 			if (needToCalcPageNumbers) {

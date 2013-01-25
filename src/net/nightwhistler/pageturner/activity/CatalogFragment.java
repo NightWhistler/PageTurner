@@ -704,10 +704,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			if ( isLeafEntry(result) ) {
 				showItemPopup(result);
 			} else {
+				adapter.setFeed(result);
 
 				getSherlockActivity().supportInvalidateOptionsMenu();
 				getSherlockActivity().getSupportActionBar().setTitle(result.getTitle());
-				adapter.setFeed(result);
 			}
 			
 			waitDialog.hide();

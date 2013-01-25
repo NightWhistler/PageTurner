@@ -227,6 +227,11 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		this.text = text;
 		this.pageNum = 0;
 		this.pageOffsets = getPageOffsets(bookView, text, config.isShowPageNumbers() );
-		updatePosition();
 	}
+
+    @Override
+    public void updateGUI() {
+        updatePosition();   
+	}
+    
 }

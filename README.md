@@ -3,11 +3,26 @@ PageTurner, the synchronizing ebook reader for Android
 
 PageTurner is a free, open-source ebook reader that allows you to keep your reading progress synchronized across multiple devices. This means you can read a few pages on your phone, than grab your tablet continuing where you left off.
 
-[PageTurner Reader](https://play.google.com/store/apps/details?id=net.nightwhistler.pageturner.ads&feature=search_result#?t=W251bGwsMSwxLDEsIm5ldC5uaWdodHdoaXN0bGVyLnBhZ2V0dXJuZXIuYWRzIl0. "PageTurner available for free") is available for free from the Google Play Store. [PageTurner Pro](https://play.google.com/store/apps/details?id=net.nightwhistler.pageturner.pro&feature=more_from_developer#?t=W251bGwsMSwxLDEwMiwibmV0Lm5pZ2h0d2hpc3RsZXIucGFnZXR1cm5lci5wcm8iXQ. "PageTurner Pro paid removes ads"), a paid version, also available from the Google Play Store, removes ads.
-
-See http://www.pageturner-reader.org/ for more info and some screenshots.
+ee http://www.pageturner-reader.org/ for more info and some screenshots.
 
 PageTurner is licensed under the GPL-V3 license.
+
+
+Progress Synchronization
+------------------------
+
+One of the key features of PageTurner is that it automatically syncs your reading progress across all your devices. 
+
+This is achieved through a JSON-based back-end service, which stores progress points in a database.
+There is a ready-to-use synchronization service running at api.pageturner-reader.org, but it requires an access key to use.
+Access keys can be obtained by donating to the project, or by contributing code, translations, etc. If you wish to run your
+own synchronization service, the code is available in the PageTurnerWeb project on Github.
+
+There are also 2 versions of PageTurner available through the Google Play Market which have access keys built in:
+
+ * [PageTurner Reader](https://play.google.com/store/apps/details?id=net.nightwhistler.pageturner.ads "PageTurner available for free") is available for free from the Google Play Store. This version contains ads. 
+ * [PageTurner Pro](https://play.google.com/store/apps/details?id=net.nightwhistler.pageturner.pro "PageTurner Pro paid removes ads"), a paid version, also available from the Google Play Store, removes ads.
+
 
 Building PageTurner
 -------------------

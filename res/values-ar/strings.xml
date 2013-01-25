@@ -115,21 +115,21 @@
     
     
     <!-- Not yet translated -->
-    <string name="enter_email">Cloud sync is currently disabled. To enable it, please enter an e-mail address in the preferences.</string>
-    <string name="add_to_library">Add to library</string>
+    <string name="enter_email">خاصية Cloud sync حاليا معطلة.  	من أجل تفعيلها الرجاء أدخال الأيميل في خصائص البرنامج</string>
+    <string name="add_to_library">أضافه للمكتبة</string>
     
-    <string name="search_wait">Searching… please wait.</string>
-    <string name="search_text">Text search</string>
-    <string name="search_hits">Searching…\nFound %d matches.</string>
-    <string name="search_cancelled">Search cancelled.</string>
-    <string name="search_no_matches">Search did not find any matches.</string>
-    <string name="search_results">Search results</string>
+    <string name="search_wait">جاري البحث الرجاء الأنتظار</string>
+    <string name="search_text">نص البحث</string>
+    <string name="search_hits">البحث…\nنتائج وجد %d متشابهه.</string>
+    <string name="search_cancelled">ألغاء البحث</string>
+    <string name="search_no_matches">البحث لم يجد أى نتائج</string>
+    <string name="search_results">نتائج البحث</string>
     
-    <string name="opening_file">Opening file…</string>
-    <string name="loading_text">Loading text…</string>
+    <string name="opening_file">فتح الملف </string>
+    <string name="loading_text">تحميل النص </string>
     
-    <string name="end_of_section">End of chapter.\nClick here to continue.</string>
-    <string name="download_complete">Download complete.\nThe book has been added to your library</string>
+    <string name="end_of_section">نهاية الفصل\n أضغط هنا للاستمرار</string>
+    <string name="download_complete">أكتمل التحميل\n تم أضافة الكتاب للمكتبة</string>
     
 
     
@@ -217,19 +217,19 @@
     
    <!-- Not yet translated --> 
     
-    <string name="pref_calibre_server">Calibre content server</string>
-    <string name="pref_calibre_server_summary">Connect to your own Calibre library</string>
-    <string name="pref_calibre_server_message">Calibre URL</string>
+    <string name="pref_calibre_server">Calibre محتويات سيرفر</string>
+    <string name="pref_calibre_server_summary">Calibre الاتصال بمكتبتك الخاصه بسيرفر </string>
+    <string name="pref_calibre_server_message">Calibre رابط سيرفر</string>
     <string name="pref_calibre_server_hint">http://192.168.1.1:8080/opds</string>
 
-    <string name="pref_calibre_user">User name</string>
-    <string name="pref_calibre_user_summary">Your calibre user name</string>
+    <string name="pref_calibre_user">اسم المستخدم</string>
+    <string name="pref_calibre_user_summary">اسم المستخدم في Calibre</string>
     <string name="pref_calibre_user_hint">calibre</string>
-    <string name="pref_calibre_password">Password</string>
-    <string name="pref_calibre_password_summary">Your calibre password</string>
+    <string name="pref_calibre_password">كلمة المرور</string>
+    <string name="pref_calibre_password_summary">كلمة المرور في Calibre</string>
 
-    <string name="pref_show_pagenum">Show page numbers</string>
-    <string name="pref_show_pagenum_summary">Shows page numbers while reading. It may take a few seconds for page numbers to be displayed the first time.</string>
+    <string name="pref_show_pagenum">عرض رقم الصفحة</string>
+    <string name="pref_show_pagenum_summary">عرض رقم الصفحة عند القراءة. سيأخذ بضع ثواني لعرض رقم الصفحة لأول مرة.</string>
 
         
 </resources>

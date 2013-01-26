@@ -99,7 +99,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	private ProgressDialog downloadDialog;
 
 	private static final Logger LOG = LoggerFactory
-			.getLogger(CatalogActivity.class);
+			.getLogger("CatalogFragment");
 
 	private Stack<String> navStack = new Stack<String>();
 
@@ -129,6 +129,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			}
 		}
 		this.adapter = new DownloadingCatalogAdapter();
+		this.baseURL = config.getBaseOPDSFeed();
 	}
 
 	@Override
@@ -159,7 +160,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		super.onActivityCreated(savedInstanceState);
 
 		Intent intent = getActivity().getIntent();
-
+		
 		if (!navStack.empty()) {
 			new LoadOPDSTask().execute(navStack.peek());
 		} else {
@@ -169,7 +170,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				String downloadUrl = uri.toString().replace("epub://", "http://");
 				new DownloadFileTask(false).execute(downloadUrl);
 			} else {
-				new LoadOPDSTask().execute(config.getBaseOPDSFeed());
+				new LoadOPDSTask().execute(baseURL);
 			}
 		}
 	}
@@ -374,6 +375,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		
 		if (item.getItemId() == android.R.id.home ) {
 			navStack.clear();
+			this.baseURL = config.getBaseOPDSFeed();
 			new LoadOPDSTask().execute(baseURL);
 			return true;
 		} else if (item.getTitle().equals("Right")) {
@@ -405,10 +407,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		if (navStack.isEmpty()) {
 			getActivity().finish();
 			return;
-		} 
+		} 	
 		
 		navStack.pop();
+		
 		if (navStack.isEmpty()) {
+			this.baseURL = config.getBaseOPDSFeed();
 			new LoadOPDSTask().execute(baseURL);
 		} else if ( navStack.peek().equals(CUSTOM_SITES_ID) ) {
 			loadCustomSiteFeed();
@@ -969,7 +973,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 				return feed;
 			} catch (Exception e) {
-				LOG.error("Download failed.", e);
+				LOG.error("Download failed for url: " + baseUrl, e);
 				return null;
 			}
 

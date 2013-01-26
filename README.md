@@ -92,9 +92,13 @@ See http://maven.apache.org/guides/mini/guide-repository-ssl.html for more detai
 Eclipse
 -------
 
-You can either use the Maven Eclipse and Maven Eclipse Android plugin
+#The easy way
 
-OR
+The recommended way to build PageTurner in Eclipse is using the m2e-android plugin.
+
+There is a screencast here that shows how to set up your environment: http://www.youtube.com/watch?v=jhSvwpwPFoY
+
+#The hard way
 
 You can follow these steps to only use Maven for dependencies:
 

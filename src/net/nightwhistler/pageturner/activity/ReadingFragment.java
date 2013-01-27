@@ -1346,7 +1346,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return true;
 
 		case R.id.open_library:
-			launchLibrary();
+			launchActivity(LibraryActivity.class);
+			return true;
+			
+		case R.id.download:
+			launchActivity(CatalogActivity.class);
 			return true;
 
 		case R.id.rolling_blind:
@@ -1355,7 +1359,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		case R.id.about:
 			Dialogs.showAboutDialog(getActivity());
-			return true;
+			return true;			
 
 		default:
 			return super.onOptionsItemSelected(item);
@@ -1528,9 +1532,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					Toast.LENGTH_SHORT).show();
 		}
 	}
-
-	private void launchLibrary() {
-		Intent intent = new Intent(getActivity(), LibraryActivity.class);
+	
+	private void launchActivity(Class<?> activityClass) {
+		Intent intent = new Intent(getActivity(), activityClass);
 		startActivity(intent);
 		
 		saveReadingPosition();

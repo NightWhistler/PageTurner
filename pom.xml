@@ -14,8 +14,8 @@
 		to connect. -->
 	<repositories>
 		<repository>
-			<id>Ostara</id>
-			<url>https://ostara.nightwhistler.net/repository</url>
+			<id>PageTurner Repo</id>
+			<url>http://repo.pageturner-reader.org</url>
 		</repository>
 
 		<repository>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    
+    <item android:id="@+id/open_library"
+        android:icon="@drawable/book_star"
+        android:title="@string/open_library" />
+    
+    <item android:id="@+id/left"
+        android:icon="@drawable/arrow_left"
+        android:showAsAction="always"
+        android:visible="false"
+        android:enabled="false" />
+    
+     <item android:id="@+id/right"
+        android:icon="@drawable/arrow_right"
+        android:showAsAction="always"
+        android:visible="false"
+        android:enabled="false" />
+     
+      <item android:id="@+id/search"
+        android:icon="@drawable/zoom"
+        android:showAsAction="ifRoom"
+        android:visible="false"
+        android:enabled="false" 
+        android:title="@string/search_books"/>
+      
+       <item android:id="@+id/prefs"
+        android:icon="@drawable/cog"
+        android:showAsAction="ifRoom"
+		android:title="@string/prefs" />      
+    
+    
+</menu>

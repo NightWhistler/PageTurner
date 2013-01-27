@@ -25,6 +25,7 @@ import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.nucular.parser.Nucular;
 import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.Configuration.LibrarySelection;
@@ -53,6 +54,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -78,12 +80,17 @@ import com.google.inject.Inject;
 
 public class CatalogFragment extends RoboSherlockFragment implements
 		OnItemClickListener {
-
-	private static final String STATE_NAV_ARRAY_KEY = "nav_array";
-
-	private String baseURL;
-	private String user;
-	private String password;
+	
+    private static final String STATE_NAV_ARRAY_KEY = "nav_array";
+    
+    private static final int ABBREV_TEXT_LEN = 150;
+	private static final String CUSTOM_SITES_ID = "IdCustomSites";
+	
+	private static final int MAX_THUMBNAIL_WIDTH = 85;
+	
+    private String baseURL = "";
+	private String user = "";
+	private String password = "";
 
 	private CatalogListAdapter adapter;
 
@@ -91,7 +98,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	private ProgressDialog downloadDialog;
 
 	private static final Logger LOG = LoggerFactory
-			.getLogger(CatalogActivity.class);
+			.getLogger("CatalogFragment");
 
 	private Stack<String> navStack = new Stack<String>();
 
@@ -121,6 +128,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			}
 		}
 		this.adapter = new DownloadingCatalogAdapter();
+		this.baseURL = config.getBaseOPDSFeed();
 	}
 
 	@Override
@@ -151,11 +159,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		super.onActivityCreated(savedInstanceState);
 
 		Intent intent = getActivity().getIntent();
-
-		this.baseURL = intent.getStringExtra("url");
-		this.user = intent.getStringExtra("user");
-		this.password = intent.getStringExtra("password");
-
+		
 		if (!navStack.empty()) {
 			new LoadOPDSTask().execute(navStack.peek());
 		} else {
@@ -170,7 +174,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}
 	}
 
-	@Override
+    @Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (!navStack.empty()) {
@@ -223,8 +227,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			long arg3) {
 
 		Entry entry = adapter.getItem(position);
-
-		if (entry.getAtomLink() != null) {
+		
+		if ( entry.getId() != null && entry.getId().equals(CUSTOM_SITES_ID) ) {			
+			loadCustomSiteFeed();
+		} else if (entry.getAtomLink() != null) {
 			String href = entry.getAtomLink().getHref();
 			loadURL(entry, href);
 		} else {
@@ -233,7 +239,47 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 
 	private boolean isLeafEntry(Feed feed) {
-		return feed.getEntries().size() == 1;
+		
+		/**
+		 * A feed is a leaf if it isn't our custom
+		 * sites feed and only has 1 entry.
+		 */
+		
+		return feed.getEntries().size() == 1
+				&& ( feed.getId() == null
+				|| ! feed.getId().equals(CUSTOM_SITES_ID));
+	}
+	
+	private void loadCustomSiteFeed() {
+		
+		List<CustomOPDSSite> sites = config.getCustomOPDSSites();
+		
+		if ( sites.isEmpty() ) {
+			Toast.makeText(getActivity(), R.string.no_custom_sites, Toast.LENGTH_LONG).show();
+			return;
+		}
+		
+		navStack.add(CUSTOM_SITES_ID);
+		
+		Feed customSites = new Feed();
+		customSites.setTitle(getString(R.string.custom_site));
+
+		
+		for ( CustomOPDSSite site: sites ) {
+			Entry entry = new Entry();
+			entry.setTitle(site.getName());
+			entry.setSummary(site.getDescription());
+			
+			Link link = new Link(site.getUrl(), AtomConstants.TYPE_ATOM, AtomConstants.REL_BUY);
+			entry.addLink(link);
+			
+			customSites.addEntry(entry);
+		}
+		
+		customSites.setId(CUSTOM_SITES_ID);
+		
+		setNewFeed(customSites);
+		
 	}
 
 	private void loadFakeFeed(Entry entry) {
@@ -260,7 +306,13 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}
 
 		try {
-			String target = new URL(new URL(base), url).toString();
+			String target = url;
+			
+			if ( base != null && ! base.equals(CUSTOM_SITES_ID)) {
+				target = new URL(new URL(base), url).toString();
+			}
+			
+			this.baseURL = target;
 			LOG.info("Loading " + target);
 
 			navStack.push(target);
@@ -271,27 +323,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}	
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		getSherlockActivity().getSupportActionBar().setHomeButtonEnabled(true);
-		
-		MenuItem item = menu.add(getString(R.string.open_library));
-		item.setIcon(R.drawable.book_star);				
-
-		menu.add("Left").setIcon(R.drawable.arrow_left)
-				.setVisible(false)
-				.setEnabled(false)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-				
-		
-		menu.add("Right").setIcon(R.drawable.arrow_right)
-			.setVisible(false)
-			.setEnabled(false)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-		
-		menu.add("Search").setIcon(R.drawable.zoom)
-			.setVisible(false)
-			.setEnabled(false)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {		
+		getSherlockActivity().getSupportActionBar().setHomeButtonEnabled(true);		
+		inflater.inflate(R.menu.catalog_menu, menu);		
 	}
 	
 	@Override
@@ -311,13 +345,19 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			
 			boolean enabled = false;
 			
-			if ( item.getTitle().equals("Left") ) {
+			switch (item.getItemId()) {
+			case R.id.left:
 				enabled = prevEnabled;
-			} else if ( item.getTitle().equals("Right")) {
+				break;
+			case R.id.right:
 				enabled = nextEnabled;
-			} else if ( item.getTitle().equals("Search") ) {
+				break;
+			case R.id.search:
 				enabled = searchEnabled;
-			}
+				break;			
+			default:
+				enabled = true;
+			}			
 			
 			item.setEnabled(enabled);
 			item.setVisible(enabled);			
@@ -328,23 +368,37 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
-		if (item.getItemId() == android.R.id.home ) {
+		
+		switch (item.getItemId()) {
+		case android.R.id.home:
 			navStack.clear();
+			this.baseURL = config.getBaseOPDSFeed();
 			new LoadOPDSTask().execute(baseURL);
 			return true;
-		} else if (item.getTitle().equals("Right")) {
+		case R.id.right:
 			loadURL(adapter.getFeed().getNextLink().getHref());
-		} else if ( item.getTitle().equals("Left" ) ) {
+			break;
+		case R.id.left:
 			if (navStack.size() > 0) {
 				getActivity().onBackPressed();
 			} else if (adapter.getFeed().getPreviousLink() != null) {
 				loadURL(adapter.getFeed().getPreviousLink().getHref());
 			}
-		} else if ( item.getTitle().equals("Search")) {
+			break;
+		case R.id.search:
 			onSearchClick();
-		} else {		
+			break;
+		case R.id.prefs:
+			Intent prefsIntent = new Intent(getActivity(), PageTurnerPrefsActivity.class);
+			startActivity(prefsIntent);
+			break;
+		case R.id.open_library:
+			Intent libIntent = new Intent(getActivity(), LibraryActivity.class);
+			startActivity(libIntent);
 			getActivity().finish();
-		}
+			break;
+		}		
+		
 		return true;
 	}
 
@@ -361,12 +415,16 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		if (navStack.isEmpty()) {
 			getActivity().finish();
 			return;
-		} 
+		} 	
 		
 		navStack.pop();
+		
 		if (navStack.isEmpty()) {
+			this.baseURL = config.getBaseOPDSFeed();
 			new LoadOPDSTask().execute(baseURL);
-		} else {
+		} else if ( navStack.peek().equals(CUSTOM_SITES_ID) ) {
+			loadCustomSiteFeed();
+		}else {
 			new LoadOPDSTask().execute(navStack.peek());
 		}
 	}
@@ -379,11 +437,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			final Entry entry = getItem(position);
 
 			LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			Link imgLink = entry.getThumbnailLink();
+			final Link imgLink = getImageLink(getFeed(), entry);
 
 			rowView = inflater.inflate(R.layout.catalog_item, parent, false);			 			
 
-			loadBookDetails( rowView, entry, imgLink );
+			loadBookDetails( rowView, entry, imgLink, true );
 			return rowView;
 		}
 	}
@@ -534,7 +592,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}
 	}
 
-	private void loadBookDetails(View layout, Entry entry, Link imageLink ) {
+	private void loadBookDetails(View layout, Entry entry, Link imageLink, boolean abbreviateText ) {
 		
 		HtmlSpanner spanner = new HtmlSpanner();
 		
@@ -543,30 +601,61 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				.findViewById(R.id.itemDescription);
 
 		ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
-		loadImageLink(icon, imageLink);
+		loadImageLink(icon, imageLink, abbreviateText);
 
 		title.setText(entry.getTitle());
 
+		CharSequence text;
+		
 		if (entry.getContent() != null) {
-			desc.setText(spanner.fromHtml(entry.getContent().getText()));
+			text = spanner.fromHtml(entry.getContent().getText());
 		} else if (entry.getSummary() != null) {
-			desc.setText(spanner.fromHtml(entry.getSummary()));
+			text = spanner.fromHtml(entry.getSummary());
 		} else {
-			desc.setText("");
+			text = "";
 		}
-
+		
+		if (abbreviateText && text.length() > ABBREV_TEXT_LEN ) {
+			text = text.subSequence(0, ABBREV_TEXT_LEN) + "…";
+		}
+		
+		desc.setText(text);
 	}
 	
-	private void loadImageLink(ImageView icon, Link imageLink ) {
+	private void loadImageLink(ImageView icon, Link imageLink, boolean scaleToThumbnail ) {
 
-		if (imageLink != null && imageLink.getBinData() != null) {
-			byte[] data = imageLink.getBinData();
-			icon.setImageBitmap(BitmapFactory.decodeByteArray(data, 0,
-					data.length));
-		} else {
-			icon.setImageDrawable(getResources().getDrawable(
-					R.drawable.unknown_cover));
+		try {
+
+			if (imageLink != null && imageLink.getBinData() != null) {
+				byte[] data = imageLink.getBinData();
+
+				Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,
+						data.length);
+
+				if ( scaleToThumbnail && bitmap.getWidth() > MAX_THUMBNAIL_WIDTH ) {
+					int newHeight = getThumbnailWidth(bitmap.getHeight(), bitmap.getWidth() );
+					icon.setImageBitmap( Bitmap.createScaledBitmap(bitmap,
+							MAX_THUMBNAIL_WIDTH, newHeight, true));
+					bitmap.recycle();				
+				} else {
+					icon.setImageBitmap(bitmap);
+				}
+				
+				return;
+			} 
+		} catch (OutOfMemoryError mem ) {
+
 		}
+		
+		icon.setImageDrawable(getResources().getDrawable(
+					R.drawable.unknown_cover));
+		
+	}
+	
+	private int getThumbnailWidth( int originalHeight, int originalWidth ) {
+		float factor = (float) originalHeight / (float) originalWidth;
+		
+		return (int) (MAX_THUMBNAIL_WIDTH * factor);
 	}
 	
 	private void loadImageLink(Map<String, byte[]> cache, Link imageLink,
@@ -681,16 +770,16 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			authorTextView.setText("");
 		}
 		
-		final Link imgLink = entry.getImageLink();
+		final Link imgLink = getImageLink(feed, entry);
 		
-		loadBookDetails(layout, entry, imgLink);
+		loadBookDetails(layout, entry, imgLink, false);
 		final ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
 		
 		linkListener = new LinkListener() {
 			
 			@Override
 			public void linkUpdated() {
-				loadImageLink(icon, imgLink);				
+				loadImageLink(icon, imgLink, false);				
 			}
 		};
 		
@@ -753,11 +842,36 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			setNewFeed(result);
 		}
 	}
+	
+	/**
+	 * Selects the right image link for an entry, based on preference.
+	 * 
+	 * @param feed
+	 * @param entry
+	 * @return
+	 */
+	private Link getImageLink(Feed feed, Entry entry) {
+		Link[] linkOptions;
+
+		if (isLeafEntry(feed)) {
+			linkOptions = new Link[] { entry.getImageLink(), entry.getThumbnailLink() };
+		} else {
+			linkOptions = new Link[] { entry.getThumbnailLink(), entry.getImageLink() };						
+		}
+		
+		Link imageLink = null;					
+		for ( int i=0; imageLink == null && i < linkOptions.length; i++ ) {
+			imageLink = linkOptions[i];
+		}
+		
+		return imageLink;
+	}
 
 	private class LoadOPDSTask extends AsyncTask<String, Object, Feed>
 			implements OnCancelListener {
 
 		private Entry previousEntry;
+		private boolean isBaseFeed;
 
 		public LoadOPDSTask() {
 			// leave previousEntry null
@@ -783,13 +897,15 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		protected Feed doInBackground(String... params) {
 
 			String baseUrl = params[0];
+			
+			this.isBaseFeed = baseUrl.equals(config.getBaseOPDSFeed());
 
 			if (baseUrl == null || baseUrl.trim().length() == 0) {
 				return null;
 			}
 
 			baseUrl = baseUrl.trim();
-
+			
 			try {
 				HttpParams httpParams = new BasicHttpParams();
 				DefaultHttpClient client = new DefaultHttpClient(httpParams);
@@ -802,19 +918,13 @@ public class CatalogFragment extends RoboSherlockFragment implements
 						.getContent());
 				List<Link> remoteImages = new ArrayList<Link>();
 
-				for (Entry entry : feed.getEntries()) {
+				for (final Entry entry : feed.getEntries()) {
 
 					if (isCancelled()) {
 						return feed;
 					}
 
-					Link imageLink;
-
-					if (isLeafEntry(feed)) {
-						imageLink = entry.getImageLink();
-					} else {
-						imageLink = entry.getThumbnailLink();
-					}
+					Link imageLink = getImageLink(feed, entry);
 
 					if (imageLink != null) {
 						String href = imageLink.getHref();
@@ -871,7 +981,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 				return feed;
 			} catch (Exception e) {
-				LOG.error("Download failed.", e);
+				LOG.error("Download failed for url: " + baseUrl, e);
 				return null;
 			}
 
@@ -887,6 +997,16 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			if (result == null) {
 				setNewFeed(null);
 			}
+		}
+		
+		private void addCustomSitesEntry(Feed feed) {
+
+			Entry entry = new Entry();
+			entry.setTitle(getString(R.string.custom_site));
+			entry.setSummary(getString(R.string.custom_site_desc));
+			entry.setId(CUSTOM_SITES_ID);
+
+			feed.addEntry(entry);
 		}
 
 		@Override
@@ -919,6 +1039,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
 						loadFakeFeed(previousEntry);
 						return;
 					}
+				}
+				
+				if ( isBaseFeed ) {
+					addCustomSitesEntry(result);
 				}
 
 				setNewFeed(result);

@@ -19,8 +19,13 @@
 
 package net.nightwhistler.pageturner;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import net.nightwhistler.htmlspanner.FontFamily;
 import roboguice.inject.ContextSingleton;
@@ -76,6 +81,9 @@ public class Configuration {
 	public static enum LibrarySelection {
 		BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
 	}
+	
+	public static final String BASE_OPDS_FEED = "http://www.pageturner-reader.org/opds/feeds.xml";
+	public static final String BASE_SYNC_URL = "http://api.pageturner-reader.org/progress/";
 
 	public static final String KEY_POS = "offset:";
 	public static final String KEY_IDX = "index:";
@@ -131,14 +139,23 @@ public class Configuration {
 
 	public static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
 
-	public static final String KEY_OFFSETS = "offsets";
+	public static final String KEY_OFFSETS = "offsets";	
+	public static final String KEY_SHOW_PAGENUM = "show_pagenum";
 	
-	private static final String KEY_SHOW_PAGENUM = "show_pagenum";
+	public static final String KEY_OPDS_SITES = "opds_sites";
 
 	@Inject
 	public Configuration(Context context) {
 		this.settings = PreferenceManager.getDefaultSharedPreferences(context);
 		this.context = context;
+	}
+	
+	public String getBaseOPDSFeed() {
+		return BASE_OPDS_FEED;
+	}
+	
+	public String getSyncServerURL() {
+		return BASE_SYNC_URL;
 	}
 
 	public boolean isVerticalTappingEnabled() {
@@ -209,6 +226,55 @@ public class Configuration {
 
 		// Fall-back for older settings.
 		return settings.getInt(KEY_IDX + fileName, -1);
+	}
+	
+	public List<CustomOPDSSite> getCustomOPDSSites() {
+		
+		String sites = settings.getString(KEY_OPDS_SITES, "");
+		
+		List<CustomOPDSSite> result = new ArrayList<CustomOPDSSite>();
+		try {
+			JSONArray array = new JSONArray(sites);
+			for ( int i=0; i < array.length(); i++ ) {
+				JSONObject obj = array.getJSONObject(i);
+				CustomOPDSSite site = CustomOPDSSite.fromJSON(obj);
+				
+				if ( site != null ) {
+					result.add(site);
+				}
+			}
+		}catch (JSONException js) {}
+		
+		importOldCalibreSite(result);
+		return result;
+	}
+	
+	private void importOldCalibreSite(List<CustomOPDSSite> sites) {
+
+		if ( this.getCalibreServer() != null && this.getCalibreServer().length() > 0 ) {
+			CustomOPDSSite calibre = new CustomOPDSSite();
+			calibre.setName(context.getString(R.string.pref_calibre_server));
+			calibre.setUrl( getCalibreServer() );
+			calibre.setUserName( getCalibreUser() );
+			calibre.setPassword(getCalibrePassword());
+			
+			sites.add(calibre);
+			
+			updateValue(CALIBRE_SERVER, null);
+			
+			storeCustomOPDSSites(sites);
+		}
+
+	}
+	
+	public void storeCustomOPDSSites(List<CustomOPDSSite> sites ) {
+		
+		JSONArray array = new JSONArray();
+		for ( CustomOPDSSite site: sites ) {
+			array.put( site.toJSON() );
+		}
+		
+		updateValue(KEY_OPDS_SITES, array.toString() );
 	}
 
 	public void setLastIndex(String fileName, int index) {
@@ -330,8 +396,10 @@ public class Configuration {
 	private void updateValue(String key, Object value) {
 
 		SharedPreferences.Editor editor = settings.edit();
-
-		if (value instanceof String) {
+		
+		if ( value == null ) {
+			editor.remove(key);
+		} else if (value instanceof String) {
 			editor.putString(key, (String) value);
 		} else if (value instanceof Integer) {
 			editor.putInt(key, (Integer) value);

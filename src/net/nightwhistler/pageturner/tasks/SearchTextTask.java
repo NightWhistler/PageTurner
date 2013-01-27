@@ -42,7 +42,7 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 	protected List<SearchTextTask.SearchResult> doInBackground(String... params) {
 		
 		String searchTerm = params[0];
-		Pattern pattern = Pattern.compile(Pattern.quote((searchTerm)));
+		Pattern pattern = Pattern.compile(Pattern.quote((searchTerm)),Pattern.CASE_INSENSITIVE);
 		
 		List<SearchTextTask.SearchResult> result = new ArrayList<SearchTextTask.SearchResult>();
 		

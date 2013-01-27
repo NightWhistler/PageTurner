@@ -228,8 +228,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		Entry entry = adapter.getItem(position);
 		
-		if ( entry.getId() != null && entry.getId().equals(CUSTOM_SITES_ID) ) {
-			navStack.add(CUSTOM_SITES_ID);
+		if ( entry.getId() != null && entry.getId().equals(CUSTOM_SITES_ID) ) {			
 			loadCustomSiteFeed();
 		} else if (entry.getAtomLink() != null) {
 			String href = entry.getAtomLink().getHref();
@@ -259,6 +258,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			Toast.makeText(getActivity(), R.string.no_custom_sites, Toast.LENGTH_LONG).show();
 			return;
 		}
+		
+		navStack.add(CUSTOM_SITES_ID);
 		
 		Feed customSites = new Feed();
 		customSites.setTitle(getString(R.string.custom_site));

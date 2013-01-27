@@ -3,12 +3,11 @@ package net.nightwhistler.pageturner.activity;
 import java.util.ArrayList;
 import java.util.List;
 
-import roboguice.RoboGuice;
-
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
+import roboguice.RoboGuice;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,7 +26,6 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockPreferenceActivity;
 import com.google.inject.Inject;
 
 public class ManageSitesActivity extends RoboSherlockListActivity {
@@ -36,6 +34,8 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	Configuration config;
 	
 	private CustomOPDSSiteAdapter adapter;
+	
+	private static enum ContextAction { EDIT, DELETE };
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,14 +67,29 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
-		menu.add("Delete");
+		
+		menu.add(Menu.NONE, ContextAction.EDIT.ordinal(), Menu.NONE, R.string.edit );
+		menu.add(Menu.NONE, ContextAction.DELETE.ordinal(), Menu.NONE, R.string.delete ); 
+		
 	}
 	
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
+		
+		ContextAction action = ContextAction.values()[item.getItemId()];
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-	    adapter.remove(adapter.getItem(info.position));
-	    storeSites();
+		CustomOPDSSite site = adapter.getItem(info.position);
+		
+		switch (action) {
+		
+		case EDIT:
+			showEditDialog(site);
+			break;
+		case DELETE:
+			 adapter.remove(adapter.getItem(info.position));
+			 storeSites();	
+		}		
+	   
 	    return true;
 	}
 	
@@ -87,6 +102,54 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 		config.storeCustomOPDSSites(sites);
 	}
 	
+	private void showEditDialog(final CustomOPDSSite site) {
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		
+		builder.setTitle(R.string.edit_site);
+		LayoutInflater inflater = PlatformUtil.getLayoutInflater(this);
+		
+		View layout = inflater.inflate(R.layout.edit_site, null);
+		builder.setView(layout);
+		
+		final TextView siteName = (TextView) layout.findViewById(R.id.siteName);
+		final TextView siteURL = (TextView) layout.findViewById(R.id.siteUrl);
+		final TextView siteDesc = (TextView) layout.findViewById(R.id.siteDescription);
+		
+		siteName.setText(site.getName());
+		siteURL.setText(site.getUrl());
+		siteDesc.setText(site.getDescription());		
+				
+		builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+				if ( siteName.getText().toString().trim().length() == 0 ) {
+					Toast.makeText(ManageSitesActivity.this, R.string.msg_name_blank, Toast.LENGTH_SHORT).show();
+					return;
+				}
+				
+				if ( siteURL.getText().toString().trim().length() == 0 ) {
+					Toast.makeText(ManageSitesActivity.this, R.string.msg_url_blank, Toast.LENGTH_SHORT).show();
+					return;
+				}				
+				
+				site.setName(siteName.getText().toString());
+				site.setDescription(siteDesc.getText().toString());
+				site.setUrl(siteURL.getText().toString());
+				
+				adapter.add(site);
+				storeSites();
+				dialog.dismiss();
+			}
+		});
+		
+		builder.setNegativeButton(android.R.string.cancel, null );
+		
+	
+		builder.show();
+	}
 	
 	private void showAddSiteDialog() {
 		
@@ -102,18 +165,18 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 		final TextView siteURL = (TextView) layout.findViewById(R.id.siteUrl);
 		final TextView siteDesc = (TextView) layout.findViewById(R.id.siteDescription);
 				
-		builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+		builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				
 				if ( siteName.getText().toString().trim().length() == 0 ) {
-					Toast.makeText(ManageSitesActivity.this, "Please fill in a name.", Toast.LENGTH_SHORT).show();
+					Toast.makeText(ManageSitesActivity.this, R.string.msg_name_blank, Toast.LENGTH_SHORT).show();
 					return;
 				}
 				
 				if ( siteURL.getText().toString().trim().length() == 0 ) {
-					Toast.makeText(ManageSitesActivity.this, "Please fill in a URL.", Toast.LENGTH_SHORT).show();
+					Toast.makeText(ManageSitesActivity.this, R.string.msg_url_blank, Toast.LENGTH_SHORT).show();
 					return;
 				}
 				

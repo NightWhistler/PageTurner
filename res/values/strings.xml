@@ -112,6 +112,9 @@
     
     <string name="custom_site">My custom OPDS sites</string>
     <string name="add_site">Add custom site</string>
+    <string name="edit_site">Edit custom site</string>
+    <string name="save">Save changes</string>
+    
     <string name="custom_site_desc">Your own OPDS / Calibre sites. You can add sites from the Preferences screen.</string>
     <string name="site_name">Site name</string>
     <string name="site_url">Site URL</string>
@@ -119,6 +122,12 @@
     <string name="site_username">Username</string>
     <string name="site_password">Password</string>
     
+    <string name="msg_name_blank">Please fill in a name.</string>
+    <string name="msg_url_blank">Please fill in a URL.</string>
+    
+    <string name="edit">Edit</string>
+    
+    <string name="no_custom_sites">You don\'t have any custom sites defined. Please add some in the preferences.</string>    
 
     <!-- Preferences -->
 

@@ -82,13 +82,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		OnItemClickListener {
 	
     private static final String STATE_NAV_ARRAY_KEY = "nav_array";
-    private static final String WAIT_DIALOG_KEY = "fragment_dialog_wait";
-	
+    
     private static final int ABBREV_TEXT_LEN = 150;
 	private static final String CUSTOM_SITES_ID = "IdCustomSites";
 	
 	private static final int MAX_THUMBNAIL_WIDTH = 85;
-    
+	
     private String baseURL = "";
 	private String user = "";
 	private String password = "";
@@ -253,10 +252,17 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 	
 	private void loadCustomSiteFeed() {
-		Feed customSites = new Feed();
-		customSites.setTitle(getString(R.string.custom_site));
 		
 		List<CustomOPDSSite> sites = config.getCustomOPDSSites();
+		
+		if ( sites.isEmpty() ) {
+			Toast.makeText(getActivity(), R.string.no_custom_sites, Toast.LENGTH_LONG).show();
+			return;
+		}
+		
+		Feed customSites = new Feed();
+		customSites.setTitle(getString(R.string.custom_site));
+
 		
 		for ( CustomOPDSSite site: sites ) {
 			Entry entry = new Entry();
@@ -316,27 +322,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}	
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		getSherlockActivity().getSupportActionBar().setHomeButtonEnabled(true);
-		
-		MenuItem item = menu.add(getString(R.string.open_library));
-		item.setIcon(R.drawable.book_star);				
-
-		menu.add("Left").setIcon(R.drawable.arrow_left)
-				.setVisible(false)
-				.setEnabled(false)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-				
-		
-		menu.add("Right").setIcon(R.drawable.arrow_right)
-			.setVisible(false)
-			.setEnabled(false)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-		
-		menu.add("Search").setIcon(R.drawable.zoom)
-			.setVisible(false)
-			.setEnabled(false)
-			.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {		
+		getSherlockActivity().getSupportActionBar().setHomeButtonEnabled(true);		
+		inflater.inflate(R.menu.catalog_menu, menu);		
 	}
 	
 	@Override
@@ -356,13 +344,19 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			
 			boolean enabled = false;
 			
-			if ( item.getTitle().equals("Left") ) {
+			switch (item.getItemId()) {
+			case R.id.left:
 				enabled = prevEnabled;
-			} else if ( item.getTitle().equals("Right")) {
+				break;
+			case R.id.right:
 				enabled = nextEnabled;
-			} else if ( item.getTitle().equals("Search") ) {
+				break;
+			case R.id.search:
 				enabled = searchEnabled;
-			}
+				break;			
+			default:
+				enabled = true;
+			}			
 			
 			item.setEnabled(enabled);
 			item.setVisible(enabled);			
@@ -373,24 +367,37 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
-		if (item.getItemId() == android.R.id.home ) {
+		
+		switch (item.getItemId()) {
+		case android.R.id.home:
 			navStack.clear();
 			this.baseURL = config.getBaseOPDSFeed();
 			new LoadOPDSTask().execute(baseURL);
 			return true;
-		} else if (item.getTitle().equals("Right")) {
+		case R.id.right:
 			loadURL(adapter.getFeed().getNextLink().getHref());
-		} else if ( item.getTitle().equals("Left" ) ) {
+			break;
+		case R.id.left:
 			if (navStack.size() > 0) {
 				getActivity().onBackPressed();
 			} else if (adapter.getFeed().getPreviousLink() != null) {
 				loadURL(adapter.getFeed().getPreviousLink().getHref());
 			}
-		} else if ( item.getTitle().equals("Search")) {
+			break;
+		case R.id.search:
 			onSearchClick();
-		} else {		
+			break;
+		case R.id.prefs:
+			Intent prefsIntent = new Intent(getActivity(), PageTurnerPrefsActivity.class);
+			startActivity(prefsIntent);
+			break;
+		case R.id.open_library:
+			Intent libIntent = new Intent(getActivity(), LibraryActivity.class);
+			startActivity(libIntent);
 			getActivity().finish();
-		}
+			break;
+		}		
+		
 		return true;
 	}
 

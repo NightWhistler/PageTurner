@@ -80,6 +80,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
@@ -98,6 +99,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -1636,15 +1638,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		searchProgress.setMax(100);
 		searchProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 
-		AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+		final AlertDialog.Builder searchInputDialogBuilder = new AlertDialog.Builder(getActivity());
 
-		alert.setTitle(R.string.search_text);
-		alert.setMessage(R.string.enter_query);
-
-		// Set an EditText view to get user input
-		final EditText input = new EditText(getActivity());
-		alert.setView(input);
-
+		searchInputDialogBuilder.setTitle(R.string.search_text);
+		searchInputDialogBuilder.setMessage(R.string.enter_query);
+	
 		final SearchTextTask task = new SearchTextTask(bookView.getBook()) {
 
 			int i = 0;
@@ -1652,8 +1650,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			@Override
 			protected void onPreExecute() {
 				super.onPreExecute();
+				
+				searchProgress.setTitle(R.string.search_wait);
+				searchProgress.show();
+				
 				// Hide on-screen keyboard if it is showing
-
 				InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
 				imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 
@@ -1699,7 +1700,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				}
 			};
 		};
-
+		
+		// Set an EditText view to get user input
+		final EditText input = new EditText(getActivity());
+		input.setInputType(InputType.TYPE_CLASS_TEXT);
+		searchInputDialogBuilder.setView(input);		
+		
 		searchProgress
 				.setOnCancelListener(new DialogInterface.OnCancelListener() {
 
@@ -1709,26 +1715,48 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					}
 				});
 
-		alert.setPositiveButton(android.R.string.search_go,
+		searchInputDialogBuilder.setPositiveButton(android.R.string.search_go,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						CharSequence value = input.getText();
-
-						searchProgress.setTitle(R.string.search_wait);
-						searchProgress.show();
-						task.execute(value.toString());
+						task.execute(input.getText().toString());
 					}
 				});
 
-		alert.setNegativeButton(android.R.string.cancel,
+		searchInputDialogBuilder.setNegativeButton(android.R.string.cancel,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// Canceled.
 					}
 				});
 
-		alert.show();
+		final AlertDialog searchInputDialog = searchInputDialogBuilder.show();
+		
+		input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+			@Override
+			public boolean onEditorAction(TextView v, int actionId,
+					KeyEvent event) {
+				if (event == null) {
+					if (actionId == EditorInfo.IME_ACTION_DONE) {						 				
+						task.execute(input.getText().toString());
+						searchInputDialog.dismiss();
+						return true;
+					} 
+				} else if (actionId == EditorInfo.IME_NULL) {
+					if (event.getAction() == KeyEvent.ACTION_DOWN) {
+						task.execute(input.getText().toString());	
+						searchInputDialog.dismiss();
+					} 
+					
+					return true;
+				} 
+				
+				return false;
+			}
+		});
+
 	}
+	
 
 	private void showSearchResultDialog(
 			final List<SearchTextTask.SearchResult> results) {

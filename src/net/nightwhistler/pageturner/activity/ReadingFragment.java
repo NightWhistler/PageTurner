@@ -721,7 +721,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void errorOnBookOpening(String errorMessage) {
 		this.waitDialog.hide();
-        launchLibrary();
+		launchActivity(LibraryActivity.class);
 	}
 
 	@Override

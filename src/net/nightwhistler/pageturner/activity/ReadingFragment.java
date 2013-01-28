@@ -19,6 +19,7 @@
 
 package net.nightwhistler.pageturner.activity;
 
+import java.io.File;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -314,8 +315,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		updateFromPrefs();
 		updateFileName(savedInstanceState, file);
-
-		if ("".equals(fileName)) {
+		
+		if ("".equals(fileName) || ! new File(fileName).exists() ) {
 
 			Intent intent = new Intent(getActivity(), LibraryActivity.class);
 			startActivity(intent);
@@ -720,9 +721,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void errorOnBookOpening(String errorMessage) {
 		this.waitDialog.hide();
-		String message = String.format(getString(R.string.error_open_bk),
-				errorMessage);
-		bookView.setText(new SpannedString(message));
+        launchLibrary();
 	}
 
 	@Override

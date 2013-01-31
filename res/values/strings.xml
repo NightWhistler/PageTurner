@@ -128,6 +128,9 @@
     <string name="edit">Edit</string>
     
     <string name="no_custom_sites">You don\'t have any custom sites defined. Please add some in the preferences.</string>    
+    
+    <string name="select_text">Select text</string>
+    <string name="select_text_msg">Long-press a word to start text selection</string>
 
     <!-- Preferences -->
 

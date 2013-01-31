@@ -36,6 +36,12 @@
         android:title="@string/download"
         android:showAsAction="ifRoom"
         />
+     
+     <item
+         android:id="@+id/enable_text_selection"
+         android:icon="@drawable/selection_rectangular"
+         android:title="@string/select_text"
+         />
     
      <item android:id="@+id/search_text"          
           android:title="@string/search_text"

@@ -120,14 +120,15 @@ public class BookView extends ScrollView {
 	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
 
 	private Map<String, FastBitmapDrawable> imageCache = new HashMap<String, FastBitmapDrawable>();
+	
+	private OnTouchListener onTouchListener;
 
 	public BookView(Context context, AttributeSet attributes) {
 		super(context, attributes);
 		
 		this.scrollHandler = new Handler();
 	}
-
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	
 	public void init() {
 		this.listeners = new HashSet<BookViewListener>();
 
@@ -139,12 +140,6 @@ public class BookView extends ScrollView {
 		this.setVerticalFadingEdgeEnabled(false);
 		childView.setFocusable(true);
 		childView.setLinksClickable(true);
-/*
-		FIXME: disabled text selection for now.
-		if (Build.VERSION.SDK_INT >= 11) {
-			childView.setTextIsSelectable(true);
-		}
-*/
 		
 		this.setSmoothScrollingEnabled(false);
 
@@ -158,7 +153,24 @@ public class BookView extends ScrollView {
 		int tableWidth = (int) (this.getWidth() * 0.9);
 		tableHandler.setTableWidth(tableWidth);
 	}
-
+	
+	/**
+	 * Enables or disables text selection.
+	 * 
+	 * Text selection is automatically disabled when
+	 * a page is turned.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public void setTextSelectionEnabled(boolean value) {
+		if (Build.VERSION.SDK_INT >= 11) {
+			childView.setTextIsSelectable(value);
+			
+			if ( ! value ) {
+				childView.setOnTouchListener(onTouchListener);
+			}
+		}
+	}
+	
 	public void setSpanner(HtmlSpanner spanner) {
 		this.spanner = spanner;
 
@@ -234,6 +246,7 @@ public class BookView extends ScrollView {
 
 	@Override
 	public void setOnTouchListener(OnTouchListener l) {
+		this.onTouchListener = l;
 		super.setOnTouchListener(l);
 		this.childView.setOnTouchListener(l);
 	}
@@ -283,7 +296,7 @@ public class BookView extends ScrollView {
 		}
 	}
 
-	/*
+	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setTextSelectionCallback(TextSelectionCallback callback) {
 		if (Build.VERSION.SDK_INT >= 11) {
@@ -291,8 +304,7 @@ public class BookView extends ScrollView {
 					.setCustomSelectionActionModeCallback(new TextSelectionActions(
 							callback, this));
 		}
-	}
-	*/
+	}	
 
 	public int getLineSpacing() {
 		return lineSpacing;
@@ -425,11 +437,13 @@ public class BookView extends ScrollView {
 	}
 
 	public void pageDown() {
+		setTextSelectionEnabled(false);
 		strategy.pageDown();
 		progressUpdate();
 	}
 
 	public void pageUp() {
+		setTextSelectionEnabled(false);
 		strategy.pageUp();
 		progressUpdate();
 	}
@@ -634,6 +648,8 @@ public class BookView extends ScrollView {
 
 	private void doNavigation(int index) {
 
+		setTextSelectionEnabled(false);
+		
 		// Check if we're already in the right part of the book
 		if (index == this.getIndex()) {
 			restorePosition();

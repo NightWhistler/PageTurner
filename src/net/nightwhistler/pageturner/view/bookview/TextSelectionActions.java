@@ -2,11 +2,14 @@ package net.nightwhistler.pageturner.view.bookview;
 
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.view.bookview.BookView;
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class TextSelectionActions implements ActionMode.Callback {
 
 	private TextSelectionCallback callBack;
@@ -64,8 +67,7 @@ public class TextSelectionActions implements ActionMode.Callback {
 
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {
-		// TODO Auto-generated method stub
-
+		//bookView.setTextSelectionEnabled(false);
 	}
 
 	@Override

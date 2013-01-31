@@ -277,6 +277,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.bookView.addListener(this);
 		this.bookView.setSpanner(RoboGuice.getInjector(getActivity()).getInstance(
 				HtmlSpanner.class));
+		
+		this.bookView.setTextSelectionCallback(this);
 	}
 
 	@Override
@@ -1203,6 +1205,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		MenuItem dayMode = menu.findItem(R.id.profile_day);
 
 		MenuItem showToc = menu.findItem(R.id.show_toc);
+		
+		MenuItem textSelect = menu.findItem(R.id.enable_text_selection);
+		
+		//Only enable text-selection on newer systems
+		textSelect.setVisible( Build.VERSION.SDK_INT >= 11);
 
 		showToc.setEnabled(this.tocDialog != null);
 
@@ -1358,7 +1365,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		case R.id.about:
 			Dialogs.showAboutDialog(getActivity());
-			return true;			
+			return true;	
+			
+		case R.id.enable_text_selection:
+			this.bookView.setTextSelectionEnabled(true);
+			Toast.makeText(getActivity(), R.string.select_text_msg, Toast.LENGTH_SHORT).show();
+			return true;
 
 		default:
 			return super.onOptionsItemSelected(item);

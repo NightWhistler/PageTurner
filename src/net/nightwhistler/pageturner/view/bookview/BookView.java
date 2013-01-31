@@ -575,35 +575,43 @@ public class BookView extends ScrollView {
 		if (spine == null) {
 			return;
 		}
-
-		double targetPoint = (double) percentage / 100d;
-		List<Double> percentages = this.spine.getRelativeSizes();
-
-		if (percentages == null || percentages.isEmpty()) {
-			return;
-		}
-
+		
 		int index = 0;
-		double total = 0;
+		
+		if ( percentage > 0 ) {
 
-		for (; total < targetPoint && index < percentages.size(); index++) {
-			total = total + percentages.get(index);
+			double targetPoint = (double) percentage / 100d;
+			List<Double> percentages = this.spine.getRelativeSizes();
+
+			if (percentages == null || percentages.isEmpty()) {
+				return;
+			}
+			
+			double total = 0;
+
+			for (; total < targetPoint && index < percentages.size(); index++) {
+				total = total + percentages.get(index);
+			}
+
+			index--;
+
+			// Work-around for when we get multiple events.
+			if (index < 0 || index >= percentages.size()) {
+				return;
+			}
+
+			double partBefore = total - percentages.get(index);
+			double progressInPart = (targetPoint - partBefore)
+					/ percentages.get(index);
+			
+			this.strategy.setRelativePosition(progressInPart);
+		} else {
+			
+			//Simply jump to titlepage			
+			this.strategy.setPosition(0);
 		}
-
-		index--;
-
-		// Work-around for when we get multiple events.
-		if (index < 0 || index >= percentages.size()) {
-			return;
-		}
-
-		double partBefore = total - percentages.get(index);
-		double progressInPart = (targetPoint - partBefore)
-				/ percentages.get(index);
 
 		this.prevPos = this.getPosition();
-		this.strategy.setRelativePosition(progressInPart);
-
 		doNavigation(index);
 	}
 
@@ -629,6 +637,7 @@ public class BookView extends ScrollView {
 		// Check if we're already in the right part of the book
 		if (index == this.getIndex()) {
 			restorePosition();
+			progressUpdate();
 			return;
 		}
 

@@ -637,6 +637,7 @@ public class BookView extends ScrollView {
 		// Check if we're already in the right part of the book
 		if (index == this.getIndex()) {
 			restorePosition();
+			progressUpdate();
 			return;
 		}
 

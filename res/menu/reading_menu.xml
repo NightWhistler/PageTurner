@@ -56,6 +56,11 @@
           android:title="@string/rolling_blind"
           android:icon="@drawable/play" />
           
+	<item android:id="@+id/text_to_speech"          
+          android:title="@string/text_to_speech"
+          android:icon="@drawable/speech_balloon" 
+          android:enabled="false"/>
+	
           
     <item android:id="@+id/about"          
           android:title="@string/about"

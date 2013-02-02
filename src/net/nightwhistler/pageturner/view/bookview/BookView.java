@@ -1038,23 +1038,17 @@ public class BookView extends ScrollView {
 			return title;
 		}
 	}
-
-	/**
-	 * Sets the given text to be displayed, overriding the book.
-	 * 
-	 * @param text
-	 */
-	public void setText(Spanned text) {
-		this.strategy.loadText(text);
-		this.strategy.updatePosition();
-	}
-
+	
 	public Book getBook() {
 		return book;
 	}
 
 	public float getTextSize() {
 		return childView.getTextSize();
+	}
+	
+	public CharSequence getDisplayedText() {
+		return this.childView.getText();
 	}
 
 	public void setTextSize(float textSize) {
@@ -1350,8 +1344,7 @@ public class BookView extends ScrollView {
 								Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					}
 				}
-
-				publishProgress(BookReadPhase.DONE);
+				
                 strategy.loadText(result);
 
 				return result;
@@ -1398,6 +1391,8 @@ public class BookView extends ScrollView {
 			restorePosition();
 			strategy.updateGUI();
 			progressUpdate();
+			
+			onProgressUpdate(BookReadPhase.DONE);
 
 			if (needToCalcPageNumbers) {
 				executeTask( new CalculatePageNumbersTask() );

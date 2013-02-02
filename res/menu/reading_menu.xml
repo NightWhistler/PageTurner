@@ -31,6 +31,11 @@
           android:actionViewClass="com.actionbarsherlock.widget.SearchView"
           android:showAsAction="always|collapseActionView" />
 
+    <item android:id="@+id/add_bookmark"
+          android:title="@string/add_bookmark"
+          android:icon="@drawable/bookmark_add"
+          android:showAsAction="ifRoom" />
+
 	<item android:id="@+id/text_to_speech"          
           android:title="@string/text_to_speech"
           android:icon="@drawable/speech_balloon" 

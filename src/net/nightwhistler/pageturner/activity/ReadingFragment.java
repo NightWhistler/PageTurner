@@ -23,6 +23,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.*;
 import android.content.DialogInterface.OnClickListener;
@@ -2361,6 +2363,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		case R.id.about:
 			dialogFactory.buildAboutDialog().show();
+			return true;
+
+		case R.id.add_bookmark:
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			ft.addToBackStack(null);
+			DialogFragment fragment = new AddBookmarkFragment();
+			fragment.show(ft, "dialog");
 			return true;
 
 		default:

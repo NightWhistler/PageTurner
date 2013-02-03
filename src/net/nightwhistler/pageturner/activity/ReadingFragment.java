@@ -2368,7 +2368,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
 			ft.addToBackStack(null);
 			AddBookmarkFragment fragment = new AddBookmarkFragment();
-			fragment.setPageNumber(currentPageNumber);
+			fragment.setBookIndex(this.bookView.getIndex());
+			fragment.setBookPosition(this.bookView.getPosition());
 			fragment.show(ft, "dialog");
 			return true;
 

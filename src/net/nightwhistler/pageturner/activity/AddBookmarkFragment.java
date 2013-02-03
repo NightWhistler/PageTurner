@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 public class AddBookmarkFragment extends RoboSherlockDialogFragment
 {
+    private int pageNumber;
     private static final Logger LOG = LoggerFactory
 		    .getLogger(AddBookmarkFragment.class);
     @Override
@@ -51,7 +52,8 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment
 	    {
 		if(actionId == EditorInfo.IME_ACTION_DONE) {
 		    dialog.dismiss();
-		    LOG.info("Creating bookmark: " + v.getText());
+		    LOG.info("    >>> Creating bookmark: " + v.getText());
+		    LOG.info("    >>> at page number: " + pageNumber);
 		    return true;
 		}
 		return false;
@@ -59,5 +61,10 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment
 	});
 
 	return v;
+    }
+
+    public void setPageNumber(int pageNumber)
+    {
+	this.pageNumber = pageNumber;
     }
 }

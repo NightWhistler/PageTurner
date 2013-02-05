@@ -21,6 +21,8 @@ package net.nightwhistler.pageturner.view.bookview;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -906,10 +908,28 @@ public class BookView extends ScrollView {
 		
 
 		private Bitmap getBitmap(InputStream input) {
+			if(Configuration.IS_NOOK_TOUCH) {
+				// Workaround for skia failing to load larger (>8k?) JPEGs on Nook Touch and maybe other older Eclair devices (unknown!)
+				// seems the underlying problem is the ZipInputStream returning data in chunks,
+				// may be as per http://code.google.com/p/android/issues/detail?id=6066
+				// workaround is to stream the whole image out of the Zip to a ByteArray, then pass that on to the bitmap decoder
+				try {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					while(true) {
+						byte[] buffer  = new byte[4096];
+						int read = input.read(buffer);
+						if(read <= 0)
+							break;
+						baos.write(buffer, 0, read);
+					}
+					input = new ByteArrayInputStream(baos.toByteArray());
+				} catch(IOException ex) {
+					LOG.error("Failed to extract full image from epub stream: " + ex.toString());
+				}
+			}
 
-			// BitmapDrawable draw = new BitmapDrawable(getResources(), input);
 			Bitmap originalBitmap = BitmapFactory.decodeStream(input);
-		
+
 			if (originalBitmap != null) {
 				int originalWidth = originalBitmap.getWidth();
 				int originalHeight = originalBitmap.getHeight();

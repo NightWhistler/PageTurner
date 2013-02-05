@@ -177,9 +177,11 @@ public class Configuration {
 		this.settings = PreferenceManager.getDefaultSharedPreferences(context);
 		this.context = context;
 
-		// For Nook Touch, preset some different default values that work better w/ e-ink
+		// On Nook Touch, preset some different defaults on first load
+                // (these values work better w/ e-ink)
 		if(IS_NOOK_TOUCH && this.settings.getString(KEY_DEVICE_NAME, null) == null) {
 			SharedPreferences.Editor editor = this.settings.edit();
+			editor.putString(KEY_FONT_FACE, "sans");
 			editor.putInt(KEY_TEXT_SIZE, 32);
 			editor.putString(KEY_SCROLL_STYLE, "timer"); // enum is ScrollStyle.PAGE_TIMER
 			final String no_animation = AnimationStyle.NONE.name().toLowerCase(Locale.US);

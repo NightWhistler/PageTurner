@@ -19,8 +19,11 @@
 
 package net.nightwhistler.pageturner.activity;
 
+import java.io.File;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
@@ -80,6 +83,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
+import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
@@ -98,6 +104,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -113,7 +120,7 @@ import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragmen
 import com.google.inject.Inject;
 
 public class ReadingFragment extends RoboSherlockFragment implements
-		BookViewListener, TextSelectionCallback {
+		BookViewListener, TextSelectionCallback, OnUtteranceCompletedListener {
 
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
@@ -173,6 +180,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
+	private TextToSpeech textToSpeech;
+	private boolean ttsAvailable = false;
+	private boolean ttsInterrupted = true;
 
 	private String bookTitle;
 	private String titleBase;
@@ -269,6 +279,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			}
 		});
 
+		this.textToSpeech = new TextToSpeech(getActivity(), new TextToSpeech.OnInitListener() {			
+			@Override
+			public void onInit(int status) {
+				onTextToSpeechInit(status);				
+			}
+		});		
+		
 		this.bookView.setConfiguration(config);
 
 		this.bookView.addListener(this);
@@ -283,9 +300,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		DisplayMetrics metrics = new DisplayMetrics();
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-		if (config.isShowPageNumbers()) {
-			displayPageNumber(-1); // Initializes the pagenumber view properly
-		}
+		displayPageNumber(-1); // Initializes the pagenumber view properly
 
 		final GestureDetector gestureDetector = new GestureDetector(getActivity(),
 				new NavGestureDetector(bookView, this, metrics));
@@ -314,8 +329,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		updateFromPrefs();
 		updateFileName(savedInstanceState, file);
-
-		if ("".equals(fileName)) {
+		
+		if ("".equals(fileName) || ! new File(fileName).exists() ) {
 
 			Intent intent = new Intent(getActivity(), LibraryActivity.class);
 			startActivity(intent);
@@ -368,6 +383,55 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		getActivity().unregisterReceiver(mReceiver);
 		super.onPause();
 	}
+	
+	private void speakCurrentPage() {
+		
+		if (! ttsAvailable ) {
+			return;
+		}
+		
+		this.ttsInterrupted = false;
+		HashMap<String, String> params = new HashMap<String, String>();
+
+		params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"stringId");
+		
+		String textToSpeak = bookView.getDisplayedText().toString();
+		
+		if ( textToSpeak.trim().length() > 0 ) {		
+			textToSpeech.speak(textToSpeak, TextToSpeech.QUEUE_FLUSH, params );
+		}
+	}
+	
+	@Override
+	public void onUtteranceCompleted(String utteranceId) {
+				
+		if ( ttsInterrupted || bookView.isAtEnd() ) {
+			return;
+		}
+		
+		this.uiHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				//Toast.makeText(getActivity(), "Speech complete", Toast.LENGTH_SHORT ).show();
+				pageDown(Orientation.VERTICAL);								
+			}
+		});
+		
+		this.uiHandler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				speakCurrentPage();				
+			}
+		});
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void onTextToSpeechInit(int status) {					
+		this.textToSpeech.setOnUtteranceCompletedListener(this);	
+		this.ttsAvailable = (status == TextToSpeech.SUCCESS);
+	}
+	
 
 	@Override
 	public void onResume() {
@@ -447,7 +511,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		pageNumberView.setTextColor(config.getTextColor());
 		pageNumberView.setTextSize(config.getTextSize());
-		pageNumberView.setBackgroundColor(config.getBackgroundColor());
 
 		pageNumberView.setTypeface(config.getFontFamily().getDefaultTypeface());
 
@@ -701,7 +764,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		this.bookView.setBackgroundColor(config.getBackgroundColor());
 		this.viewSwitcher.setBackgroundColor(config.getBackgroundColor());
-		this.pageNumberView.setBackgroundColor(config.getBackgroundColor());
 		
 		this.bookView.setTextColor(config.getTextColor());
 		this.bookView.setLinkColor(config.getLinkColor());
@@ -722,9 +784,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void errorOnBookOpening(String errorMessage) {
 		this.waitDialog.hide();
-		String message = String.format(getString(R.string.error_open_bk),
-				errorMessage);
-		bookView.setText(new SpannedString(message));
+		launchActivity(LibraryActivity.class);
 	}
 
 	@Override
@@ -742,7 +802,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		getActivity().setTitle(this.titleBase);		
 
-		this.waitDialog.hide();		
+		this.waitDialog.hide();	
+		
+		if ( ! ttsInterrupted ) {
+			speakCurrentPage();
+		}
 	}
 
 	@Override
@@ -968,6 +1032,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		animator.SetCurlSpeed(bookView.getWidth() / 8);
 
 		animator.setBackgroundColor(config.getBackgroundColor());
+		animator.setEdgeColor(config.getTextColor());
 		
 		if (flipRight) {
 			bookView.pageDown();
@@ -1223,8 +1288,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		MenuItem dayMode = menu.findItem(R.id.profile_day);
 
 		MenuItem showToc = menu.findItem(R.id.show_toc);
+		MenuItem tts = menu.findItem( R.id.text_to_speech );
 
 		showToc.setEnabled(this.tocDialog != null);
+		tts.setEnabled(ttsAvailable);
 
 		getSherlockActivity().getSupportActionBar().show();
 
@@ -1311,7 +1378,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.reading_menu, menu);
+		inflater.inflate(R.menu.reading_menu, menu);		
 	}
 
 	@Override
@@ -1365,16 +1432,24 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return true;
 
 		case R.id.open_library:
-			launchLibrary();
+			launchActivity(LibraryActivity.class);
+			return true;
+			
+		case R.id.download:
+			launchActivity(CatalogActivity.class);
 			return true;
 
 		case R.id.rolling_blind:
 			startAutoScroll();
 			return true;
+			
+		case R.id.text_to_speech:
+			speakCurrentPage();
+			return true;
 
 		case R.id.about:
 			Dialogs.showAboutDialog(getActivity());
-			return true;
+			return true;			
 
 		default:
 			return super.onOptionsItemSelected(item);
@@ -1407,6 +1482,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public void onScreenTap() {
 
 		stopAnimating();
+		stopTTS();		
 
 		if (this.titleBarLayout.getVisibility() == View.VISIBLE) {
 			titleBarLayout.setVisibility(View.GONE);
@@ -1422,6 +1498,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 	}
 
+	private void stopTTS() {
+		this.textToSpeech.stop();
+		this.ttsInterrupted = true;
+	}
+	
 	@Override
 	public boolean onSwipeLeft() {
 
@@ -1547,9 +1628,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					Toast.LENGTH_SHORT).show();
 		}
 	}
-
-	private void launchLibrary() {
-		Intent intent = new Intent(getActivity(), LibraryActivity.class);
+	
+	private void launchActivity(Class<?> activityClass) {
+		Intent intent = new Intent(getActivity(), activityClass);
 		startActivity(intent);
 		
 		saveReadingPosition();
@@ -1650,22 +1731,18 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
 	private void onSearchClick() {
-
+		
 		final ProgressDialog searchProgress = new ProgressDialog(getActivity());
 		searchProgress.setOwnerActivity(getActivity());
 		searchProgress.setCancelable(true);
 		searchProgress.setMax(100);
 		searchProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 
-		AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+		final AlertDialog.Builder searchInputDialogBuilder = new AlertDialog.Builder(getActivity());
 
-		alert.setTitle(R.string.search_text);
-		alert.setMessage(R.string.enter_query);
-
-		// Set an EditText view to get user input
-		final EditText input = new EditText(getActivity());
-		alert.setView(input);
-
+		searchInputDialogBuilder.setTitle(R.string.search_text);
+		searchInputDialogBuilder.setMessage(R.string.enter_query);
+	
 		final SearchTextTask task = new SearchTextTask(bookView.getBook()) {
 
 			int i = 0;
@@ -1673,8 +1750,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			@Override
 			protected void onPreExecute() {
 				super.onPreExecute();
+				
+				searchProgress.setTitle(R.string.search_wait);
+				searchProgress.show();
+				
 				// Hide on-screen keyboard if it is showing
-
 				InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
 				imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 
@@ -1720,7 +1800,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				}
 			};
 		};
-
+		
+		// Set an EditText view to get user input
+		final EditText input = new EditText(getActivity());
+		input.setInputType(InputType.TYPE_CLASS_TEXT);
+		searchInputDialogBuilder.setView(input);		
+		
 		searchProgress
 				.setOnCancelListener(new DialogInterface.OnCancelListener() {
 
@@ -1730,26 +1815,48 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					}
 				});
 
-		alert.setPositiveButton(android.R.string.search_go,
+		searchInputDialogBuilder.setPositiveButton(android.R.string.search_go,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						CharSequence value = input.getText();
-
-						searchProgress.setTitle(R.string.search_wait);
-						searchProgress.show();
-						task.execute(value.toString());
+						task.execute(input.getText().toString());
 					}
 				});
 
-		alert.setNegativeButton(android.R.string.cancel,
+		searchInputDialogBuilder.setNegativeButton(android.R.string.cancel,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// Canceled.
 					}
 				});
 
-		alert.show();
+		final AlertDialog searchInputDialog = searchInputDialogBuilder.show();
+		
+		input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+			@Override
+			public boolean onEditorAction(TextView v, int actionId,
+					KeyEvent event) {
+				if (event == null) {
+					if (actionId == EditorInfo.IME_ACTION_DONE) {						 				
+						task.execute(input.getText().toString());
+						searchInputDialog.dismiss();
+						return true;
+					} 
+				} else if (actionId == EditorInfo.IME_NULL) {
+					if (event.getAction() == KeyEvent.ACTION_DOWN) {
+						task.execute(input.getText().toString());	
+						searchInputDialog.dismiss();
+					} 
+					
+					return true;
+				} 
+				
+				return false;
+			}
+		});
+
 	}
+	
 
 	private void showSearchResultDialog(
 			final List<SearchTextTask.SearchResult> results) {
@@ -1864,6 +1971,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			bookView.restore();
 		}
 	}
+	
+	
 }
 
 class ScreenReceiver extends BroadcastReceiver {

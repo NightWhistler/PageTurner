@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
- 
-	<item android:id="@+id/open_file"          
-          android:title="@string/open_file"
-          android:icon="@drawable/file" />
-          
-    <item android:id="@+id/open_library"          
-          android:title="@string/open_library"
-          android:icon="@drawable/book_star" />
-   
-    
+     
      <item android:id="@+id/manual_sync"          
           android:title="@string/manual_sync"
           android:icon="@drawable/cloud_refresh"
@@ -27,7 +18,25 @@
           android:icon="@drawable/moon"
           android:showAsAction="ifRoom"
           />                 
-     
+    
+    <item android:id="@+id/open_file"          
+          android:title="@string/open_file"
+          android:icon="@drawable/file"
+          android:showAsAction="ifRoom" />
+          
+    <item android:id="@+id/open_library"          
+          android:title="@string/open_library"
+          android:icon="@drawable/book_star" 
+          android:showAsAction="ifRoom"/>
+   
+    
+     <item
+        android:id="@+id/download"
+        android:icon="@drawable/download"
+        android:title="@string/download"
+        android:showAsAction="ifRoom"
+        />
+    
      <item android:id="@+id/search_text"          
           android:title="@string/search_text"
           android:icon="@drawable/zoom"
@@ -47,6 +56,11 @@
           android:title="@string/rolling_blind"
           android:icon="@drawable/play" />
           
+	<item android:id="@+id/text_to_speech"          
+          android:title="@string/text_to_speech"
+          android:icon="@drawable/speech_balloon" 
+          android:enabled="false"/>
+	
           
     <item android:id="@+id/about"          
           android:title="@string/about"

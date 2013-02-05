@@ -81,8 +81,16 @@
 				android:summary="@string/pref_copy_to_library_summary"
 				android:defaultValue="true"
 				/> 			
-              	
 				
+               <PreferenceScreen        			
+        			android:title="@string/pref_manage_sites"
+        			android:summary="@string/pref_manage_sites_summary">
+        			
+        			<intent android:action="net.nightwhistler.pageturner.activitiy.ManageSitesActivity"/>
+        			         
+    			</PreferenceScreen>
+              	
+				<!-- 
       			<EditTextPreference
 	            android:key="calibre_server"
 	            android:title="@string/pref_calibre_server"
@@ -108,6 +116,7 @@
       			    android:summary="@string/pref_calibre_password_summary"
       			    android:inputType="textPassword"
       			    />
+      			     -->
                 
     </PreferenceCategory>
 

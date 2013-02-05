@@ -59,8 +59,8 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="brightness">Helligkeit</string>
         
     <string-array name="v_animLabels">
-        <item>Slide</item>
-        <item>None</item>        
+        <item>Schieben</item>
+        <item>Keine</item>        
     </string-array>
     
     <string-array name="h_animLabels">
@@ -175,7 +175,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="pref_day_bright">Bildschirmhelligkeit</string>
     <string name="pref_day_bright_summary">Für den Tagmodus</string>
     <string name="pref_day_night">Bildschirmhelligkeit</string>
-    <string name="pref_day_night_summary">Fuer den Nachtmodus</string>
+    <string name="pref_day_night_summary">Für den Nachtmodus</string>
     <string name="pref_text_display_settings">Textdarstellung</string>
     <string name="pref_font_face">Schriftart</string>
     <string name="pref_font_face_summary">Hauptschriftart für die Textdarstellung</string>
@@ -235,22 +235,5 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
 
     <string name="pref_show_pagenum">Zeige Seitenzahlen</string>
     <string name="pref_show_pagenum_summary">Zeige Seitenzahlen während des Lesens. Es kann ein paar Sekunden dauern bis sie zum ersten mal dargestellt werden.</string>
- 
- 
-
-    <!-- Translation is not needed for the strings below -->
-    <string name="no_author_byline" translatable="false">by John Doe</string>
-    <string name="zero_percent" translatable="false">0%  </string>
-    <string name="default_timestamp" translatable="false">01-01-2012 13:44</string>
-    <string name="default_device_name_and_progress" translatable="false">Phone - 15%</string>
-    <string name="ebook_path" translatable="false">/sdcard/eBooks</string>
-    <string name="folder_name" translatable="false">Folder Name</string>
-    <string name="small_text" translatable="false">Small Text</string>
-    <string name="large_text" translatable="false">Large Text</string>
-    <string name="default_added_to_library" translatable="false">Added to library: never</string>
-    <string name="default_last_read" translatable="false">Last read: never</string>
-    <string name="default_filename" translatable="false">book.epub</string>
-    <string name="default_book_title" translatable="false">Title of the book</string>
-    
         
 </resources>

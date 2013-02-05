@@ -84,10 +84,14 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	@Override
 	public void loadText(Spanned text) {	
 		
-		childView.setText(addEndTag(text));
-		this.text = text;
-		updatePosition();
+		this.text = addEndTag(text);
 	}
+
+    @Override
+    public void updateGUI() {
+		childView.setText(this.text);
+		updatePosition();
+    }
 	
 	private Spanned addEndTag(Spanned text) {
 		

@@ -75,36 +75,23 @@ Once everything is in place you can build PageTurner and install it on your devi
     mvn clean install
     mvn android:deploy
 
-# Maven HTTPS SSL
-
-This section is not necessary for building PageTurner. PageTurner uses a repository which is accessed through HTTPS using a self-signed certificate. 
-A trust-store is included in trust.jks, password 'pageturner'
-
-To use it set the MAVEN_OPTS environment option or change your .mavenrc file to:
-
-    MAVEN_OPTS="-Djavax.net.ssl.trustStore=trust.jks -Djavax.net.ssl.trustStorePassword=pageturner"
-    export MAVEN_OPTS
-
-See http://maven.apache.org/guides/mini/guide-repository-ssl.html for more details.
-
-
-
 Eclipse
 -------
 
-You can either use the Maven Eclipse and Maven Eclipse Android plugin
+#The easy way
 
-OR
+The recommended way to build PageTurner in Eclipse is using the m2e-android plugin.
+
+There is a screencast here that shows how to set up your environment: http://www.youtube.com/watch?v=jhSvwpwPFoY
+
+#The hard way
 
 You can follow these steps to only use Maven for dependencies:
 
 1.   Download and unpack the sources        
 2.   Run    
 
-        mvn -Djavax.net.ssl.trustStore=trust.jks \
-            -Djavax.net.ssl.trustStorePassword=pageturner \
-            -DexcludeTransitive=true \
-            dependency:copy-dependencies
+        mvn -DexcludeTransitive=true dependency:copy-dependencies
         
      inside the source folder
 3.   Create a libs folder

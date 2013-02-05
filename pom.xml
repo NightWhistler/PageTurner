@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.nightwhistler.pageturner</groupId>
 	<artifactId>PageTurner</artifactId>
-	<version>2.0.2</version>
+	<version>2.1-SNAPSHOT</version>
 	<packaging>apk</packaging>
 	<name>PageTurner</name>
 
@@ -14,8 +14,8 @@
 		to connect. -->
 	<repositories>
 		<repository>
-			<id>Ostara</id>
-			<url>https://ostara.nightwhistler.net/repository</url>
+			<id>PageTurner Repo</id>
+			<url>http://repo.pageturner-reader.org</url>
 		</repository>
 
 		<repository>

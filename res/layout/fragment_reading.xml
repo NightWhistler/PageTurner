@@ -89,6 +89,9 @@
         	android:layout_width="fill_parent"        	
         	android:layout_height="wrap_content"        
         	android:layout_below="@id/percentageField"        	        	
-			android:background="@color/translucent_black" />   
+                android:background="@color/translucent_black"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                />
   </RelativeLayout>
 </RelativeLayout>

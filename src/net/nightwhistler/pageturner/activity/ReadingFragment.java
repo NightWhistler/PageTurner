@@ -429,7 +429,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@SuppressWarnings("deprecation")
 	public void onTextToSpeechInit(int status) {					
 		this.textToSpeech.setOnUtteranceCompletedListener(this);	
-		this.ttsAvailable = (status == TextToSpeech.SUCCESS);
+		this.ttsAvailable = (status == TextToSpeech.SUCCESS) && !Configuration.IS_NOOK_TOUCH;
 	}
 	
 

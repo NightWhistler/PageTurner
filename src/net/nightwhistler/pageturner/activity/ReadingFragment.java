@@ -360,7 +360,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if (ScreenReceiver.wasScreenOn) {
 			// this is the case when onPause() is called by the system due to a
 			// screen state change
-			sendProgressUpdateToServer();
+			saveReadingPosition();
 		} else {
 			// this is when onPause() is called when the screen state has not
 			// changed
@@ -1590,7 +1590,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			outState.putInt(POS_KEY, this.bookView.getPosition());
 			outState.putInt(IDX_KEY, this.bookView.getIndex());
 
-			sendProgressUpdateToServer();
+			saveReadingPosition();
 
 			libraryService.close();
 		}

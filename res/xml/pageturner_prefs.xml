@@ -282,7 +282,15 @@
                 
 	<PreferenceCategory
                 android:title="@string/pref_navigation_settings">
-                
+         
+	  <ListPreference
+	      android:key="reading_direction"
+	      android:title="@string/pref_reading_direction"
+	      android:summary="@string/pref_reading_direction_summary"
+	      android:defaultValue="left_to_right"
+	      android:entries="@array/reading_directionsLabels"
+	      android:entryValues="@array/reading_directions" />
+	            
      <CheckBoxPreference			
             android:key="scrolling"
             android:title="@string/pref_scrolling"

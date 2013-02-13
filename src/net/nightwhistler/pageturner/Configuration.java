@@ -76,6 +76,10 @@ public class Configuration {
 	public static enum LibrarySelection {
 		BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
 	}
+	
+	public static enum ReadingDirection {
+		LEFT_TO_RIGHT, RIGHT_TO_LEFT;
+	}
 
 	public static final String KEY_POS = "offset:";
 	public static final String KEY_IDX = "index:";
@@ -134,6 +138,8 @@ public class Configuration {
 	public static final String KEY_OFFSETS = "offsets";
 	
 	private static final String KEY_SHOW_PAGENUM = "show_pagenum";
+	
+	private static final String READING_DIRECTION = "reading_direction";
 
 	@Inject
 	public Configuration(Context context) {
@@ -191,6 +197,11 @@ public class Configuration {
 		}
 		
 		return offsets.getOffsets();
+	}
+	
+	public ReadingDirection getReadingDirection() {
+		String value = settings.getString(READING_DIRECTION, ReadingDirection.LEFT_TO_RIGHT.name() );
+		return ReadingDirection.valueOf(value.toUpperCase());
 	}
 
 	public void setLastPosition(String fileName, int position) {

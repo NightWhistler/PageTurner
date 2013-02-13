@@ -28,6 +28,7 @@ import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.AnimationStyle;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
+import net.nightwhistler.pageturner.Configuration.ReadingDirection;
 import net.nightwhistler.pageturner.Configuration.ScrollStyle;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.animation.Animations;
@@ -924,7 +925,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		dummyView.setAnimator(timer);
 	}
 
-	private void doPageCurl(boolean flipRight) {
+	private void doPageCurl(boolean flipRight, boolean pageDown) {
 
 		if (isAnimating() || bookView == null ) {
 			return;
@@ -948,19 +949,22 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		animator.SetCurlSpeed(bookView.getWidth() / 8);
 
 		animator.setBackgroundColor(config.getBackgroundColor());
-		
-		if (flipRight) {
-			bookView.pageDown();
-			Bitmap after = getBookViewSnapshot();
 			
+		
+		if (pageDown) {
+			bookView.pageDown();						
+		} else {
+			bookView.pageUp();			
+		}
+		
+		Bitmap after = getBookViewSnapshot();
+		
+		if ( flipRight ) {
 			animator.setBackgroundBitmap(after);
 			animator.setForegroundBitmap(before);
 		} else {
-			bookView.pageUp();
-			Bitmap after = getBookViewSnapshot();
-			
 			animator.setBackgroundBitmap(before);
-			animator.setForegroundBitmap(after);
+			animator.setForegroundBitmap(after);		
 		}
 
 		dummyView.setAnimator(animator);
@@ -1133,12 +1137,20 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if (o == Orientation.HORIZONTAL) {
 
 			AnimationStyle animH = config.getHorizontalAnim();
+			ReadingDirection direction = config.getReadingDirection();
 
 			if (animH == AnimationStyle.CURL) {
-				doPageCurl(true);
+				doPageCurl(direction == ReadingDirection.LEFT_TO_RIGHT, true);
 			} else if (animH == AnimationStyle.SLIDE) {
-				prepareSlide(Animations.inFromRightAnimation(),
-						Animations.outToLeftAnimation());
+				
+				if ( direction == ReadingDirection.LEFT_TO_RIGHT ) {
+					prepareSlide(Animations.inFromRightAnimation(),
+							Animations.outToLeftAnimation());
+				} else {
+					prepareSlide(Animations.inFromLeftAnimation(),
+							Animations.outToRightAnimation());
+				}
+				
 				viewSwitcher.showNext();
 				bookView.pageDown();
 			} else {
@@ -1168,12 +1180,18 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if (o == Orientation.HORIZONTAL) {
 
 			AnimationStyle animH = config.getHorizontalAnim();
+			ReadingDirection direction = config.getReadingDirection();
 
 			if (animH == AnimationStyle.CURL) {
-				doPageCurl(false);
+				doPageCurl(direction == ReadingDirection.RIGHT_TO_LEFT, false);
 			} else if (animH == AnimationStyle.SLIDE) {
-				prepareSlide(Animations.inFromLeftAnimation(),
+				if ( direction == ReadingDirection.LEFT_TO_RIGHT ) {
+					prepareSlide(Animations.inFromLeftAnimation(),
 						Animations.outToRightAnimation());
+				} else {
+					prepareSlide(Animations.inFromRightAnimation(),
+							Animations.outToLeftAnimation());
+				}
 				viewSwitcher.showNext();
 				bookView.pageUp();
 			} else {
@@ -1406,7 +1424,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public boolean onSwipeLeft() {
 
 		if (config.isHorizontalSwipeEnabled()) {
-			pageDown(Orientation.HORIZONTAL);
+			
+			if ( config.getReadingDirection() == ReadingDirection.LEFT_TO_RIGHT ) {			
+				pageDown(Orientation.HORIZONTAL);
+			} else {
+				pageUp(Orientation.HORIZONTAL);
+			}
+		
 			return true;
 		}
 
@@ -1417,7 +1441,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public boolean onSwipeRight() {
 
 		if (config.isHorizontalSwipeEnabled()) {
-			pageUp(Orientation.HORIZONTAL);
+			
+			if ( config.getReadingDirection() == ReadingDirection.LEFT_TO_RIGHT ) {			
+				pageUp(Orientation.HORIZONTAL);
+			} else {
+				pageDown(Orientation.HORIZONTAL);
+			}
+			
 			return true;
 		}
 
@@ -1427,7 +1457,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public boolean onTapLeftEdge() {
 		if (config.isHorizontalTappingEnabled()) {
-			pageUp(Orientation.HORIZONTAL);
+			if ( config.getReadingDirection() == ReadingDirection.LEFT_TO_RIGHT ) {			
+				pageUp(Orientation.HORIZONTAL);
+			} else {
+				pageDown(Orientation.HORIZONTAL);
+			}
+			
 			return true;
 		}
 
@@ -1437,7 +1472,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public boolean onTapRightEdge() {
 		if (config.isHorizontalTappingEnabled()) {
-			pageDown(Orientation.HORIZONTAL);
+			
+			if ( config.getReadingDirection() == ReadingDirection.LEFT_TO_RIGHT ) {			
+				pageDown(Orientation.HORIZONTAL);
+			} else {
+				pageUp(Orientation.HORIZONTAL);
+			}
+			
 			return true;
 		}
 

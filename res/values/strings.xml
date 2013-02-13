@@ -89,6 +89,7 @@
         <item>All books by title</item>
         <item>All books by author</item> 
     </string-array>
+ 
         
     <string name="access_denied">Your access-key is invalid. Please visit pageturner-reader.org to obtain a valid access key.</string>
     <string name="import_books">Import Books</string>
@@ -225,6 +226,15 @@
     
     <string name="pref_show_pagenum">Show page numbers</string>
     <string name="pref_show_pagenum_summary">Shows page numbers while reading. It may take a few seconds for page numbers to be displayed the first time.</string>
+    
+    <string name="pref_reading_direction">Reading direction</string>
+    <string name="pref_reading_direction_summary">Read left to right or right to left (Hebrew and Arabic)</string>
+       
+    <string-array name="reading_directionsLabels">
+        <item>Left to right</item>
+        <item>Right to left</item>        
+    </string-array>    
+    
 
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>

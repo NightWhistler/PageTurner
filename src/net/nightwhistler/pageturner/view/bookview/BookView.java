@@ -421,7 +421,7 @@ public class BookView extends ScrollView {
 		this.childView.setTypeface(family.getDefaultTypeface());
 		this.tableHandler.setTypeFace(family.getDefaultTypeface());
 
-		this.spanner.setFontFamily(family);
+		this.spanner.setDefaultFont(family);
 	}
 
 	public void pageDown() {

@@ -750,6 +750,11 @@ public class BookView extends ScrollView {
 		public AnchorHandler(TagNodeHandler wrappedHandler) {
 			this.wrappedHandler = wrappedHandler;
 		}
+		
+		@Override
+		public void beforeChildren(TagNode node, SpannableStringBuilder builder) {
+			this.wrappedHandler.beforeChildren(node, builder);
+		}
 
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,

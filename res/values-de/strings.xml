@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PageTurner</string>
     <string name="title">Titel</string>
@@ -43,7 +43,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="added_to_lib">Zu Buchregal hinzugefügt: %s</string>
     
     <string name="view_details">Details</string>
-    <string name="delete">Lüschen</string>
+    <string name="delete">Löschen</string>
     <string name="scan_books">Nach Büchern suchen</string>    
     
     <string name="importing_books">Bücher importieren…</string>
@@ -85,7 +85,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string-array name="libraryQueries">
         <item>Zuletzt gelesene Bücher</item>
         <item>Zuletzt hinzugefügte Bücher</item>
-        <item>Ungelesene Bucher</item>
+        <item>Ungelesene Bücher</item>
         <item>Alle Bücher nach Titel</item>
         <item>Alle Bücher nach Author</item> 
     </string-array>
@@ -142,7 +142,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="pref_email_message">Bitte eine gültige E-Mailadresse eingeben.</string>
     <string name="pref_device_name">Gerätename</string>
     <string name="pref_device_name_summary">Eindeutiger Gerätename, um Synchronisationskonflikte zu beheben.</string>
-    <string name="pref_device_name_message">Bitte einen eindeutigen Gerätename eingeben.</string>
+    <string name="pref_device_name_message">Bitte einen eindeutigen Gerätenamen eingeben.</string>
     <string name="pref_access_key">Zugangsschlüssel</string>
     <string name="pref_access_key_summary">Ein Zugangsschlüssel ist für die Synchronisation notwendig. Gehe auf pageturner-reader.org um mehr Informationen zu erhalten.</string>
     <string name="pref_access_key_message">Bitte Deinen Zugangsschlüssel eingeben.</string>
@@ -159,7 +159,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="pref_calibre_server">Calibre Server</string>
     <string name="pref_calibre_server_summary">Verbinde zu Deiner eigenen Calibre Bücherei</string>
     <string name="pref_calibre_server_message">Calibre URL</string>
-    <string name="pref_calibre_server_hint">zB. http://192.168.1.1:8080/opds</string>
+    <string name="pref_calibre_server_hint">z.B. http://192.168.1.1:8080/opds</string>
 
     <string name="pref_calibre_password_summary">Calibre Kennwort</string>
 
@@ -223,9 +223,6 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="pref_nav_tap_h_summary">Tippe auf den rechten oder linken Rand um die Seite zu wechseln.</string>
     <string name="pref_nav_tap_v">Antippen oben/unten aktivieren</string>
     <string name="pref_nav_tap_v_summary">Tippe auf den oberen oder unteren Rand um die Seite zu wechseln.</string>
-   
-  
-    <!-- Not yet translated -->
    
     <string name="pref_calibre_user">Benutzername</string>
     <string name="pref_calibre_user_summary">Dein Calibre Benutzername</string>

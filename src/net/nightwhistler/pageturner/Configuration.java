@@ -82,10 +82,15 @@ public class Configuration {
 
 	public static enum LibrarySelection {
 		BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
+	}	
+
+    public static enum ReadingDirection {
+		LEFT_TO_RIGHT, RIGHT_TO_LEFT;
 	}
-	
+
 	public static final String BASE_OPDS_FEED = "http://www.pageturner-reader.org/opds/feeds.xml";
 	public static final String BASE_SYNC_URL = "http://api.pageturner-reader.org/progress/";
+
 
 	public static final String KEY_POS = "offset:";
 	public static final String KEY_IDX = "index:";
@@ -148,6 +153,8 @@ public class Configuration {
 	
 	public static final String KEY_OPDS_SITES = "opds_sites";
 	
+	
+	private static final String READING_DIRECTION = "reading_direction";
 
 	@Inject
 	public Configuration(Context context) {
@@ -213,6 +220,11 @@ public class Configuration {
 		}
 		
 		return offsets.getOffsets();
+	}
+	
+	public ReadingDirection getReadingDirection() {
+		String value = settings.getString(READING_DIRECTION, ReadingDirection.LEFT_TO_RIGHT.name() );
+		return ReadingDirection.valueOf(value.toUpperCase());
 	}
 
 	public void setLastPosition(String fileName, int position) {

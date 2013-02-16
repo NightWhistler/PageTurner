@@ -76,6 +76,7 @@
         <item>All books by title</item>
         <item>All books by author</item>
     </string-array>
+ 
 
     <string name="access_denied">Your access-key is invalid. Please visit pageturner-reader.org to obtain a valid access key.</string>
     <string name="import_books">Import Books</string>
@@ -218,6 +219,15 @@
     <string name="pref_nav_tap_v_summary">Tap the top/bottom edge of the screen to change pages.</string>
     <string name="pref_show_pagenum">Show page numbers</string>
     <string name="pref_show_pagenum_summary">Shows page numbers while reading. It may take a few seconds for page numbers to be displayed the first time.</string>
+    
+    <string name="pref_reading_direction">Reading direction</string>
+    <string name="pref_reading_direction_summary">Read left to right or right to left (Hebrew and Arabic)</string>
+       
+    <string-array name="reading_directionsLabels">
+        <item>Left to right</item>
+        <item>Right to left</item>        
+    </string-array>    
+    
 
     <string name="pref_manage_sites">Manage OPDS / Calibre Catalogs</string>
     <string name="pref_manage_sites_summary">Add and remove custom online catalogs and Calibre servers.</string>

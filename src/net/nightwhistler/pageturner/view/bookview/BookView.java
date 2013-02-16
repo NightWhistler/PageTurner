@@ -423,6 +423,14 @@ public class BookView extends ScrollView {
 
 		this.spanner.setDefaultFont(family);
 	}
+	
+	public void setSerifFontFamily(FontFamily family) {
+		this.spanner.setSerifFont(family);
+	}
+	
+	public void setSansSerifFontFamily(FontFamily family) {
+		this.spanner.setSansSerifFont(family);
+	}
 
 	public void pageDown() {
 		strategy.pageDown();

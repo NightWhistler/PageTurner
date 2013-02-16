@@ -167,6 +167,22 @@
         	android:defaultValue="gen_book_bas"
         	android:entries="@array/fontLabels"
         	android:entryValues="@array/fonts" />
+     
+     <ListPreference
+     		android:key="serif_font"
+            android:title="@string/pref_serif_font"
+            android:summary="@string/pref_serif_summary"            
+        	android:defaultValue="gen_book_bas"
+        	android:entries="@array/fontLabels"
+        	android:entryValues="@array/fonts" />
+     
+     <ListPreference
+     		android:key="sans_serif_font"
+            android:title="@string/pref_sans_serif_font"
+            android:summary="@string/pref_sans_serif_summary"            
+        	android:defaultValue="sans"
+        	android:entries="@array/fontLabels"
+        	android:entryValues="@array/fonts" />
                     
                 
      <CheckBoxPreference

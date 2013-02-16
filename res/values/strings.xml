@@ -226,6 +226,13 @@
     <string name="pref_show_pagenum">Show page numbers</string>
     <string name="pref_show_pagenum_summary">Shows page numbers while reading. It may take a few seconds for page numbers to be displayed the first time.</string>
 
+    <string name="pref_serif_font">Serif font</string>
+    <string name="pref_serif_summary">Font to use if a book requests a Serif font.</string>
+   
+    <string name="pref_sans_serif_font">Sans-Serif font</string>
+    <string name="pref_sans_serif_summary">Font to use if a book requests a Sans-Serif font.</string>   
+    
+    
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>
     <string name="zero_percent" translatable="false">0%  </string>
@@ -239,4 +246,7 @@
     <string name="default_last_read" translatable="false">Last read: never</string>
     <string name="default_filename" translatable="false">book.epub</string>
     <string name="default_book_title" translatable="false">Title of the book</string>
+    
+    
+    
 </resources>

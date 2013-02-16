@@ -460,6 +460,8 @@ public class Configuration {
 			} else if ("gen_bas".equals(fontFace)) {
 				fontCache.put(fontFace, loadFamilyFromAssets(fontFace,
 						"GentiumBasic"));
+			} else if ("frankruehl".equalsIgnoreCase(fontFace)) {
+				fontCache.put(fontFace, loadFamilyFromAssets(fontFace, "FrankRuehl"));
 			} else {
 
 				Typeface face = Typeface.SANS_SERIF;

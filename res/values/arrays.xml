@@ -30,6 +30,7 @@
    <string-array name="fonts">
         <item>gen_book_bas</item>
         <item>gen_bas</item>
+        <item>frankruehl</item>
         <item>serif</item>
         <item>sans</item>
         <item>mono</item>
@@ -38,6 +39,7 @@
     <string-array name="fontLabels">
         <item>Gentium Book Basic</item>
         <item>Gentium Basic</item>
+        <item>FrankRuehl</item>
         <item>Droid Serif</item>
         <item>Droid Sans</item>
         <item>Droid Sans Mono</item>        

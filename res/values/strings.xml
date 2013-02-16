@@ -222,6 +222,13 @@
     <string name="pref_manage_sites">Manage OPDS / Calibre Catalogs</string>
     <string name="pref_manage_sites_summary">Add and remove custom online catalogs and Calibre servers.</string>
     
+    <string name="pref_serif_font">Serif font</string>
+    <string name="pref_serif_summary">Font to use if a book requests a Serif font.</string>
+   
+    <string name="pref_sans_serif_font">Sans-Serif font</string>
+    <string name="pref_sans_serif_summary">Font to use if a book requests a Sans-Serif font.</string>   
+    
+    
     
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>

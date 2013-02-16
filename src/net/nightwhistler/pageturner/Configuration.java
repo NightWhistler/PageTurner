@@ -20,8 +20,10 @@
 package net.nightwhistler.pageturner;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,7 +54,7 @@ public class Configuration {
 	private SharedPreferences settings;
 	private Context context;
 
-	private FontFamily cachedFamily;
+	private Map<String, FontFamily> fontCache = new HashMap<String, FontFamily>();
 
 	public static enum ScrollStyle {
 		ROLLING_BLIND, PAGE_TIMER
@@ -111,6 +113,8 @@ public class Configuration {
 	public static final String KEY_NIGHT_MODE = "night_mode";
 	public static final String KEY_SCREEN_ORIENTATION = "screen_orientation";
 	public static final String KEY_FONT_FACE = "font_face";
+	public static final String KEY_SERIF_FONT = "serif_font";
+	public static final String KEY_SANS_SERIF_FONT = "sans_serif_font";
 
 	public static final String PREFIX_DAY = "day";
 	public static final String PREFIX_NIGHT = "night";
@@ -143,6 +147,7 @@ public class Configuration {
 	public static final String KEY_SHOW_PAGENUM = "show_pagenum";
 	
 	public static final String KEY_OPDS_SITES = "opds_sites";
+	
 
 	@Inject
 	public Configuration(Context context) {
@@ -431,34 +436,47 @@ public class Configuration {
 		return fam;
 	}
 
-	public FontFamily getFontFamily() {
+	private FontFamily getFontFamily( String fontKey, String defaultVal ) {
 
-		String fontFace = settings.getString(KEY_FONT_FACE, "gen_book_bas");
+		String fontFace = settings.getString(fontKey, defaultVal);
 
-		if (cachedFamily != null && fontFace.equals(cachedFamily.getName())) {
-			return cachedFamily;
+		if ( ! fontCache.containsKey(fontFace) ) {
+
+			if ("gen_book_bas".equals(fontFace)) {
+				fontCache.put(fontFace, loadFamilyFromAssets(fontFace,
+						"GentiumBookBasic"));
+			} else if ("gen_bas".equals(fontFace)) {
+				fontCache.put(fontFace, loadFamilyFromAssets(fontFace,
+						"GentiumBasic"));
+			} else {
+
+				Typeface face = Typeface.SANS_SERIF;
+
+				if ("sans".equals(fontFace)) {
+					face = Typeface.SANS_SERIF;
+				} else if ("serif".equals(fontFace)) {
+					face = Typeface.SERIF;
+				} else if ("mono".equals(fontFace)) {
+					face = Typeface.MONOSPACE;
+				}
+
+				fontCache.put(fontFace,new FontFamily(fontFace, face));
+			}
 		}
 
-		if ("gen_book_bas".equals(fontFace)) {
-			return this.cachedFamily = loadFamilyFromAssets(fontFace,
-					"GentiumBookBasic");
-		}
-		if ("gen_bas".equals(fontFace)) {
-			return this.cachedFamily = loadFamilyFromAssets(fontFace,
-					"GentiumBasic");
-		}
-
-		Typeface face = Typeface.SANS_SERIF;
-
-		if ("sans".equals(fontFace)) {
-			face = Typeface.SANS_SERIF;
-		} else if ("serif".equals(fontFace)) {
-			face = Typeface.SERIF;
-		} else if ("mono".equals(fontFace)) {
-			face = Typeface.MONOSPACE;
-		}
-
-		return this.cachedFamily = new FontFamily(fontFace, face);
+		return fontCache.get(fontFace);
+	}
+	
+	public FontFamily getSerifFontFamily() {
+		return getFontFamily(KEY_SANS_SERIF_FONT, "gen_book_bas");
+	}
+	
+	public FontFamily getSansSerifFontFamily() {
+		return getFontFamily(KEY_SANS_SERIF_FONT, "sans");
+	}
+	
+	public FontFamily getDefaultFontFamily() {
+		return getFontFamily(KEY_FONT_FACE, "gen_book_bas");		
 	}
 
 	public int getBrightNess() {

@@ -200,6 +200,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		private boolean brightness;
 		private boolean stripWhiteSpace;
 		private String fontName;
+		private String serifFontName;
+		private String sansSerifFontName;
 		private boolean usePageNum;
 		private boolean fullscreen;
 		private int vMargin;
@@ -360,7 +362,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		savedConfigState.vMargin = config.getVerticalMargin();
 		
 		savedConfigState.textSize = config.getTextSize();
-		savedConfigState.fontName = config.getFontFamily().getName();
+		savedConfigState.fontName = config.getDefaultFontFamily().getName();
+		savedConfigState.serifFontName = config.getSerifFontFamily().getName();
+		savedConfigState.sansSerifFontName = config.getSansSerifFontFamily().getName();
+		
 		savedConfigState.scrolling = config.isScrollingEnabled();
 		
 	}
@@ -512,7 +517,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		pageNumberView.setTextColor(config.getTextColor());
 		pageNumberView.setTextSize(config.getTextSize());
 
-		pageNumberView.setTypeface(config.getFontFamily().getDefaultTypeface());
+		pageNumberView.setTypeface(config.getDefaultFontFamily().getDefaultTypeface());
 
 		pageNumberView.setText(builder);
 	}
@@ -526,7 +531,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		int marginH = config.getHorizontalMargin();
 		int marginV = config.getVerticalMargin();
 
-		this.bookView.setFontFamily(config.getFontFamily());
+		this.bookView.setFontFamily(config.getDefaultFontFamily());
+		this.bookView.setSansSerifFontFamily(config.getSansSerifFontFamily());
+		this.bookView.setSerifFontFamily(config.getSerifFontFamily());
 
 		bookView.setHorizontalMargin(marginH);
 		bookView.setVerticalMargin(marginV);
@@ -565,7 +572,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				|| config.isShowPageNumbers() != savedConfigState.usePageNum
 				|| config.isBrightnessControlEnabled() != savedConfigState.brightness
 				|| config.isStripWhiteSpaceEnabled() != savedConfigState.stripWhiteSpace
-				|| !config.getFontFamily().getName().equalsIgnoreCase(savedConfigState.fontName)
+				|| !config.getDefaultFontFamily().getName().equalsIgnoreCase(savedConfigState.fontName)
+				|| !config.getSerifFontFamily().getName().equalsIgnoreCase(savedConfigState.serifFontName)
+				|| !config.getSansSerifFontFamily().getName().equalsIgnoreCase(savedConfigState.sansSerifFontName)
 				|| config.getHorizontalMargin() != savedConfigState.hMargin
 				|| config.getVerticalMargin() != savedConfigState.vMargin
 				|| config.getTextSize() != savedConfigState.textSize 

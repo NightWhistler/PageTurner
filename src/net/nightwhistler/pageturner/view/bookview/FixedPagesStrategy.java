@@ -47,6 +47,15 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		this.pageOffsets = new ArrayList<Integer>();
 	}
 	
+	/**
+	 * Returns the current page INSIDE THE SECTION.
+	 * 
+	 * @return
+	 */
+	public int getCurrentPage() {
+		return this.pageNum;
+	}
+	
 	public static List<Integer> getPageOffsets( BookView bookView, CharSequence text, boolean includePageNumbers ) {
 		
 		if ( text == null ) {

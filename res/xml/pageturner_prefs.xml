@@ -88,35 +88,8 @@
         			
         			<intent android:action="net.nightwhistler.pageturner.activitiy.ManageSitesActivity"/>
         			         
-    			</PreferenceScreen>
-              	
-				<!-- 
-      			<EditTextPreference
-	            android:key="calibre_server"
-	            android:title="@string/pref_calibre_server"
-	            android:summary="@string/pref_calibre_server_summary"
-	            android:dialogTitle="@string/pref_calibre_server"
-	            android:dialogMessage="@string/pref_calibre_server_message"
-	            android:hint="@string/pref_calibre_server_hint"   
-	            />
-      			
-      			<EditTextPreference
-      			    android:key="calibre_user"
-      			    android:dialogTitle="@string/pref_calibre_user"
-      			    android:title="@string/pref_calibre_user"
-      			    android:summary="@string/pref_calibre_user_summary"
-      			    android:hint="@string/pref_calibre_user_hint"
-      			    android:inputType="textPersonName"
-      			 	/>
-      			
-      			<EditTextPreference
-      			    android:key="calibre_password"
-      			    android:dialogTitle="@string/pref_calibre_password"
-      			    android:title="@string/pref_calibre_password"
-      			    android:summary="@string/pref_calibre_password_summary"
-      			    android:inputType="textPassword"
-      			    />
-      			     -->
+    			</PreferenceScreen>            	
+			
                 
     </PreferenceCategory>
 

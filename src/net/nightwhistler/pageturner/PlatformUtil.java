@@ -26,7 +26,7 @@ import android.view.LayoutInflater;
 public class PlatformUtil {
 
 	public static LayoutInflater getLayoutInflater( Context context ) {
-		if ( Build.VERSION.SDK_INT < 11 ) {
+		if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
 			return (LayoutInflater) context.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		} else {
 			return (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

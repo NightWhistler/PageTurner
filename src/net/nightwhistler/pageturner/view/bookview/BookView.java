@@ -410,14 +410,13 @@ public class BookView extends ScrollView {
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private <A, B, C> void executeTask( AsyncTask<A, B, C> task, A... params ) {
-		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
 		}
 		else {
 			task.execute(params);
 		}
-	}
-	
+	}	
 	
 	public void setFontFamily(FontFamily family) {
 		this.childView.setTypeface(family.getDefaultTypeface());

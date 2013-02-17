@@ -860,7 +860,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		int rotation = Surface.ROTATION_0;
 
-		if (Build.VERSION.SDK_INT >= 8) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
 			Display display = getActivity().getWindowManager().getDefaultDisplay();
 			rotation = display.getRotation();
 		}

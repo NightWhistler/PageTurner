@@ -26,9 +26,7 @@ import net.nightwhistler.nucular.parser.Nucular;
 import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.CustomOPDSSite;
-import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.catalog.CatalogListAdapter;
 import net.nightwhistler.pageturner.library.LibraryService;
 import nl.siegmann.epublib.domain.Book;
@@ -45,32 +43,31 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
-import android.app.Activity;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -893,6 +890,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			this.cancel(true);
 		}
 
+		@TargetApi(Build.VERSION_CODES.FROYO)
 		@Override
 		protected Feed doInBackground(String... params) {
 
@@ -934,10 +932,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
 						if (href.startsWith("data:image/png;base64")) {
 							String dataString = href.substring(href
 									.indexOf(',') + 1);
-							try {
+							if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {							
 								imageLink.setBinData(Base64.decode(dataString,
 										Base64.DEFAULT));
-							} catch (NoClassDefFoundError ncd) {
+							} else {
 								// Slight hack for Android 2.1
 								imageLink.setBinData(null);
 							}

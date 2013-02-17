@@ -423,7 +423,15 @@ public class BookView extends ScrollView {
 		this.childView.setTypeface(family.getDefaultTypeface());
 		this.tableHandler.setTypeFace(family.getDefaultTypeface());
 
-		this.spanner.setFontFamily(family);
+		this.spanner.setDefaultFont(family);
+	}
+	
+	public void setSerifFontFamily(FontFamily family) {
+		this.spanner.setSerifFont(family);
+	}
+	
+	public void setSansSerifFontFamily(FontFamily family) {
+		this.spanner.setSansSerifFont(family);
 	}
 
 	public void pageDown() {
@@ -751,6 +759,11 @@ public class BookView extends ScrollView {
 
 		public AnchorHandler(TagNodeHandler wrappedHandler) {
 			this.wrappedHandler = wrappedHandler;
+		}
+		
+		@Override
+		public void beforeChildren(TagNode node, SpannableStringBuilder builder) {
+			this.wrappedHandler.beforeChildren(node, builder);
 		}
 
 		@Override

@@ -21,10 +21,10 @@ package net.nightwhistler.pageturner;
 
 import java.util.Collections;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,7 @@ public class Configuration {
 	private SharedPreferences settings;
 	private Context context;
 
-	private FontFamily cachedFamily;
+	private Map<String, FontFamily> fontCache = new HashMap<String, FontFamily>();
 
 	public static enum ScrollStyle {
 		ROLLING_BLIND, PAGE_TIMER
@@ -86,10 +86,15 @@ public class Configuration {
 
 	public static enum LibrarySelection {
 		BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
+	}	
+
+    public static enum ReadingDirection {
+		LEFT_TO_RIGHT, RIGHT_TO_LEFT;
 	}
-	
+
 	public static final String BASE_OPDS_FEED = "http://www.pageturner-reader.org/opds/feeds.xml";
 	public static final String BASE_SYNC_URL = "http://api.pageturner-reader.org/progress/";
+
 
 	public static final String KEY_POS = "offset:";
 	public static final String KEY_IDX = "index:";
@@ -117,6 +122,8 @@ public class Configuration {
 	public static final String KEY_NIGHT_MODE = "night_mode";
 	public static final String KEY_SCREEN_ORIENTATION = "screen_orientation";
 	public static final String KEY_FONT_FACE = "font_face";
+	public static final String KEY_SERIF_FONT = "serif_font";
+	public static final String KEY_SANS_SERIF_FONT = "sans_serif_font";
 
 	public static final String PREFIX_DAY = "day";
 	public static final String PREFIX_NIGHT = "night";
@@ -149,20 +156,14 @@ public class Configuration {
 	public static final String KEY_SHOW_PAGENUM = "show_pagenum";
 	
 	public static final String KEY_OPDS_SITES = "opds_sites";
+	
+	
+	private static final String READING_DIRECTION = "reading_direction";
 
 	private static final String KEY_NOOK_TOP_BUTTONS_DIRECTION = "nook_touch_top_buttons_direction";
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(Configuration.class);
-
-	private static final Map<String, String> KNOWN_FONTS = getKnownFonts();
-
-	private static Map<String, String> getKnownFonts() {
-		Map<String, String> result = new HashMap<String, String>();
-		result.put("gen_bas", "GentiumBasic");
-		result.put("gen_book_bas", "GentiumBookBasic");
-		return Collections.unmodifiableMap(result);
-	}
 
         // Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink based Android device
         // NB: Believe product/model field is "NOOK" on a Nook Touch and 'NookColor' on a Nook Color
@@ -252,6 +253,11 @@ public class Configuration {
 		}
 
 		return offsets.getOffsets();
+	}
+	
+	public ReadingDirection getReadingDirection() {
+		String value = settings.getString(READING_DIRECTION, ReadingDirection.LEFT_TO_RIGHT.name() );
+		return ReadingDirection.valueOf(value.toUpperCase());
 	}
 
 	public void setLastPosition(String fileName, int position) {
@@ -480,34 +486,48 @@ public class Configuration {
 		return fam;
 	}
 
-	public FontFamily getFontFamily() {
+	private FontFamily getFontFamily( String fontKey, String defaultVal ) {
 
-		String fontFace = settings.getString(KEY_FONT_FACE, "gen_book_bas");
+		String fontFace = settings.getString(fontKey, defaultVal);
 
-		if (cachedFamily != null && fontFace.equals(cachedFamily.getName())) {
-			return cachedFamily;
+		if ( ! fontCache.containsKey(fontFace) ) {
+
+                    if ("gen_book_bas".equals(fontFace)) {
+                        fontCache.put(fontFace, loadFamilyFromAssets(fontFace,
+                                                                     "GentiumBookBasic"));
+                    } else if ("gen_bas".equals(fontFace)) {
+                        fontCache.put(fontFace, loadFamilyFromAssets(fontFace,
+                                                                     "GentiumBasic"));
+                    } else if ("frankruehl".equalsIgnoreCase(fontFace)) {
+                        fontCache.put(fontFace, loadFamilyFromAssets(fontFace, "FrankRuehl"));
+                    } else {
+                        
+                        Typeface face = Typeface.SANS_SERIF;
+                        if ("sans".equals(fontFace)) {
+                            face = Typeface.SANS_SERIF;
+                        } else if ("serif".equals(fontFace)) {
+                            face = Typeface.SERIF;
+                        } else if ("mono".equals(fontFace)) {
+                            face = Typeface.MONOSPACE;
+                        }
+                        
+                        fontCache.put(fontFace,new FontFamily(fontFace, face));
+                    }
 		}
 
-		if(KNOWN_FONTS.containsKey(fontFace)) {
-			if (IS_NOOK_TOUCH) { // OpenType font support doesn't work on the Nook Touch, use less expressive TTF
-				Typeface face = Typeface.createFromAsset(context.getAssets(), fontFace + ".ttf");
-				return this.cachedFamily = new FontFamily(fontFace, face);
-			}
-			return this.cachedFamily = loadFamilyFromAssets(fontFace,
-									KNOWN_FONTS.get(fontFace));
-		}
-
-		Typeface face = Typeface.SANS_SERIF;
-
-		if ("sans".equals(fontFace)) {
-			face = Typeface.SANS_SERIF;
-		} else if ("serif".equals(fontFace)) {
-			face = Typeface.SERIF;
-		} else if ("mono".equals(fontFace)) {
-			face = Typeface.MONOSPACE;
-		}
-
-		return this.cachedFamily = new FontFamily(fontFace, face);
+		return fontCache.get(fontFace);
+	}
+	
+	public FontFamily getSerifFontFamily() {
+		return getFontFamily(KEY_SANS_SERIF_FONT, "gen_book_bas");
+	}
+	
+	public FontFamily getSansSerifFontFamily() {
+		return getFontFamily(KEY_SANS_SERIF_FONT, "sans");
+	}
+	
+	public FontFamily getDefaultFontFamily() {
+		return getFontFamily(KEY_FONT_FACE, "gen_book_bas");		
 	}
 
 	public int getBrightNess() {

@@ -56,7 +56,7 @@ public class PageOffsets {
 	public boolean isValid( Configuration config ) {
 		
 		return
-				this.fontFamily.equals( config.getFontFamily().getName() )
+				this.fontFamily.equals( config.getDefaultFontFamily().getName() )
 				&& this.fontSize == config.getTextSize()
 				&& this.vMargin == config.getVerticalMargin()
 				&& this.hMargin == config.getHorizontalMargin()
@@ -70,7 +70,7 @@ public class PageOffsets {
 	
 	public static PageOffsets fromValues( Configuration config, List<List<Integer>> offsets ) {
 		PageOffsets result = new PageOffsets();
-		result.fontFamily = config.getFontFamily().getName();
+		result.fontFamily = config.getDefaultFontFamily().getName();
 		result.fontSize = config.getTextSize();
 		result.hMargin = config.getHorizontalMargin();
 		result.vMargin = config.getVerticalMargin();

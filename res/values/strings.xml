@@ -82,6 +82,7 @@
         <item>All books by title</item>
         <item>All books by author</item>
     </string-array>
+ 
 
     <string name="access_denied">Your access-key is invalid. Please visit pageturner-reader.org to obtain a valid access key.</string>
     <string name="import_books">Import Books</string>
@@ -227,9 +228,24 @@
    <string name="pref_nook_touch">Nook Touch Preferences</string>
    <string name="pref_nook_touch_button_nav">Button Navigation</string>
    <string name="pref_nook_touch_button_nav_summary">How should the buttons on the side of the Nook turn the page?</string>
-
+    
+    <string name="pref_reading_direction">Reading direction</string>
+    <string name="pref_reading_direction_summary">Read left to right or right to left (Hebrew and Arabic)</string>
+       
+    <string-array name="reading_directionsLabels">
+        <item>Left to right</item>
+        <item>Right to left</item>        
+    </string-array>    
+    
     <string name="pref_manage_sites">Manage OPDS / Calibre Catalogs</string>
     <string name="pref_manage_sites_summary">Add and remove custom online catalogs and Calibre servers.</string>
+    
+    <string name="pref_serif_font">Serif font</string>
+    <string name="pref_serif_summary">Font to use if a book requests a Serif font.</string>
+   
+    <string name="pref_sans_serif_font">Sans-Serif font</string>
+    <string name="pref_sans_serif_summary">Font to use if a book requests a Sans-Serif font.</string>   
+    
     
     
     <!-- Translation is not needed for the strings below -->

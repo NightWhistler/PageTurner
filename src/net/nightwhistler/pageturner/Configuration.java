@@ -183,6 +183,7 @@ public class Configuration {
 		if(IS_NOOK_TOUCH && this.settings.getString(KEY_DEVICE_NAME, null) == null) {
 			SharedPreferences.Editor editor = this.settings.edit();
 			editor.putString(KEY_FONT_FACE, "sans");
+			editor.putString(KEY_SERIF_FONT, "serif");
 			editor.putInt(KEY_TEXT_SIZE, 32);
 			editor.putString(KEY_SCROLL_STYLE, "timer"); // enum is ScrollStyle.PAGE_TIMER
 			final String no_animation = AnimationStyle.NONE.name().toLowerCase(Locale.US);

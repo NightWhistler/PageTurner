@@ -50,6 +50,18 @@
         <item>Droid Sans Mono</item>        
     </string-array>
 
+    <string-array name="builtinFonts">
+        <item>serif</item>
+        <item>sans</item>
+        <item>mono</item>
+    </string-array>
+
+    <string-array name="builtinFontLabels">
+        <item>Droid Serif</item>
+        <item>Droid Sans</item>
+        <item>Droid Sans Mono</item>        
+    </string-array>
+
     <string-array name="reading_directions">
         <item>left_to_right</item>
         <item>right_to_left</item>

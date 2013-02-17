@@ -519,7 +519,7 @@ public class Configuration {
 	}
 	
 	public FontFamily getSerifFontFamily() {
-		return getFontFamily(KEY_SANS_SERIF_FONT, "gen_book_bas");
+		return getFontFamily(KEY_SERIF_FONT, "gen_book_bas");
 	}
 	
 	public FontFamily getSansSerifFontFamily() {

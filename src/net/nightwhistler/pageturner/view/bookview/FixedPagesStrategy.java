@@ -129,16 +129,16 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	@Override
 	public void updatePosition() {
 		
-		if ( pageOffsets.isEmpty() || text.length() == 0) {
+		if ( pageOffsets.isEmpty() || text.length() == 0 || this.pageNum == -1) {
 			return;
-		}		
+		}
 		
 		if ( storedPosition != -1 ) {
 			updateStoredPosition();
 		}
 		
 		if ( this.pageNum >= pageOffsets.size() -1 ) {
-			childView.setText( this.text.subSequence(pageOffsets.get(pageNum), text.length() ));
+			childView.setText( this.text.subSequence(pageOffsets.get(pageOffsets.size() -1), text.length() ));
 		} else {
 			int start = this.pageOffsets.get(pageNum);
 			int end = this.pageOffsets.get(pageNum +1 );

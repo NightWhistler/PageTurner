@@ -1,0 +1,200 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. -->
+<resources>
+  
+  <string name="title">כותר</string>
+  <string name="app_desc">פייג\'-טרנר היא אפליקציית קריאת ספרים אלקטרוניים המאפשרת סינכרון התקדמות הקריאה בין מכשירים שונים שבשימושך</string>
+  <string name="browse">דפדף...</string>
+  <string name="open_file">פתיחת קובץ ePub</string>
+  <string name="open_library">הספרים שלי</string>
+  <string name="profile_day">מעבר למצב יום</string>
+  <string name="profile_night">מעבר למצב לילה</string>
+  <string name="manual_sync">מעבר למצב יום</string>
+  <string name="prefs">הגדרות</string>
+  <string name="show_toc">הראה טבלת תוכן עניינים</string>
+  <string name="rolling_blind">גלילה אוטומטית</string>
+  <string name="about">אודות פייג\'-טרנר</string>
+  <string name="about_gpl">פייג\'-טרנר היא תוכנה חופשית תחת הרשאת GPL v3.</string>
+  <string name="error_open_bk">אירעה שגיאה בפתיחת ספר: %s</string>
+  <string name="dictionary_lookup">מצא במילון</string>
+  <string name="wikipedia_lookup">חפש בוויקיפדיה</string>
+  <string name="google_lookup">חפש בגוגל</string>
+  <string name="word_select">&quot;בחרת \'%s\'</string>
+  <string name="loading_wait">טוען... נא להמתין</string>
+  <string name="install_oi">נא לטעון מנהל קבצי OI מחנות האנדרואיד</string>
+  <string name="cloud_bm">סימניות ענן</string>
+  <string name="toc_label">תוכן העניינים</string>
+  <string name="syncing">&quot;בתהליך סינכרון…&quot;</string>
+  <string name="sync_failed">סינכרון נכשל</string>
+  <string name="connection_fail">לא מצליח להתחבר לשרת הסינכרון</string>
+  <string name="never_read">לעולם לא</string>
+  <string name="library">ספריה</string>
+  <string name="book_details">פרטי הספר</string>
+  <string name="book_by">מאת %s</string>
+  <string name="last_read">נקרא לאחרונה: %s</string>
+  <string name="added_to_lib">נוסף לספריה: %s</string>
+  <string name="view_details">הצג פרטים</string>
+  <string name="delete">מחק</string>
+  <string name="scan_books">סרוק לחיפוש ספר</string>
+  <string name="importing_books">יבא ספר…</string>
+  <string name="scanning_epub">מחפש קבצי EPUB</string>
+  <string name="importing">מיבא %1$d of %2$d</string>
+  <string name="scan_folders">מחפש קבצי EPUB.\nתיקיות נסרקו: %d</string>
+  <string name="import_errors">בחלק מהקבצים אירעה שגיאה בהעלאה:</string>
+  <string name="no_books_found">לא נמצאו ספרים</string>
+  <string name="no_bks_fnd_text">לא נמצאו ספרים במכשיר. אפשר לטעון ספרים מאתר ספרים אלקטרוניים</string>
+  <string name="loading_library">טוען ספריה…</string>
+  <string name="scan_bks_question">אין ספרים בספריה שלך.\nהאם לסרוק את המכשיר?</string>
+  <string name="brightness">בהירות</string>
+  <string-array name="v_animLabels">
+    <item>גלילה</item>
+    <item>ללא</item>
+  </string-array>
+  <string-array name="h_animLabels">
+    <item>היפוך דף</item>
+    <item>גלילת דף</item>
+    <item>ללא</item>
+  </string-array>
+  <string-array name="orientationLabels">
+    <item>ללא נעילת כיוון עמוד</item>
+    <item>עמוד אנכי</item>
+    <item>עמוד אופקי</item>
+    <item>חזור לאנכי</item>
+    <item>חזור לאופקי</item>
+  </string-array>
+  <string-array name="autoscrollLabels">
+    <item>גלילה ללא מגע</item>
+    <item>זמן מעבר דף</item>
+  </string-array>
+  <string-array name="libraryQueries">
+    <item>ספרים שנקראו לאחרונה</item>
+    <item>ספרים שהוספו לאחרונה</item>
+    <item>ספרים שלא נקראו</item>
+    <item>כל הספרים לפי שם כותר</item>
+    <item>כל הספרים לפי שם מחבר</item>
+  </string-array>
+  <string name="access_denied">קוד הגישה שלך אינו בתוקף. אנא כנס לאתר pageturner-reader.org כדי לקבל קוד גישה חדש.</string>
+  <string name="import_books">ייבא ספרים</string>
+  <string name="import_desc">ניתן לסרוק את כל כרטיס הזיכרון או תיקיה מסוימת</string>
+  <string name="scan_whole_card">סרוק את כרטיס הזיכרון</string>
+  <string name="scan_folder">סרוק תיקיה מסוימת</string>
+  <string name="copy_to_library">העתק את הספרים לספריה שלי</string>
+  <string name="no_such_folder">התיקיה %s לא קיימת.</string>
+  <string name="import_failed">ייבוא נכשל</string>
+  <string name="list_view">עבור למצב תצוגת רשימה</string>
+  <string name="shelves_view">עבור למצב תצוגת מדפים</string>
+  <string name="read">קרא עכשיו</string>
+  <string name="download">טען ספרים</string>
+  <string name="downloading">טוען ספר…</string>
+  <string name="feed_failed">אין קישור לאתר. אנא נסה שנית.</string>
+  <string name="book_failed">טעינת הספר נכשלה. אנא נסו שנית</string>
+  <string name="browse">דפדפו...</string>
+  <string name="search_books">חיפוש ספרים</string>
+  <string name="enter_query">הקלידו מושג לחיפוש</string>
+  <string name="buy_now">לרכישה</string>
+  <string name="enter_email">מצב סינכרון כרגע אינו פעיל. להפעילו יש להזין כתובת אימייל בהגדרות.</string>
+  <string name="add_to_library">הוסיפו לספריה</string>
+  <string name="search_wait">מחפש... נא להמתין.</string>
+  <string name="search_text">חיפוש טקסט</string>
+  <string name="search_hits">מחפש…\nנמצאו %d התאמות.</string>
+  <string name="search_cancelled">החיפוש בוטל.</string>
+  <string name="search_no_matches">החיפוש לא הניב תוצאות.</string>
+  <string name="search_results">חפש תוצאות</string>
+  <string name="opening_file">פותח קובץ…</string>
+  <string name="loading_text">טוען טקסט…</string>
+  <string name="end_of_section">סוף פרק.\nהקישו כאן להמשך.</string>
+  <string name="download_complete">הטעינה הושלמה.\nהספר הוסף לספרייתך</string>
+<!-- Preferences -->  <string name="pref_sync_settings">הגדרות סנכרון</string>
+  <string name="pref_email">כתובת אימייל</string>
+  <string name="pref_email_summary">משמש לסינכרון התקדמות הקריאה בין המכשירים. השאירו ריק אם אינכם מעוניינים.</string>
+  <string name="pref_email_message">נא הכניסו כתובת אימייל תקפה</string>
+  <string name="pref_device_name">שם המכשיר</string>
+  <string name="pref_device_name_summary">שם ייחודי למכשיר זה, למניעת התנגשויות.</string>
+  <string name="pref_device_name_message">אנא הכניסו שם ייחודי למכשיר זה.</string>
+  <string name="pref_access_key">קוד גישה</string>
+  <string name="pref_access_key_summary">דרוש קוד גישה כדי להשתמש בשירות הסינכרון. נא כנסו לאתר לקבל הסבר</string>
+  <string name="pref_access_key_message">נא הכניסו את קוד הגישה.</string>
+  <string name="pref_autoscroll_settings">הגדרות גלילה אוטומטית</string>
+  <string name="pref_scroll_style">סגנון גלילה אוטומטית</string>
+  <string name="pref_scroll_style_summary">גלילה רציפה או מתוזמנת</string>
+  <string name="pref_scroll_speed">מהירות גלילה אוטומטית</string>
+  <string name="pref_scroll_speed_summary">מספר השניות בו יוצג כל עמוד.</string>
+  <string name="pref_my_books_settings">הגדרות הספרים</string>
+  <string name="pref_copy_to_library">העתק לתיקית הספריה</string>
+  <string name="pref_copy_to_library_summary">האם על פייג\'-טרנר להעתיק את הקבצים לתיקיית הספריה?</string>
+  <string name="pref_calibre_server">שרת תוכן של קליברה</string>
+  <string name="pref_calibre_server_summary">התחברו לשרת הקליברה שלכם</string>
+  <string name="pref_calibre_server_message">קליברה URL</string>
+  <string name="pref_calibre_server_hint">http://192.168.1.1:8080/opds</string>
+  <string name="pref_calibre_user">שם משתמש</string>
+  <string name="pref_calibre_user_summary">שם משתמש שלכם בקליברה</string>
+  <string name="pref_calibre_user_hint">קליברה</string>
+  <string name="pref_calibre_password">סיסמה</string>
+  <string name="pref_calibre_password_summary">הסיסמה שלכם בקליברה</string>
+  <string name="pref_visual_settings">הגדרות תצוגה</string>
+  <string name="pref_full_screen">מסך מלא</string>
+  <string name="pref_full_screen_summary">הסתר את שורת המצב</string>
+  <string name="pref_screen_orientation">כיוון מסך</string>
+  <string name="pref_screen_orientation_summary">מאפשר לכם לנעול את כיוון המסך</string>
+  <string name="pref_keep_screen_on">השאר מסך דלוק</string>
+  <string name="pref_keep_screen_on_summary">מונע מהמסך להינעל בזמן קריאה</string>
+  <string name="pref_set_brightness">שליטה על בהירות </string>
+  <string name="pref_set_brightness_summary">אפשרו שליטה של פייג\'-טרנר על בהירות המסך</string>
+  <string name="pref_day_bright">בהירות מסך</string>
+  <string name="pref_day_bright_summary">מצב תצוגת אור יום</string>
+  <string name="pref_day_night">בהירות מסך</string>
+  <string name="pref_day_night_summary">מצב קריאת לילה</string>
+  <string name="pref_text_display_settings">הגדרות תצוגת טקסט</string>
+  <string name="pref_font_face">גופן</string>
+  <string name="pref_font_face_summary">גופן עיקרי להצגת טקסט</string>
+  <string name="pref_strip_whitespace">הסר אזורים לבנים</string>
+  <string name="pref_strip_whitespace_summary">בטל שורות ריקות לא נחוצות</string>
+  <string name="pref_itext_size">גודל טקסט</string>
+  <string name="pref_itext_size_summary">גודל אות הגופן המשמש להצגת ספרים.</string>
+  <string name="pref_margin_h">שוליים אופקיים</string>
+  <string name="pref_margin_h_summary">רווח מהקצה הימני והשמאלי של המסך.</string>
+  <string name="pref_margin_v">שוליים אנכיים</string>
+  <string name="pref_margin_v_summary">רווח מהקצה העליון והתחתון של המסך.</string>
+  <string name="pref_line_spacing">ריווח בין שורות</string>
+  <string name="pref_line_spacing_summary">הוסיפו רווח בין השורות.</string>
+  <string name="pref_colour_settings">הגדרות צבע</string>
+  <string name="pref_day_text">צבע טקסט</string>
+  <string name="pref_day_text_summary">למצב קריאת יום</string>
+  <string name="pref_day_bg">צבע רקע</string>
+  <string name="pref_day_bg_summary">למצב קריאת יום</string>
+  <string name="pref_day_link">צבע קישור</string>
+  <string name="pref_day_link_summary">למצב קריאת יום</string>
+  <string name="pref_night_text">צבע טקסט</string>
+  <string name="pref_night_text_summary">למצב קריאת לילה</string>
+  <string name="pref_night_bg">צבע רקע</string>
+  <string name="pref_night_bg_summary">למצב קריאת לילה</string>
+  <string name="pref_night_link">צבע קישור</string>
+  <string name="pref_night_link_summary">למצב קריאת לילה</string>
+  <string name="pref_animations">אנימציות</string>
+  <string name="pref_h_animation">אנימציות אופקיות</string>
+  <string name="pref_h_animation_summary">שינוי עימוד באנימציות אופקיות</string>
+  <string name="pref_v_animation">אנימציות אנכיות</string>
+  <string name="pref_v_animation_summary">שינוי עימוד באנימציות אנכיות</string>
+  <string name="pref_navigation_settings">הגדרות ניווט</string>
+  <string name="pref_scrolling">אפשר גלילה</string>
+  <string name="pref_scrolling_summary">אפשר גלילה בסגנון דפדפן</string>
+  <string name="pref_nav_vol">אפשר מקשי דפדוף</string>
+  <string name="pref_nav_vol_summary">לחצו על מקשי דפדוף מעלה ומטה להעברת עמודים.</string>
+  <string name="pref_nav_swipe_h">אפשר דפדוף בהעברת אצבע אופקית</string>
+  <string name="pref_nav_swipe_h_summary">העבירו את האצבע ימינה ושמאלה להעברת עמודים.</string>
+  <string name="pref_nav_swipe_v">אפשר דפדוף בהעברת אצבע אנכית</string>
+  <string name="pref_nav_swipe_v_summary">העבירו אצבע מעלה או מטה להעברת עמודים.</string>
+  <string name="pref_nav_tap_h">אפשר טפיפה בצידי המסך</string>
+  <string name="pref_nav_tap_h_summary">טופפו בצידי המסך להעברת עמודים.</string>
+  <string name="pref_nav_tap_v">אפשר טפיפה לדפדוף אנכי</string>
+  <string name="pref_nav_tap_v_summary">טופפו על החלק העליון והתחתון של המסך להעברת עמודים.</string>
+  <string name="pref_show_pagenum">הצג מספרי עמודים</string>
+  <string name="pref_show_pagenum_summary">הצג מספרי עמודים בזמן הקריאה. בפעם הראשונה המספר עשוי להופיע תוך כמה רגעים.</string>
+  <string name="pref_reading_direction">כיוון קריאה</string>
+  <string name="pref_reading_direction_summary">קריאה מימין לשמאל או משמאל לימין (עברית/אנגלית)</string>
+  <string-array name="reading_directionsLabels">
+    <item>שמאל-ימין</item>
+    <item>ימין שמאל</item>
+  </string-array>
+
+</resources>

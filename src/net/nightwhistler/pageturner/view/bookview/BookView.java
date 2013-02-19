@@ -1144,7 +1144,7 @@ public class BookView extends ScrollView {
 
 			if (progress != -1) {
 
-				int pageNumber = spine.getPageNumberFor(getIndex(),
+				int pageNumber = getPageNumberFor(getIndex(),
 						getPosition());
 
 				for (BookViewListener listener : this.listeners) {
@@ -1153,6 +1153,36 @@ public class BookView extends ScrollView {
 				}
 			}
 		}
+	}
+	
+	public int getPageNumberFor( int index, int position ) {
+		
+		int pageNum = 0;
+		
+		List<List<Integer>> pageOffsets = spine.getPageOffsets();
+		
+		if ( index >= pageOffsets.size() ) {
+			return -1;
+		}
+		
+		for ( int i=0; i < index; i++ ) {
+			pageNum += pageOffsets.get(i).size();			
+		}
+		
+		List<Integer> offsets;
+		
+		if ( this.strategy.isScrolling() ) {		
+			offsets = pageOffsets.get(index);
+		
+			for ( int i=0; i < offsets.size() && offsets.get(i) < position; i++ ) {
+				pageNum++;
+			}
+		
+		} else {
+			pageNum+= ((FixedPagesStrategy) strategy).getCurrentPage();
+		}		
+		
+		return pageNum;
 	}
 
 	public void setEnableScrolling(boolean enableScrolling) {

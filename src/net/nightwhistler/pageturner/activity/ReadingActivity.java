@@ -25,6 +25,7 @@ import net.nightwhistler.pageturner.R;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 
@@ -55,6 +56,10 @@ public class ReadingActivity extends RoboSherlockFragmentActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		readingFragment.onWindowFocusChanged(hasFocus);
+	}
+	
+	public void onMediaButtonEvent(View view) {
+		this.readingFragment.onMediaButtonEvent(view);
 	}
 
 	@Override

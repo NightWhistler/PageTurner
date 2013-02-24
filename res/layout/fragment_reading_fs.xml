@@ -109,7 +109,8 @@
       	  android:layout_height="wrap_content"
       	  android:layout_alignParentLeft="true"
       	  android:src="@drawable/play_pause"   
-      	  android:background="?selectableItemBackground"   	     	  
+      	  android:background="?selectableItemBackground"  
+      	  android:onClick="onMediaButtonEvent"
           />
       
       <ImageButton
@@ -118,7 +119,8 @@
       	  android:layout_height="wrap_content"
       	  android:layout_toRightOf="@id/playPauseButton"
       	  android:src="@drawable/stop" 
-      	  android:background="?selectableItemBackground"     	  
+      	  android:background="?selectableItemBackground" 
+      	  android:onClick="onMediaButtonEvent"    	  
           />      
       	
       <SeekBar android:id="@+id/mediaProgress"

@@ -99,7 +99,7 @@
         	android:layout_height="wrap_content"
         	android:orientation="horizontal"        
         	android:layout_alignBottom="@id/mainContainer"
-        	android:visibility="visible"  
+        	android:visibility="gone"  
         	android:background="@color/translucent_black"          
         	>   
       
@@ -108,7 +108,8 @@
           android:layout_width="wrap_content" 
       	  android:layout_height="wrap_content"
       	  android:layout_alignParentLeft="true"
-      	  android:src="@drawable/play_pause"      	     	  
+      	  android:src="@drawable/play_pause"   
+      	  android:background="?selectableItemBackground"   	     	  
           />
       
       <ImageButton
@@ -116,7 +117,8 @@
           android:layout_width="wrap_content" 
       	  android:layout_height="wrap_content"
       	  android:layout_toRightOf="@id/playPauseButton"
-      	  android:src="@drawable/stop"      	  
+      	  android:src="@drawable/stop" 
+      	  android:background="?selectableItemBackground"     	  
           />      
       	
       <SeekBar android:id="@+id/mediaProgress"

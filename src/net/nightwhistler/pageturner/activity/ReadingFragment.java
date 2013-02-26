@@ -420,8 +420,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		if (! ttsAvailable ) {
 			return;
-		}
+		}		
 		
+		this.waitDialog.setTitle("Initializing TTS");
+		this.waitDialog.show();
+				
 		HashMap<String, String> params = new HashMap<String, String>();
 		
 		String ttsFolder = config.getPageTurnerFolder() + "/tts";
@@ -445,9 +448,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.uiHandler.post(new Runnable() {
 			
 			@Override
-			public void run() {
-				Toast.makeText(getActivity(), "Speech complete", Toast.LENGTH_SHORT ).show();
-				mediaLayout.setVisibility(View.VISIBLE);				
+			public void run() {				
+				mediaLayout.setVisibility(View.VISIBLE);	
+				waitDialog.hide();
 			}
 		});		
 		

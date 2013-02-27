@@ -10,11 +10,11 @@ import java.util.Map;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.PlatformUtil;
-import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
 import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.Configuration.LibraryView;
+import net.nightwhistler.pageturner.PlatformUtil;
+import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.library.ImportCallback;
 import net.nightwhistler.pageturner.library.ImportTask;
 import net.nightwhistler.pageturner.library.KeyedQueryResult;
@@ -28,19 +28,17 @@ import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -51,6 +49,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -59,7 +59,6 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
-import android.widget.AdapterView.OnItemClickListener;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
@@ -70,7 +69,7 @@ import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 
-public class LibraryFragment extends RoboSherlockFragment implements ImportCallback, OnItemClickListener {
+public class LibraryFragment extends RoboSherlockFragment implements ImportCallback, OnItemClickListener, OnItemLongClickListener {
 	
 	@Inject 
 	private LibraryService libraryService;
@@ -149,7 +148,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
 			
-			this.bookAdapter = new BookCaseAdapter(getActivity());
+			this.bookAdapter = new BookCaseAdapter();
 			this.bookCaseView.setAdapter(bookAdapter);			
 			
 			if ( switcher.getDisplayedChild() == 0 ) {
@@ -170,6 +169,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		importDialog.setMessage(getString(R.string.scanning_epub));
 		registerForContextMenu(this.listView);	
 		this.listView.setOnItemClickListener(this);
+		this.listView.setOnItemLongClickListener(this);
 		
 		setAlphabetBarVisible(false);
 	}
@@ -195,15 +195,19 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		coverCache.clear();
 	}
 	
-	private void onBookClicked( LibraryBook book ) {
-		showBookDetails(book);
-	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int pos,
 			long id) {
-		onBookClicked(this.bookAdapter.getResultAt(pos));
+		openBook(this.bookAdapter.getResultAt(pos));
 	}	
+	
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view,
+			int position, long id) {
+		showBookDetails(this.bookAdapter.getResultAt(position));
+		return true;
+	}
 	
 	private Bitmap getCover( LibraryBook book ) {
 		return BitmapFactory.decodeByteArray(book.getCoverImage(), 0, book.getCoverImage().length );
@@ -269,17 +273,20 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-
-				Intent intent = new Intent(getActivity(), ReadingActivity.class);
-				
-				intent.setData( Uri.parse(libraryBook.getFileName()));
-				getActivity().setResult(Activity.RESULT_OK, intent);
-						
-				getActivity().startActivityIfNeeded(intent, 99);				
+				openBook(libraryBook);						
 			}
 		});
 		
 		builder.show();
+	}
+	
+	private void openBook(LibraryBook libraryBook) {
+		Intent intent = new Intent(getActivity(), ReadingActivity.class);
+		
+		intent.setData( Uri.parse(libraryBook.getFileName()));
+		getActivity().setResult(Activity.RESULT_OK, intent);
+				
+		getActivity().startActivityIfNeeded(intent, 99);		
 	}
 	
 	private void showDownloadDialog() {
@@ -373,7 +380,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			public boolean onMenuItemClick(MenuItem item) {
 				
 				if ( switcher.getDisplayedChild() == 0 ) {
-					bookAdapter = new BookCaseAdapter(getActivity());
+					bookAdapter = new BookCaseAdapter();
 					bookCaseView.setAdapter(bookAdapter);	
 					config.setLibraryView(LibraryView.BOOKCASE);					
 				} else {
@@ -882,13 +889,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	
 	private class BookCaseAdapter extends KeyedResultAdapter {
-		
-		private Context context;
-		
-		public BookCaseAdapter(Context context) {
-			this.context = context;
-		}	
-		
+				
 		@Override
 		public View getView(final int index, final LibraryBook object, View convertView,
 				ViewGroup parent) {
@@ -909,9 +910,18 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				
 				@Override
 				public void onClick(View v) {
-					onBookClicked(object);					
+					openBook(object);					
 				}
 			});	
+			
+			result.setOnLongClickListener( new View.OnLongClickListener() {
+				
+				@Override
+				public boolean onLongClick(View v) {
+					showBookDetails(object);
+					return true;
+				}
+			});
 			
 			
 			final ImageView image = (ImageView) result.findViewById(R.id.bookCover);

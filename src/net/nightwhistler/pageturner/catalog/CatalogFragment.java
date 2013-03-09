@@ -1,12 +1,8 @@
 package net.nightwhistler.pageturner.catalog;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +23,7 @@ import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
 import net.nightwhistler.pageturner.activity.ReadingActivity;
 import net.nightwhistler.pageturner.catalog.DownloadFileTask.DownloadFileCallback;
 import net.nightwhistler.pageturner.library.LibraryService;
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.epub.EpubReader;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,16 +32,15 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.DownloadListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
@@ -71,7 +57,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public class CatalogFragment extends RoboSherlockFragment implements
-		OnItemClickListener, LoadFeedCallback {
+		LoadFeedCallback {
 	
     private static final String STATE_NAV_ARRAY_KEY = "nav_array";
     
@@ -80,8 +66,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	private static final int MAX_THUMBNAIL_WIDTH = 85;
 	
     private String baseURL = "";
-	private String user = "";
-	private String password = "";
 
 	private CatalogListAdapter adapter;
 
@@ -141,7 +125,14 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		super.onViewCreated(view, savedInstanceState);
 		setHasOptionsMenu(true);
 		catalogList.setAdapter(adapter);
-		catalogList.setOnItemClickListener(this);
+		catalogList.setOnItemClickListener(new OnItemClickListener() {			
+			@Override
+			public void onItemClick(AdapterView<?> list, View arg1, int position,
+					long arg3) {
+				Entry entry = adapter.getItem(position);
+				onEntryClicked(entry, position);
+			}
+		});
 		
 		this.waitDialog = new ProgressDialog(getActivity());
 		this.waitDialog.setOwnerActivity(getActivity());
@@ -235,12 +226,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		alert.show();
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> list, View arg1, int position,
-			long arg3) {
-
-		Entry entry = adapter.getItem(position);
-		
+	public void onEntryClicked( Entry entry, int position ) {		
+			
 		if ( entry.getId() != null && entry.getId().equals(Catalog.CUSTOM_SITES_ID) ) {			
 			loadCustomSiteFeed();
 		} else if (entry.getAtomLink() != null) {
@@ -249,9 +236,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		} else {
 			loadFakeFeed(entry);
 		}
-	}
-
-	
+	}	
 	
 	private void loadCustomSiteFeed() {
 		
@@ -281,8 +266,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		
 		customSites.setId(Catalog.CUSTOM_SITES_ID);
 		
-		setNewFeed(customSites);
-		
+		setNewFeed(customSites);		
 	}
 
 	public void loadFakeFeed(Entry entry) {
@@ -454,10 +438,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			return rowView;
 		}
 	}
-	
-	
-
-
 
 	private void loadBookDetails(View layout, Entry entry, Link imageLink, boolean abbreviateText ) {
 		
@@ -580,7 +560,18 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			}
 		};
 		
-		DownloadFileTask task = this.downloadFileTaskProvider.get();
+		final DownloadFileTask task = this.downloadFileTaskProvider.get();
+		
+		OnCancelListener cancelListener = new OnCancelListener() {
+			
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				task.cancel(true);				
+			}
+		};
+		
+		downloadDialog.setOnCancelListener(cancelListener);
+		
 		task.setCallBack(callBack);
 		task.execute(url);
 		
@@ -635,9 +626,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				throw new RuntimeException(e);
 			}
 			
-			
-		}
-		
+		}	
 
 		if (entry.getBuyLink() != null) {
 			builder.setNeutralButton(R.string.buy_now, new DialogInterface.OnClickListener() {
@@ -677,6 +666,13 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		builder.show();
 	}
 
+	@Override
+	public void errorLoadingFeed(String error) {
+		waitDialog.hide();
+		Toast.makeText(getActivity(), getString(R.string.feed_failed) + ": " + error,
+				Toast.LENGTH_LONG).show();		
+	}
+	
 	public void setNewFeed(Feed result) {		
 
 		if (result != null) {
@@ -691,15 +687,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			}
 			
 			waitDialog.hide();
-		} else {
-			waitDialog.hide();
-			Toast.makeText(getActivity(), R.string.feed_failed,
-					Toast.LENGTH_LONG).show();
-		}
+		} 
 	}
-
-	
-	
-
 	
 }

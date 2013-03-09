@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
+import net.nightwhistler.nucular.atom.Entry;
+import net.nightwhistler.nucular.atom.Feed;
+import net.nightwhistler.nucular.atom.Link;
+
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -14,10 +16,6 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.nightwhistler.nucular.atom.Entry;
-import net.nightwhistler.nucular.atom.Feed;
-import net.nightwhistler.nucular.atom.Link;
 
 public class Catalog {
 

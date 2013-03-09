@@ -20,14 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.content.Context;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 
 import com.google.inject.Inject;
 
-// this is our download file asynctask
 public class DownloadFileTask extends AsyncTask<String, Long, String> {
 
-	File destFile;
+	private File destFile;
 	
 	private Exception failure;
 		
@@ -123,7 +123,7 @@ public class DownloadFileTask extends AsyncTask<String, Long, String> {
 					int len1 = 0;
 					long total = 0;
 
-					while ((len1 = in.read(buffer)) > 0) {
+					while ((len1 = in.read(buffer)) > 0 && ! isCancelled() ) {
 
 						// Make sure the user can cancel the download.
 						if (isCancelled()) {
@@ -138,6 +138,7 @@ public class DownloadFileTask extends AsyncTask<String, Long, String> {
 					f.close();
 				}
 				
+				//FIXME: This doesn't belong here really...
 				Book book = new EpubReader().readEpub( new FileInputStream(destFile) );					
 				libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.isCopyToLibrayEnabled() );
 				

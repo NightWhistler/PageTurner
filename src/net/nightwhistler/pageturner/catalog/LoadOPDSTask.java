@@ -56,6 +56,8 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 	private boolean isBaseFeed;
 	private Dialog waitDialog;
 	private LoadFeedCallback callBack;
+	
+	private String errorMessage;
 		
 	LoadOPDSTask() {			
 	}
@@ -151,6 +153,7 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
 			return feed;
 		} catch (Exception e) {
+			this.errorMessage = e.getLocalizedMessage();
 			LOG.error("Download failed for url: " + baseUrl, e);
 			return null;
 		}
@@ -176,7 +179,9 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 	protected void onPostExecute(Feed result) {
 
 		if (result == null) {
-			callBack.setNewFeed(null);
+			callBack.errorLoadingFeed(errorMessage);
+		} else {
+			callBack.setNewFeed(result);
 		}
 	}
 

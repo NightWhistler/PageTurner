@@ -3,16 +3,13 @@ package net.nightwhistler.pageturner.activity;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import javax.annotation.Nullable;
@@ -22,12 +19,14 @@ import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
-import net.nightwhistler.nucular.parser.Nucular;
-import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.catalog.Catalog;
 import net.nightwhistler.pageturner.catalog.CatalogListAdapter;
+import net.nightwhistler.pageturner.catalog.LoadFakeFeedTask;
+import net.nightwhistler.pageturner.catalog.LoadFeedCallback;
+import net.nightwhistler.pageturner.catalog.LoadOPDSTask;
 import net.nightwhistler.pageturner.library.LibraryService;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
@@ -39,25 +38,20 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import roboguice.inject.InjectView;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,14 +68,14 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class CatalogFragment extends RoboSherlockFragment implements
-		OnItemClickListener {
+		OnItemClickListener, LoadFeedCallback {
 	
     private static final String STATE_NAV_ARRAY_KEY = "nav_array";
     
     private static final int ABBREV_TEXT_LEN = 150;
-	private static final String CUSTOM_SITES_ID = "IdCustomSites";
 	
 	private static final int MAX_THUMBNAIL_WIDTH = 85;
 	
@@ -108,6 +102,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
 	@Inject
 	private LibraryService libraryService;
+	
+	@Inject
+	private Provider<LoadOPDSTask> loadOPDSTaskProvider;
+	
+	@Inject
+	private Provider<LoadFakeFeedTask> loadFakeFeedTaskProvider;
 	
 	private LinkListener linkListener;
 
@@ -149,6 +149,21 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		this.downloadDialog.setMax(100);
 		this.downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		this.downloadDialog.setCancelable(true);
+	}	
+	
+	private LoadOPDSTask createLoadOPDSTask() {
+		LoadOPDSTask task = this.loadOPDSTaskProvider.get();
+		task.setCallBack(this);
+		task.setWaitDialog(waitDialog);
+		
+		return task;
+	}
+	
+	private LoadFakeFeedTask createLoadFakeFeedTask(Entry entry) {
+		LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
+		task.setCallBack(this);
+		task.setWaitDialog(waitDialog);
+		return task.setSingleEntry(entry);
 	}
 
 	@Override
@@ -157,8 +172,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		Intent intent = getActivity().getIntent();
 		
-		if (!navStack.empty()) {
-			new LoadOPDSTask().execute(navStack.peek());
+		if (!navStack.empty()) {			
+			createLoadOPDSTask().execute(navStack.peek());
 		} else {
 			Uri uri = intent.getData();
 
@@ -166,7 +181,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				String downloadUrl = uri.toString().replace("epub://", "http://");
 				new DownloadFileTask(false).execute(downloadUrl);
 			} else {
-				new LoadOPDSTask().execute(baseURL);
+				createLoadOPDSTask().execute(baseURL);
 			}
 		}
 	}
@@ -225,7 +240,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		Entry entry = adapter.getItem(position);
 		
-		if ( entry.getId() != null && entry.getId().equals(CUSTOM_SITES_ID) ) {			
+		if ( entry.getId() != null && entry.getId().equals(Catalog.CUSTOM_SITES_ID) ) {			
 			loadCustomSiteFeed();
 		} else if (entry.getAtomLink() != null) {
 			String href = entry.getAtomLink().getHref();
@@ -235,17 +250,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}
 	}
 
-	private boolean isLeafEntry(Feed feed) {
-		
-		/**
-		 * A feed is a leaf if it isn't our custom
-		 * sites feed and only has 1 entry.
-		 */
-		
-		return feed.getEntries().size() == 1
-				&& ( feed.getId() == null
-				|| ! feed.getId().equals(CUSTOM_SITES_ID));
-	}
+	
 	
 	private void loadCustomSiteFeed() {
 		
@@ -256,7 +261,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			return;
 		}
 		
-		navStack.add(CUSTOM_SITES_ID);
+		navStack.add(Catalog.CUSTOM_SITES_ID);
 		
 		Feed customSites = new Feed();
 		customSites.setTitle(getString(R.string.custom_site));
@@ -273,13 +278,13 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			customSites.addEntry(entry);
 		}
 		
-		customSites.setId(CUSTOM_SITES_ID);
+		customSites.setId(Catalog.CUSTOM_SITES_ID);
 		
 		setNewFeed(customSites);
 		
 	}
 
-	private void loadFakeFeed(Entry entry) {
+	public void loadFakeFeed(Entry entry) {
 		String base = baseURL;
 
 		if (!navStack.isEmpty()) {
@@ -287,7 +292,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}
 
 		navStack.push(base);
-		new LoadFakeFeedTask(entry).execute(base);
+		createLoadFakeFeedTask(entry).execute(base);
 	}
 
 	private void loadURL(String url) {
@@ -305,7 +310,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		try {
 			String target = url;
 			
-			if ( base != null && ! base.equals(CUSTOM_SITES_ID)) {
+			if ( base != null && ! base.equals(Catalog.CUSTOM_SITES_ID)) {
 				target = new URL(new URL(base), url).toString();
 			}
 			
@@ -313,7 +318,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			LOG.info("Loading " + target);
 
 			navStack.push(target);
-			new LoadOPDSTask(entry).execute(target);
+			createLoadOPDSTask().setPreviousEntry(entry).execute(target);
 		} catch (MalformedURLException u) {
 			LOG.error("Malformed URL:", u);
 		}
@@ -370,7 +375,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		case android.R.id.home:
 			navStack.clear();
 			this.baseURL = config.getBaseOPDSFeed();
-			new LoadOPDSTask().execute(baseURL);
+			createLoadOPDSTask().execute(baseURL);
 			return true;
 		case R.id.right:
 			loadURL(adapter.getFeed().getNextLink().getHref());
@@ -418,11 +423,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		
 		if (navStack.isEmpty()) {
 			this.baseURL = config.getBaseOPDSFeed();
-			new LoadOPDSTask().execute(baseURL);
-		} else if ( navStack.peek().equals(CUSTOM_SITES_ID) ) {
+			createLoadOPDSTask().execute(baseURL);
+		} else if ( navStack.peek().equals(Catalog.CUSTOM_SITES_ID) ) {
 			loadCustomSiteFeed();
 		}else {
-			new LoadOPDSTask().execute(navStack.peek());
+			createLoadOPDSTask().execute(navStack.peek());
 		}
 	}
 
@@ -434,7 +439,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			final Entry entry = getItem(position);
 
 			LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			final Link imgLink = getImageLink(getFeed(), entry);
+			final Link imgLink = Catalog.getImageLink(getFeed(), entry);
 
 			rowView = inflater.inflate(R.layout.catalog_item, parent, false);			 			
 
@@ -653,37 +658,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		float factor = (float) originalHeight / (float) originalWidth;
 		
 		return (int) (MAX_THUMBNAIL_WIDTH * factor);
-	}
+	}	
 	
-	private void loadImageLink(Map<String, byte[]> cache, Link imageLink,
-			String baseUrl) throws IOException {
-
-		HttpParams httpParams = new BasicHttpParams();
-		DefaultHttpClient client = new DefaultHttpClient(httpParams);
-		client.getCredentialsProvider().setCredentials(new AuthScope(null, -1),
-				new UsernamePasswordCredentials(user, password));
-
-		if (imageLink != null) {
-			String href = imageLink.getHref();
-
-			if (cache.containsKey(href)) {
-				imageLink.setBinData(cache.get(href));
-			} else {
-
-				String target = new URL(new URL(baseUrl), href).toString();
-
-				LOG.info("Downloading image: " + target);
-
-				HttpResponse resp = client.execute(new HttpGet(target));
-
-				imageLink.setBinData(EntityUtils.toByteArray(resp.getEntity()));
-
-				cache.put(href, imageLink.getBinData());
-			}
-		}
-	}
-	
-	private void notifyLinkUpdated() {
+	public void notifyLinkUpdated() {
 		adapter.notifyDataSetChanged();
 		
 		if ( linkListener != null ) {
@@ -767,7 +744,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			authorTextView.setText("");
 		}
 		
-		final Link imgLink = getImageLink(feed, entry);
+		final Link imgLink = Catalog.getImageLink(feed, entry);
 		
 		loadBookDetails(layout, entry, imgLink, false);
 		final ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
@@ -783,11 +760,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		builder.show();
 	}
 
-	private void setNewFeed(Feed result) {		
+	public void setNewFeed(Feed result) {		
 
 		if (result != null) {
 			
-			if ( isLeafEntry(result) ) {
+			if ( Catalog.isLeafEntry(result) ) {
 				showItemPopup(result);
 			} else {
 				adapter.setFeed(result);
@@ -804,250 +781,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}
 	}
 
-	private class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
-
-		private Entry singleEntry;
-
-		public LoadFakeFeedTask(Entry entry) {
-			this.singleEntry = entry;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			waitDialog.setTitle(getString(R.string.loading_wait));
-			waitDialog.show();
-		}
-
-		@Override
-		protected Feed doInBackground(String... params) {
-			Feed fakeFeed = new Feed();
-			fakeFeed.addEntry(singleEntry);
-			fakeFeed.setTitle(singleEntry.getTitle());
-
-			try {
-				loadImageLink(new HashMap<String, byte[]>(),
-						singleEntry.getImageLink(), params[0]);
-			} catch (IOException io) {
-				LOG.error("Could not load image: ", io);
-			}
-
-			return fakeFeed;
-		}
-
-		@Override
-		protected void onPostExecute(Feed result) {
-			setNewFeed(result);
-		}
-	}
 	
-	/**
-	 * Selects the right image link for an entry, based on preference.
-	 * 
-	 * @param feed
-	 * @param entry
-	 * @return
-	 */
-	private Link getImageLink(Feed feed, Entry entry) {
-		Link[] linkOptions;
+	
 
-		if (isLeafEntry(feed)) {
-			linkOptions = new Link[] { entry.getImageLink(), entry.getThumbnailLink() };
-		} else {
-			linkOptions = new Link[] { entry.getThumbnailLink(), entry.getImageLink() };						
-		}
-		
-		Link imageLink = null;					
-		for ( int i=0; imageLink == null && i < linkOptions.length; i++ ) {
-			imageLink = linkOptions[i];
-		}
-		
-		return imageLink;
-	}
-
-	private class LoadOPDSTask extends AsyncTask<String, Object, Feed>
-			implements OnCancelListener {
-
-		private Entry previousEntry;
-		private boolean isBaseFeed;
-
-		public LoadOPDSTask() {
-			// leave previousEntry null
-		}
-
-		public LoadOPDSTask(Entry entry) {
-			this.previousEntry = entry;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			waitDialog.setTitle(getString(R.string.loading_wait));
-			waitDialog.setOnCancelListener(this);
-			waitDialog.show();
-		}
-
-		@Override
-		public void onCancel(DialogInterface dialog) {
-			this.cancel(true);
-		}
-
-		@TargetApi(Build.VERSION_CODES.FROYO)
-		@Override
-		protected Feed doInBackground(String... params) {
-
-			String baseUrl = params[0];
-			
-			this.isBaseFeed = baseUrl.equals(config.getBaseOPDSFeed());
-
-			if (baseUrl == null || baseUrl.trim().length() == 0) {
-				return null;
-			}
-
-			baseUrl = baseUrl.trim();
-			
-			try {
-				HttpParams httpParams = new BasicHttpParams();
-				DefaultHttpClient client = new DefaultHttpClient(httpParams);
-				client.getCredentialsProvider().setCredentials(
-						new AuthScope(null, -1),
-						new UsernamePasswordCredentials(user, password));
-				HttpGet get = new HttpGet(baseUrl);
-				HttpResponse response = client.execute(get);
-				Feed feed = Nucular.readAtomFeedFromStream(response.getEntity()
-						.getContent());
-				List<Link> remoteImages = new ArrayList<Link>();
-
-				for (final Entry entry : feed.getEntries()) {
-
-					if (isCancelled()) {
-						return feed;
-					}
-
-					Link imageLink = getImageLink(feed, entry);
-
-					if (imageLink != null) {
-						String href = imageLink.getHref();
-
-						// If the image is contained in the feed, load it
-						// directly
-						if (href.startsWith("data:image/png;base64")) {
-							String dataString = href.substring(href
-									.indexOf(',') + 1);
-							if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {							
-								imageLink.setBinData(Base64.decode(dataString,
-										Base64.DEFAULT));
-							} else {
-								// Slight hack for Android 2.1
-								imageLink.setBinData(null);
-							}
-						} else {
-							remoteImages.add(imageLink);
-						}
-					}
-				}
-
-				Link searchLink = feed.findByRel(AtomConstants.REL_SEARCH);
-
-				if (searchLink != null) {
-					URL mBaseUrl = new URL(baseUrl);
-					URL mSearchUrl = new URL(mBaseUrl, searchLink.getHref());
-					searchLink.setHref(mSearchUrl.toString());
-
-					if (AtomConstants.TYPE_OPENSEARCH.equals(searchLink
-							.getType())) {
-						HttpGet searchGet = new HttpGet(searchLink.getHref());
-
-						HttpResponse searchResponse = client.execute(searchGet);
-						SearchDescription desc = Nucular
-								.readOpenSearchFromStream(searchResponse
-										.getEntity().getContent());
-
-						if (desc.getSearchLink() != null) {
-							searchLink.setType(AtomConstants.TYPE_ATOM);
-							searchLink.setHref(desc.getSearchLink().getHref());
-						}
-
-					}
-				}
-
-				publishProgress(feed);
-
-				Map<String, byte[]> cache = new HashMap<String, byte[]>();
-				for (Link link : remoteImages) {
-					loadImageLink(cache, link, baseUrl);
-					publishProgress(link);
-				}
-
-				return feed;
-			} catch (Exception e) {
-				LOG.error("Download failed for url: " + baseUrl, e);
-				return null;
-			}
-
-		}
-
-		@Override
-		protected void onPostExecute(Feed result) {
-			
-			if ( !isAdded() || getActivity() == null ) {
-				return;
-			}
-			
-			if (result == null) {
-				setNewFeed(null);
-			}
-		}
-		
-		private void addCustomSitesEntry(Feed feed) {
-
-			Entry entry = new Entry();
-			entry.setTitle(getString(R.string.custom_site));
-			entry.setSummary(getString(R.string.custom_site_desc));
-			entry.setId(CUSTOM_SITES_ID);
-
-			feed.addEntry(entry);
-		}
-
-		@Override
-		protected void onProgressUpdate(Object... values) {
-			if (values == null || values.length == 0) {
-				return;
-			}
-			
-			if ( !isAdded() || getActivity() == null ) {
-				return;
-			}
-
-			Object val = values[0];
-
-			if (val instanceof Feed) {
-				Feed result = (Feed) val;
-
-				/**
-				 * This is a bit hacky: some feeds have the download link in the
-				 * list, and clicking an item will take you to another list.
-				 * 
-				 * Since we always want to send the user to a single-item page
-				 * before downloading, we have to fake it some times.
-				 */
-
-				if (previousEntry != null
-						&& previousEntry.getEpubLink() != null) {
-					if (result == null || result.getSize() != 1
-							|| result.getEntries().get(0).getEpubLink() == null) {
-						loadFakeFeed(previousEntry);
-						return;
-					}
-				}
-				
-				if ( isBaseFeed ) {
-					addCustomSitesEntry(result);
-				}
-
-				setNewFeed(result);
-			} else if (val instanceof Link) {
-				notifyLinkUpdated();
-			}
-		}
-
-	}
+	
 }

@@ -25,6 +25,7 @@ import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.activity.LibraryActivity;
 import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
 import net.nightwhistler.pageturner.activity.ReadingActivity;
+import net.nightwhistler.pageturner.catalog.DownloadFileTask.DownloadFileCallback;
 import net.nightwhistler.pageturner.library.LibraryService;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
@@ -53,6 +54,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.DownloadListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
@@ -107,6 +109,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Inject
 	private Provider<LoadFakeFeedTask> loadFakeFeedTaskProvider;
 	
+	@Inject
+	private Provider<DownloadFileTask> downloadFileTaskProvider;
+	
 	private LinkListener linkListener;
 
 	private static interface LinkListener {
@@ -149,20 +154,18 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		this.downloadDialog.setCancelable(true);
 	}	
 	
-	private LoadOPDSTask createLoadOPDSTask() {
+	private void loadOPDSFeed(String url) {
+		loadOPDSFeed(null, url);
+	}
+	
+	private void loadOPDSFeed( Entry entry, String url ) {
 		LoadOPDSTask task = this.loadOPDSTaskProvider.get();
 		task.setCallBack(this);
 		task.setWaitDialog(waitDialog);
+		task.setPreviousEntry(entry);		
 		
-		return task;
-	}
-	
-	private LoadFakeFeedTask createLoadFakeFeedTask(Entry entry) {
-		LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
-		task.setCallBack(this);
-		task.setWaitDialog(waitDialog);
-		return task.setSingleEntry(entry);
-	}
+		task.execute(url);
+	}	
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -171,15 +174,15 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		Intent intent = getActivity().getIntent();
 		
 		if (!navStack.empty()) {			
-			createLoadOPDSTask().execute(navStack.peek());
+			loadOPDSFeed(navStack.peek());
 		} else {
 			Uri uri = intent.getData();
 
 			if (uri != null && uri.toString().startsWith("epub://")) {
 				String downloadUrl = uri.toString().replace("epub://", "http://");
-				new DownloadFileTask(false).execute(downloadUrl);
+				startDownload(false, downloadUrl);
 			} else {
-				createLoadOPDSTask().execute(baseURL);
+				loadOPDSFeed(baseURL);
 			}
 		}
 	}
@@ -290,7 +293,13 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}
 
 		navStack.push(base);
-		createLoadFakeFeedTask(entry).execute(base);
+		
+		LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
+		task.setCallBack(this);
+		task.setWaitDialog(waitDialog);
+		task.setSingleEntry(entry);
+		
+		task.execute(base);
 	}
 
 	private void loadURL(String url) {
@@ -316,7 +325,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			LOG.info("Loading " + target);
 
 			navStack.push(target);
-			createLoadOPDSTask().setPreviousEntry(entry).execute(target);
+			loadOPDSFeed(entry, target);
 		} catch (MalformedURLException u) {
 			LOG.error("Malformed URL:", u);
 		}
@@ -373,7 +382,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		case android.R.id.home:
 			navStack.clear();
 			this.baseURL = config.getBaseOPDSFeed();
-			createLoadOPDSTask().execute(baseURL);
+			loadOPDSFeed(baseURL);
 			return true;
 		case R.id.right:
 			loadURL(adapter.getFeed().getNextLink().getHref());
@@ -421,11 +430,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		
 		if (navStack.isEmpty()) {
 			this.baseURL = config.getBaseOPDSFeed();
-			createLoadOPDSTask().execute(baseURL);
+			loadOPDSFeed(baseURL);
 		} else if ( navStack.peek().equals(Catalog.CUSTOM_SITES_ID) ) {
 			loadCustomSiteFeed();
 		}else {
-			createLoadOPDSTask().execute(navStack.peek());
+			loadOPDSFeed(navStack.peek());
 		}
 	}
 
@@ -448,149 +457,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
 	
 
-	// this is our download file asynctask
-	private class DownloadFileTask extends AsyncTask<String, Integer, String> {
 
-		File destFile;
-		
-		private boolean openAfterDownload;
-		private Exception failure;
-		
-		public DownloadFileTask(boolean openAfterDownload) {
-			this.openAfterDownload = openAfterDownload;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();			
-			downloadDialog.setMessage(getString(R.string.downloading));
-			downloadDialog.show();
-		}
-
-		@Override
-		protected String doInBackground(String... params) {
-
-			try {
-
-				String url = params[0];
-				LOG.debug("Downloading: " + url);
-
-				String fileName = url.substring(url.lastIndexOf('/') + 1);
-
-				HttpParams httpParams = new BasicHttpParams();
-				DefaultHttpClient client = new DefaultHttpClient(httpParams);
-				client.getCredentialsProvider().setCredentials(
-						new AuthScope(null, -1),
-						new UsernamePasswordCredentials(user, password));
-				HttpGet get = new HttpGet(url);
-
-				HttpResponse response = client.execute(get);
-
-				if (response.getStatusLine().getStatusCode() == 200) {
-
-					File destFolder = new File(config.getDownloadsFolder());
-					if (!destFolder.exists()) {
-						destFolder.mkdirs();
-					}
-					
-					/**
-					 * Make sure we always store downloaded files as .epub, 
-					 * so they show up in scans later on.
-					 */
-					if ( ! fileName.endsWith(".epub") ) {
-						fileName = fileName + ".epub";
-					}
-
-					destFile = new File(destFolder, URLDecoder.decode(fileName));
-
-					if (destFile.exists()) {
-						destFile.delete();
-					}
-
-					// lenghtOfFile is used for calculating download progress
-					long lenghtOfFile = response.getEntity().getContentLength();
-
-					// this is where the file will be seen after the download
-					FileOutputStream f = new FileOutputStream(destFile);
-					
-					try {
-						// file input is from the url
-						InputStream in = response.getEntity().getContent();
-
-						// here's the download code
-						byte[] buffer = new byte[1024];
-						int len1 = 0;
-						long total = 0;
-
-						while ((len1 = in.read(buffer)) > 0) {
-
-							// Make sure the user can cancel the download.
-							if (isCancelled()) {
-								return null;
-							}
-
-							total += len1;
-							publishProgress((int) ((total * 100) / lenghtOfFile));
-							f.write(buffer, 0, len1);
-						}
-					} finally {
-						f.close();
-					}
-					
-					Book book = new EpubReader().readEpub( new FileInputStream(destFile) );					
-					libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.isCopyToLibrayEnabled() );
-					
-				} else {
-					this.failure = new RuntimeException(response
-							.getStatusLine().getReasonPhrase());
-					LOG.error("Download failed: "
-							+ response.getStatusLine().getReasonPhrase());
-				}
-
-			} catch (Exception e) {
-				LOG.error("Download failed.", e);
-				this.failure = e;
-			}
-
-			return null;
-		}
-
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			downloadDialog.setProgress(values[0]);
-		}
-
-		@Override
-		protected void onPostExecute(String unused) {
-			
-			if ( !isAdded() || getActivity() == null ) {
-				return;
-			}
-			
-			downloadDialog.hide();
-
-			if (!isCancelled() && failure == null) {
-				
-				if ( openAfterDownload ) {				
-					Intent intent;
-					
-					intent = new Intent(getActivity().getBaseContext(),
-						ReadingActivity.class);
-					intent.setData(Uri.parse(destFile.getAbsolutePath()));
-				
-					startActivity(intent);
-					getActivity().finish();			
-				} else {
-					Toast.makeText(getActivity(), R.string.download_complete,
-							Toast.LENGTH_LONG).show();
-				}
-				
-			} else if (failure != null) {
-				Toast.makeText(getActivity(), R.string.book_failed,
-						Toast.LENGTH_LONG).show();
-			}
-		}
-	}
 
 	private void loadBookDetails(View layout, Entry entry, Link imageLink, boolean abbreviateText ) {
 		
@@ -667,6 +534,58 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}		
 	}
 	
+	private void startDownload(final boolean openOnCompletion, final String url) {
+		
+		DownloadFileCallback callBack = new DownloadFileCallback() {
+			
+			@Override
+			public void onDownloadStart() {
+				downloadDialog.setMessage(getString(R.string.downloading));
+				downloadDialog.show();				
+			}
+			
+			@Override
+			public void progressUpdate(long progress, long total, int percentage) {				
+				downloadDialog.setMax( Long.valueOf(total).intValue() );
+				downloadDialog.setProgress(Long.valueOf(progress).intValue());				
+			}
+			
+			@Override
+			public void downloadSuccess(File destFile) {
+
+				downloadDialog.hide();
+				
+				if ( openOnCompletion ) {				
+					Intent intent;
+					
+					intent = new Intent(getActivity().getBaseContext(),
+						ReadingActivity.class);
+					intent.setData(Uri.parse(destFile.getAbsolutePath()));
+				
+					startActivity(intent);
+					getActivity().finish();			
+				} else {
+					Toast.makeText(getActivity(), R.string.download_complete,
+							Toast.LENGTH_LONG).show();
+				}				
+			}
+			
+			@Override
+			public void downloadFailed() {
+				
+				downloadDialog.hide();
+				
+				Toast.makeText(getActivity(), R.string.book_failed,
+						Toast.LENGTH_LONG).show();				
+			}
+		};
+		
+		DownloadFileTask task = this.downloadFileTaskProvider.get();
+		task.setCallBack(callBack);
+		task.execute(url);
+		
+	}
+	
 	private void showItemPopup(final Feed feed) {
 		
 		//If we're here, the feed always has just 1 entry
@@ -700,7 +619,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						new DownloadFileTask(true).execute(url.toExternalForm());						
+						startDownload(true, url.toExternalForm());						
 					}
 				});
 				
@@ -708,7 +627,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						new DownloadFileTask(false).execute(url.toExternalForm());						
+						startDownload(false, url.toExternalForm());						
 					}
 				});				
 				

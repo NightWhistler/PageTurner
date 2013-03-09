@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner.activity;
 import roboguice.RoboGuice;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.catalog.CatalogFragment;
 import android.os.Bundle;
 
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;

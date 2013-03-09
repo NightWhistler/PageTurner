@@ -1,4 +1,4 @@
-package net.nightwhistler.pageturner.activity;
+package net.nightwhistler.pageturner.catalog;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,11 +22,9 @@ import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.catalog.Catalog;
-import net.nightwhistler.pageturner.catalog.CatalogListAdapter;
-import net.nightwhistler.pageturner.catalog.LoadFakeFeedTask;
-import net.nightwhistler.pageturner.catalog.LoadFeedCallback;
-import net.nightwhistler.pageturner.catalog.LoadOPDSTask;
+import net.nightwhistler.pageturner.activity.LibraryActivity;
+import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
+import net.nightwhistler.pageturner.activity.ReadingActivity;
 import net.nightwhistler.pageturner.library.LibraryService;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;

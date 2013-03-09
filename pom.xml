@@ -136,11 +136,30 @@
 			<artifactId>roboguice-sherlock</artifactId>
 			<version>1.5</version>
 		</dependency>
+<!-- 
+        <dependency>
+            <groupId>com.pivotallabs</groupId>
+            <artifactId>robolectric</artifactId>
+            <version>1.2</version>
+            <scope>test</scope>
+        </dependency>
+ -->
+         
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
 
 	</dependencies>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+		<testSourceDirectory>test/src</testSourceDirectory>
+		<testResources>
+		    <testResource><directory>test/resources</directory></testResource>
+		</testResources>
 		<finalName>${project.artifactId}</finalName>
 		<pluginManagement>
 			<plugins>

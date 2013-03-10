@@ -1,5 +1,8 @@
 package net.nightwhistler.pageturner.catalog;
 
+import static net.nightwhistler.pageturner.catalog.Catalog.getImageLink;
+
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,17 +18,10 @@ import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
 
 import android.annotation.TargetApi;
 import android.app.Dialog;
@@ -36,7 +32,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Base64;
 
-import static net.nightwhistler.pageturner.catalog.Catalog.getImageLink;
+import com.google.inject.Inject;
 
 public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 		OnCancelListener {
@@ -88,9 +84,10 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
 		baseUrl = baseUrl.trim();
 
-		try {
+		try {			
 			
-			Feed feed = Nucular.readAtomFeedFromStream(httpClient.getURL(baseUrl));
+			InputStream stream = httpClient.execute(new HttpGet(baseUrl)).getEntity().getContent();			
+			Feed feed = Nucular.readAtomFeedFromStream(stream);
 			
 			List<Link> remoteImages = new ArrayList<Link>();
 
@@ -132,8 +129,11 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
 				if (AtomConstants.TYPE_OPENSEARCH.equals(searchLink.getType())) {
 					String searchURL = searchLink.getHref();
+					
+					InputStream searchStream = httpClient.execute(new HttpGet(searchURL)).getEntity().getContent();
+					
 					SearchDescription desc = Nucular
-							.readOpenSearchFromStream(httpClient.getURL(searchURL));
+							.readOpenSearchFromStream(searchStream);
 
 					if (desc.getSearchLink() != null) {
 						searchLink.setType(AtomConstants.TYPE_ATOM);

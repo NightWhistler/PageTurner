@@ -12,18 +12,16 @@ import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.content.Context;
-import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class DownloadFileTask extends AsyncTask<String, Long, String> {
 
@@ -77,15 +75,12 @@ public class DownloadFileTask extends AsyncTask<String, Long, String> {
 			LOG.debug("Downloading: " + url);
 
 			String fileName = url.substring(url.lastIndexOf('/') + 1);
-
-			HttpParams httpParams = new BasicHttpParams();
-			DefaultHttpClient client = new DefaultHttpClient(httpParams);
+			
 			//client.getCredentialsProvider().setCredentials(
 				//	new AuthScope(null, -1),
 				//	new UsernamePasswordCredentials(user, password));
 			HttpGet get = new HttpGet(url);
-
-			HttpResponse response = client.execute(get);
+			HttpResponse response = httpClient.execute(get);
 
 			if (response.getStatusLine().getStatusCode() == 200) {
 

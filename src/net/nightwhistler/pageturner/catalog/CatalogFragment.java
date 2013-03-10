@@ -139,8 +139,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		this.downloadDialog = new ProgressDialog(getActivity());
 
-		this.downloadDialog.setIndeterminate(false);
-		this.downloadDialog.setMax(100);
+		this.downloadDialog.setIndeterminate(false);		
 		this.downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		this.downloadDialog.setCancelable(true);
 	}	
@@ -187,6 +186,19 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}
 	}
 
+    public void performSearch(String searchTerm) {
+    	if (searchTerm != null && searchTerm.length() > 0) {
+			String searchString = URLEncoder.encode(searchTerm);
+			String linkUrl = adapter.getFeed().getSearchLink()
+					.getHref();
+
+			linkUrl = linkUrl.replace("{searchTerms}",
+					searchString);
+
+			loadURL(linkUrl);
+		}
+    }
+    
 	public void onSearchClick() {
 
 		AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
@@ -202,16 +214,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						CharSequence value = input.getText();
-						if (value != null && value.length() > 0) {
-							String searchString = URLEncoder.encode(value
-									.toString());
-							String linkUrl = adapter.getFeed().getSearchLink()
-									.getHref();
-
-							linkUrl = linkUrl.replace("{searchTerms}",
-									searchString);
-
-							loadURL(linkUrl);
+						if ( value != null ) {
+							performSearch(value.toString());
 						}
 					}
 				});

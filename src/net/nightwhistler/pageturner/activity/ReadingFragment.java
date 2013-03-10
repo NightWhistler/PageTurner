@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
@@ -187,7 +188,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@InjectView(R.id.pageNumberView)
 	private TextView pageNumberView;
 	
-	private Queue<MediaPlayer> ttsFiles = new ConcurrentLinkedQueue<MediaPlayer>();
+	private Queue<MediaPlayer> mediaPlayerQueue = new ConcurrentLinkedQueue<MediaPlayer>();
 
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
@@ -291,6 +292,28 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				}
 			}
 		});
+		
+		this.mediaProgressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+			private int seekValue;
+
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				seekToPointInPlayback(seekValue);
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar,
+					int progress, boolean fromUser) {
+				if (fromUser) {
+					seekValue = progress;					
+				}
+			}
+		});
 
 		this.textToSpeech = new TextToSpeech(getActivity(), new TextToSpeech.OnInitListener() {			
 			@Override
@@ -306,9 +329,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				HtmlSpanner.class));
 	}
 	
+	private void seekToPointInPlayback(int position) {
+		MediaPlayer player = this.mediaPlayerQueue.peek();
+		
+		if ( player != null ) {
+			player.seekTo(position);
+		}
+	}
+	
 	public void onMediaButtonEvent( View button ) {
 		
-		MediaPlayer mediaPlayer = this.ttsFiles.peek();
+		MediaPlayer mediaPlayer = this.mediaPlayerQueue.peek();
 		
 		if ( mediaPlayer == null ) {
 			this.mediaLayout.setVisibility(View.GONE);
@@ -426,7 +457,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	private void startTextToSpeech() {
 		
-		this.ttsFiles.clear();
+		this.mediaPlayerQueue.clear();
 		this.mediaLayout.setVisibility(View.VISIBLE);
 		
 		if (! ttsAvailable ) {
@@ -446,15 +477,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return;
 		}
 		
+		File fos = getActivity().getDir("tts", Context.MODE_WORLD_WRITEABLE );
+		
 		String textToSpeak = text.toString();
 		
-		String ttsFolder = config.getPageTurnerFolder() + "/tts";
-		new File(ttsFolder).mkdir();
+		String ttsFolder = fos.getAbsolutePath();
 		
 		HashMap<String, String> params = new HashMap<String, String>();		
 
 		//Utterance ID doubles as the filename
-		String pageName = ttsFolder + "/tts_" + textToSpeak.hashCode() + ".wav";
+		String pageName = new File( ttsFolder, "tts_" + textToSpeak.hashCode() + ".wav").getAbsolutePath();
+		
 		params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, pageName);
 		
 		if ( textToSpeak.trim().length() > 0 ) {			
@@ -487,7 +520,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			mediaPlayer.setDataSource(wavFile);
 			mediaPlayer.prepare();
 			
-			this.ttsFiles.add(mediaPlayer);
+			this.mediaPlayerQueue.add(mediaPlayer);
 			
 		} catch (Exception e) {
 			LOG.error("Could not play", e);			
@@ -501,22 +534,24 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			}
 		});		
 		
-		startPlayback();		
+		//If the queue is size 1, it only contains the player we just added,
+		//meaning this is a first playback start.
+		if ( mediaPlayerQueue.size() == 1 ) {
+			startPlayback();
+		}
 	}	
 	
 	private Runnable progressBarUpdater = new Runnable() {
 		public void run() {
 			
-			MediaPlayer mediaPlayer = ttsFiles.peek();
+			MediaPlayer mediaPlayer = mediaPlayerQueue.peek();
 			
 			if ( mediaPlayer != null && mediaPlayer.isPlaying() ) {
-				 long totalDuration = mediaPlayer.getDuration();
-	             long currentDuration = mediaPlayer.getCurrentPosition();
-	 
-	               // Updating progress bar
-	               int progress = (int) (( (double) currentDuration / (double) totalDuration ) * 100 );
-	               //Log.d("Progress", ""+progress);
-	               mediaProgressBar.setProgress(progress);	 
+				 int totalDuration = mediaPlayer.getDuration();
+	             int currentDuration = mediaPlayer.getCurrentPosition();
+	             
+	             mediaProgressBar.setMax(totalDuration);
+	             mediaProgressBar.setProgress(currentDuration);	 
 			}
 			
             // Running this thread after 250 milliseconds
@@ -531,17 +566,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	private void speechCompleted( String wavFile, MediaPlayer mediaPlayer ) {
 		
-		this.ttsFiles.remove();		
+		this.mediaPlayerQueue.remove();		
 		this.mediaProgressBar.setProgress(0);
 		
 		if ( ttsIsRunning() && ! bookView.isAtEnd() ) {
 
-			this.uiHandler.post(new Runnable() {
-				@Override
-				public void run() {				
-					startPlayback();	
-				}
-			});
+			startPlayback();
 
 			this.uiHandler.post(new Runnable() {
 				@Override
@@ -565,7 +595,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	private void startPlayback() {
 		
-		MediaPlayer mediaPlayer = this.ttsFiles.peek();
+		MediaPlayer mediaPlayer = this.mediaPlayerQueue.peek();
 		
 		if ( mediaPlayer == null ) {
 			return;

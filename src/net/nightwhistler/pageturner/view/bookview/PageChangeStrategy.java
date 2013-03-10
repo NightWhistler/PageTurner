@@ -112,4 +112,18 @@ public interface PageChangeStrategy {
 	 */
 	public Spanned getText();
 	
+	/**
+	 * Gets the text for the next page to be displayed, or null if we've reached the end.
+	 * 
+	 * @return
+	 */
+	public CharSequence getNextPageText();
+	
+	/**
+	 * Gets the text for the previous page to be displayed, or null if we've reached the start.
+	 * 
+	 * @return
+	 */
+	public CharSequence getPreviousPageText();
+	
 }

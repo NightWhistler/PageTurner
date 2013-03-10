@@ -313,6 +313,10 @@ public class BookView extends ScrollView {
 			}
 		}
 	}
+	
+	public CharSequence peekAhead() {
+		return this.strategy.getNextPageText();
+	}
 
 	public void releaseResources() {
 		this.strategy.clearText();

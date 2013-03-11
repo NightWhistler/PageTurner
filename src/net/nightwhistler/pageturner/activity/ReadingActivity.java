@@ -59,7 +59,7 @@ public class ReadingActivity extends RoboSherlockFragmentActivity {
 	}
 	
 	public void onMediaButtonEvent(View view) {
-		this.readingFragment.onMediaButtonEvent(view);
+		this.readingFragment.onMediaButtonEvent(view.getId());
 	}
 
 	@Override

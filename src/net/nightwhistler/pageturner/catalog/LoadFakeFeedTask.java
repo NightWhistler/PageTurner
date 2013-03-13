@@ -3,14 +3,16 @@ package net.nightwhistler.pageturner.catalog;
 import java.io.IOException;
 import java.util.HashMap;
 
+import net.nightwhistler.nucular.atom.Entry;
+import net.nightwhistler.nucular.atom.Feed;
+import net.nightwhistler.pageturner.R;
+
+import org.apache.http.client.HttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-import net.nightwhistler.nucular.atom.Entry;
-import net.nightwhistler.nucular.atom.Feed;
-import net.nightwhistler.pageturner.R;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -23,10 +25,13 @@ public class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger("LoadFakeFeedTask");
 	
-	@Inject
-	private Context context;
+	private Context context;	
+	private HttpClient client;
 
-	public LoadFakeFeedTask() {		
+	@Inject
+	public LoadFakeFeedTask(Context context, HttpClient httpClient) {		
+		this.context = context;
+		this.client = httpClient;
 	}
 	
 	public void setCallBack(LoadFeedCallback callBack) {
@@ -55,7 +60,7 @@ public class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
 		fakeFeed.setTitle(singleEntry.getTitle());
 
 		try {
-			Catalog.loadImageLink(new HashMap<String, byte[]>(),
+			Catalog.loadImageLink(client, new HashMap<String, byte[]>(),
 					singleEntry.getImageLink(), params[0]);
 		} catch (IOException io) {
 			LOG.error("Could not load image: ", io);

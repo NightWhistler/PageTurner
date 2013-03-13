@@ -39,13 +39,10 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 	
 	private static final Logger LOG = LoggerFactory.getLogger("LoadOPDSTask");
 
-	@Inject
 	private Configuration config;
 
-	@Inject
 	private Context context;
 
-	@Inject
 	private HttpClient httpClient;
 	
 	private Entry previousEntry;
@@ -55,7 +52,11 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 	
 	private String errorMessage;
 		
-	LoadOPDSTask() {			
+	@Inject
+	LoadOPDSTask(Context context, Configuration config, HttpClient httpClient) {
+		this.context = context;
+		this.config = config;
+		this.httpClient = httpClient;
 	}
 
 	@Override
@@ -147,7 +148,7 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
 			Map<String, byte[]> cache = new HashMap<String, byte[]>();
 			for (Link link : remoteImages) {
-				Catalog.loadImageLink(cache, link, baseUrl);
+				Catalog.loadImageLink(httpClient, cache, link, baseUrl);
 				publishProgress(link);
 			}
 

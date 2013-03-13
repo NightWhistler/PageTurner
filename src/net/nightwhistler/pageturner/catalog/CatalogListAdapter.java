@@ -20,11 +20,25 @@ package net.nightwhistler.pageturner.catalog;
 
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
+import net.nightwhistler.nucular.atom.Link;
+import net.nightwhistler.pageturner.R;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-public abstract class CatalogListAdapter extends BaseAdapter {
+import com.google.inject.Inject;
+
+public class CatalogListAdapter extends BaseAdapter {
 	
 	private Feed feed;	
+	private Context context;
+	
+	@Inject
+	public CatalogListAdapter(Context context) {
+		this.context = context;
+	}
 	
 	public void setFeed( Feed feed ) {
 		this.feed = feed;
@@ -53,6 +67,20 @@ public abstract class CatalogListAdapter extends BaseAdapter {
 	@Override
 	public long getItemId(int position) {
 		return position;
-	}	
+	}
+	
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		View rowView;
+		final Entry entry = getItem(position);
+
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		final Link imgLink = Catalog.getImageLink(getFeed(), entry);
+
+		rowView = inflater.inflate(R.layout.catalog_item, parent, false);			 			
+
+		Catalog.loadBookDetails(context, rowView, entry, imgLink, true );
+		return rowView;
+	}
 	
 }

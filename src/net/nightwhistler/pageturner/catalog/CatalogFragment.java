@@ -10,7 +10,6 @@ import java.util.Stack;
 
 import javax.annotation.Nullable;
 
-import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
@@ -30,12 +29,9 @@ import org.slf4j.LoggerFactory;
 import roboguice.inject.InjectView;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -59,15 +55,9 @@ import com.google.inject.Provider;
 public class CatalogFragment extends RoboSherlockFragment implements
 		LoadFeedCallback {
 	
-    private static final String STATE_NAV_ARRAY_KEY = "nav_array";
-    
-    private static final int ABBREV_TEXT_LEN = 150;
-	
-	private static final int MAX_THUMBNAIL_WIDTH = 85;
+    private static final String STATE_NAV_ARRAY_KEY = "nav_array";    
 	
     private String baseURL = "";
-
-	private CatalogListAdapter adapter;
 
 	private ProgressDialog waitDialog;
 	private ProgressDialog downloadDialog;
@@ -96,6 +86,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Inject
 	private Provider<DownloadFileTask> downloadFileTaskProvider;
 	
+    @Inject
+	private CatalogListAdapter adapter;
+	
 	private LinkListener linkListener;
 
 	private static interface LinkListener {
@@ -111,7 +104,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				navStack.addAll(navList);
 			}
 		}
-		this.adapter = new DownloadingCatalogAdapter();
+		
 		this.baseURL = config.getBaseOPDSFeed();
 	}
 
@@ -359,8 +352,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			item.setEnabled(enabled);
 			item.setVisible(enabled);			
 		}
-	}
-	
+	}	
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -426,89 +418,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}
 	}
 
-	private class DownloadingCatalogAdapter extends CatalogListAdapter {
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View rowView;
-			final Entry entry = getItem(position);
-
-			LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			final Link imgLink = Catalog.getImageLink(getFeed(), entry);
-
-			rowView = inflater.inflate(R.layout.catalog_item, parent, false);			 			
-
-			loadBookDetails( rowView, entry, imgLink, true );
-			return rowView;
-		}
-	}
-
-	private void loadBookDetails(View layout, Entry entry, Link imageLink, boolean abbreviateText ) {
-		
-		HtmlSpanner spanner = new HtmlSpanner();
-		
-		TextView title = (TextView) layout.findViewById(R.id.itemTitle);
-		TextView desc = (TextView) layout
-				.findViewById(R.id.itemDescription);
-
-		ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
-		loadImageLink(icon, imageLink, abbreviateText);
-
-		title.setText(entry.getTitle());
-
-		CharSequence text;
-		
-		if (entry.getContent() != null) {
-			text = spanner.fromHtml(entry.getContent().getText());
-		} else if (entry.getSummary() != null) {
-			text = spanner.fromHtml(entry.getSummary());
-		} else {
-			text = "";
-		}
-		
-		if (abbreviateText && text.length() > ABBREV_TEXT_LEN ) {
-			text = text.subSequence(0, ABBREV_TEXT_LEN) + "…";
-		}
-		
-		desc.setText(text);
-	}
-	
-	private void loadImageLink(ImageView icon, Link imageLink, boolean scaleToThumbnail ) {
-
-		try {
-
-			if (imageLink != null && imageLink.getBinData() != null) {
-				byte[] data = imageLink.getBinData();
-
-				Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,
-						data.length);
-
-				if ( scaleToThumbnail && bitmap.getWidth() > MAX_THUMBNAIL_WIDTH ) {
-					int newHeight = getThumbnailWidth(bitmap.getHeight(), bitmap.getWidth() );
-					icon.setImageBitmap( Bitmap.createScaledBitmap(bitmap,
-							MAX_THUMBNAIL_WIDTH, newHeight, true));
-					bitmap.recycle();				
-				} else {
-					icon.setImageBitmap(bitmap);
-				}
-				
-				return;
-			} 
-		} catch (OutOfMemoryError mem ) {
-
-		}
-		
-		icon.setImageDrawable(getResources().getDrawable(
-					R.drawable.unknown_cover));
-		
-	}
-	
-	private int getThumbnailWidth( int originalHeight, int originalWidth ) {
-		float factor = (float) originalHeight / (float) originalWidth;
-		
-		return (int) (MAX_THUMBNAIL_WIDTH * factor);
-	}	
-	
 	public void notifyLinkUpdated() {
 		adapter.notifyDataSetChanged();
 		
@@ -656,14 +565,14 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		
 		final Link imgLink = Catalog.getImageLink(feed, entry);
 		
-		loadBookDetails(layout, entry, imgLink, false);
+		Catalog.loadBookDetails(getActivity(), layout, entry, imgLink, false);
 		final ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
 		
 		linkListener = new LinkListener() {
 			
 			@Override
 			public void linkUpdated() {
-				loadImageLink(icon, imgLink, false);				
+				Catalog.loadImageLink(getActivity(), icon, imgLink, false);				
 			}
 		};
 		

@@ -21,7 +21,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 public class DownloadFileTask extends AsyncTask<String, Long, String> {
 

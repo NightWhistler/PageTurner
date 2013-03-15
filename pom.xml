@@ -136,14 +136,14 @@
 			<artifactId>roboguice-sherlock</artifactId>
 			<version>1.5</version>
 		</dependency>
-<!-- 
-        <dependency>
-            <groupId>com.pivotallabs</groupId>
-            <artifactId>robolectric</artifactId>
-            <version>1.2</version>
-            <scope>test</scope>
-        </dependency>
- -->
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.8.4</version>
+			<scope>test</scope>
+		</dependency>
+            
          
         <dependency>
             <groupId>junit</groupId>

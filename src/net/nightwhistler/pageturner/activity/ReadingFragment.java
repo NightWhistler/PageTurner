@@ -366,9 +366,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		uiHandler.removeCallbacks(progressBarUpdater);
 
 		if ( buttonId == R.id.stopButton ) {			
-			mediaPlayer.stop();			
 			stopTextToSpeech();
-			mediaPlayer.release();
 		} else if ( buttonId == R.id.playPauseButton ) {
 			if ( mediaPlayer.isPlaying() ) {
 				mediaPlayer.pause();
@@ -651,6 +649,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 	
 	private void stopTextToSpeech() {
+		
+		MediaPlayer mediaPlayer = this.mediaPlayerQueue.peek();
+		
+		if ( mediaPlayer != null ) {
+			mediaPlayer.stop();		
+			mediaPlayer.release();
+		}
+		
 		this.mediaLayout.setVisibility(View.GONE);
 		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
 			unsubscribeFromMediaButtons();
@@ -847,7 +853,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 	}
 
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(MotionEvent event) {	
 		return bookView.onTouchEvent(event);
 	}
 
@@ -1499,7 +1505,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		if (bookView.isAtEnd()) {
 			return;
-		}
+		}		 
 
 		stopAnimating();
 
@@ -1659,7 +1665,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		super.onStop();
 
 		saveReadingPosition();		
-		this.waitDialog.dismiss();
+		this.waitDialog.dismiss();			
 	}
 
 	private void saveReadingPosition() {

@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,6 +75,11 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	}
 	
 	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		showEditDialog( adapter.getItem(position) );
+	}
+	
+	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		
 		ContextAction action = ContextAction.values()[item.getItemId()];
@@ -115,10 +121,14 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 		final TextView siteName = (TextView) layout.findViewById(R.id.siteName);
 		final TextView siteURL = (TextView) layout.findViewById(R.id.siteUrl);
 		final TextView siteDesc = (TextView) layout.findViewById(R.id.siteDescription);
+		final TextView userName = (TextView) layout.findViewById(R.id.username);
+		final TextView password = (TextView) layout.findViewById(R.id.password);
 		
 		siteName.setText(site.getName());
 		siteURL.setText(site.getUrl());
-		siteDesc.setText(site.getDescription());		
+		siteDesc.setText(site.getDescription());
+		userName.setText(site.getUserName());
+		password.setText(site.getPassword());
 				
 		builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 			
@@ -138,9 +148,11 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 				site.setName(siteName.getText().toString());
 				site.setDescription(siteDesc.getText().toString());
 				site.setUrl(siteURL.getText().toString());
-				
-				adapter.add(site);
+				site.setUserName(userName.getText().toString());
+				site.setPassword(password.getText().toString());
+								
 				storeSites();
+				adapter.notifyDataSetChanged();
 				dialog.dismiss();
 			}
 		});
@@ -187,6 +199,7 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 				
 				adapter.add(site);
 				storeSites();
+				
 				dialog.dismiss();
 			}
 		});
@@ -200,7 +213,7 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	private class CustomOPDSSiteAdapter extends ArrayAdapter<CustomOPDSSite> {
 		public CustomOPDSSiteAdapter(List<CustomOPDSSite> sites) {
 			super(ManageSitesActivity.this, 0, sites);
-		}
+		}		
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {

@@ -19,17 +19,23 @@
 
 package net.nightwhistler.pageturner;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
 import net.nightwhistler.pageturner.sync.PageTurnerWebProgressService;
 import net.nightwhistler.pageturner.sync.ProgressService;
 
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Provides;
 
 /**
@@ -59,10 +65,25 @@ public class PageTurnerModule extends AbstractModule {
 	 * @return
 	 */
 	@Provides
-	public HttpClient getHttpClient() {
+	@Inject
+	public HttpClient getHttpClient(Configuration config) {
 		HttpParams httpParams = new BasicHttpParams();
 		DefaultHttpClient client = new DefaultHttpClient(httpParams);
 		
+		for ( CustomOPDSSite site: config.getCustomOPDSSites() ) {
+			if ( site.getUserName() != null && site.getUserName().length() > 0 ) {
+				try {
+					URL url = new URL(site.getUrl());
+					client.getCredentialsProvider().setCredentials(
+						new AuthScope(url.getHost(), url.getPort()),
+						new UsernamePasswordCredentials(site.getUserName(), site.getPassword()));
+				} catch (MalformedURLException mal ) {
+					//skip to the next
+				}				
+			}
+		}		
+		
 		return client;
 	}
+	
 }

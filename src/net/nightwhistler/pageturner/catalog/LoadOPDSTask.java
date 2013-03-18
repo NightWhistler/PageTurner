@@ -18,6 +18,7 @@ import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
@@ -89,7 +90,14 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
 		try {			
 			
-			InputStream stream = httpClient.execute(new HttpGet(baseUrl)).getEntity().getContent();			
+			HttpResponse response = httpClient.execute(new HttpGet(baseUrl));
+			
+			if ( response.getStatusLine().getStatusCode() != 200 ) {
+				this.errorMessage = "HTTP " + response.getStatusLine().getStatusCode() + ": " + response.getStatusLine().getReasonPhrase();
+				return null;
+			}
+			
+			InputStream stream = response.getEntity().getContent();			
 			Feed feed = Nucular.readAtomFeedFromStream(stream);
 			feed.setDetailFeed(asDetailsFeed);
 			

@@ -47,7 +47,7 @@ public class Entry extends AtomElement {
 	
 	public Link getAlternateLink() {
 		Link atomLink = getAtomLink();
-		if ( atomLink != null && atomLink.getRel().equalsIgnoreCase(REL_ALTERNATE)) {
+		if ( atomLink != null && atomLink.getRel() != null && atomLink.getRel().equalsIgnoreCase(REL_ALTERNATE)) {
 			return atomLink;
 		}
 		

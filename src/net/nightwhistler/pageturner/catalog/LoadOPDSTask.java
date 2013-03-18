@@ -189,7 +189,7 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 		if (result == null) {
 			callBack.errorLoadingFeed(errorMessage);
 		} else {
-			callBack.setNewFeed(result);
+			//callBack.setNewFeed(result);
 		}
 	}
 
@@ -213,23 +213,7 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 		Object val = values[0];
 
 		if (val instanceof Feed) {
-			Feed result = (Feed) val;
-
-			/**
-			 * This is a bit hacky: some feeds have the download link in the
-			 * list, and clicking an item will take you to another list.
-			 * 
-			 * Since we always want to send the user to a single-item page
-			 * before downloading, we have to fake it some times.
-			 */
-
-			if (previousEntry != null && previousEntry.getEpubLink() != null) {
-				if (result == null || result.getSize() != 1
-						|| result.getEntries().get(0).getEpubLink() == null) {
-					callBack.loadFakeFeed(previousEntry);
-					return;
-				}
-			}
+			Feed result = (Feed) val;			
 
 			if (isBaseFeed) {
 				addCustomSitesEntry(result);

@@ -1005,6 +1005,7 @@ public class BookView extends ScrollView {
 			this.fakeImages = fakeImages;			
 		}
 
+		@TargetApi(Build.VERSION_CODES.FROYO)
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 				int start, int end) {
@@ -1022,7 +1023,7 @@ public class BookView extends ScrollView {
 			if (src.startsWith("data:image/png;base64")) {
 				String dataString = src.substring(src
 						.indexOf(',') + 1);
-				try {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
 					byte[] binData = Base64.decode(dataString,
 							Base64.DEFAULT);
 					
@@ -1031,8 +1032,8 @@ public class BookView extends ScrollView {
 							BitmapFactory.decodeByteArray(binData, 0, binData.length )),
 							start, builder.length());
 					
-				} catch (NoClassDefFoundError ncd) {
-					// Slight hack for Android 2.1					
+				} else {
+					// fallback for Android 2.1					
 				}
 
 			} else {

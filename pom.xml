@@ -137,13 +137,19 @@
 			<version>1.5</version>
 		</dependency>
 
+		
 		<dependency>
 			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
+			<artifactId>mockito-core</artifactId>
 			<version>1.8.4</version>
-			<scope>test</scope>
-		</dependency>
-            
+			<scope>test</scope>	
+			<exclusions>
+        	<exclusion>  <!-- declare the exclusion here -->
+          		<groupId>org.hamcrest</groupId>
+          		<artifactId>hamcrest-core</artifactId>
+        	</exclusion>
+      </exclusions> 	
+		</dependency>		
          
         <dependency>
             <groupId>junit</groupId>

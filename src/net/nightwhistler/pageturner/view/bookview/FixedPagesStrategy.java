@@ -47,6 +47,15 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		this.pageOffsets = new ArrayList<Integer>();
 	}
 	
+	/**
+	 * Returns the current page INSIDE THE SECTION.
+	 * 
+	 * @return
+	 */
+	public int getCurrentPage() {
+		return this.pageNum;
+	}
+	
 	public static List<Integer> getPageOffsets( BookView bookView, CharSequence text, boolean includePageNumbers ) {
 		
 		if ( text == null ) {
@@ -129,16 +138,16 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	@Override
 	public void updatePosition() {
 		
-		if ( pageOffsets.isEmpty() || text.length() == 0) {
+		if ( pageOffsets.isEmpty() || text.length() == 0 || this.pageNum == -1) {
 			return;
-		}		
+		}
 		
 		if ( storedPosition != -1 ) {
 			updateStoredPosition();
 		}
 		
 		if ( this.pageNum >= pageOffsets.size() -1 ) {
-			childView.setText( this.text.subSequence(pageOffsets.get(pageNum), text.length() ));
+			childView.setText( this.text.subSequence(pageOffsets.get(pageOffsets.size() -1), text.length() ));
 		} else {
 			int start = this.pageOffsets.get(pageNum);
 			int end = this.pageOffsets.get(pageNum +1 );

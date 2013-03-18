@@ -97,25 +97,8 @@ public class PageTurnerSpine {
 		return total;
 	}
 	
-	public int getPageNumberFor( int index, int position ) {
-		
-		int pageNum = 0;
-		
-		if ( index >= pageOffsets.size() ) {
-			return -1;
-		}
-		
-		for ( int i=0; i < index; i++ ) {
-			pageNum += pageOffsets.get(i).size();			
-		}
-		
-		List<Integer> offsets = pageOffsets.get(index);
-		
-		for ( int i=0; i < offsets.size() && offsets.get(i) < position; i++ ) {
-			pageNum++;
-		}
-		
-		return pageNum;
+	public List<List<Integer>> getPageOffsets() {
+		return pageOffsets;
 	}
 	
 	

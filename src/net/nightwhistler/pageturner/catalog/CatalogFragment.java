@@ -138,14 +138,15 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}	
 	
 	private void loadOPDSFeed(String url) {
-		loadOPDSFeed(null, url);
+		loadOPDSFeed(null, url, false);
 	}
 	
-	private void loadOPDSFeed( Entry entry, String url ) {
+	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed ) {
 		LoadOPDSTask task = this.loadOPDSTaskProvider.get();
 		task.setCallBack(this);
 		task.setWaitDialog(waitDialog);
-		task.setPreviousEntry(entry);		
+		task.setPreviousEntry(entry);	
+		task.setAsDetailsFeed(asDetailsFeed);
 		
 		task.execute(url);
 	}	
@@ -227,12 +228,15 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			
 		if ( entry.getId() != null && entry.getId().equals(Catalog.CUSTOM_SITES_ID) ) {			
 			loadCustomSiteFeed();
-		} else if (entry.getAtomLink() != null) {
-			String href = entry.getAtomLink().getHref();
-			loadURL(entry, href);
-		} else {
+		} else if ( entry.getAlternateLink() != null ) {
+			String href = entry.getAlternateLink().getHref();
+			loadURL(entry, href, true);
+		} else if ( entry.getEpubLink() != null ) {
 			loadFakeFeed(entry);
-		}
+		} else {
+			String href = entry.getAtomLink().getHref();
+			loadURL(entry, href, false);
+		} 
 	}	
 	
 	private void loadCustomSiteFeed() {
@@ -284,10 +288,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 
 	private void loadURL(String url) {
-		loadURL(null, url);
+		loadURL(null, url, false);
 	}
 
-	private void loadURL(Entry entry, String url) {
+	private void loadURL(Entry entry, String url, boolean asDetailsFeed) {
 
 		String base = baseURL;
 
@@ -306,7 +310,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			LOG.info("Loading " + target);
 
 			navStack.push(target);
-			loadOPDSFeed(entry, target);
+			loadOPDSFeed(entry, target, asDetailsFeed);
 		} catch (MalformedURLException u) {
 			LOG.error("Malformed URL:", u);
 		}
@@ -590,7 +594,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		if (result != null) {
 			
-			if ( Catalog.isLeafEntry(result) ) {
+			if ( result.isDetailFeed() ) {
 				showItemPopup(result);
 			} else {
 				adapter.setFeed(result);

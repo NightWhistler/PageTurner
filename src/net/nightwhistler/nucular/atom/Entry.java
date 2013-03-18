@@ -20,6 +20,7 @@ package net.nightwhistler.nucular.atom;
 
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_BUY;
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_COVER;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_ALTERNATE;
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_IMAGE;
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_STANZA_COVER_IMAGE;
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_STANZA_THUMBNAIL_IMAGE;
@@ -43,6 +44,15 @@ public class Entry extends AtomElement {
 	public void setUpdated(String updated) {
 		this.updated = updated;
 	}		
+	
+	public Link getAlternateLink() {
+		Link atomLink = getAtomLink();
+		if ( atomLink != null && atomLink.getRel().equalsIgnoreCase(REL_ALTERNATE)) {
+			return atomLink;
+		}
+		
+		return null;
+	}
 	
 	public Link getAtomLink() {
 		List<Link> links = getLinks();

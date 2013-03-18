@@ -13,9 +13,6 @@ import net.nightwhistler.pageturner.R;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +20,13 @@ import org.slf4j.LoggerFactory;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class Catalog {
-
+	
 	/**
 	 * Reserved ID to identify the feed entry where custom sites are added.
 	 */
@@ -36,10 +34,12 @@ public class Catalog {
 	
     private static final int ABBREV_TEXT_LEN = 150;
 	
-	private static final int MAX_THUMBNAIL_WIDTH = 85;
+	private static final int MAX_THUMBNAIL_WIDTH = 45;
+	
+	private static Bitmap unknownCoverScaled;
 	
 	private static final Logger LOG = LoggerFactory.getLogger("Catalog");
-
+		
 	private Catalog() {}
 	
 	/**
@@ -52,7 +52,7 @@ public class Catalog {
 	public static Link getImageLink(Feed feed, Entry entry) {
 		Link[] linkOptions;
 
-		if (isLeafEntry(feed)) {
+		if ( feed.isDetailFeed() ) {
 			linkOptions = new Link[] { entry.getImageLink(), entry.getThumbnailLink() };
 		} else {
 			linkOptions = new Link[] { entry.getThumbnailLink(), entry.getImageLink() };						
@@ -86,7 +86,13 @@ public class Catalog {
 		ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
 		loadImageLink(context, icon, imageLink, abbreviateText);
 
-		title.setText(entry.getTitle());
+		String titleText = entry.getTitle();
+		
+		if ( entry.getEpubLink() != null ) {
+			titleText += "*";
+		}
+		
+		title.setText(titleText);
 
 		CharSequence text;
 		
@@ -116,7 +122,7 @@ public class Catalog {
 						data.length);
 
 				if ( scaleToThumbnail && bitmap.getWidth() > MAX_THUMBNAIL_WIDTH ) {
-					int newHeight = getThumbnailWidth(bitmap.getHeight(), bitmap.getWidth() );
+					int newHeight = getThumbnailHeight(bitmap.getHeight(), bitmap.getWidth() );
 					icon.setImageBitmap( Bitmap.createScaledBitmap(bitmap,
 							MAX_THUMBNAIL_WIDTH, newHeight, true));
 					bitmap.recycle();				
@@ -130,12 +136,18 @@ public class Catalog {
 
 		}
 		
-		icon.setImageDrawable(context.getResources().getDrawable(
-					R.drawable.unknown_cover));
+		if ( unknownCoverScaled == null ) {
+			Bitmap coverBitmap = ( (BitmapDrawable) context.getResources().getDrawable(
+					R.drawable.unknown_cover)).getBitmap();
+			int newHeight = getThumbnailHeight(coverBitmap.getHeight(), coverBitmap.getWidth() );
+			unknownCoverScaled = Bitmap.createScaledBitmap(coverBitmap, MAX_THUMBNAIL_WIDTH, newHeight, false);
+		}		
+				
+		icon.setImageBitmap(unknownCoverScaled);
 		
 	}
 	
-	public static int getThumbnailWidth( int originalHeight, int originalWidth ) {
+	public static int getThumbnailHeight( int originalHeight, int originalWidth ) {
 		float factor = (float) originalHeight / (float) originalWidth;
 		
 		return (int) (MAX_THUMBNAIL_WIDTH * factor);
@@ -166,21 +178,5 @@ public class Catalog {
 				cache.put(href, imageLink.getBinData());
 			}
 		}
-	}
-	
-	/**
-	 * Checks if a feed is a leaf:
-	 * 
-	 * A feed is a leaf if it isn't our custom
-	 * sites feed and only has 1 entry.
-	 * 
-	 * @param feed
-	 * @return
-	 */
-	public static boolean isLeafEntry(Feed feed) {		
-		
-		return feed.getEntries().size() == 1
-				&& ( feed.getId() == null
-				|| ! feed.getId().equals(CUSTOM_SITES_ID));
-	}
+	}	
 }

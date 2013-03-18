@@ -52,6 +52,8 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 	
 	private String errorMessage;
 		
+	private boolean asDetailsFeed;
+	
 	@Inject
 	LoadOPDSTask(Context context, Configuration config, HttpClient httpClient) {
 		this.context = context;
@@ -89,6 +91,7 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 			
 			InputStream stream = httpClient.execute(new HttpGet(baseUrl)).getEntity().getContent();			
 			Feed feed = Nucular.readAtomFeedFromStream(stream);
+			feed.setDetailFeed(asDetailsFeed);
 			
 			List<Link> remoteImages = new ArrayList<Link>();
 
@@ -174,6 +177,10 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 	public LoadOPDSTask setPreviousEntry(Entry previousEntry) {
 		this.previousEntry = previousEntry;
 		return this;
+	}
+	
+	public void setAsDetailsFeed(boolean asDetailsFeed) {
+		this.asDetailsFeed = asDetailsFeed;
 	}
 	
 	@Override

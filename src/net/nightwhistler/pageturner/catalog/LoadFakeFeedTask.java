@@ -58,6 +58,7 @@ public class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
 		Feed fakeFeed = new Feed();
 		fakeFeed.addEntry(singleEntry);
 		fakeFeed.setTitle(singleEntry.getTitle());
+		fakeFeed.setDetailFeed(true);
 
 		try {
 			Catalog.loadImageLink(client, new HashMap<String, byte[]>(),

@@ -18,6 +18,9 @@
  */
 package net.nightwhistler.pageturner.catalog;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
@@ -33,6 +36,8 @@ import com.google.inject.Inject;
 public class CatalogListAdapter extends BaseAdapter {
 	
 	private Feed feed;	
+	
+	private List<Entry> entries;
 	private Context context;
 	
 	@Inject
@@ -42,6 +47,24 @@ public class CatalogListAdapter extends BaseAdapter {
 	
 	public void setFeed( Feed feed ) {
 		this.feed = feed;
+		this.entries = new ArrayList<Entry>(feed.getEntries());
+		
+		if ( feed.getPreviousLink() != null ) {
+			Entry prevEntry = new Entry();
+			prevEntry.addLink( feed.getPreviousLink() );
+			prevEntry.setTitle("Previous page...");
+			
+			entries.add(0, prevEntry);
+		}
+		
+		if ( feed.getNextLink() != null ) {
+			Entry nextEntry = new Entry();
+			nextEntry.addLink(feed.getNextLink());
+			nextEntry.setTitle("Next page...");
+			
+			entries.add(nextEntry);
+		}
+		
 		this.notifyDataSetChanged();		
 	}
 	
@@ -56,12 +79,12 @@ public class CatalogListAdapter extends BaseAdapter {
 			return 0;
 		}
 		
-		return feed.getEntries().size();
+		return entries.size();
 	}
 	
 	@Override
 	public Entry getItem(int position) {
-		return feed.getEntries().get(position);
+		return entries.get(position);
 	}
 	
 	@Override

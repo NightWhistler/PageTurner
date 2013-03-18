@@ -18,6 +18,8 @@ public final class AtomConstants {
 	public static final String REL_IMAGE = "http://opds-spec.org/image";
 	public static final String REL_COVER = "http://opds-spec.org/cover";
 	
+	public static final String REL_ALTERNATE = "alternate";
+	
 
 	public static final String REL_NEXT = "next";
 	public static final String REL_SEARCH = "search";

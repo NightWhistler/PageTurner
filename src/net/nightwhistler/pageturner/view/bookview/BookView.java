@@ -63,6 +63,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
@@ -80,6 +81,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.util.AttributeSet;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -1022,17 +1024,36 @@ public class BookView extends ScrollView {
 				src = node.getAttributeByName("xlink:href");
 			}
 			builder.append("\uFFFC");
+			
+			if (src.startsWith("data:image/png;base64")) {
+				String dataString = src.substring(src
+						.indexOf(',') + 1);
+				try {
+					byte[] binData = Base64.decode(dataString,
+							Base64.DEFAULT);
+					
+					setImageSpan(builder, new BitmapDrawable(
+							getContext().getResources(),
+							BitmapFactory.decodeByteArray(binData, 0, binData.length )),
+							start, builder.length());
+					
+				} catch (NoClassDefFoundError ncd) {
+					// Slight hack for Android 2.1					
+				}
 
-			String resolvedHref = spine.resolveHref(src);
-
-			if (imageCache.containsKey(resolvedHref) && ! fakeImages ) {
-				Drawable drawable = imageCache.get(resolvedHref);
-				setImageSpan(builder, drawable, start, builder.length());
-				LOG.debug("Got cached href: " + resolvedHref);
 			} else {
-				LOG.debug("Loading href: " + resolvedHref);
-				this.registerCallback(resolvedHref, new ImageCallback(
-						resolvedHref, builder, start, builder.length(), fakeImages));
+
+				String resolvedHref = spine.resolveHref(src);
+
+				if (imageCache.containsKey(resolvedHref) && ! fakeImages ) {
+					Drawable drawable = imageCache.get(resolvedHref);
+					setImageSpan(builder, drawable, start, builder.length());
+					LOG.debug("Got cached href: " + resolvedHref);
+				} else {
+					LOG.debug("Loading href: " + resolvedHref);
+					this.registerCallback(resolvedHref, new ImageCallback(
+							resolvedHref, builder, start, builder.length(), fakeImages));
+				}
 			}
 		}
 		

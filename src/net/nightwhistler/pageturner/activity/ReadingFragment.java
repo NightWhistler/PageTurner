@@ -1228,6 +1228,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					getActivity().finish();
 				}
 			}
+		
+		case KeyEvent.KEYCODE_SEARCH:
+			if (action == KeyEvent.ACTION_DOWN) {
+				onSearchClick();
+				return true;
+			}
 
 		case KEYCODE_NOOK_TOUCH_BUTTON_LEFT_TOP:
 		case KEYCODE_NOOK_TOUCH_BUTTON_RIGHT_TOP:

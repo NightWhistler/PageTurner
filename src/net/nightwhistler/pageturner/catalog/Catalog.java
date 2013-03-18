@@ -85,14 +85,8 @@ public class Catalog {
 
 		ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
 		loadImageLink(context, icon, imageLink, abbreviateText);
-
-		String titleText = entry.getTitle();
-		
-		if ( entry.getEpubLink() != null ) {
-			titleText += "*";
-		}
-		
-		title.setText(titleText);
+				
+		title.setText( entry.getTitle());
 
 		CharSequence text;
 		

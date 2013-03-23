@@ -91,8 +91,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
+import android.telephony.TelephonyManager;
 import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -198,6 +200,15 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@InjectView(R.id.stopButton)
 	private ImageButton stopButton;
 	
+	@Inject
+	private TelephonyManager telephonyManager;
+	
+	@Inject
+	private PowerManager powerManager;
+	
+	@Inject
+	private AudioManager audioManager;
+	
 	private Queue<MediaPlayer> mediaPlayerQueue = new ConcurrentLinkedQueue<MediaPlayer>();
 
 	private ProgressDialog waitDialog;
@@ -240,8 +251,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private Toast brightnessToast;
 
-	private PageTurnerEventReceiver mReceiver = new PageTurnerEventReceiver();
-	private PageTurnerMediaReceiver mediaReceiver = new PageTurnerMediaReceiver();
+	private PageTurnerMediaReceiver mediaReceiver;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -374,7 +384,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				mediaPlayer.start();
 				uiHandler.post(progressBarUpdater);
 			}
-		}
+		}		
+		
 	}	
 
 	@Override
@@ -457,18 +468,32 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	 */
 	@Override
 	public void onPause() {
-		// when the screen is about to turn off
-		if (mReceiver.isWasScreenOn()) {
-			// this is the case when onPause() is called by the system due to a
-			// screen state change
-			saveReadingPosition();
-		} else {
-			// this is when onPause() is called when the screen state has not
-			// changed
-		}
-
-		getActivity().unregisterReceiver(mReceiver);
+			
+		saveReadingPosition();
+		
+	    if ( powerManager.isScreenOn() ) {
+	    	stopTextToSpeech();
+	    } 		
+		
 		super.onPause();
+	}
+	
+	private void printScreenAndCallState(String calledFrom) {
+	    boolean isScreenOn = powerManager.isScreenOn();
+
+	    if (!isScreenOn) {
+	    	LOG.debug(calledFrom + ": Screen is off");
+	    } else {
+	    	LOG.debug(calledFrom + ": Screen is on");
+	    }
+	    
+	    int phoneState = telephonyManager.getCallState();
+	    
+	    if ( phoneState == TelephonyManager.CALL_STATE_RINGING || phoneState == TelephonyManager.CALL_STATE_OFFHOOK ) {
+	    	LOG.debug(calledFrom + ": Detected call activity");
+	    } else {
+	    	LOG.debug(calledFrom + ": No active call.");
+	    }
 	}
 	
 	private void startTextToSpeech() {
@@ -564,6 +589,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	private Runnable progressBarUpdater = new Runnable() {
 		public void run() {
 			
+			int phoneState = telephonyManager.getCallState();
+	    
+			if ( phoneState == TelephonyManager.CALL_STATE_RINGING || 
+					phoneState == TelephonyManager.CALL_STATE_OFFHOOK ) {
+				stopTextToSpeech();
+				return;
+			}
+			
 			MediaPlayer mediaPlayer = mediaPlayerQueue.peek();
 			
 			if ( mediaPlayer != null && mediaPlayer.isPlaying() ) {
@@ -582,19 +615,25 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	@TargetApi(Build.VERSION_CODES.FROYO)
 	private void subscribeToMediaButtons() {
-		IntentFilter filter = new IntentFilter(MediaButtonReceiver.INTENT_PAGETURNER_MEDIA);
-		getActivity().registerReceiver(mediaReceiver, filter);
-		
-		((AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE)).registerMediaButtonEventReceiver(
-			new ComponentName(getActivity(), MediaButtonReceiver.class));		
+		if ( this.mediaReceiver == null ) {
+			this.mediaReceiver = new PageTurnerMediaReceiver();
+			IntentFilter filter = new IntentFilter(MediaButtonReceiver.INTENT_PAGETURNER_MEDIA);
+			getActivity().registerReceiver(mediaReceiver, filter);
+
+			audioManager.registerMediaButtonEventReceiver(
+					new ComponentName(getActivity(), MediaButtonReceiver.class));
+		}
 	}
 	
 	@TargetApi(Build.VERSION_CODES.FROYO)
 	private void unsubscribeFromMediaButtons() {		
-		getActivity().unregisterReceiver(mediaReceiver);
+		if ( this.mediaReceiver != null ) {
+			getActivity().unregisterReceiver(mediaReceiver);
+			this.mediaReceiver = null;
 		
-		((AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE)).unregisterMediaButtonEventReceiver(
-			new ComponentName(getActivity(), MediaButtonReceiver.class));		
+			audioManager.unregisterMediaButtonEventReceiver(
+					new ComponentName(getActivity(), MediaButtonReceiver.class));
+		}
 	}
 	
 	
@@ -661,6 +700,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
 			unsubscribeFromMediaButtons();
 		}
+		
+		this.mediaPlayerQueue.clear();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -669,20 +710,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.ttsAvailable = (status == TextToSpeech.SUCCESS) && !Configuration.IS_NOOK_TOUCH;
 	}
 	
-
-	@Override
-	public void onResume() {
-		registerReceiver();
-		super.onResume();
-	}
-
-	private void registerReceiver() {
-		// initialize receiver
-		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-		filter.addAction(Intent.ACTION_SCREEN_OFF);
-		getActivity().registerReceiver(mReceiver, filter);		            
-	}
-
 	private void updateFileName(Bundle savedInstanceState, String fileName) {
 
 		this.fileName = fileName;
@@ -1669,6 +1696,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void onStop() {
 		super.onStop();
+				
+		printScreenAndCallState("onStop()");
 
 		saveReadingPosition();		
 		this.waitDialog.dismiss();			
@@ -2320,34 +2349,34 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			}
 			
 		}
-	}
-	
-	private class PageTurnerEventReceiver extends BroadcastReceiver {
-
-		public boolean wasScreenOn = true;
-		
-		private final Logger LOG = LoggerFactory.getLogger("PTEventReceiver");
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			
-			LOG.debug("Got intent: " + intent.getAction() );
-			
-			if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-				// do whatever you need to do here
-				wasScreenOn = false;
-			} else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-				// and do whatever you need to do here
-				wasScreenOn = true;
-			} 
-		}
-		
-		public boolean isWasScreenOn() {
-			return wasScreenOn;
-		}
-
-	}		
-	
+	}	
 }
 
+class PageTurnerEventReceiver extends BroadcastReceiver {
+
+	public boolean wasScreenOn = true;
+	
+	private final Logger LOG = LoggerFactory.getLogger("PTEventReceiver");
+
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		
+		LOG.debug("Got intent: " + intent.getAction() );
+		
+		if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+			LOG.debug("Screen just turned off");
+			// do whatever you need to do here
+			wasScreenOn = false;
+		} else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+			LOG.debug("Screen just turned on");
+			// and do whatever you need to do here
+			wasScreenOn = true;
+		} 
+	}
+	
+	public boolean isWasScreenOn() {
+		return wasScreenOn;
+	}
+
+}		
 

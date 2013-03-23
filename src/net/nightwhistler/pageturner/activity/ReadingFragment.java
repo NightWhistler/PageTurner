@@ -402,6 +402,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		View.OnTouchListener gestureListener = new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
+				
+				if ( ttsIsRunning() ) {
+					return false;
+				}
+				
 				return gestureDetector.onTouchEvent(event);
 			}
 		};
@@ -643,7 +648,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	private void speechCompleted( String wavFile, MediaPlayer mediaPlayer ) {
 		
-		this.mediaPlayerQueue.remove();		
+		if (! mediaPlayerQueue.isEmpty() ) {
+			this.mediaPlayerQueue.remove();
+		}
+		
 		this.mediaProgressBar.setProgress(0);
 		
 		if ( ttsIsRunning() && ! bookView.isAtEnd() ) {

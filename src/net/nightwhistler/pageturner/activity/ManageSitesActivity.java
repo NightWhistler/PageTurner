@@ -61,7 +61,7 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	@Override
 	public boolean onOptionsItemSelected(
 			com.actionbarsherlock.view.MenuItem item) {
-		showAddSiteDialog();
+		showAddGenericSiteDialog();
 		return true;
 	}
 		
@@ -112,8 +112,29 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 		showSiteDialog(R.string.edit_site, site);		
 	}
 	
-	private void showAddSiteDialog() {
-		showSiteDialog(R.string.add_site, null);	
+	private void showAddGenericSiteDialog() {
+		
+		final String[] labels = {
+				getString(R.string.calibre_server),
+				getString(R.string.cops_server),
+				getString(R.string.c2opds_server),
+				getString(R.string.generic_server)
+		};
+		
+		 AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		    builder.setTitle(R.string.add_site_header)
+		           .setItems(labels, new DialogInterface.OnClickListener() {
+		               public void onClick(DialogInterface dialog, int which) {
+		            	   switch (which) {
+		            	   case 3:
+		            		   showSiteDialog(R.string.add_site, null);
+		            	   default:
+		            		   Toast.makeText(ManageSitesActivity.this, "Oops, not implemented", Toast.LENGTH_SHORT).show();
+		            	   }
+		               }
+		    });
+		    
+		    builder.show();	
 	}
 	
 	private void showSiteDialog(int titleResource, final CustomOPDSSite siteParam ) {

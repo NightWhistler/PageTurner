@@ -120,6 +120,11 @@
     <string name="custom_site">My custom OPDS sites</string>
     <string name="add_site">Add custom site</string>
     <string name="edit_site">Edit custom site</string>
+    <string name="add_site_header">What kind of site would you like to add?</string>
+    <string name="calibre_server">Calibre content server</string>
+    <string name="cops_server">COPS server</string>
+    <string name="c2opds_server">Calibre2OPDS</string>
+    <string name="generic_server">Generic OPDS site</string>
     <string name="save">Save changes</string>
     
     <string name="custom_site_desc">Your own OPDS / Calibre sites. You can add sites from the Preferences screen.</string>

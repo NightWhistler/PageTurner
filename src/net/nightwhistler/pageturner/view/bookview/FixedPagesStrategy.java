@@ -47,6 +47,15 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		this.pageOffsets = new ArrayList<Integer>();
 	}
 	
+	/**
+	 * Returns the current page INSIDE THE SECTION.
+	 * 
+	 * @return
+	 */
+	public int getCurrentPage() {
+		return this.pageNum;
+	}
+	
 	public static List<Integer> getPageOffsets( BookView bookView, CharSequence text, boolean includePageNumbers ) {
 		
 		if ( text == null ) {
@@ -129,21 +138,28 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	@Override
 	public void updatePosition() {
 		
-		if ( pageOffsets.isEmpty() || text.length() == 0) {
+		if ( pageOffsets.isEmpty() || text.length() == 0 || this.pageNum == -1) {
 			return;
-		}		
+		}
 		
 		if ( storedPosition != -1 ) {
 			updateStoredPosition();
 		}
 		
-		if ( this.pageNum >= pageOffsets.size() -1 ) {
-			childView.setText( this.text.subSequence(pageOffsets.get(pageNum), text.length() ));
+		this.childView.setText(getTextForPage(this.pageNum));			
+	}
+	
+	private CharSequence getTextForPage( int page ) {
+		
+		if ( pageOffsets.size() < 1 ) {
+			return null;
+		} else if ( page >= pageOffsets.size() -1 ) {
+			return this.text.subSequence(pageOffsets.get(pageOffsets.size() -1), text.length() );
 		} else {
-			int start = this.pageOffsets.get(pageNum);
-			int end = this.pageOffsets.get(pageNum +1 );
-			childView.setText( this.text.subSequence(start, end));
-		}		
+			int start = this.pageOffsets.get(page);
+			int end = this.pageOffsets.get(page +1 );
+			return this.text.subSequence(start, end);
+		}	
 	}
 	
 	@Override
@@ -181,6 +197,24 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	
 	public boolean isScrolling() {
 		return false;
+	}
+	
+	@Override
+	public CharSequence getNextPageText() {
+		if ( isAtEnd() ) {
+			return null;
+		}
+		
+		return getTextForPage( this.pageNum + 1);
+	}
+	
+	@Override
+	public CharSequence getPreviousPageText() {
+		if ( isAtStart() ) {
+			return null;
+		}
+		
+		return getTextForPage( this.pageNum - 1);
 	}
 	
 	@Override

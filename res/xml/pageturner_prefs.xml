@@ -263,7 +263,7 @@
          <ListPreference
      		android:key="h_animation"
             android:title="@string/pref_h_animation"
-            android:summary="@string/pref_h_animation"            
+            android:summary="@string/pref_h_animation_summary"            
         	android:defaultValue="curl"
         	android:entries="@array/h_animLabels"
         	android:entryValues="@array/h_anim" />
@@ -272,7 +272,7 @@
          <ListPreference
      		android:key="v_animation"
             android:title="@string/pref_v_animation"
-            android:summary="@string/pref_v_animation"            
+            android:summary="@string/pref_v_animation_summary"            
         	android:defaultValue="slide"
         	android:entries="@array/v_animLabels"
         	android:entryValues="@array/v_anim" />               
@@ -286,7 +286,7 @@
      <CheckBoxPreference			
             android:key="scrolling"
             android:title="@string/pref_scrolling"
-            android:summary="@string/pref_scrolling"
+            android:summary="@string/pref_scrolling_summary"
             android:defaultValue="false"
             android:disableDependentsState="true" />       
      
@@ -294,35 +294,35 @@
      <CheckBoxPreference			
             android:key="nav_vol"
             android:title="@string/pref_nav_vol"
-            android:summary="@string/pref_nav_vol"
+            android:summary="@string/pref_nav_vol_summary"
             android:defaultValue="false"
             android:dependency="scrolling" />
             
      <CheckBoxPreference			
             android:key="nav_swipe_h"
             android:title="@string/pref_nav_swipe_h"
-            android:summary="@string/pref_nav_swipe_h"
+            android:summary="@string/pref_nav_swipe_h_summary"
             android:defaultValue="true"
             android:dependency="scrolling" /> 
             
      <CheckBoxPreference			
             android:key="nav_swipe_v"
             android:title="@string/pref_nav_swipe_v"
-            android:summary="@string/pref_nav_swipe_v"
+            android:summary="@string/pref_nav_swipe_v_summary"
             android:defaultValue="true" 
             android:dependency="scrolling"/> 
             
      <CheckBoxPreference			
             android:key="nav_tap_h"
             android:title="@string/pref_nav_tap_h"
-            android:summary="@string/pref_nav_tap_h"
+            android:summary="@string/pref_nav_tap_h_summary"
             android:defaultValue="true"
             android:dependency="scrolling" />       
      
      <CheckBoxPreference			
             android:key="nav_tap_v"
             android:title="@string/pref_nav_tap_v"
-            android:summary="@string/pref_nav_tap_v"
+            android:summary="@string/pref_nav_tap_v_summary"
             android:defaultValue="true"
             android:dependency="scrolling" />           
                 

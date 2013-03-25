@@ -24,6 +24,7 @@ import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.catalog.CatalogFragment;
 import android.os.Bundle;
+import android.view.KeyEvent;
 
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 
@@ -39,6 +40,11 @@ public class CatalogActivity extends RoboSherlockFragmentActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_catalog);
 		catalogFragment = (CatalogFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_catalog);
+	}
+	
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		return catalogFragment.dispatchKeyEvent(event);
 	}
 
 	// TODO Refactor this. Let the platform push/pop fragments from the fragment stack.

@@ -34,6 +34,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,12 +108,28 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		
 		this.baseURL = config.getBaseOPDSFeed();
 	}
+	
+	public boolean dispatchKeyEvent(KeyEvent event) {
+
+		int action = event.getAction();
+		int keyCode = event.getKeyCode();		
+
+		if( keyCode == KeyEvent.KEYCODE_SEARCH
+				&& action == KeyEvent.ACTION_DOWN) {
+			onSearchClick();
+			return true;
+
+		}
+
+		return false;		
+	}
+	
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_catalog, container, false);
 	}
-
+	
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);

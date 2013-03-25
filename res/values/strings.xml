@@ -248,7 +248,20 @@
     <string name="pref_sans_serif_font">Sans-Serif font</string>
     <string name="pref_sans_serif_summary">Font to use if a book requests a Sans-Serif font.</string>   
     
+    <string name="pref_lang">UI Language</string>
+    <string name="pref_lang_summary">Allows you to switch PageTurner\'s language settings.</string>
     
+    <string-array name="supported_languagesLabels">
+ 	    <item>Use device setting</item>
+ 	    <item>English</item>
+ 	    <item>Dutch</item>
+ 	    <item>German</item>
+ 	    <item>Spanish</item>
+ 	    <item>Italian</item>
+ 	    <item>Arabic</item> 	    
+ 	    <item>Hebrew</item>
+ 	    <item>Farsi</item> 	    
+ 	</string-array>    
     
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>

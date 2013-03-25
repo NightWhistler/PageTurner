@@ -20,6 +20,7 @@
 package net.nightwhistler.pageturner.activity;
 
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
 import roboguice.RoboGuice;
 import android.content.SharedPreferences;
@@ -36,7 +37,10 @@ public class PageTurnerPrefsActivity extends RoboSherlockPreferenceActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );
+		Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class); 
+		PageTurner.changeLanguageSetting(this, config);
+		setTheme( config.getTheme() );
+		
 		super.onCreate(savedInstanceState);
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);

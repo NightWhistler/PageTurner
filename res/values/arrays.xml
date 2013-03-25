@@ -67,5 +67,16 @@
         <item>right_to_left</item>
     </string-array> 
      
- 
+ 	<string-array name="supported_languages">
+ 	    <item>default</item>
+ 	    <item>en</item>
+ 	    <item>nl</item>
+ 	    <item>de</item>
+ 	    <item>es</item>
+ 	    <item>it</item>
+ 	    <item>ar</item> 	    
+ 	    <item>iw</item>
+ 	    <item>fa</item> 	    
+ 	</string-array>
+    
 </resources>

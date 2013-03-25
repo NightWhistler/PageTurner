@@ -192,6 +192,17 @@ public class Configuration {
 			editor.commit();
 		}
 	}
+	
+	public Locale getLocale() {
+		
+		String languageSetting = settings.getString("custom_lang", "default");
+		
+		if ( "default".equalsIgnoreCase(languageSetting) ) {		
+			return Locale.getDefault();
+		}
+		
+		return new Locale(languageSetting);
+	}
 
 	public String getBaseOPDSFeed() {
 		return BASE_OPDS_FEED;

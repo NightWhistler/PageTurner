@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- This document was created with Syntext Serna Free. -->
 <resources>
+  
   <string name="title">כותר</string>
   <string name="app_desc">פייג\'-טרנר היא אפליקציית קריאת ספרים אלקטרוניים המאפשרת סינכרון התקדמות הקריאה בין מכשירים שונים שבשימושך</string>
   <string name="browse">דפדף...</string>

@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner.activity;
 import roboguice.RoboGuice;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
+import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -36,6 +37,8 @@ public class ReadingActivity extends RoboSherlockFragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 
         Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class);
+        PageTurner.changeLanguageSetting(this, config);
+        
         int theme = config.getTheme();
 
         if ( config.isFullScreenEnabled() ) {

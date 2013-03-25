@@ -23,6 +23,7 @@ import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 
 import android.app.Application;
+import android.content.Context;
 
 @ReportsCrashes(formKey="dC1sc0tQUVpzdlRRMDNhMFJtbW1UaWc6MQ")
 public class PageTurner extends Application {
@@ -36,4 +37,11 @@ public class PageTurner extends Application {
 		super.onCreate();
 	}
 	
+	public static void changeLanguageSetting(Context context, Configuration pageTurnerConfig) {
+		android.content.res.Configuration config = new android.content.res.Configuration(
+				context.getResources().getConfiguration());
+	    
+		config.locale = pageTurnerConfig.getLocale();
+	    context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());	    
+	}
 }

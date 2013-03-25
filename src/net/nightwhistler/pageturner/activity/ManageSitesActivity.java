@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.CustomOPDSSite;
+import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 import roboguice.RoboGuice;
@@ -39,7 +40,10 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );
+		Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class); 
+		PageTurner.changeLanguageSetting(this, config);
+		setTheme( config.getTheme() );
+		
 		super.onCreate(savedInstanceState);		
 	
 		List<CustomOPDSSite> sites = config.getCustomOPDSSites();

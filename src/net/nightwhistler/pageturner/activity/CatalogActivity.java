@@ -20,6 +20,7 @@ package net.nightwhistler.pageturner.activity;
 
 import roboguice.RoboGuice;
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
 import android.os.Bundle;
 
@@ -30,7 +31,10 @@ public class CatalogActivity extends RoboSherlockFragmentActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );
+		Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class); 
+		PageTurner.changeLanguageSetting(this, config);
+		setTheme( config.getTheme() );
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_catalog);
 		catalogFragment = (CatalogFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_catalog);

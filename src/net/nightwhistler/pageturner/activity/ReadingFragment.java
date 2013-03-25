@@ -1112,7 +1112,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@TargetApi(Build.VERSION_CODES.FROYO)
 	private boolean handleVolumeButtonEvent(KeyEvent event) {
 
-		if (!config.isVolumeKeyNavEnabled()) {
+		//Disable volume button handling during TTS
+		if (!config.isVolumeKeyNavEnabled() || ttsIsRunning() ) {
 			return false;
 		}
 
@@ -1204,7 +1205,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		final int KEYCODE_NOOK_TOUCH_BUTTON_LEFT_BOTTOM = 93;
 		final int KEYCODE_NOOK_TOUCH_BUTTON_RIGHT_TOP = 94;
 		final int KEYCODE_NOOK_TOUCH_BUTTON_RIGHT_BOTTOM = 95;
-                boolean nook_touch_up_press = false;
+        
+		boolean nook_touch_up_press = false;
 
 		if (isAnimating() && action == KeyEvent.ACTION_DOWN) {
 			stopAnimating();

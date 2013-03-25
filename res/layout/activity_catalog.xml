@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    class="net.nightwhistler.pageturner.activity.CatalogFragment"
+    class="net.nightwhistler.pageturner.catalog.CatalogFragment"
     android:id="@+id/fragment_catalog"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >

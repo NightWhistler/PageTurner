@@ -19,13 +19,34 @@
 
 package net.nightwhistler.pageturner;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
 import net.nightwhistler.pageturner.sync.PageTurnerWebProgressService;
 import net.nightwhistler.pageturner.sync.ProgressService;
 
-import com.google.inject.AbstractModule;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
+import com.google.inject.Provides;
+
+/**
+ * This is the main Guice module for PageTurner.
+ * 
+ * This module determines the implementations used to
+ * inject dependencies used in actually running the app.
+ * 
+ * @author Alex Kuiper
+ *
+ */
 public class PageTurnerModule extends AbstractModule {
 
 	@Override
@@ -35,4 +56,34 @@ public class PageTurnerModule extends AbstractModule {
 		bind( ProgressService.class ).to( PageTurnerWebProgressService.class );
 		
 	}
+	
+	/**
+	 * Binds the HttpClient interface to the DefaultHttpClient implementation.
+	 * 
+	 * In testing we'll use a stub.
+	 * 
+	 * @return
+	 */
+	@Provides
+	@Inject
+	public HttpClient getHttpClient(Configuration config) {
+		HttpParams httpParams = new BasicHttpParams();
+		DefaultHttpClient client = new DefaultHttpClient(httpParams);
+		
+		for ( CustomOPDSSite site: config.getCustomOPDSSites() ) {
+			if ( site.getUserName() != null && site.getUserName().length() > 0 ) {
+				try {
+					URL url = new URL(site.getUrl());
+					client.getCredentialsProvider().setCredentials(
+						new AuthScope(url.getHost(), url.getPort()),
+						new UsernamePasswordCredentials(site.getUserName(), site.getPassword()));
+				} catch (MalformedURLException mal ) {
+					//skip to the next
+				}				
+			}
+		}		
+		
+		return client;
+	}
+	
 }

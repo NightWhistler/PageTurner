@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,7 +65,7 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	@Override
 	public boolean onOptionsItemSelected(
 			com.actionbarsherlock.view.MenuItem item) {
-		showAddSiteDialog();
+		showAddGenericSiteDialog();
 		return true;
 	}
 		
@@ -75,6 +76,11 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 		menu.add(Menu.NONE, ContextAction.EDIT.ordinal(), Menu.NONE, R.string.edit );
 		menu.add(Menu.NONE, ContextAction.DELETE.ordinal(), Menu.NONE, R.string.delete ); 
 		
+	}
+	
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		showEditDialog( adapter.getItem(position) );
 	}
 	
 	@Override
@@ -107,10 +113,47 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	}
 	
 	private void showEditDialog(final CustomOPDSSite site) {
+		showSiteDialog(R.string.edit_site, site);		
+	}
+	
+	private void showAddGenericSiteDialog() {
+		
+		final String[] labels = {
+				getString(R.string.calibre_server),
+				getString(R.string.cops_server),
+				getString(R.string.c2opds_server),
+				getString(R.string.generic_server)
+		};
+		
+		 AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		    builder.setTitle(R.string.add_site_header)
+		           .setItems(labels, new DialogInterface.OnClickListener() {
+		               public void onClick(DialogInterface dialog, int which) {
+		            	   switch (which) {
+		            	   case 3:
+		            		   showSiteDialog(R.string.add_site, null);
+		            	   default:
+		            		   Toast.makeText(ManageSitesActivity.this, "Oops, not implemented", Toast.LENGTH_SHORT).show();
+		            	   }
+		               }
+		    });
+		    
+		    builder.show();	
+	}
+	
+	private void showSiteDialog(int titleResource, final CustomOPDSSite siteParam ) {
+		
+		final CustomOPDSSite site;
+		
+		if ( siteParam == null ) {
+			site = new CustomOPDSSite();
+		} else {
+			site = siteParam;
+		}
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		
-		builder.setTitle(R.string.edit_site);
+		builder.setTitle(titleResource);
 		LayoutInflater inflater = PlatformUtil.getLayoutInflater(this);
 		
 		View layout = inflater.inflate(R.layout.edit_site, null);
@@ -119,10 +162,14 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 		final TextView siteName = (TextView) layout.findViewById(R.id.siteName);
 		final TextView siteURL = (TextView) layout.findViewById(R.id.siteUrl);
 		final TextView siteDesc = (TextView) layout.findViewById(R.id.siteDescription);
+		final TextView userName = (TextView) layout.findViewById(R.id.username);
+		final TextView password = (TextView) layout.findViewById(R.id.password);
 		
 		siteName.setText(site.getName());
 		siteURL.setText(site.getUrl());
-		siteDesc.setText(site.getDescription());		
+		siteDesc.setText(site.getDescription());
+		userName.setText(site.getUserName());
+		password.setText(site.getPassword());
 				
 		builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 			
@@ -142,69 +189,28 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 				site.setName(siteName.getText().toString());
 				site.setDescription(siteDesc.getText().toString());
 				site.setUrl(siteURL.getText().toString());
+				site.setUserName(userName.getText().toString());
+				site.setPassword(password.getText().toString());
+							
+				if ( siteParam == null ) {
+					adapter.add(site);
+				}
 				
-				adapter.add(site);
 				storeSites();
+				adapter.notifyDataSetChanged();
 				dialog.dismiss();
 			}
 		});
 		
-		builder.setNegativeButton(android.R.string.cancel, null );
-		
+		builder.setNegativeButton(android.R.string.cancel, null );		
 	
-		builder.show();
-	}
-	
-	private void showAddSiteDialog() {
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		
-		builder.setTitle(R.string.add_site);
-		LayoutInflater inflater = PlatformUtil.getLayoutInflater(this);
-		
-		View layout = inflater.inflate(R.layout.edit_site, null);
-		builder.setView(layout);
-		
-		final TextView siteName = (TextView) layout.findViewById(R.id.siteName);
-		final TextView siteURL = (TextView) layout.findViewById(R.id.siteUrl);
-		final TextView siteDesc = (TextView) layout.findViewById(R.id.siteDescription);
-				
-		builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-				if ( siteName.getText().toString().trim().length() == 0 ) {
-					Toast.makeText(ManageSitesActivity.this, R.string.msg_name_blank, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				
-				if ( siteURL.getText().toString().trim().length() == 0 ) {
-					Toast.makeText(ManageSitesActivity.this, R.string.msg_url_blank, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				
-				CustomOPDSSite site = new CustomOPDSSite();
-				site.setName(siteName.getText().toString());
-				site.setDescription(siteDesc.getText().toString());
-				site.setUrl(siteURL.getText().toString());
-				
-				adapter.add(site);
-				storeSites();
-				dialog.dismiss();
-			}
-		});
-		
-		builder.setNegativeButton(android.R.string.cancel, null );
-		
-	
-		builder.show();
+		builder.show();	
 	}
 
 	private class CustomOPDSSiteAdapter extends ArrayAdapter<CustomOPDSSite> {
 		public CustomOPDSSiteAdapter(List<CustomOPDSSite> sites) {
 			super(ManageSitesActivity.this, 0, sites);
-		}
+		}		
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {

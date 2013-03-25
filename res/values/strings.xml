@@ -250,6 +250,7 @@
     
     <string name="pref_lang">UI Language</string>
     <string name="pref_lang_summary">Allows you to switch PageTurner\'s language settings.</string>
+    <string name="language_switch_message">The new language setting will become active the next time you open a book.</string>
     
     <string-array name="supported_languagesLabels">
  	    <item>Use device setting</item>

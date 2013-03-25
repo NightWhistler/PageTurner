@@ -96,13 +96,14 @@
 	<PreferenceCategory
                 android:title="@string/pref_visual_settings">  
                 
-	<ListPreference 
+	<net.nightwhistler.pageturner.prefs.LanguageSwitchPreference 
 	    	android:key="custom_lang"
 	    	android:title="@string/pref_lang"
 	    	android:summary="@string/pref_lang_summary"
 	    	android:defaultValue="default"
 	    	android:entries="@array/supported_languagesLabels"
-        	android:entryValues="@array/supported_languages" />	    	
+        	android:entryValues="@array/supported_languages"
+        	 />	    	
 			
 
 	<CheckBoxPreference			

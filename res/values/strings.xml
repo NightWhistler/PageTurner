@@ -136,6 +136,8 @@
     
     <string name="no_custom_sites">You don\'t have any custom sites defined. Please add some in the preferences.</string>
     <string name="text_to_speech">Read out loud (TTS)</string>    
+    
+    <string name="init_tts">Initializing TTS…\nPlease wait.</string>
 
     <!-- Preferences -->
 

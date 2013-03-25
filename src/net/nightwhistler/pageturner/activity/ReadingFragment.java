@@ -20,15 +20,11 @@
 package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import javax.annotation.Nullable;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
@@ -114,7 +110,6 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -514,7 +509,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return;
 		}		
 		
-		this.waitDialog.setTitle("Initializing TTS");
+		this.waitDialog.setTitle(R.string.init_tts);
 		this.waitDialog.show();
 		
 		streamTextToDisk( bookView.getDisplayedText() );

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.nightwhistler.pageturner"
       android:versionName="2.1-dev"
-      android:versionCode="25"
+      android:versionCode="26"
       android:installLocation="auto">
     
     <uses-sdk
@@ -19,6 +19,13 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         >
+        
+        <receiver android:name=".activity.MediaButtonReceiver" >
+        	<intent-filter android:priority="10000" >
+            	<action android:name="android.intent.action.MEDIA_BUTTON" />
+        	</intent-filter>
+    	</receiver>
+        
         <activity
             android:name="net.nightwhistler.pageturner.activity.ReadingActivity"
             android:label="@string/app_name" >

@@ -159,8 +159,10 @@ public class BookView extends ScrollView {
 	private void onInnerViewResize() {
 		restorePosition();
 
-		int tableWidth = (int) (this.getWidth() * 0.9);
-		tableHandler.setTableWidth(tableWidth);
+		if ( this.tableHandler != null ) {
+			int tableWidth = (int) (this.getWidth() * 0.9);
+			tableHandler.setTableWidth(tableWidth);
+		}
 	}
 
 	public void setSpanner(HtmlSpanner spanner) {
@@ -312,6 +314,10 @@ public class BookView extends ScrollView {
 				strategy.updatePosition();
 			}
 		}
+	}
+	
+	public CharSequence peekAhead() {
+		return this.strategy.getNextPageText();
 	}
 
 	public void releaseResources() {

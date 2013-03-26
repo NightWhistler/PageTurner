@@ -418,6 +418,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				LOG.debug("Downloading: " + url);
 
 				String fileName = url.substring(url.lastIndexOf('/') + 1);
+				fileName = fileName.replaceAll("\\?|&|=", "_");
 
 				HttpParams httpParams = new BasicHttpParams();
 				DefaultHttpClient client = new DefaultHttpClient(httpParams);

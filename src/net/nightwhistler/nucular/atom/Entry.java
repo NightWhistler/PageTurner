@@ -87,7 +87,7 @@ public class Entry extends AtomElement {
 	
 	public Link getEpubLink() {
 		for ( Link link: getLinks() ) {
-			if ( link.getType().equals(TYPE_EPUB)) {
+			if (link.getType() != null && link.getType().equals(TYPE_EPUB)) {
 				return link;
 			}
 		}

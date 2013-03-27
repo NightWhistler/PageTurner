@@ -74,10 +74,8 @@ public class DownloadFileTask extends AsyncTask<String, Long, String> {
 			LOG.debug("Downloading: " + url);
 
 			String fileName = url.substring(url.lastIndexOf('/') + 1);
+			fileName = fileName.replaceAll("\\?|&|=", "_");
 			
-			//client.getCredentialsProvider().setCredentials(
-				//	new AuthScope(null, -1),
-				//	new UsernamePasswordCredentials(user, password));
 			HttpGet get = new HttpGet(url);
 			HttpResponse response = httpClient.execute(get);
 

@@ -1346,6 +1346,7 @@ public class BookView extends ScrollView {
 
 					MediatypeService.MP3,
 					MediatypeService.MP4, // And no audio either
+					MediatypeService.OGG,
 					MediatypeService.SMIL, MediatypeService.XPGT,
 					MediatypeService.PLS };
 

@@ -501,6 +501,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
 			subscribeToMediaButtons();
 		}
+		
+		File fos = getActivity().getDir("tts", Context.MODE_WORLD_WRITEABLE );
+		
+		//Delete any old TTS files still present.
+		for ( File f: fos.listFiles() ) {
+			f.delete();
+		}
+		
 
 		this.mediaPlayerQueue.clear();
 		this.mediaLayout.setVisibility(View.VISIBLE);

@@ -1984,7 +1984,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void onWordLongPressed(CharSequence word) {
 		this.selectedWord = word;
-		getActivity().openContextMenu(bookView);
+		if ( getActivity() != null ) {
+			getActivity().openContextMenu(bookView);
+		}
 	}
 
 	private void launchFileManager() {

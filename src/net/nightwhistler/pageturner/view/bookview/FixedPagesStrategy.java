@@ -27,11 +27,14 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	private Configuration config;
 	
 	private int storedPosition = -1;
+	
+	private StaticLayoutFactory layoutFactory;
 		
-	public FixedPagesStrategy(BookView bookView, Configuration config) {
+	public FixedPagesStrategy(BookView bookView, Configuration config, StaticLayoutFactory layoutFactory) {
 		this.bookView = bookView;
 		this.childView = bookView.getInnerView();
 		this.config = config;
+		this.layoutFactory = layoutFactory;
 	}
 	
 	@Override
@@ -56,7 +59,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		return this.pageNum;
 	}
 	
-	public static List<Integer> getPageOffsets( BookView bookView, CharSequence text, boolean includePageNumbers ) {
+	public List<Integer> getPageOffsets(CharSequence text, boolean includePageNumbers ) {
 		
 		if ( text == null ) {
 			return new ArrayList<Integer>();
@@ -66,48 +69,47 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		
 		TextPaint textPaint = bookView.getInnerView().getPaint();
 		int boundedWidth = bookView.getInnerView().getWidth();
+
+		StaticLayout layout = layoutFactory.create(text, textPaint, boundedWidth, bookView.getLineSpacing() );
 		
-		StaticLayout layout = new StaticLayout(text, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
 		layout.draw(new Canvas());
 		
 		int pageHeight = bookView.getHeight() - ( 2* bookView.getVerticalMargin() );
-		//pageHeight = (int) (pageHeight * 0.95d); //Use 90% of available space
-
-		String bottomSpace;
 		
 		if ( includePageNumbers ) {
-			bottomSpace = "\n0\n";
-		} else {
-			bottomSpace = "\n";
-		}
+			String bottomSpace = "\n0\n";
 		
-		StaticLayout numLayout = new StaticLayout(bottomSpace, textPaint, boundedWidth , Alignment.ALIGN_NORMAL, 1.0f, bookView.getLineSpacing(), false);
-		layout.draw(new Canvas());
-		
-		//Subtract the height needed to show page numbers
-		pageHeight = pageHeight - numLayout.getHeight();
-				
-		
-		int totalLines = layout.getLineCount();
-		int currentPageNum = 0;
-		int topLine = 0;
-		int bottomLine = 0;
-		
-		while ( bottomLine < totalLines -1 ) {
-			topLine = layout.getLineForVertical( currentPageNum * pageHeight );
-			bottomLine = layout.getLineForVertical( (currentPageNum + 1) * pageHeight );
+			StaticLayout numLayout = layoutFactory.create(bottomSpace, textPaint, boundedWidth , bookView.getLineSpacing());		
+			numLayout.draw(new Canvas());
 			
-			int pageOffset = layout.getLineStart(topLine);
-			int pageEnd = layout.getLineEnd(bottomLine);
+			//Subtract the height needed to show page numbers
+			pageHeight = pageHeight - numLayout.getHeight();
+		}						
+		
+		int totalLines = layout.getLineCount();				
+		int topLineNextPage = 0;
+		
+		int pageStartOffset = 0;
+		
+		while ( topLineNextPage < totalLines -1 ) {	
 			
-			if (text.subSequence(pageOffset, pageEnd).toString().trim().length() > 0 ) {
+			int topLine = layout.getLineForOffset(pageStartOffset);				
+			topLineNextPage = layout.getLineForVertical( layout.getLineTop( topLine ) + pageHeight);
+			
+			if ( topLineNextPage == topLine ) { //If lines are bigger than can fit on a page
+				topLineNextPage = topLine + 1;
+			}
+						
+			int pageEnd = layout.getLineEnd(topLineNextPage -1);
+			
+			if (text.subSequence(pageStartOffset, pageEnd).toString().trim().length() > 0 ) {
 
 				//Make sure we don't enter the same offset twice
-				if (pageOffsets.isEmpty() ||  pageOffset != pageOffsets.get(pageOffsets.size() -1)) {			
-					pageOffsets.add(pageOffset);
+				if (pageOffsets.isEmpty() ||  pageStartOffset != pageOffsets.get(pageOffsets.size() -1)) {			
+					pageOffsets.add(pageStartOffset);
 				}
-
-				currentPageNum++;
+				
+				pageStartOffset = layout.getLineStart(topLineNextPage);
 			}
 		}	
 		
@@ -176,8 +178,12 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	}
 	
 	public int getPosition() {
-		if ( this.pageOffsets.isEmpty() ) {
+		if (this.pageOffsets.isEmpty() ||  this.pageNum == -1 ) {
 			return storedPosition;
+		}
+		
+		if ( this.pageNum >= this.pageOffsets.size() ) {
+			return this.pageOffsets.get( this.pageOffsets.size() -1 );
 		}
 		
 		return this.pageOffsets.get(this.pageNum);
@@ -260,7 +266,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	public void loadText(Spanned text) {
 		this.text = text;
 		this.pageNum = 0;
-		this.pageOffsets = getPageOffsets(bookView, text, config.isShowPageNumbers() );
+		this.pageOffsets = getPageOffsets(text, config.isShowPageNumbers() );
 	}
 
     @Override

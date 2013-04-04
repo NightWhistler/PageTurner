@@ -4,11 +4,19 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.text.Spanned;
+import android.text.SpannedString;
 import org.junit.Assert;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 import android.text.StaticLayout;
+
+import javax.management.Query;
 
 public class LayoutTextUtil {
 
@@ -136,7 +144,23 @@ public class LayoutTextUtil {
 		
 		return mockLayout;
 	}
-	
+
+    public static Spanned getSpanned( final String fromString ) {
+
+        Spanned mockSpanned = Mockito.spy(new SpannedString(fromString));
+        when(mockSpanned.subSequence(anyInt(), anyInt())).thenAnswer(new Answer<CharSequence>() {
+            @Override
+            public CharSequence answer(InvocationOnMock invocation) throws Throwable {
+                return fromString.subSequence( (Integer) invocation.getArguments()[0], (Integer) invocation.getArguments()[1]);
+            }
+        });
+
+        when(mockSpanned.length()).thenReturn(fromString.length());
+
+        return mockSpanned;
+    }
+
+
 	public static String getStringOfLength( String seed, int length ) {
 		StringBuffer buffer = new StringBuffer();
 		

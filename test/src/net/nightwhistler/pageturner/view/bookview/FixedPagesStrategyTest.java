@@ -1,9 +1,13 @@
 package net.nightwhistler.pageturner.view.bookview;
 
+import static net.nightwhistler.pageturner.view.bookview.LayoutTextUtil.getSpanned;
+
+import static net.nightwhistler.pageturner.view.bookview.LayoutTextUtil.getStringOfLength;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 
@@ -16,6 +20,9 @@ import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.widget.TextView;
@@ -27,16 +34,17 @@ public class FixedPagesStrategyTest {
 	
 	private StaticLayoutFactory mockFactory = mock(StaticLayoutFactory.class);
 	private BookView mockBookView;
+    private TextView mockTextView;
 	
 	private FixedPagesStrategy strategy;
-
+	
 	@Before
 	public void createMocks() {		
 		
 		this.mockFactory = mock(StaticLayoutFactory.class);
 		Configuration mockConfig = mock(Configuration.class);
 		this.mockBookView = mock(BookView.class);
-		TextView mockTextView = mock(TextView.class);
+		this.mockTextView = mock(TextView.class);
 		
 		when(mockBookView.getInnerView()).thenReturn(mockTextView);
 
@@ -134,6 +142,27 @@ public class FixedPagesStrategyTest {
 		
 	}
 	
+	@Test
+	public void testPageTurning() {
+		
+		//Text is 275 characters long, which is 5.5 pages. 
+		//Every line should be exactly ABCDEFGHIJ
+		Spanned text = getSpanned(getStringOfLength("ABCDEFGHIJ", 275));
+
+		/*
+		 * The BookView is 50px high, meaning it will fit 5 lines.
+		 */
+		when(this.mockBookView.getHeight()).thenReturn(50);		
+		
+		this.strategy.loadText( text );
+        this.strategy.updatePosition();
+
+
+		assertEquals( 0, this.strategy.getCurrentPage() );
+
+		verify( mockTextView, times(1) ).setText("ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJ");
+		
+	}
 	
 
 }

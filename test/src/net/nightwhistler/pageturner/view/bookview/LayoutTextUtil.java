@@ -1,22 +1,16 @@
 package net.nightwhistler.pageturner.view.bookview;
 
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import android.text.Spanned;
 import android.text.SpannedString;
+import android.text.StaticLayout;
 import org.junit.Assert;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import static org.mockito.Mockito.spy;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import android.text.StaticLayout;
-
-import javax.management.Query;
 
 public class LayoutTextUtil {
 
@@ -88,9 +82,9 @@ public class LayoutTextUtil {
 	 * Returns a StaticLayout which delegates most work to a SimpleLayout.
 	 * 
 	 * @param text the text to layout
-	 * @param lineWidth
-	 * @param lineHeight
-	 * @return
+	 * @param lineWidth  the number of characters in a line
+	 * @param lineHeight height of a line in pixels
+	 * @return a mocked StaticLayout
 	 */
 	public static StaticLayout createMockLayout( final CharSequence text, final int lineWidth, final int lineHeight ) {
 		
@@ -156,24 +150,25 @@ public class LayoutTextUtil {
         });
 
         when(mockSpanned.length()).thenReturn(fromString.length());
+        when(mockSpanned.toString()).thenReturn(fromString);
 
         return mockSpanned;
     }
 
 
 	public static String getStringOfLength( String seed, int length ) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder builder = new StringBuilder();
 		
 		int repeat = length / seed.length();
 		
 		for ( int i=0; i < repeat; i++ ) {
-			buffer.append(seed);
+			builder.append(seed);
 		}
 		
 		int remainder = length % seed.length();
 		
-		buffer.append( seed.substring(0, remainder) );
-		String result = buffer.toString();
+		builder.append(seed.substring(0, remainder));
+		String result = builder.toString();
 		Assert.assertEquals( length, result.length());
 		
 		return result;

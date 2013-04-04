@@ -1,18 +1,11 @@
 package net.nightwhistler.pageturner.view.bookview;
 
-import static net.nightwhistler.pageturner.view.bookview.LayoutTextUtil.getSpanned;
-
-import static net.nightwhistler.pageturner.view.bookview.LayoutTextUtil.getStringOfLength;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-
+import android.text.Spanned;
+import android.text.StaticLayout;
+import android.text.TextPaint;
+import android.widget.TextView;
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import net.nightwhistler.pageturner.Configuration;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,14 +13,14 @@ import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.SpannedString;
-import android.text.StaticLayout;
-import android.text.TextPaint;
-import android.widget.TextView;
+import java.util.List;
 
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import static net.nightwhistler.pageturner.view.bookview.LayoutTextUtil.getSpanned;
+import static net.nightwhistler.pageturner.view.bookview.LayoutTextUtil.getStringOfLength;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class FixedPagesStrategyTest {
@@ -49,7 +42,7 @@ public class FixedPagesStrategyTest {
 		when(mockBookView.getInnerView()).thenReturn(mockTextView);
 
 		//Layout has lines of 10 characters, each 10px high
-		final int LINE_WIDTH = 10; //100 characters
+		final int LINE_WIDTH = 10; //10 characters
 		final int LINE_HEIGHT = 10; //10 pixels per line
 
 		initMockLayout(LINE_WIDTH, LINE_HEIGHT);
@@ -145,23 +138,37 @@ public class FixedPagesStrategyTest {
 	@Test
 	public void testPageTurning() {
 		
-		//Text is 275 characters long, which is 5.5 pages. 
-		//Every line should be exactly ABCDEFGHIJ
-		Spanned text = getSpanned(getStringOfLength("ABCDEFGHIJ", 275));
+        String page1 = getStringOfLength("ABCDEFGHIJ", 50);
+        String page2 = getStringOfLength("012345", 50);
+        String page3 = getStringOfLength("XYZABC", 25);
+
+		Spanned text = getSpanned( page1 + page2 + page3 );
+
+        assertEquals(125, text.length());  //Sanity check
 
 		/*
 		 * The BookView is 50px high, meaning it will fit 5 lines.
 		 */
-		when(this.mockBookView.getHeight()).thenReturn(50);		
+		when(this.mockBookView.getHeight()).thenReturn(50);
+
+        List<Integer> offsets = this.strategy.getPageOffsets(text, false);
+        assertEquals(3, offsets.size() );
 		
 		this.strategy.loadText( text );
         this.strategy.updatePosition();
 
+		assertEquals(0, this.strategy.getCurrentPage());
 
-		assertEquals( 0, this.strategy.getCurrentPage() );
+		verify( mockTextView ).setText(page1);
 
-		verify( mockTextView, times(1) ).setText("ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJ");
-		
+        this.strategy.pageDown();
+        verify( mockTextView ).setText(page2);
+
+        this.strategy.pageDown();
+        verify( mockTextView ).setText(page3);
+
+        this.strategy.pageUp();
+        verify( mockTextView, times(2) ).setText(page2);
 	}
 	
 

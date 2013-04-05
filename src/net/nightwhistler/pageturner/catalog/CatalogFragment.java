@@ -250,7 +250,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			loadURL(entry, href, true);
 		} else if ( entry.getEpubLink() != null ) {
 			loadFakeFeed(entry);
-		} else {
+		} else if ( entry.getAtomLink() != null ) {
 			String href = entry.getAtomLink().getHref();
 			loadURL(entry, href, false);
 		} 

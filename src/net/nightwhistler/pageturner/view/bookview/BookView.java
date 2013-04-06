@@ -157,7 +157,7 @@ public class BookView extends ScrollView {
 	private void onInnerViewResize() {
 		restorePosition();
 
-		int tableWidth = (int) (this.getWidth() * 0.9);
+		int tableWidth = (int) (childView.getWidth() * 0.9);
 		tableHandler.setTableWidth(tableWidth);
 	}
 

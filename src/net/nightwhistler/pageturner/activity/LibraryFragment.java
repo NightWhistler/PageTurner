@@ -256,7 +256,11 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		String addedText = String.format( getString(R.string.added_to_lib),
 				DATE_FORMAT.format(libraryBook.getAddedToLibrary()));
 		added.setText( addedText );
-		descriptionView.setText(new HtmlSpanner().fromHtml( libraryBook.getDescription()));		
+
+        HtmlSpanner spanner = new HtmlSpanner();
+        spanner.unregisterHandler("img" ); //We don't want to render images
+
+		descriptionView.setText(spanner.fromHtml( libraryBook.getDescription()));
 		
 		builder.setNeutralButton(R.string.delete, new OnClickListener() {
 			

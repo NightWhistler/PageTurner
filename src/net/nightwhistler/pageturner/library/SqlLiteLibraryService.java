@@ -18,28 +18,21 @@
  */
 package net.nightwhistler.pageturner.library;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-
-import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.library.LibraryDatabaseHelper.Order;
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.Metadata;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import roboguice.inject.ContextSingleton;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-
 import com.google.inject.Inject;
+import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.library.LibraryDatabaseHelper.Order;
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.Metadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import roboguice.inject.ContextSingleton;
+
+import java.io.*;
+import java.nio.channels.FileChannel;
 
 @ContextSingleton
 public class SqlLiteLibraryService implements LibraryService {
@@ -47,9 +40,7 @@ public class SqlLiteLibraryService implements LibraryService {
 	private static final int THUMBNAIL_HEIGHT = 250;
 	
 	private static final long MAX_COVER_SIZE = 1024 * 1024; //Max 1Mb
-	
-	private static final int LIMIT = 20;
-	
+
 	@Inject
 	private LibraryDatabaseHelper helper;	
 	
@@ -203,11 +194,9 @@ public class SqlLiteLibraryService implements LibraryService {
 	
 	@Override
 	public QueryResult<LibraryBook> findAllByLastRead() {		
-		QueryResult<LibraryBook> result = helper.findAllOrderedBy(
+		return helper.findAllOrderedBy(
 				LibraryDatabaseHelper.Field.date_last_read,
 				LibraryDatabaseHelper.Order.DESC );
-		result.setLimit(LIMIT);
-		return result;
 	}
 	
 	@Override
@@ -220,11 +209,9 @@ public class SqlLiteLibraryService implements LibraryService {
 	
 	@Override
 	public QueryResult<LibraryBook> findAllByLastAdded() {
-		QueryResult<LibraryBook> result = helper.findAllOrderedBy(
+		return helper.findAllOrderedBy(
 				LibraryDatabaseHelper.Field.date_added,
 				LibraryDatabaseHelper.Order.DESC );
-		result.setLimit(LIMIT);
-		return result;
 	}
 	
 	@Override

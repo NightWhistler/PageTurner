@@ -160,7 +160,7 @@ public class BookView extends ScrollView {
 		restorePosition();
 
 		if ( this.tableHandler != null ) {
-			int tableWidth = (int) (this.getWidth() * 0.9);
+			int tableWidth = (int) (childView.getWidth() * 0.9);
 			tableHandler.setTableWidth(tableWidth);
 		}
 	}

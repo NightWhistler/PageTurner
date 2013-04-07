@@ -72,6 +72,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 	
 	private static final int HTTP_SUCCESS = 200;
 	private static final int HTTP_FORBIDDEN = 403;
+    private static final int HTTP_NOT_FOUND = 404;
 	
 	private SimpleDateFormat dateFormat;
 	
@@ -116,6 +117,10 @@ public class PageTurnerWebProgressService implements ProgressService {
 			if ( statusCode == HTTP_FORBIDDEN ) {
 				throw new AccessException( EntityUtils.toString(response.getEntity()) );
 			}
+
+            if ( statusCode == HTTP_NOT_FOUND ) {
+                return new ArrayList<BookProgress>();
+            }
 			
 			if ( statusCode != HTTP_SUCCESS ) {
 				return null;

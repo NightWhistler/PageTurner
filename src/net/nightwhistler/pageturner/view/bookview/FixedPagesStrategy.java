@@ -58,7 +58,11 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	public int getCurrentPage() {
 		return this.pageNum;
 	}
-	
+
+    public List<Integer> getPageOffsets() {
+        return new ArrayList<Integer>(this.pageOffsets);
+    }
+
 	public List<Integer> getPageOffsets(CharSequence text, boolean includePageNumbers ) {
 		
 		if ( text == null ) {

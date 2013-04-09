@@ -204,6 +204,10 @@ public class BookView extends ScrollView {
 		imageCache.clear();
 	}
 
+    public PageChangeStrategy getStrategy() {
+        return this.strategy;
+    }
+
 	@Override
 	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 		super.onScrollChanged(l, t, oldl, oldt);
@@ -648,6 +652,8 @@ public class BookView extends ScrollView {
 
 		loadText(result);
 	}
+
+
 
 	private void doNavigation(int index) {
 

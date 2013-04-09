@@ -51,6 +51,7 @@ import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import net.nightwhistler.pageturner.view.SearchResultAdapter;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import net.nightwhistler.pageturner.view.bookview.BookViewListener;
+import net.nightwhistler.pageturner.view.bookview.FixedPagesStrategy;
 import net.nightwhistler.pageturner.view.bookview.TextSelectionCallback;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
@@ -524,13 +525,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		this.waitDialog.setTitle(R.string.init_tts);
 		this.waitDialog.show();
-		
-		streamTextToDisk( bookView.getDisplayedText() );
-		streamTextToDisk( bookView.peekAhead() );
+
+        streamTextToDisk();
+
 	}
 	
-	private void streamTextToDisk(CharSequence text ) {
-		
+	private void streamTextToDisk() {
+
+        CharSequence text = bookView.getStrategy().getText();
+
+        List<Integer> offsets = ((FixedPagesStrategy) bookView.getStrategy()).getPageOffsets();
+
 		if ( text == null || ! ttsIsRunning()) {
 			return;
 		}
@@ -541,24 +546,45 @@ public class ReadingFragment extends RoboSherlockFragment implements
         String ttsFolder = fos.getAbsolutePath();
 
         String[] parts = textToSpeak.split("\\.|\n");
+        int offset = 0;
 
         for ( int i=0; i < parts.length; i++ ) {
 
             String part = parts[i];
-            HashMap<String, String> params = new HashMap<String, String>();
 
-            //Utterance ID doubles as the filename
-            String pageName = new File( ttsFolder, "tts_" + part.hashCode() + ".wav").getAbsolutePath();
+            boolean endOfPage;
 
-            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, pageName);
-
-            if ( textToSpeak.trim().length() > 0 ) {
-                TTSPlaybackItem item = new TTSPlaybackItem( part, new MediaPlayer(), textToSpeak.length(), i == parts.length -1, pageName);
-                ttsItemPrep.put(pageName, item);
-                textToSpeech.synthesizeToFile(part, params, pageName);
+            if ( offsets.isEmpty() ) {
+                endOfPage = true;
+            } else if ( (offset + part.length() + 1 ) >= offsets.get(0) ) {
+                endOfPage = true;
+                offsets.remove(0);
+            } else {
+                endOfPage = false;
             }
+
+            if ( offset >= bookView.getPosition() ) {
+                //Utterance ID doubles as the filename
+                String pageName = new File( ttsFolder, "tts_" + part.hashCode() + ".wav").getAbsolutePath();
+                streamPartToDisk(pageName, part, textToSpeak.length(), endOfPage);
+            }
+
+            offset += part.length() +1;
         }
 	}
+
+    private void streamPartToDisk(String fileName, String part, int totalLength, boolean endOfPage ) {
+
+        HashMap<String, String> params = new HashMap<String, String>();
+
+        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, fileName);
+
+        if ( part.trim().length() > 0 ) {
+            TTSPlaybackItem item = new TTSPlaybackItem( part, new MediaPlayer(), totalLength, endOfPage, fileName);
+            ttsItemPrep.put(fileName, item);
+            textToSpeech.synthesizeToFile(part, params, fileName);
+        }
+    }
 	
 	@Override
 	public void onUtteranceCompleted(final String wavFile) {
@@ -690,14 +716,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     @Override
                     public void run() {
                         pageDown(Orientation.VERTICAL);
-                    }
-                });
-
-                this.uiHandler.post(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        streamTextToDisk(bookView.peekAhead());
                     }
                 });
             }

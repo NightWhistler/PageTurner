@@ -854,7 +854,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				
 				@Override
 				public void onClick(View v) {
-					openBook(object);					
+					LibraryFragment.this.onItemClick(null, null, index, 0);
 				}
 			});	
 			
@@ -862,8 +862,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				
 				@Override
 				public boolean onLongClick(View v) {
-					showBookDetails(object);
-					return true;
+					return LibraryFragment.this.onItemLongClick(null, null, index, 0);
 				}
 			});
 			

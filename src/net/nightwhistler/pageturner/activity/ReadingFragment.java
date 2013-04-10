@@ -513,9 +513,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		for ( File f: fos.listFiles() ) {
 			f.delete();
 		}
-        ttsItemPrep.clear();
-		
 
+        ttsItemPrep.clear();
 		this.ttsPlaybackItemQueue.clear();
 		this.mediaLayout.setVisibility(View.VISIBLE);
 		
@@ -526,61 +525,53 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.waitDialog.setTitle(R.string.init_tts);
 		this.waitDialog.show();
 
-        streamTextToDisk();
-
+        backgroundHandler.post(new StreamToDiskRunnable());
 	}
-	
-	private void streamTextToDisk() {
 
-        CharSequence text = bookView.getStrategy().getText();
+    private class StreamToDiskRunnable implements Runnable {
+        @Override
+        public void run() {
+            CharSequence text = bookView.getStrategy().getText();
 
-        List<Integer> offsets = ((FixedPagesStrategy) bookView.getStrategy()).getPageOffsets();
-
-		if ( text == null || ! ttsIsRunning()) {
-			return;
-		}
-
-		File fos = getActivity().getDir("tts", Context.MODE_WORLD_WRITEABLE );
-		
-		String textToSpeak = text.toString();
-        String ttsFolder = fos.getAbsolutePath();
-
-        String[] parts = textToSpeak.split("\\.|\n");
-        int offset = 0;
-
-        for ( int i=0; i < parts.length; i++ ) {
-
-            String part = parts[i];
-
-            boolean endOfPage;
-
-            if ( offsets.isEmpty() ) {
-                endOfPage = true;
-            } else if ( (offset + part.length() + 1 ) >= offsets.get(0) ) {
-                endOfPage = true;
-                offsets.remove(0);
-            } else {
-                endOfPage = false;
+            if ( text == null || ! ttsIsRunning()) {
+                return;
             }
 
-            if ( offset >= bookView.getPosition() ) {
-                //Utterance ID doubles as the filename
-                String pageName = new File( ttsFolder, "tts_" + part.hashCode() + ".wav").getAbsolutePath();
-                streamPartToDisk(pageName, part, textToSpeak.length(), endOfPage);
-            }
+            File fos = getActivity().getDir("tts", Context.MODE_WORLD_WRITEABLE );
 
-            offset += part.length() +1;
+            String textToSpeak = text.toString();
+            String ttsFolder = fos.getAbsolutePath();
+
+            String[] parts = textToSpeak.split("\\.|\n");
+            int offset = 0;
+
+            for ( int i=0; i < parts.length && ttsIsRunning(); i++ ) {
+
+                LOG.debug("Straming part " + i + " to disk. Is TTS running? - " + ttsIsRunning() );
+
+                String part = parts[i];
+
+                boolean endOfPage = i == parts.length -1;
+
+                if ( offset >= bookView.getPosition() ) {
+                    //Utterance ID doubles as the filename
+                    String pageName = new File( ttsFolder, "tts_" + part.hashCode() + ".wav").getAbsolutePath();
+                    streamPartToDisk(pageName, part, offset, textToSpeak.length(), endOfPage);
+                }
+
+                offset += part.length() +1;
+            }
         }
-	}
+    }
 
-    private void streamPartToDisk(String fileName, String part, int totalLength, boolean endOfPage ) {
+    private void streamPartToDisk(String fileName, String part, int offset, int totalLength, boolean endOfPage ) {
 
         HashMap<String, String> params = new HashMap<String, String>();
 
         params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, fileName);
 
         if ( part.trim().length() > 0 ) {
-            TTSPlaybackItem item = new TTSPlaybackItem( part, new MediaPlayer(), totalLength, endOfPage, fileName);
+            TTSPlaybackItem item = new TTSPlaybackItem( part, new MediaPlayer(), totalLength, offset, endOfPage, fileName);
             ttsItemPrep.put(fileName, item);
             textToSpeech.synthesizeToFile(part, params, fileName);
         }
@@ -656,11 +647,15 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 MediaPlayer mediaPlayer = item.getMediaPlayer();
 
                 if ( mediaPlayer != null && mediaPlayer.isPlaying() ) {
-                    int totalDuration = mediaPlayer.getDuration();
-                    int currentDuration = mediaPlayer.getCurrentPosition();
 
-                    mediaProgressBar.setMax(totalDuration);
+                    double percentage = (double) mediaPlayer.getCurrentPosition() / (double) mediaPlayer.getDuration();
+
+                    int currentDuration = item.getOffset() + (int) (percentage * item.getText().length());
+
+                    mediaProgressBar.setMax(item.getTotalTextLength());
                     mediaProgressBar.setProgress(currentDuration);
+
+                    bookView.navigateTo(bookView.getIndex(), currentDuration );
                 }
             }
 			
@@ -703,15 +698,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if (! ttsPlaybackItemQueue.isEmpty() ) {
 			this.ttsPlaybackItemQueue.remove();
 		}
-		
-		this.mediaProgressBar.setProgress(0);
-		
+
 		if ( ttsIsRunning() && ! bookView.isAtEnd() ) {
 
 			startPlayback();
 
             if ( item.isLastElementOfPage() ) {
-
                 this.uiHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -727,31 +719,30 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	private void startPlayback() {
 
-        TTSPlaybackItem item = this.ttsPlaybackItemQueue.peek();
+        final TTSPlaybackItem item = this.ttsPlaybackItemQueue.peek();
 
-		if ( item == null ) {
+        if ( item == null ) {
 			return;
 		}
 		
 		if ( item.getMediaPlayer().isPlaying() ) {
 			return;
-		}		
-		
-		uiHandler.post( progressBarUpdater );
+		}
+
+        uiHandler.post( progressBarUpdater );
 		item.getMediaPlayer().start();
 
 	}
 	
 	private void stopTextToSpeech() {
 
-        TTSPlaybackItem item = this.ttsPlaybackItemQueue.peek();
-
-		if ( item != null ) {
+        for ( TTSPlaybackItem item: this.ttsPlaybackItemQueue ) {
             MediaPlayer mediaPlayer = item.getMediaPlayer();
-			mediaPlayer.stop();		
-			mediaPlayer.release();
-		}
-		
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            new File(item.getFileName()).delete();
+        }
+
 		this.mediaLayout.setVisibility(View.GONE);
 		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
 			unsubscribeFromMediaButtons();
@@ -759,6 +750,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		this.ttsPlaybackItemQueue.clear();
         this.ttsItemPrep.clear();
+
+        this.textToSpeech.stop();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -2398,17 +2391,24 @@ public class ReadingFragment extends RoboSherlockFragment implements
         private CharSequence text;
         private MediaPlayer mediaPlayer;
         private int totalTextLength;
+        private int offset;
+
         private boolean lastElementOfPage;
 
         private String fileName;
 
         public TTSPlaybackItem(CharSequence text, MediaPlayer mediaPlayer,
-            int totalTextLength, boolean lastElementOfPage, String fileName) {
+            int totalTextLength, int offset, boolean lastElementOfPage, String fileName) {
             this.text = text;
             this.mediaPlayer = mediaPlayer;
             this.totalTextLength = totalTextLength;
             this.lastElementOfPage = lastElementOfPage;
             this.fileName = fileName;
+            this.offset = offset;
+        }
+
+        private int getOffset() {
+            return offset;
         }
 
         private CharSequence getText() {

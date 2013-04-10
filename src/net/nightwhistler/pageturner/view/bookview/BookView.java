@@ -653,6 +653,9 @@ public class BookView extends ScrollView {
 		loadText(result);
 	}
 
+    public void setReadingPointer( int position ) {
+
+    }
 
 
 	private void doNavigation(int index) {
@@ -1161,6 +1164,8 @@ public class BookView extends ScrollView {
 			listener.renderingText();
 		}
 	}
+
+
 
 	private void progressUpdate() {
 

@@ -503,6 +503,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     private class StreamToDiskRunnable implements Runnable {
         @Override
         public void run() {
+
             CharSequence text = bookView.getStrategy().getText();
 
             if ( text == null || ! ttsIsRunning()) {
@@ -511,25 +512,23 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             File fos = getActivity().getDir("tts", Context.MODE_WORLD_WRITEABLE );
 
-            String textToSpeak = text.toString();
+            String textToSpeak = text.toString().substring( bookView.getPosition() );
             String ttsFolder = fos.getAbsolutePath();
 
             String[] parts = textToSpeak.split("\\.|\n");
-            int offset = 0;
+            int offset = bookView.getPosition();
 
             for ( int i=0; i < parts.length && ttsIsRunning(); i++ ) {
 
-                LOG.debug("Straming part " + i + " to disk. Is TTS running? - " + ttsIsRunning() );
+                LOG.debug("Streaming part " + i + " to disk. Is TTS running? - " + ttsIsRunning() );
 
                 String part = parts[i];
 
-                boolean endOfPage = i == parts.length -1;
+                boolean lastPart = i == parts.length -1;
 
-                if ( offset >= bookView.getPosition() ) {
-                    //Utterance ID doubles as the filename
-                    String pageName = new File( ttsFolder, "tts_" + part.hashCode() + ".wav").getAbsolutePath();
-                    streamPartToDisk(pageName, part, offset, textToSpeak.length(), endOfPage);
-                }
+                //Utterance ID doubles as the filename
+                String pageName = new File( ttsFolder, "tts_" + part.hashCode() + ".wav").getAbsolutePath();
+                streamPartToDisk(pageName, part, offset, textToSpeak.length(), lastPart);
 
                 offset += part.length() +1;
             }
@@ -538,11 +537,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     private void streamPartToDisk(String fileName, String part, int offset, int totalLength, boolean endOfPage ) {
 
-        HashMap<String, String> params = new HashMap<String, String>();
-
-        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, fileName);
-
         if ( part.trim().length() > 0 ) {
+
+            HashMap<String, String> params = new HashMap<String, String>();
+
+            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, fileName);
+
             TTSPlaybackItem item = new TTSPlaybackItem( part, new MediaPlayer(), totalLength, offset, endOfPage, fileName);
             ttsItemPrep.put(fileName, item);
             textToSpeech.synthesizeToFile(part, params, fileName);
@@ -628,11 +628,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     mediaProgressBar.setProgress(currentDuration);
 
                     bookView.navigateTo(bookView.getIndex(), currentDuration );
+                    bookView.setReadingPointer(currentDuration);
+
                 }
             }
 			
-            // Running this thread after 250 milliseconds
-            uiHandler.postDelayed(this, 250);
+            // Running this thread after 500 milliseconds
+            uiHandler.postDelayed(this, 500);
 
 		}
 	};

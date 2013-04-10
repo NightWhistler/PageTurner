@@ -37,8 +37,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 /**
- * ListAdapter class for progress downloaded from a synchronization
- * server.
+ * ListAdapter class for search results.
  * 
  * @author Alex Kuiper
  *

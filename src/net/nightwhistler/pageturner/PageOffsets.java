@@ -122,6 +122,7 @@ public class PageOffsets {
 			jsonObject.put(Fields.hMargin.name(), this.hMargin );
 			jsonObject.put(Fields.lineSpacing.name(), this.lineSpacing );
 			jsonObject.put(Fields.fullScreen.name(), this.fullScreen );
+            jsonObject.put(Fields.algorithmVersion.name(), this.algorithmVersion );
 			
 			jsonObject.put(Fields.offsets.name(), new JSONArray( this.offsets ) );
 			

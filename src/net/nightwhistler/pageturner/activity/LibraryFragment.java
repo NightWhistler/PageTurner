@@ -197,15 +197,15 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int pos,
+	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		openBook(this.bookAdapter.getResultAt(pos));
+        showBookDetails(this.bookAdapter.getResultAt(position));
 	}	
 	
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view,
 			int position, long id) {
-		showBookDetails(this.bookAdapter.getResultAt(position));
+        openBook(this.bookAdapter.getResultAt(position));
 		return true;
 	}
 	

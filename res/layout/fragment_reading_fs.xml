@@ -123,7 +123,7 @@
       	  android:onClick="onMediaButtonEvent"    	  
           />      
       	
-      <SeekBar android:id="@+id/mediaProgress"
+      <ProgressBar android:id="@+id/mediaProgress"
         	style="?android:attr/progressBarStyleHorizontal"
         	android:layout_width="match_parent"        	
         	android:layout_height="wrap_content"

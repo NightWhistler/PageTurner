@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import android.widget.*;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -112,13 +113,6 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ViewSwitcher;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -186,7 +180,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	private AnimatedImageView dummyView;
 	
 	@InjectView(R.id.mediaProgress)
-	private SeekBar mediaProgressBar;
+	private ProgressBar mediaProgressBar;
 
 	@InjectView(R.id.pageNumberView)
 	private TextView pageNumberView;
@@ -308,28 +302,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				if (fromUser) {
 					seekValue = progress;
 					percentageField.setText(progress + "% ");
-				}
-			}
-		});
-		
-		this.mediaProgressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-			private int seekValue;
-
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				seekToPointInPlayback(seekValue);
-			}
-
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-			}
-
-			@Override
-			public void onProgressChanged(SeekBar seekBar,
-					int progress, boolean fromUser) {
-				if (fromUser) {
-					seekValue = progress;					
 				}
 			}
 		});

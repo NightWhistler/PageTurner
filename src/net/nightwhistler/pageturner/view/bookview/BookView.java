@@ -478,19 +478,7 @@ public class BookView extends ScrollView {
         int line = layout.getLineForOffset( offset );
         int y = layout.getLineBottom(line);
 
-        int lineStart = layout.getLineStart(line);
-        int lineEnd = layout.getLineStart(line+1) - 1;
-
-        int lineLength = lineEnd - lineStart;
-
-        int posIntoLine = offset - lineStart;
-        double part = (  (double) posIntoLine / (double) lineLength );
-
-        int x = (int) (part * layout.getWidth());
-
-        LOG.debug("Calculating reading position: offset=" + offset
-                + " line=" + line + " y=" + y );
-        //float horizontal = layout.getPrimaryHorizontal(offset);
+        int x = (int) layout.getPrimaryHorizontal(offset);
 
         int[] result = { x, y };
 
@@ -1364,7 +1352,8 @@ public class BookView extends ScrollView {
             super.onDraw(canvas);
 
             if ( readingPosition != null ) {
-                canvas.drawCircle(this.readingPosition[0], this.readingPosition[1], 5, paint);
+                paint.setStyle(Paint.Style.FILL);
+                canvas.drawRect(0f, readingPosition[1], readingPosition[0], readingPosition[1] + 5, paint );
             }
         }
     }

@@ -620,21 +620,34 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                 if ( mediaPlayer != null && mediaPlayer.isPlaying() ) {
 
-                    double percentage = (double) mediaPlayer.getCurrentPosition() / (double) mediaPlayer.getDuration();
+                    double percentage = 0.0;
 
-                    int currentDuration = item.getOffset() + (int) (percentage * item.getText().length());
+                        try {
+                            percentage = (double) mediaPlayer.getCurrentPosition() / (double) mediaPlayer.getDuration();
+                        } catch (IllegalStateException s) {
+                            //Ignore, this can happen due to timing issues.
+                            //Just wait to wake up again.
+                        }
 
-                    mediaProgressBar.setMax(item.getTotalTextLength());
-                    mediaProgressBar.setProgress(currentDuration);
+                        /*
+                        0 can mean 2 things: either this is the start of a new text-fragment,
+                        or the player has just been stopped. In either case we don't want to
+                        update the UI.
+                         */
+                        if ( percentage > 0 ) {
+                            int currentDuration = item.getOffset() + (int) (percentage * item.getText().length());
 
-                    bookView.navigateTo(bookView.getIndex(), currentDuration );
-                    bookView.setReadingPointer(currentDuration);
+                            mediaProgressBar.setMax(item.getTotalTextLength());
+                            mediaProgressBar.setProgress(currentDuration);
 
+                            bookView.navigateTo(bookView.getIndex(), currentDuration );
+                            bookView.setReadingPointer(currentDuration);
+                        }
                 }
             }
 			
             // Running this thread after 500 milliseconds
-            uiHandler.postDelayed(this, 250);
+            uiHandler.postDelayed(this, 100);
 
 		}
 	};

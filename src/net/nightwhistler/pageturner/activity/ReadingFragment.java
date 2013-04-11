@@ -727,6 +727,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         this.bookView.setReadingPointer(-1);
 
         this.textToSpeech.stop();
+        saveReadingPosition();
 	}
 	
 	@SuppressWarnings("deprecation")

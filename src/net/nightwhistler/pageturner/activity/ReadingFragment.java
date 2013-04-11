@@ -634,7 +634,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             }
 			
             // Running this thread after 500 milliseconds
-            uiHandler.postDelayed(this, 500);
+            uiHandler.postDelayed(this, 250);
 
 		}
 	};
@@ -724,6 +724,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		this.ttsPlaybackItemQueue.clear();
         this.ttsItemPrep.clear();
+        this.bookView.setReadingPointer(-1);
 
         this.textToSpeech.stop();
 	}

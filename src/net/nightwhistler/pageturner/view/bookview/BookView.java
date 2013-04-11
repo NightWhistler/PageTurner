@@ -33,6 +33,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import android.graphics.*;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
@@ -60,9 +61,6 @@ import org.slf4j.LoggerFactory;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -417,7 +415,7 @@ public class BookView extends ScrollView {
 	}
 
 	private void loadText(List<SearchTextTask.SearchResult> hightListResults) {
-		executeTask( new LoadTextTask(hightListResults) );
+		executeTask(new LoadTextTask(hightListResults));
 	}
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -474,6 +472,30 @@ public class BookView extends ScrollView {
 
 		return layout.getOffsetForHorizontal(line, x);
 	}
+
+    private int[] findPositionForOffset(int offset) {
+        Layout layout = this.childView.getLayout();
+        int line = layout.getLineForOffset( offset );
+        int y = layout.getLineBottom(line);
+
+        int lineStart = layout.getLineStart(line);
+        int lineEnd = layout.getLineStart(line+1) - 1;
+
+        int lineLength = lineEnd - lineStart;
+
+        int posIntoLine = offset - lineStart;
+        double part = (  (double) posIntoLine / (double) lineLength );
+
+        int x = (int) (part * layout.getWidth());
+
+        LOG.debug("Calculating reading position: offset=" + offset
+                + " line=" + line + " y=" + y );
+        //float horizontal = layout.getPrimaryHorizontal(offset);
+
+        int[] result = { x, y };
+
+        return  result;
+    }
 
 	/**
 	 * Returns the full word containing the character at the selected location.
@@ -653,8 +675,23 @@ public class BookView extends ScrollView {
 		loadText(result);
 	}
 
+    private int readingPointer;
+
     public void setReadingPointer( int position ) {
 
+        InnerView view = (InnerView) getInnerView();
+
+        if ( position != readingPointer ) {
+            readingPointer = position;
+
+            if ( position == -1 ) {
+                view.setReadingPosition(null);
+            } else {
+                view.setReadingPosition( findPositionForOffset(position - this.getPosition()) );
+            }
+
+            //view.invalidate();
+        }
     }
 
 
@@ -1292,9 +1329,17 @@ public class BookView extends ScrollView {
 
 		private BookView bookView;
 
+        private int[] readingPosition;
+        private Paint paint = new Paint();
+
 		public InnerView(Context context, AttributeSet attributes) {
 			super(context, attributes);
 		}
+
+        public void setTextColor(int color) {
+            super.setTextColor(color);
+            this.paint.setColor(color);
+        }
 
 		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 			super.onSizeChanged(w, h, oldw, oldh);
@@ -1308,7 +1353,21 @@ public class BookView extends ScrollView {
 		public void setBookView(BookView bookView) {
 			this.bookView = bookView;
 		}
-	}
+
+        public void setReadingPosition(int[] pos) {
+            this.readingPosition = pos;
+        }
+
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+
+            if ( readingPosition != null ) {
+                canvas.drawCircle(this.readingPosition[0], this.readingPosition[1], 5, paint);
+            }
+        }
+    }
 
 	private static enum BookReadPhase {
 		START, OPEN_FILE, PARSE_TEXT, DONE

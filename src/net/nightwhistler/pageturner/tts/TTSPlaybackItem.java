@@ -45,6 +45,16 @@ public class TTSPlaybackItem {
         this.offset = offset;
     }
 
+    public void setOnSpeechCompletedCallback( final SpeechCompletedCallback callback ) {
+
+        this.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                callback.speechCompleted(TTSPlaybackItem.this, mediaPlayer);
+            }
+        });
+    }
+
     public int getOffset() {
         return offset;
     }

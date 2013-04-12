@@ -58,6 +58,12 @@ public class TTSPlaybackQueue {
         this.active = false;
     }
 
+    public void updateSpeechCompletedCallbacks(SpeechCompletedCallback callback) {
+        for ( TTSPlaybackItem item: this.playbackItemQueue ) {
+            item.setOnSpeechCompletedCallback(callback);
+        }
+    }
+
     public synchronized  TTSPlaybackItem peek() {
         return playbackItemQueue.peek();
     }

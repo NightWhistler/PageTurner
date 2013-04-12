@@ -47,6 +47,7 @@ import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
+import net.nightwhistler.pageturner.tts.SpeechCompletedCallback;
 import net.nightwhistler.pageturner.tts.TTSPlaybackItem;
 import net.nightwhistler.pageturner.tts.TTSPlaybackQueue;
 import net.nightwhistler.pageturner.view.AnimatedImageView;
@@ -124,7 +125,7 @@ import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragmen
 import com.google.inject.Inject;
 
 public class ReadingFragment extends RoboSherlockFragment implements
-		BookViewListener, TextSelectionCallback, OnUtteranceCompletedListener {
+		BookViewListener, TextSelectionCallback, OnUtteranceCompletedListener, SpeechCompletedCallback {
 
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
@@ -425,6 +426,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         if ( ttsIsRunning() ) {
             this.mediaLayout.setVisibility(View.VISIBLE);
+            this.ttsPlaybackItemQueue.updateSpeechCompletedCallbacks(this);
             uiHandler.post( progressBarUpdater );
         }
 	}
@@ -456,13 +458,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public void onPause() {
 			
 		saveReadingPosition();
-
-        /*
-	    if ( powerManager.isScreenOn() ) {
-	    	stopTextToSpeech();
-	    }
-	    */
-		
 		super.onPause();
 	}
 	
@@ -565,6 +560,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public void onUtteranceCompleted(final String wavFile) {
 		
 		if ( ! ttsIsRunning() ) {
+            this.textToSpeech.stop();
 			return;
 		}
 
@@ -574,20 +570,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         final TTSPlaybackItem item = ttsItemPrep.remove(wavFile);
 
-		MediaPlayer.OnCompletionListener fileDeleter = 
-				new MediaPlayer.OnCompletionListener() {
-
-			@Override
-			public void onCompletion(MediaPlayer mp) {
-				speechCompleted(item, mp);
-			}
-		};
-
 		try {
 
 			MediaPlayer mediaPlayer = item.getMediaPlayer();
-			
-			mediaPlayer.setOnCompletionListener(fileDeleter);
 			mediaPlayer.reset();
 			mediaPlayer.setDataSource(wavFile);
 			mediaPlayer.prepare();
@@ -636,29 +621,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                 if ( mediaPlayer != null && mediaPlayer.isPlaying() ) {
 
-                    double percentage = 0.0;
+                    double percentage = (double) mediaPlayer.getCurrentPosition() / (double) mediaPlayer.getDuration();
 
-                        try {
-                            percentage = (double) mediaPlayer.getCurrentPosition() / (double) mediaPlayer.getDuration();
-                        } catch (IllegalStateException s) {
-                            //Ignore, this can happen due to timing issues.
-                            //Just wait to wake up again.
-                        }
+                    int currentDuration = item.getOffset() + (int) (percentage * item.getText().length());
 
-                        /*
-                        0 can mean 2 things: either this is the start of a new text-fragment,
-                        or the player has just been stopped. In either case we don't want to
-                        update the UI.
-                         */
-                        if ( percentage > 0 ) {
-                            int currentDuration = item.getOffset() + (int) (percentage * item.getText().length());
+                    mediaProgressBar.setMax(item.getTotalTextLength());
+                    mediaProgressBar.setProgress(currentDuration);
 
-                            mediaProgressBar.setMax(item.getTotalTextLength());
-                            mediaProgressBar.setProgress(currentDuration);
+                    bookView.navigateTo(bookView.getIndex(), currentDuration );
+                    bookView.setReadingPointer(currentDuration);
 
-                            bookView.navigateTo(bookView.getIndex(), currentDuration );
-                            bookView.setReadingPointer(currentDuration);
-                        }
                 }
             }
 			
@@ -696,13 +668,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		return ttsPlaybackItemQueue.isActive();
 	}
 	
-	private void speechCompleted( TTSPlaybackItem item, MediaPlayer mediaPlayer ) {
+	public void speechCompleted( TTSPlaybackItem item, MediaPlayer mediaPlayer ) {
 		
 		if (! ttsPlaybackItemQueue.isEmpty() ) {
 			this.ttsPlaybackItemQueue.remove();
 		}
 
-		if ( ttsIsRunning() && ! bookView.isAtEnd() ) {
+		if ( ttsIsRunning()  ) {
 
 			startPlayback();
 
@@ -732,6 +704,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return;
 		}
 
+        item.setOnSpeechCompletedCallback(this);
         uiHandler.post( progressBarUpdater );
 		item.getMediaPlayer().start();
 
@@ -1119,7 +1092,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		getActivity().setTitle(this.titleBase);	
 		
-		if ( ttsIsRunning() ) {
+		if ( this.ttsPlaybackItemQueue.isActive() && this.ttsPlaybackItemQueue.isEmpty() ) {
 			startTextToSpeech();
 		}
 

@@ -674,6 +674,7 @@ public class BookView extends ScrollView {
 
             if ( position == -1 ) {
                 view.setReadingPosition(null);
+                view.invalidate();
             } else {
                 view.setReadingPosition( findPositionForOffset(position - this.getPosition()) );
             }

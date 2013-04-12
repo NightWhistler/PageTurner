@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import android.graphics.*;
+import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
@@ -85,6 +86,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import roboguice.RoboGuice;
 
 public class BookView extends ScrollView {
 
@@ -119,14 +121,17 @@ public class BookView extends ScrollView {
 	
 	private Handler scrollHandler;
 
-	private static final Logger LOG = LoggerFactory.getLogger(BookView.class);
+	private static final Logger LOG = LoggerFactory.getLogger("BookView");
 
 	private Map<String, FastBitmapDrawable> imageCache = new HashMap<String, FastBitmapDrawable>();
 
+    @Inject
+    private TextLoader textLoader;
+
 	public BookView(Context context, AttributeSet attributes) {
 		super(context, attributes);
-		
 		this.scrollHandler = new Handler();
+        RoboGuice.injectMembers(context, this);
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -475,7 +480,7 @@ public class BookView extends ScrollView {
 
     private int[] findPositionForOffset(int offset) {
         Layout layout = this.childView.getLayout();
-        int line = layout.getLineForOffset( offset );
+        int line = layout.getLineForOffset(offset);
         int y = layout.getLineBottom(line);
 
         int x = (int) layout.getPrimaryHorizontal(offset);
@@ -1414,41 +1419,6 @@ public class BookView extends ScrollView {
 
 		}
 
-		private void initBook() throws IOException {
-
-			publishProgress(BookReadPhase.OPEN_FILE);
-
-			if (BookView.this.fileName == null) {
-				throw new IOException("No file-name specified.");
-			}
-
-			// read epub file
-			EpubReader epubReader = new EpubReader();
-
-			MediaType[] lazyTypes = {
-					MediatypeService.CSS, // We don't support CSS yet
-
-					MediatypeService.GIF, MediatypeService.JPG,
-					MediatypeService.PNG,
-					MediatypeService.SVG, // Handled by the ResourceLoader
-
-					MediatypeService.OPENTYPE,
-					MediatypeService.TTF, // We don't support custom fonts
-											// either
-					MediatypeService.XPGT,
-
-					MediatypeService.MP3,
-					MediatypeService.MP4, // And no audio either
-					MediatypeService.OGG,
-					MediatypeService.SMIL, MediatypeService.XPGT,
-					MediatypeService.PLS };
-
-			Book newBook = epubReader.readEpubLazy(fileName, "UTF-8",
-					Arrays.asList(lazyTypes));
-			setBook(newBook);
-
-		}
-
 		protected Spanned doInBackground(String... hrefs) {
 
 			publishProgress(BookReadPhase.START);
@@ -1459,7 +1429,8 @@ public class BookView extends ScrollView {
 
 			if (BookView.this.book == null) {
 				try {
-					initBook();
+                    publishProgress(BookReadPhase.OPEN_FILE);
+					setBook( textLoader.initBook(fileName) );
 				} catch (IOException io) {
 					this.error = io.getMessage();
 					return null;
@@ -1484,7 +1455,7 @@ public class BookView extends ScrollView {
 			publishProgress(BookReadPhase.PARSE_TEXT);
 
 			try {
-				Spannable result = spanner.fromHtml(resource.getReader());
+				Spannable result = textLoader.getText(resource, spanner);
 				loader.load(); // Load all image resources.
 
 				// Highlight search results (if any)

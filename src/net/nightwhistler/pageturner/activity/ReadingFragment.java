@@ -1723,6 +1723,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		super.onStop();
 				
 		printScreenAndCallState("onStop()");
+        this.textToSpeech.shutdown();
 
 		saveReadingPosition();		
 		this.waitDialog.dismiss();			

@@ -32,6 +32,7 @@ import net.nightwhistler.pageturner.sync.PageTurnerWebProgressService;
 import net.nightwhistler.pageturner.sync.ProgressService;
 
 import net.nightwhistler.pageturner.tts.TTSPlaybackQueue;
+import net.nightwhistler.pageturner.view.bookview.TextLoader;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
@@ -61,6 +62,7 @@ public class PageTurnerModule extends AbstractModule {
 		bind( ProgressService.class ).to( PageTurnerWebProgressService.class );
 
         bind(TTSPlaybackQueue.class).in(Singleton.class);
+        bind(TextLoader.class).in(Singleton.class);
 	}
 	
 	/**

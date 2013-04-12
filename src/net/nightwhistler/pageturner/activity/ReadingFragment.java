@@ -28,6 +28,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import android.widget.*;
+import com.google.inject.name.Named;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -46,6 +47,8 @@ import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
+import net.nightwhistler.pageturner.tts.TTSPlaybackItem;
+import net.nightwhistler.pageturner.tts.TTSPlaybackQueue;
 import net.nightwhistler.pageturner.view.AnimatedImageView;
 import net.nightwhistler.pageturner.view.NavGestureDetector;
 import net.nightwhistler.pageturner.view.ProgressListAdapter;
@@ -200,7 +203,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Inject
 	private AudioManager audioManager;
 
-	private Queue<TTSPlaybackItem> ttsPlaybackItemQueue = new ConcurrentLinkedQueue<TTSPlaybackItem>();
+    @Inject
+    private TTSPlaybackQueue ttsPlaybackItemQueue;
+
     private Map<String, TTSPlaybackItem> ttsItemPrep = new HashMap<String, TTSPlaybackItem>();
 
 	private ProgressDialog waitDialog;
@@ -416,8 +421,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			} else {
 				bookView.restore();
 			}
-
 		}
+
+        if ( ttsIsRunning() ) {
+            this.mediaLayout.setVisibility(View.VISIBLE);
+            uiHandler.post( progressBarUpdater );
+        }
 	}
 
 	private void saveConfigState() {
@@ -447,10 +456,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public void onPause() {
 			
 		saveReadingPosition();
-		
+
+        /*
 	    if ( powerManager.isScreenOn() ) {
 	    	stopTextToSpeech();
-	    } 		
+	    }
+	    */
 		
 		super.onPause();
 	}
@@ -487,12 +498,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 
         ttsItemPrep.clear();
-		this.ttsPlaybackItemQueue.clear();
+
+        if (! ttsAvailable ) {
+            return;
+        }
+
+        this.ttsPlaybackItemQueue.activate();
 		this.mediaLayout.setVisibility(View.VISIBLE);
-		
-		if (! ttsAvailable ) {
-			return;
-		}		
 		
 		this.waitDialog.setTitle(R.string.init_tts);
 		this.waitDialog.show();
@@ -612,6 +624,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				return;
 			}
 
+            if ( ! ttsIsRunning() ) {
+                return;
+            }
+
             TTSPlaybackItem item = ttsPlaybackItemQueue.peek();
 
             if ( item != null ) {
@@ -677,7 +693,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	
 	private boolean ttsIsRunning() {
-		return this.mediaLayout.getVisibility() == View.VISIBLE;
+		return ttsPlaybackItemQueue.isActive();
 	}
 	
 	private void speechCompleted( TTSPlaybackItem item, MediaPlayer mediaPlayer ) {
@@ -723,23 +739,18 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	private void stopTextToSpeech() {
 
-        for ( TTSPlaybackItem item: this.ttsPlaybackItemQueue ) {
-            MediaPlayer mediaPlayer = item.getMediaPlayer();
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            new File(item.getFileName()).delete();
-        }
+        this.ttsPlaybackItemQueue.deactivate();
 
 		this.mediaLayout.setVisibility(View.GONE);
 		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
 			unsubscribeFromMediaButtons();
 		}
-		
-		this.ttsPlaybackItemQueue.clear();
+
+        this.textToSpeech.stop();
+
         this.ttsItemPrep.clear();
         this.bookView.setReadingPointer(-1);
 
-        this.textToSpeech.stop();
         saveReadingPosition();
 	}
 	
@@ -2123,7 +2134,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					LOG.error("Error saving progress", e);
 				}
 			}
-		});		
+		});
 	}
 	
 	private void sendProgressUpdateToServer() {
@@ -2375,52 +2386,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 	}
 
-    private static class TTSPlaybackItem {
 
-        private CharSequence text;
-        private MediaPlayer mediaPlayer;
-        private int totalTextLength;
-        private int offset;
-
-        private boolean lastElementOfPage;
-
-        private String fileName;
-
-        public TTSPlaybackItem(CharSequence text, MediaPlayer mediaPlayer,
-            int totalTextLength, int offset, boolean lastElementOfPage, String fileName) {
-            this.text = text;
-            this.mediaPlayer = mediaPlayer;
-            this.totalTextLength = totalTextLength;
-            this.lastElementOfPage = lastElementOfPage;
-            this.fileName = fileName;
-            this.offset = offset;
-        }
-
-        private int getOffset() {
-            return offset;
-        }
-
-        private CharSequence getText() {
-            return text;
-        }
-
-        private MediaPlayer getMediaPlayer() {
-            return mediaPlayer;
-        }
-
-        private int getTotalTextLength() {
-            return totalTextLength;
-        }
-
-        private boolean isLastElementOfPage() {
-            return lastElementOfPage;
-        }
-
-        private String getFileName() {
-            return  fileName;
-        }
-
-    }
 	
 	private class PageTurnerMediaReceiver extends BroadcastReceiver {
 		

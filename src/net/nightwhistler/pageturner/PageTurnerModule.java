@@ -21,12 +21,17 @@ package net.nightwhistler.pageturner;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.google.inject.Singleton;
+import com.google.inject.name.Names;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
 import net.nightwhistler.pageturner.sync.PageTurnerWebProgressService;
 import net.nightwhistler.pageturner.sync.ProgressService;
 
+import net.nightwhistler.pageturner.tts.TTSPlaybackQueue;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
@@ -54,7 +59,8 @@ public class PageTurnerModule extends AbstractModule {
 		
 		bind( LibraryService.class ).to( SqlLiteLibraryService.class );
 		bind( ProgressService.class ).to( PageTurnerWebProgressService.class );
-		
+
+        bind(TTSPlaybackQueue.class).in(Singleton.class);
 	}
 	
 	/**

@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import android.os.Build;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import net.nightwhistler.pageturner.library.LibraryService;
@@ -77,7 +78,7 @@ public class PageTurnerModule extends AbstractModule {
 	public HttpClient getHttpClient(Configuration config) {
 		HttpParams httpParams = new BasicHttpParams();
 		DefaultHttpClient client = new DefaultHttpClient(httpParams);
-		
+
 		for ( CustomOPDSSite site: config.getCustomOPDSSites() ) {
 			if ( site.getUserName() != null && site.getUserName().length() > 0 ) {
 				try {

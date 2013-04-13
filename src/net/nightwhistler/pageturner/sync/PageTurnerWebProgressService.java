@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import android.os.Build;
+import com.google.inject.name.Named;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 
@@ -68,29 +70,27 @@ public class PageTurnerWebProgressService implements ProgressService {
 	private Configuration config;
 	
 	private HttpClient client;
-	private HttpContext context;
+	private HttpContext httpContext;
 	
 	private static final int HTTP_SUCCESS = 200;
 	private static final int HTTP_FORBIDDEN = 403;
     private static final int HTTP_NOT_FOUND = 404;
 	
 	private SimpleDateFormat dateFormat;
-	
+
 	@Inject
-	public PageTurnerWebProgressService(Context context) {		
-		this.context = new BasicHttpContext();
-		this.client = new SSLHttpClient(context);	
+	public PageTurnerWebProgressService(Context context, Configuration config) {
+		this.httpContext = new BasicHttpContext();
+		this.config = config;
+        this.client = new SSLHttpClient(context);
+
 		
 		this.dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		// explicitly set timezone of input if needed
-		dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));	
+		dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+    }
 
-	}	
-	
-	public void setConfig(Configuration config) {
-		this.config = config;
-	}
-	
+
 	@Override
 	public List<BookProgress> getProgress(String fileName) throws AccessException {
 		
@@ -107,6 +107,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 		LOG.debug( "Doing progress query for key: " + key );		
 		
 		HttpGet get = new HttpGet( config.getSyncServerURL() + key + "?accessKey=" + URLEncoder.encode(accessKey) );
+        get.setHeader("User-Agent", config.getUserAgent() );
 		
 		try {
 			HttpResponse response = client.execute(get);
@@ -190,9 +191,11 @@ public class PageTurnerWebProgressService implements ProgressService {
 			pairs.add(new BasicNameValuePair("userId", Integer.toHexString( this.config.getSynchronizationEmail().hashCode() )));
 			pairs.add(new BasicNameValuePair("accessKey", this.config.getSynchronizationAccessKey()));
 			
-			post.setEntity( new UrlEncodedFormEntity(pairs) );			
+			post.setEntity( new UrlEncodedFormEntity(pairs) );
+            post.setHeader("User-Agent", config.getUserAgent() );
+
 			
-			HttpResponse response = client.execute(post, this.context);
+			HttpResponse response = client.execute(post, this.httpContext);
 			
 			if ( response.getStatusLine().getStatusCode() == HTTP_FORBIDDEN ) {
 				throw new AccessException( EntityUtils.toString(response.getEntity()) );

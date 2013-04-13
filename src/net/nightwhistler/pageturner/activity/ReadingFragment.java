@@ -806,8 +806,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private void updateFromPrefs() {
 
-		this.progressService.setConfig(this.config);
-
 		bookView.setTextSize(config.getTextSize());
 
 		int marginH = config.getHorizontalMargin();

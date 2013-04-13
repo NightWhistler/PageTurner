@@ -89,8 +89,10 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 		baseUrl = baseUrl.trim();
 
 		try {			
-			
-			HttpResponse response = httpClient.execute(new HttpGet(baseUrl));
+
+            HttpGet get = new HttpGet(baseUrl);
+            get.setHeader("User-Agent", config.getUserAgent() );
+			HttpResponse response = httpClient.execute(get);
 			
 			if ( response.getStatusLine().getStatusCode() != 200 ) {
 				this.errorMessage = "HTTP " + response.getStatusLine().getStatusCode() + ": " + response.getStatusLine().getReasonPhrase();

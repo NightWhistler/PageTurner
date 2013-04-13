@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import android.content.pm.PackageManager;
 import net.nightwhistler.htmlspanner.FontFamily;
 
 import org.json.JSONArray;
@@ -192,6 +193,23 @@ public class Configuration {
 			editor.commit();
 		}
 	}
+
+    public String getAppVersion() {
+        String version = "";
+        try {
+            version = context.getPackageManager().getPackageInfo(
+                    context.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            // Huh? Really?
+        }
+
+        return version;
+    }
+
+    public String getUserAgent() {
+        return context.getString(R.string.app_name) + "-" + getAppVersion()
+                + "/" + Build.MODEL + ";Android-" + Build.VERSION.RELEASE;
+    }
 	
 	public Locale getLocale() {
 		

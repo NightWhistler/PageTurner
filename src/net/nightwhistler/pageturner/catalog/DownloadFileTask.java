@@ -77,6 +77,7 @@ public class DownloadFileTask extends AsyncTask<String, Long, String> {
 			fileName = fileName.replaceAll("\\?|&|=", "_");
 			
 			HttpGet get = new HttpGet(url);
+            get.setHeader("User-Agent", config.getUserAgent() );
 			HttpResponse response = httpClient.execute(get);
 
 			if (response.getStatusLine().getStatusCode() == 200) {

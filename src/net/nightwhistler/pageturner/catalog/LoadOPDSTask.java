@@ -102,6 +102,10 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 			InputStream stream = response.getEntity().getContent();			
 			Feed feed = Nucular.readAtomFeedFromStream(stream);
 			feed.setDetailFeed(asDetailsFeed);
+
+            if (isBaseFeed) {
+                addCustomSitesEntry(feed);
+            }
 			
 			List<Link> remoteImages = new ArrayList<Link>();
 
@@ -203,10 +207,17 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
 	private void addCustomSitesEntry(Feed feed) {
 
+        Link iconLink = feed.findByRel("pageturner:custom_sites");
+
 		Entry entry = new Entry();
 		entry.setTitle(context.getString(R.string.custom_site));
 		entry.setSummary(context.getString(R.string.custom_site_desc));
 		entry.setId(Catalog.CUSTOM_SITES_ID);
+
+        if ( iconLink != null ) {
+            Link thumbnailLink = new Link(iconLink.getHref(), iconLink.getType(), AtomConstants.REL_IMAGE);
+            entry.addLink(thumbnailLink);
+        }
 
 		feed.addEntry(entry);
 	}
@@ -221,11 +232,7 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 		Object val = values[0];
 
 		if (val instanceof Feed) {
-			Feed result = (Feed) val;			
-
-			if (isBaseFeed) {
-				addCustomSitesEntry(result);
-			}
+			Feed result = (Feed) val;
 
 			callBack.setNewFeed(result);
 		} else if (val instanceof Link) {

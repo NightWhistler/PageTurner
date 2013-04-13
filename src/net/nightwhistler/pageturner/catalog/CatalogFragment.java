@@ -119,7 +119,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			onSearchClick();
 			return true;
 
-		}
+		} else if ( keyCode == KeyEvent.KEYCODE_BACK
+                && action == KeyEvent.ACTION_DOWN) {
+            onBackPressed();;
+            return true;
+        }
 
 		return false;		
 	}

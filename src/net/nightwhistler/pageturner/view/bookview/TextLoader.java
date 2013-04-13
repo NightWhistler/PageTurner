@@ -87,6 +87,13 @@ public class TextLoader {
     }
 
     private void closeCurrentBook() {
+
+        if ( currentBook != null ) {
+            for ( Resource res: currentBook.getResources().getAll() ) {
+                res.setData(null); //Release the byte[] data.
+            }
+        }
+
         currentBook = null;
         currentFile = null;
         renderedText.clear();

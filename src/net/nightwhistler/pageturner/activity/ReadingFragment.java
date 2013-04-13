@@ -487,6 +487,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		File fos = getActivity().getDir("tts", Context.MODE_WORLD_WRITEABLE );
 
+        saveReadingPosition();
 		//Delete any old TTS files still present.
 		for ( File f: fos.listFiles() ) {
 			f.delete();
@@ -1725,8 +1726,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		printScreenAndCallState("onStop()");
         this.textToSpeech.shutdown();
 
-		saveReadingPosition();		
 		this.waitDialog.dismiss();			
+        libraryService.close();
 	}
 
 	private void saveReadingPosition() {
@@ -2075,26 +2076,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void onSaveInstanceState(final Bundle outState) {
 		if (this.bookView != null) {
-
 			outState.putInt(POS_KEY, this.bookView.getPosition());
 			outState.putInt(IDX_KEY, this.bookView.getIndex());
-
-			saveReadingPosition();
-
-			libraryService.close();
 		}
 
 	}
 
 	private void sendProgressUpdateToServer(final int index, final int position) {
-
-		/*
-		 * If either percentage or position is 0 or -1,
-		 * chances are good this update would be invalid
-		 */
-		if ( progressPercentage < 1 || position < 1 ) {
-			return;
-		}
 
 		backgroundHandler.post(new Runnable() {
 			@Override
@@ -2109,13 +2097,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				}
 			}
 		});
-	}
-	
-	private void sendProgressUpdateToServer() {
-		final int index = bookView.getIndex();
-		final int position = bookView.getPosition();
-		
-		sendProgressUpdateToServer(index, position);
 	}
 
 	private void onSearchClick() {

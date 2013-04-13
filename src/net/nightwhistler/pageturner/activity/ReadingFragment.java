@@ -356,16 +356,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	 */
 	@Override
 	public void onPause() {
-		// when the screen is about to turn off
-		if (ScreenReceiver.wasScreenOn) {
-			// this is the case when onPause() is called by the system due to a
-			// screen state change
-			saveReadingPosition();
-		} else {
-			// this is when onPause() is called when the screen state has not
-			// changed
-		}
 
+        saveReadingPosition();
 		getActivity().unregisterReceiver(mReceiver);
 		super.onPause();
 	}
@@ -1274,8 +1266,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public void onStop() {
 		super.onStop();
 
-		saveReadingPosition();		
 		this.waitDialog.dismiss();
+        libraryService.close();
 	}
 
 	private void saveReadingPosition() {
@@ -1593,13 +1585,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void onSaveInstanceState(final Bundle outState) {
 		if (this.bookView != null) {
-
 			outState.putInt(POS_KEY, this.bookView.getPosition());
 			outState.putInt(IDX_KEY, this.bookView.getIndex());
-
-			saveReadingPosition();
-
-			libraryService.close();
 		}
 
 	}

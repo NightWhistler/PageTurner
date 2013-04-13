@@ -1593,14 +1593,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private void sendProgressUpdateToServer(final int index, final int position) {
 
-		/*
-		 * If either percentage or position is 0 or -1,
-		 * chances are good this update would be invalid
-		 */
-		if ( progressPercentage < 1 || position < 1 ) {
-			return;
-		}
-
 		backgroundHandler.post(new Runnable() {
 			@Override
 			public void run() {
@@ -1614,13 +1606,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				}
 			}
 		});		
-	}
-	
-	private void sendProgressUpdateToServer() {
-		final int index = bookView.getIndex();
-		final int position = bookView.getPosition();
-		
-		sendProgressUpdateToServer(index, position);
 	}
 
 	private void onSearchClick() {

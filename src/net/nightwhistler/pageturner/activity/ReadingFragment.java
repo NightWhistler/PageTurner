@@ -28,6 +28,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import android.widget.*;
+import android.widget.SearchView;
+import com.actionbarsherlock.widget.*;
 import com.google.inject.name.Named;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
@@ -206,6 +208,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     @Inject
     private TTSPlaybackQueue ttsPlaybackItemQueue;
+
+    private com.actionbarsherlock.widget.SearchView searchView;
 
     private Map<String, TTSPlaybackItem> ttsItemPrep = new HashMap<String, TTSPlaybackItem>();
 
@@ -1746,7 +1750,29 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.reading_menu, menu);		
+		inflater.inflate(R.menu.reading_menu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.search_text);
+
+        if (searchItem != null) {
+            this.searchView = (com.actionbarsherlock.widget.SearchView) searchItem.getActionView();
+            if (searchView != null) {
+
+                searchView.setSubmitButtonEnabled(true);
+                searchView.setOnQueryTextListener(new com.actionbarsherlock.widget.SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        executeSearch(query);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        return false;
+                    }
+                } );
+            }
+        }
 	}
 
 	@Override
@@ -2097,95 +2123,108 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		});
 	}
 
+    private void executeSearch(String text) {
+
+        final ProgressDialog searchProgress = new ProgressDialog(getActivity());
+        searchProgress.setOwnerActivity(getActivity());
+        searchProgress.setCancelable(true);
+        searchProgress.setMax(100);
+        searchProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
+        final SearchTextTask task = new SearchTextTask(bookView.getBook()) {
+
+            int i = 0;
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+
+                searchProgress.setTitle(R.string.search_wait);
+                searchProgress.show();
+
+                // Hide on-screen keyboard if it is showing
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
+            }
+
+            @Override
+            protected void onProgressUpdate(SearchResult... values) {
+
+                super.onProgressUpdate(values);
+                LOG.debug("Found match at index=" + values[0].getIndex()
+                        + ", offset=" + values[0].getStart() + " with context "
+                        + values[0].getDisplay());
+                SearchResult res = values[0];
+
+                if (res.getDisplay() != null) {
+                    i++;
+                    String update = String.format(
+                            getString(R.string.search_hits), i);
+                    searchProgress.setTitle(update);
+                }
+
+                searchProgress.setProgress(res.getPercentage());
+            }
+
+            @Override
+            protected void onCancelled() {
+                Toast.makeText(getActivity(), R.string.search_cancelled,
+                        Toast.LENGTH_LONG).show();
+            }
+
+            protected void onPostExecute(java.util.List<SearchResult> result) {
+
+                searchProgress.dismiss();
+
+                if (!isCancelled()) {
+                    if (result.size() > 0) {
+                        showSearchResultDialog(result);
+                    } else {
+                        Toast.makeText(getActivity(),
+                                R.string.search_no_matches, Toast.LENGTH_LONG)
+                                .show();
+                    }
+                }
+            };
+        };
+
+        searchProgress
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        task.cancel(true);
+                    }
+                });
+
+        task.execute(text);
+    }
+
+
 	private void onSearchClick() {
-		
-		final ProgressDialog searchProgress = new ProgressDialog(getActivity());
-		searchProgress.setOwnerActivity(getActivity());
-		searchProgress.setCancelable(true);
-		searchProgress.setMax(100);
-		searchProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
+        if ( this.searchView != null ) {
+            this.searchView.setIconified(false);
+            return;
+        }
+
 
 		final AlertDialog.Builder searchInputDialogBuilder = new AlertDialog.Builder(getActivity());
 
 		searchInputDialogBuilder.setTitle(R.string.search_text);
 		searchInputDialogBuilder.setMessage(R.string.enter_query);
-	
-		final SearchTextTask task = new SearchTextTask(bookView.getBook()) {
-
-			int i = 0;
-
-			@Override
-			protected void onPreExecute() {
-				super.onPreExecute();
-				
-				searchProgress.setTitle(R.string.search_wait);
-				searchProgress.show();
-				
-				// Hide on-screen keyboard if it is showing
-				InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-				imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-
-			}
-
-			@Override
-			protected void onProgressUpdate(SearchResult... values) {
-
-				super.onProgressUpdate(values);
-				LOG.debug("Found match at index=" + values[0].getIndex()
-						+ ", offset=" + values[0].getStart() + " with context "
-						+ values[0].getDisplay());
-				SearchResult res = values[0];
-
-				if (res.getDisplay() != null) {
-					i++;
-					String update = String.format(
-							getString(R.string.search_hits), i);
-					searchProgress.setTitle(update);
-				}
-
-				searchProgress.setProgress(res.getPercentage());
-			}
-
-			@Override
-			protected void onCancelled() {
-				Toast.makeText(getActivity(), R.string.search_cancelled,
-						Toast.LENGTH_LONG).show();
-			}
-
-			protected void onPostExecute(java.util.List<SearchResult> result) {
-
-				searchProgress.dismiss();
-
-				if (!isCancelled()) {
-					if (result.size() > 0) {
-						showSearchResultDialog(result);
-					} else {
-						Toast.makeText(getActivity(),
-								R.string.search_no_matches, Toast.LENGTH_LONG)
-								.show();
-					}
-				}
-			};
-		};
 		
 		// Set an EditText view to get user input
 		final EditText input = new EditText(getActivity());
 		input.setInputType(InputType.TYPE_CLASS_TEXT);
 		searchInputDialogBuilder.setView(input);		
 		
-		searchProgress
-				.setOnCancelListener(new DialogInterface.OnCancelListener() {
-
-					@Override
-					public void onCancel(DialogInterface dialog) {
-						task.cancel(true);
-					}
-				});
 
 		searchInputDialogBuilder.setPositiveButton(android.R.string.search_go,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						task.execute(input.getText().toString());
+						executeSearch(input.getText().toString());
 					}
 				});
 
@@ -2205,13 +2244,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					KeyEvent event) {
 				if (event == null) {
 					if (actionId == EditorInfo.IME_ACTION_DONE) {						 				
-						task.execute(input.getText().toString());
+						executeSearch(input.getText().toString());
 						searchInputDialog.dismiss();
 						return true;
 					} 
 				} else if (actionId == EditorInfo.IME_NULL) {
 					if (event.getAction() == KeyEvent.ACTION_DOWN) {
-						task.execute(input.getText().toString());	
+						executeSearch(input.getText().toString());
 						searchInputDialog.dismiss();
 					} 
 					

@@ -988,8 +988,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = super.getView(position, convertView, parent);
 			
-			
-			
 			Character tag = data.get(position);
 			view.setTag( tag );
 			
@@ -1050,9 +1048,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
         @Override
         protected void onPreExecute() {
-            waitDialog.setTitle(R.string.loading_library);
-            waitDialog.show();
-
             coverCache.clear();
         }
 

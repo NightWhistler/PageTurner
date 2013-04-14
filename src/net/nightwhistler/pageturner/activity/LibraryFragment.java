@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.support.v4.widget.SearchViewCompat;
+import com.actionbarsherlock.widget.SearchView;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
@@ -194,7 +196,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		coverCache.clear();
 	}
-	
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -406,7 +407,43 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				return true;
 			}
 		});
-	}	
+
+        MenuItem searchItem = menu.findItem(R.id.menu_search);
+        if (searchItem != null) {
+            final SearchView searchView = (SearchView) searchItem.getActionView();
+            if (searchView != null) {
+
+                searchView.setSubmitButtonEnabled(true);
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        onUserSearch(query);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        return false;
+                    }
+                } );
+
+                searchView.setOnCloseListener( new SearchView.OnCloseListener() {
+                    @Override
+                    public boolean onClose() {
+                        new LoadBooksTask().execute(config.getLastLibraryQuery());
+                        return true;
+                    }
+                } );
+            }
+        }
+
+	}
+
+    private void onUserSearch(CharSequence query) {
+        if ( query != null ) {
+            new UserSearchTask().execute(query.toString());
+        }
+    }
 	
 	private void switchToColourProfile( ColourProfile profile ) {
 		config.setColourProfile(profile);
@@ -535,7 +572,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
 		
-		if ( actionBar.getSelectedNavigationIndex() != lastSelection.ordinal() ) {
+		if (actionBar.getSelectedNavigationIndex() != lastSelection.ordinal() ) {
 			actionBar.setSelectedNavigationItem(lastSelection.ordinal());
 		} else {
 			new LoadBooksTask().execute(lastSelection);
@@ -973,7 +1010,62 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			return highlightChar;
 		}
 	}
-	
+
+    private void loadQueryData(QueryResult<LibraryBook> result ) {
+        if ( !isAdded() || getActivity() == null ) {
+            return;
+        }
+
+        bookAdapter.setResult(result);
+
+        if ( result instanceof KeyedQueryResult && result.getSize() >= ALPHABET_THRESHOLD ) {
+
+            final KeyedQueryResult<LibraryBook> keyedResult = (KeyedQueryResult<LibraryBook>) result;
+
+            alphabetAdapter = new AlphabetAdapter(getActivity(),
+                    R.layout.alphabet_line, R.id.alphabetLabel,	keyedResult.getAlphabet() );
+
+            alphabetBar.setAdapter(alphabetAdapter);
+
+            alphabetBar.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> arg0, View arg1,
+                                        int arg2, long arg3) {
+
+                    Character c = keyedResult.getAlphabet().get(arg2);
+                    onAlphabetBarClick(keyedResult, c);
+                }
+            });
+
+            setAlphabetBarVisible(true);
+        } else {
+            alphabetAdapter = null;
+            setAlphabetBarVisible(false);
+        }
+
+        waitDialog.hide();
+    }
+
+    private class UserSearchTask extends AsyncTask<String, Integer, QueryResult<LibraryBook>> {
+
+        @Override
+        protected void onPreExecute() {
+            waitDialog.setTitle(R.string.loading_library);
+            waitDialog.show();
+
+            coverCache.clear();
+        }
+
+        @Override
+        protected QueryResult<LibraryBook> doInBackground(String... strings) {
+            return libraryService.findByUserQuery(strings[0]);
+        }
+
+        @Override
+        protected void onPostExecute(QueryResult<LibraryBook> libraryBookQueryResult) {
+            loadQueryData(libraryBookQueryResult);
+        }
+    }
 	private class LoadBooksTask extends AsyncTask<Configuration.LibrarySelection, Integer, QueryResult<LibraryBook>> {		
 		
 		private Configuration.LibrarySelection sel;
@@ -1024,45 +1116,13 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		@Override
 		protected void onPostExecute(QueryResult<LibraryBook> result) {
-			
-			if ( !isAdded() || getActivity() == null ) {
-				return;
-			}
-			
-			bookAdapter.setResult(result);			
-			
-			if ( result instanceof KeyedQueryResult && result.getSize() >= ALPHABET_THRESHOLD ) {
-				
-				final KeyedQueryResult<LibraryBook> keyedResult = (KeyedQueryResult<LibraryBook>) result;
-				
-				alphabetAdapter = new AlphabetAdapter(getActivity(),
-						R.layout.alphabet_line, R.id.alphabetLabel,	keyedResult.getAlphabet() );
-				
-				alphabetBar.setAdapter(alphabetAdapter);
-				
-				alphabetBar.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> arg0, View arg1,
-							int arg2, long arg3) {
-							
-						Character c = keyedResult.getAlphabet().get(arg2);
-						onAlphabetBarClick(keyedResult, c);
-					}
-				});				
-				
-				setAlphabetBarVisible(true);
-			} else {
-				alphabetAdapter = null;
-				setAlphabetBarVisible(false);								
-			}			
-			
-			waitDialog.hide();			
-			
-			if ( sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
-				askedUserToImport = true;
-				buildImportQuestionDialog();
-				importQuestion.show();
-			}
+			 loadQueryData(result);
+
+            if ( sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
+                askedUserToImport = true;
+                buildImportQuestionDialog();
+                importQuestion.show();
+            }
 		}
 		
 	}

@@ -33,7 +33,14 @@
         android:icon="@drawable/download"
         android:title="@string/download"
         />
-    
+
+    <item android:id="@+id/menu_search"
+          android:icon="@drawable/zoom"
+          android:title="@string/search_text"
+          android:orderInCategory="0"
+          android:actionViewClass="com.actionbarsherlock.widget.SearchView"
+          android:showAsAction="ifRoom|collapseActionView" />
+
     <item
         android:id="@+id/preferences"
         android:icon="@drawable/cog"

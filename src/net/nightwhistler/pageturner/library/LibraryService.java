@@ -48,6 +48,8 @@ public interface LibraryService {
 	public QueryResult<LibraryBook> findAllByAuthor();
 	
 	public QueryResult<LibraryBook> findUnread();
+
+    public QueryResult<LibraryBook> findByUserQuery(String query);
 	
 	public LibraryBook getBook( String fileName );
 	

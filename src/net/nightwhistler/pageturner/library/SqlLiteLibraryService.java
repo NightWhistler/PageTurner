@@ -173,9 +173,14 @@ public class SqlLiteLibraryService implements LibraryService {
 				null, LibraryDatabaseHelper.Field.title, 
 				LibraryDatabaseHelper.Order.ASC);
 				
-	}	
-	
-	@Override
+	}
+
+    @Override
+    public QueryResult<LibraryBook> findByUserQuery(String query) {
+        return helper.findAllByText(query);
+    }
+
+    @Override
 	public LibraryBook getBook(String fileName) {
 		QueryResult<LibraryBook> booksByFile = 
 			helper.findByField(LibraryDatabaseHelper.Field.file_name,

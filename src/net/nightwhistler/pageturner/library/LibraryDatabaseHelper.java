@@ -185,7 +185,23 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		
 		return new KeyedBookResult( cursor, keys );
 	}
-	
+
+    public QueryResult<LibraryBook> findAllByText( String text ) {
+
+        String searchString =  "%" + text + "%";
+        String[] args = {searchString, searchString, searchString };
+
+        String whereClause = Field.a_first_name + " like ? "
+                + " or " + Field.a_last_name + " like ? "
+                + " or " + Field.title + " like ? ";
+
+        Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()),
+                whereClause, args, null, null,
+                "LOWER(" + Field.title + ") " + Order.DESC );
+
+        return new LibraryBookResult(cursor);
+    }
+
 	public QueryResult<LibraryBook> findAllOrderedBy( Field fieldName, Order order ) {
 						
 		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
@@ -252,7 +268,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		public LibraryBook convertRow(Cursor cursor) {
 			return doConvertRow(cursor);
 		}
-	}	
+	}
 	
 	private static LibraryBook doConvertRow(Cursor cursor) {
 		
@@ -283,8 +299,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		
 		return newBook;
 	}
-	
-	//public void createOrUpdateBook( 
+
 	
 	private static String[] fieldsAsString(Field[] values) {		
 		

@@ -162,12 +162,54 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		findBook.close();
 		
 		return result;
-	}	
+	}
+
+    private static String getFilterClause(String filter) {
+        return getFilterClause(filter, null);
+    }
+
+    private static String getFilterClause(String filter, String existingClause ) {
+
+        if ( filter == null || filter.isEmpty() ) {
+            return  existingClause;
+        }
+
+
+        String whereClause = "(" + Field.a_first_name + " like ? "
+                + " or " + Field.a_last_name + " like ? "
+                + " or " + Field.title + " like ? )";
+
+        if ( existingClause != null ) {
+            whereClause = whereClause + " and " + existingClause;
+        }
+
+        return whereClause;
+    }
+
+    private static String[] getFilterArgs( String[] existingArgs, String filter ) {
+        if ( filter == null || filter.isEmpty() ) {
+            return existingArgs;
+        }
+        
+        String searchString =  "%" + filter + "%";
+
+        String[] newArgs = new String[existingArgs.length + 3];
+        
+        //Move original arguments 3 positions to the right
+        System.arraycopy(existingArgs, 0,newArgs, 3, existingArgs.length );
+
+        //And fill the first 3 with the filter-string.
+        for ( int i=0; i < 3; i++ ) {
+            newArgs[i] = searchString;
+        }
+
+        return newArgs;
+    }
 	
 	public KeyedQueryResult<LibraryBook> findByField( Field fieldName, String fieldValue,
-			Field orderField, Order ordering) {
-						
-		String[] args = { fieldValue };
+			Field orderField, Order ordering, String filter) {
+
+        String[] args = { fieldValue };
 		String whereClause;
 		
 		if ( fieldValue == null ) {
@@ -176,6 +218,11 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		} else {
 			whereClause = fieldName.toString() + " = ?";			
 		}
+
+        if ( filter != null ) {
+            whereClause = getFilterClause(filter, whereClause);
+            args = getFilterArgs(args, filter);
+        }
 		
 		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
 				whereClause, args, null, null,
@@ -186,27 +233,18 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return new KeyedBookResult( cursor, keys );
 	}
 
-    public QueryResult<LibraryBook> findAllByText( String text ) {
+	public QueryResult<LibraryBook> findAllOrderedBy( Field fieldName, Order order, String filter ) {
 
-        String searchString =  "%" + text + "%";
-        String[] args = {searchString, searchString, searchString };
+        String whereClause = fieldName != null ? fieldName.toString() + " is not null" : null;
+        String[] args = new String[0];
 
-        String whereClause = Field.a_first_name + " like ? "
-                + " or " + Field.a_last_name + " like ? "
-                + " or " + Field.title + " like ? ";
-
-        Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()),
-                whereClause, args, null, null,
-                "LOWER(" + Field.title + ") " + Order.DESC );
-
-        return new LibraryBookResult(cursor);
-    }
-
-	public QueryResult<LibraryBook> findAllOrderedBy( Field fieldName, Order order ) {
+        if ( filter != null ) {
+            whereClause = getFilterClause(filter);
+            args = getFilterArgs(args, filter);
+        }
 						
 		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
-				fieldName != null ? fieldName.toString() + " is not null" : null,
-			    new String[0], null, null,
+				whereClause,args, null, null,
 				fieldName != null ? "LOWER(" + fieldName.toString() + ") " + order.toString() : null );		
 		
 		return new LibraryBookResult(cursor);
@@ -233,13 +271,21 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return keys;
 	}
 	
-	public KeyedQueryResult<LibraryBook> findAllKeyedBy(Field fieldName, Order order ) {
+	public KeyedQueryResult<LibraryBook> findAllKeyedBy(Field fieldName, Order order, String filter ) {
 		
 		List<String> keys = getKeys(fieldName, order);
+
+        String whereClause = fieldName != null ? fieldName.toString() + " is not null" : null;
+        String[] args = new String[0];
+
+        if ( filter != null ) {
+            whereClause = getFilterClause(filter, whereClause);
+            args = getFilterArgs(args, filter);
+        }
+	
 						
 		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
-				fieldName != null ? fieldName.toString() + " is not null" : null,
-			    new String[0], null, null,
+			    whereClause, args, null, null,
 				fieldName != null ? "LOWER(" + fieldName.toString() + ") " 
 						+ order.toString() : null );		
 		

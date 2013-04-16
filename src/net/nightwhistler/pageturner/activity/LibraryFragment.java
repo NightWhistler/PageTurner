@@ -268,7 +268,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				libraryService.deleteBook( libraryBook.getFileName() );
-				new LoadBooksTask().execute(config.getLastLibraryQuery());
+				new LoadBooksTask(config.getLastLibraryQuery()).execute();
 				dialog.dismiss();			
 			}
 		});			
@@ -333,7 +333,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				}
 				
 				switcher.showNext();
-				new LoadBooksTask().execute(config.getLastLibraryQuery());
+				new LoadBooksTask(config.getLastLibraryQuery()).execute();
 				return true;				
             }
         };
@@ -413,24 +413,15 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             final SearchView searchView = (SearchView) searchItem.getActionView();
             if (searchView != null) {
 
-                searchView.setSubmitButtonEnabled(true);
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
-                        onUserSearch(query);
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
                         return false;
                     }
-                } );
 
-                searchView.setOnCloseListener( new SearchView.OnCloseListener() {
                     @Override
-                    public boolean onClose() {
-                        new LoadBooksTask().execute(config.getLastLibraryQuery());
+                    public boolean onQueryTextChange(String query) {
+                        onUserSearch(query);
                         return true;
                     }
                 } );
@@ -441,7 +432,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
     private void onUserSearch(CharSequence query) {
         if ( query != null ) {
-            new UserSearchTask().execute(query.toString());
+            new LoadBooksTask(config.getLastLibraryQuery(), query.toString() ).execute();
         }
     }
 	
@@ -575,7 +566,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		if (actionBar.getSelectedNavigationIndex() != lastSelection.ordinal() ) {
 			actionBar.setSelectedNavigationItem(lastSelection.ordinal());
 		} else {
-			new LoadBooksTask().execute(lastSelection);
+			new LoadBooksTask(lastSelection).execute();
 		}
 	}
 	
@@ -591,7 +582,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		//Switch to the "recently added" view.
 		if ( actionBar.getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
-			new LoadBooksTask().execute(LibrarySelection.LAST_ADDED);
+			new LoadBooksTask(LibrarySelection.LAST_ADDED).execute();
 		} else {
 			actionBar.setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
 		}
@@ -633,7 +624,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			
 			//Switch to the "recently added" view.
 			if (getSherlockActivity().getSupportActionBar().getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
-				new LoadBooksTask().execute(LibrarySelection.LAST_ADDED);
+				new LoadBooksTask(LibrarySelection.LAST_ADDED).execute();
 			} else {
 				getSherlockActivity().getSupportActionBar().setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
 			}
@@ -966,7 +957,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			config.setLastLibraryQuery(newSelections);
 			
 			bookAdapter.clear();
-			new LoadBooksTask().execute(newSelections);
+			new LoadBooksTask(newSelections).execute();
 			return false;
 		}
 	}	
@@ -1041,60 +1032,55 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             setAlphabetBarVisible(false);
         }
 
-        waitDialog.hide();
+
     }
 
-    private class UserSearchTask extends AsyncTask<String, Integer, QueryResult<LibraryBook>> {
-
-        @Override
-        protected void onPreExecute() {
-            coverCache.clear();
-        }
-
-        @Override
-        protected QueryResult<LibraryBook> doInBackground(String... strings) {
-            return libraryService.findByUserQuery(strings[0]);
-        }
-
-        @Override
-        protected void onPostExecute(QueryResult<LibraryBook> libraryBookQueryResult) {
-            loadQueryData(libraryBookQueryResult);
-        }
-    }
-	private class LoadBooksTask extends AsyncTask<Configuration.LibrarySelection, Integer, QueryResult<LibraryBook>> {		
+	private class LoadBooksTask extends AsyncTask<String, Integer, QueryResult<LibraryBook>> {
 		
 		private Configuration.LibrarySelection sel;
+        private String filter;
+
+        public LoadBooksTask(LibrarySelection selection) {
+            this.sel = selection;
+        }
+
+        public LoadBooksTask(LibrarySelection selection, String filter ) {
+            this(selection);
+            this.filter = filter;
+        }
 		
 		@Override
 		protected void onPreExecute() {
-			waitDialog.setTitle(R.string.loading_library);
-			waitDialog.show();
+            if ( this.filter == null )  {
+			    waitDialog.setTitle(R.string.loading_library);
+			    waitDialog.show();
 			
-			coverCache.clear();
+			    coverCache.clear();
+            }
 		}
 		
 		@Override
-		protected QueryResult<LibraryBook> doInBackground(Configuration.LibrarySelection... params) {
+		protected QueryResult<LibraryBook> doInBackground(String... params) {
 			
 			Exception storedException = null;
+
+            String query = this.filter;
 			
 			for ( int i=0; i < 3; i++ ) {
 
 				try {
 
-					this.sel = params[0];
-
 					switch ( sel ) {			
 					case LAST_ADDED:
-						return libraryService.findAllByLastAdded();
+						return libraryService.findAllByLastAdded(query);
 					case UNREAD:
-						return libraryService.findUnread();
+						return libraryService.findUnread(query);
 					case BY_TITLE:
-						return libraryService.findAllByTitle();
+						return libraryService.findAllByTitle(query);
 					case BY_AUTHOR:
-						return libraryService.findAllByAuthor();
+						return libraryService.findAllByAuthor(query);
 					default:
-						return libraryService.findAllByLastRead();
+						return libraryService.findAllByLastRead(query);
 					}
 				} catch (SQLiteException sql) {
 					storedException = sql;
@@ -1113,7 +1099,11 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		protected void onPostExecute(QueryResult<LibraryBook> result) {
 			 loadQueryData(result);
 
-            if ( sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
+            if ( filter == null ) {
+                waitDialog.hide();
+            }
+
+            if (filter == null && sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
                 askedUserToImport = true;
                 buildImportQuestionDialog();
                 importQuestion.show();

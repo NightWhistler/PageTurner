@@ -165,26 +165,22 @@ public class SqlLiteLibraryService implements LibraryService {
 
 		return targetFile;
 	}
-	
+
+
 	@Override
-	public QueryResult<LibraryBook> findUnread() {
+	public QueryResult<LibraryBook> findUnread(String filter) {
 		return helper.findByField(
 				LibraryDatabaseHelper.Field.date_last_read,
 				null, LibraryDatabaseHelper.Field.title, 
-				LibraryDatabaseHelper.Order.ASC);
+				LibraryDatabaseHelper.Order.ASC, filter);
 				
 	}
-
-    @Override
-    public QueryResult<LibraryBook> findByUserQuery(String query) {
-        return helper.findAllByText(query);
-    }
 
     @Override
 	public LibraryBook getBook(String fileName) {
 		QueryResult<LibraryBook> booksByFile = 
 			helper.findByField(LibraryDatabaseHelper.Field.file_name,
-					fileName, null, Order.ASC);
+					fileName, null, Order.ASC, null);
 
 		switch ( booksByFile.getSize() ) {
 		case 0:
@@ -198,32 +194,32 @@ public class SqlLiteLibraryService implements LibraryService {
 	}
 	
 	@Override
-	public QueryResult<LibraryBook> findAllByLastRead() {		
+	public QueryResult<LibraryBook> findAllByLastRead(String filter) {
 		return helper.findAllOrderedBy(
 				LibraryDatabaseHelper.Field.date_last_read,
-				LibraryDatabaseHelper.Order.DESC );
+				LibraryDatabaseHelper.Order.DESC, filter );
 	}
 	
 	@Override
-	public QueryResult<LibraryBook> findAllByAuthor() {
+	public QueryResult<LibraryBook> findAllByAuthor(String filter) {
 		return helper.findAllKeyedBy(
 				LibraryDatabaseHelper.Field.a_last_name,
-				LibraryDatabaseHelper.Order.ASC );
+				LibraryDatabaseHelper.Order.ASC, filter );
 	
 	}
 	
 	@Override
-	public QueryResult<LibraryBook> findAllByLastAdded() {
+	public QueryResult<LibraryBook> findAllByLastAdded(String filter) {
 		return helper.findAllOrderedBy(
 				LibraryDatabaseHelper.Field.date_added,
-				LibraryDatabaseHelper.Order.DESC );
+				LibraryDatabaseHelper.Order.DESC, filter );
 	}
 	
 	@Override
-	public KeyedQueryResult<LibraryBook> findAllByTitle() {
+	public KeyedQueryResult<LibraryBook> findAllByTitle(String filter) {
 		return helper.findAllKeyedBy(
 				LibraryDatabaseHelper.Field.title,
-				LibraryDatabaseHelper.Order.ASC );	
+				LibraryDatabaseHelper.Order.ASC, filter );
 	}
 	
 	public void close() {

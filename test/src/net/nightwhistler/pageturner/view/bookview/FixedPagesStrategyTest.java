@@ -84,7 +84,10 @@ public class FixedPagesStrategyTest {
 				
 		List<Integer> offsets = this.strategy.getPageOffsets(text, false);
 		
-		Assert.assertEquals(6, offsets.size() );		
+		assertEquals(6, offsets.size() );
+
+        assertEquals((int) 0, (int) offsets.get(0));
+        assertEquals((int) 50, (int) offsets.get(1));
 			
 	}
 	
@@ -108,7 +111,11 @@ public class FixedPagesStrategyTest {
 		List<Integer> offsets = this.strategy.getPageOffsets(text, false);
 
 		//The end result should still be 6 pages
-		Assert.assertEquals(6, offsets.size() );
+		assertEquals(6, offsets.size() );
+
+        //Offsets are still 0, 50...
+        assertEquals((int) 0, (int) offsets.get(0));
+        assertEquals((int) 50, (int) offsets.get(1));
 	}
 	
 	@Test
@@ -131,9 +138,47 @@ public class FixedPagesStrategyTest {
 		List<Integer> offsets = this.strategy.getPageOffsets(text, false);
 
 		//Each line should be a page
-		Assert.assertEquals(3, offsets.size() );		
-		
+		assertEquals(3, offsets.size() );
+
+        assertEquals((int) 0, (int) offsets.get(0));
+        assertEquals((int) 1, (int) offsets.get(1));
+        assertEquals((int) 2, (int) offsets.get(2));
 	}
+
+
+    @Test
+    public void testEmptyText() {
+        Spanned text = getSpanned("");
+
+        List<Integer> offsets = this.strategy.getPageOffsets(text, false);
+
+        //We should have an empty list
+        assertEquals(0, offsets.size() );
+    }
+
+    /**
+     * In this test the text is just 1 line long.
+     *
+     * Should yield 1 page.
+     */
+    @Test
+    public void testOneLinePage() {
+
+        //5 chars wide, 105px high
+        initMockLayout(5, 105);
+
+         Spanned text = getSpanned("1234");
+
+        /*
+		 * The BookView is 100px high
+		 */
+        when(this.mockBookView.getHeight()).thenReturn(100);
+        List<Integer> offsets = this.strategy.getPageOffsets(text, false);
+
+        //We should have a single page
+        assertEquals(1, offsets.size() );
+        assertEquals((int) 0, (int) offsets.get(0));
+    }
 	
 	@Test
 	public void testPageTurning() {

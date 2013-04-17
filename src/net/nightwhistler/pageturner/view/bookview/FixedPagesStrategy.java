@@ -92,8 +92,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
         }
 		
 		int totalLines = layout.getLineCount();				
-		int topLineNextPage = 0;
-		
+		int topLineNextPage = -1;
 		int pageStartOffset = 0;
 		
 		while ( topLineNextPage < totalLines -1 ) {	

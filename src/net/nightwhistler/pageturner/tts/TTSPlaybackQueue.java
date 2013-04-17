@@ -37,7 +37,7 @@ public class TTSPlaybackQueue {
     private boolean active;
     private Queue<TTSPlaybackItem> playbackItemQueue = new ConcurrentLinkedQueue<TTSPlaybackItem>();
 
-    public synchronized boolean isActive() {
+    public boolean isActive() {
         return active;
     }
 
@@ -64,25 +64,25 @@ public class TTSPlaybackQueue {
         }
     }
 
-    public synchronized  TTSPlaybackItem peek() {
+    public TTSPlaybackItem peek() {
         return playbackItemQueue.peek();
     }
 
-    public synchronized  void add( TTSPlaybackItem item ) {
+    public synchronized void add( TTSPlaybackItem item ) {
         if ( active ) {
             this.playbackItemQueue.add(item);
         }
     }
 
-    public synchronized  int size() {
+    public int size() {
         return playbackItemQueue.size();
     }
 
-    public synchronized boolean isEmpty() {
+    public boolean isEmpty() {
         return this.playbackItemQueue.isEmpty();
     }
 
-    public synchronized TTSPlaybackItem remove() {
+    public TTSPlaybackItem remove() {
         return this.playbackItemQueue.remove();
     }
 

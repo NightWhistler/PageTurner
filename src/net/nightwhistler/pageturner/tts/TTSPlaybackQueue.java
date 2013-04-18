@@ -42,7 +42,7 @@ public class TTSPlaybackQueue {
     }
 
     public synchronized  void activate() {
-        playbackItemQueue.clear();
+        this.playbackItemQueue.clear();
         this.active = true;
     }
 
@@ -55,6 +55,7 @@ public class TTSPlaybackQueue {
             new File(item.getFileName()).delete();
         }
 
+        this.playbackItemQueue.clear();
         this.active = false;
     }
 
@@ -82,7 +83,7 @@ public class TTSPlaybackQueue {
         return this.playbackItemQueue.isEmpty();
     }
 
-    public TTSPlaybackItem remove() {
+    public synchronized TTSPlaybackItem remove() {
         return this.playbackItemQueue.remove();
     }
 

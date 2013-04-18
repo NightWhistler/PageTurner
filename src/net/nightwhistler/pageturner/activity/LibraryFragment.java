@@ -531,7 +531,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	}
 	
 	@Override
-	public void onStop() {		
+	public void onStop() {
 		this.libraryService.close();	
 		this.waitDialog.dismiss();
 		this.importDialog.dismiss();

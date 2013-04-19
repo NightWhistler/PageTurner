@@ -490,7 +490,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			subscribeToMediaButtons();
 		}
 		
-		File fos = getActivity().getDir("tts", Context.MODE_WORLD_WRITEABLE );
+		File fos = new File( config.getTTSFolder() );
+        fos.mkdir();
 
         saveReadingPosition();
 		//Delete any old TTS files still present.
@@ -523,10 +524,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 return;
             }
 
-            File fos = getActivity().getDir("tts", Context.MODE_WORLD_WRITEABLE );
-
+            File ttsFolder = new File( config.getTTSFolder() );
             String textToSpeak = text.toString().substring( bookView.getPosition() );
-            String ttsFolder = fos.getAbsolutePath();
 
             String[] parts = textToSpeak.split("\\.|\n");
             int offset = bookView.getPosition();
@@ -534,7 +533,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             try {
                 for ( int i=0; i < parts.length && ttsIsRunning(); i++ ) {
 
-                    LOG.debug("Streaming part " + i + " to disk. Is TTS running? - " + ttsIsRunning() );
+                    LOG.debug("Streaming part " + i + " to disk." );
 
                     String part = parts[i];
 
@@ -546,10 +545,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                     offset += part.length() +1;
 
-                    //Every 10 parts we sleep to give the engine a chance to start synthesizing
-                    if ( i % 10 == 0 ) {
+                    //Every 5 parts we sleep to give the engine a chance to start synthesizing
+                    if ( i % 5 == 0 ) {
                         try {
-                            Thread.sleep(100);
+                            Thread.sleep(1000);
                         } catch (InterruptedException in) {
                             //just carry on
                         }
@@ -561,7 +560,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
         }
     }
 
-    private class TTSFailedException extends Exception {}
+    /** Checked exception to indicate TTS failure **/
+    private static class TTSFailedException extends Exception {}
 
     private void streamPartToDisk(String fileName, String part, int offset, int totalLength, boolean endOfPage )
         throws TTSFailedException {
@@ -603,6 +603,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         if ( ! ttsItemPrep.containsKey(wavFile) ) {
             LOG.error("Got onUtteranceCompleted for " + wavFile + " but there is no corresponding TTSPlaybackItem!");
+            return;
         }
 
         final TTSPlaybackItem item = ttsItemPrep.remove(wavFile);
@@ -674,7 +675,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 }
             }
 			
-            // Running this thread after 500 milliseconds
+            // Running this thread after 100 milliseconds
             uiHandler.postDelayed(this, 100);
 
 		}

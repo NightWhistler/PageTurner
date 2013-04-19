@@ -680,6 +680,10 @@ public class Configuration {
 		return getPageTurnerFolder() + "/Books";
 	}
 
+    public String getTTSFolder() {
+        return getPageTurnerFolder() + "/tts";
+    }
+
 	/*
 	 * Returns the bytes of available memory left on the heap. Not totally sure
 	 * if it works reliably.

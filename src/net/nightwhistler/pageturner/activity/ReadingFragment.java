@@ -24,13 +24,8 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import android.widget.*;
-import android.widget.SearchView;
-import com.actionbarsherlock.widget.*;
-import com.google.inject.name.Named;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -58,7 +53,6 @@ import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import net.nightwhistler.pageturner.view.SearchResultAdapter;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import net.nightwhistler.pageturner.view.bookview.BookViewListener;
-import net.nightwhistler.pageturner.view.bookview.FixedPagesStrategy;
 import net.nightwhistler.pageturner.view.bookview.TextSelectionCallback;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
@@ -127,7 +121,8 @@ import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragmen
 import com.google.inject.Inject;
 
 public class ReadingFragment extends RoboSherlockFragment implements
-		BookViewListener, TextSelectionCallback, OnUtteranceCompletedListener, SpeechCompletedCallback {
+		BookViewListener, TextSelectionCallback, OnUtteranceCompletedListener,
+        SpeechCompletedCallback, DialogFactory.SearchCallBack {
 
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
@@ -157,6 +152,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	@Inject
 	private Configuration config;
+
+    @Inject
+    private DialogFactory dialogFactory;
 
 	@InjectView(R.id.mainContainer)
 	private ViewSwitcher viewSwitcher;
@@ -774,6 +772,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         this.textToSpeech.shutdown();
     }
 
@@ -1808,7 +1807,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 searchView.setOnQueryTextListener(new com.actionbarsherlock.widget.SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
-                        executeSearch(query);
+                        performSearch(query);
                         return true;
                     }
 
@@ -1888,7 +1887,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return true;
 
 		case R.id.about:
-			Dialogs.showAboutDialog(getActivity());
+			dialogFactory.buildAboutDialog().show();
 			return true;			
 
 		default:
@@ -2169,7 +2168,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		});
 	}
 
-    private void executeSearch(String text) {
+    @Override
+    public void performSearch(String query) {
 
         final ProgressDialog searchProgress = new ProgressDialog(getActivity());
         searchProgress.setOwnerActivity(getActivity());
@@ -2244,9 +2244,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     }
                 });
 
-        task.execute(text);
+        task.execute(query);
     }
-
 
 	private void onSearchClick() {
 
@@ -2255,59 +2254,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
             return;
         }
 
-
-		final AlertDialog.Builder searchInputDialogBuilder = new AlertDialog.Builder(getActivity());
-
-		searchInputDialogBuilder.setTitle(R.string.search_text);
-		searchInputDialogBuilder.setMessage(R.string.enter_query);
-		
-		// Set an EditText view to get user input
-		final EditText input = new EditText(getActivity());
-		input.setInputType(InputType.TYPE_CLASS_TEXT);
-		searchInputDialogBuilder.setView(input);		
-		
-
-		searchInputDialogBuilder.setPositiveButton(android.R.string.search_go,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						executeSearch(input.getText().toString());
-					}
-				});
-
-		searchInputDialogBuilder.setNegativeButton(android.R.string.cancel,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						// Canceled.
-					}
-				});
-
-		final AlertDialog searchInputDialog = searchInputDialogBuilder.show();
-		
-		input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
-			@Override
-			public boolean onEditorAction(TextView v, int actionId,
-					KeyEvent event) {
-				if (event == null) {
-					if (actionId == EditorInfo.IME_ACTION_DONE) {						 				
-						executeSearch(input.getText().toString());
-						searchInputDialog.dismiss();
-						return true;
-					} 
-				} else if (actionId == EditorInfo.IME_NULL) {
-					if (event.getAction() == KeyEvent.ACTION_DOWN) {
-						executeSearch(input.getText().toString());
-						searchInputDialog.dismiss();
-					} 
-					
-					return true;
-				} 
-				
-				return false;
-			}
-		});
-
-	}
+        dialogFactory.buildSearchDialog(R.string.search_text, R.string.enter_query, this).show();
+    }
 	
 
 	private void showSearchResultDialog(

@@ -170,10 +170,9 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
     private static String getFilterClause(String filter, String existingClause ) {
 
-        if ( filter == null || filter.isEmpty() ) {
+        if ( filter == null || filter.length() == 0 ) {
             return  existingClause;
         }
-
 
         String whereClause = "(" + Field.a_first_name + " like ? "
                 + " or " + Field.a_last_name + " like ? "
@@ -187,7 +186,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
     }
 
     private static String[] getFilterArgs( String[] existingArgs, String filter ) {
-        if ( filter == null || filter.isEmpty() ) {
+        if ( filter == null || filter.length() == 0 ) {
             return existingArgs;
         }
         

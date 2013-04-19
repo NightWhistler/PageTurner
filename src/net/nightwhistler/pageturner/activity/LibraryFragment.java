@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.support.v4.widget.SearchViewCompat;
 import com.actionbarsherlock.widget.SearchView;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
@@ -71,10 +70,14 @@ import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 
-public class LibraryFragment extends RoboSherlockFragment implements ImportCallback, OnItemClickListener, OnItemLongClickListener {
+public class LibraryFragment extends RoboSherlockFragment implements ImportCallback, OnItemClickListener,
+        OnItemLongClickListener, DialogFactory.SearchCallBack {
 	
 	@Inject 
 	private LibraryService libraryService;
+
+    @Inject
+    private DialogFactory dialogFactory;
 	
 	@InjectView(R.id.libraryList)
 	private ListView listView;
@@ -371,7 +374,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-				Dialogs.showAboutDialog(getActivity());
+				dialogFactory.buildAboutDialog().show();
 				return true;
 			}
 		});
@@ -421,16 +424,25 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
                     @Override
                     public boolean onQueryTextChange(String query) {
-                        onUserSearch(query);
+                        performSearch(query);
                         return true;
                     }
                 } );
+            } else {
+                searchItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        dialogFactory.buildSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
+                        return false;
+                    }
+                });
             }
         }
 
 	}
 
-    private void onUserSearch(CharSequence query) {
+    @Override
+    public void performSearch(String query) {
         if ( query != null ) {
             new LoadBooksTask(config.getLastLibraryQuery(), query.toString() ).execute();
         }

@@ -145,6 +145,8 @@
     <string name="init_tts">Initializing TTS…\nPlease wait.</string>
     <string name="tts_failed">TTS Failed.</string>
 
+    <string name="search_library">Search library</string>
+
     <!-- Preferences -->
 
     <string name="pref_sync_settings">Sync settings</string>

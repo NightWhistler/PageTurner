@@ -582,7 +582,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     public void run() {
                         stopTextToSpeech();
                         waitDialog.hide();
-                        Toast.makeText(getActivity(), "TextToSpeech failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), R.string.tts_failed, Toast.LENGTH_SHORT).show();
                     }
                 } );
 

@@ -143,6 +143,7 @@
     <string name="text_to_speech">Read out loud (TTS)</string>    
     
     <string name="init_tts">Initializing TTS…\nPlease wait.</string>
+    <string name="tts_failed">TTS Failed.</string>
 
     <!-- Preferences -->
 
@@ -267,7 +268,9 @@
  	    <item>Arabic</item> 	    
  	    <item>Hebrew</item>
  	    <item>Farsi</item> 	    
- 	</string-array>    
+ 	</string-array>
+
+
     
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>

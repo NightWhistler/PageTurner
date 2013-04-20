@@ -44,4 +44,10 @@ public class LibraryActivity extends RoboSherlockFragmentActivity {
 	public void onBackPressed() {
 		libraryFragment.onBackPressed();
 	}
+
+    @Override
+    public boolean onSearchRequested() {
+        libraryFragment.onSearchRequested();
+        return true;
+    }
 }

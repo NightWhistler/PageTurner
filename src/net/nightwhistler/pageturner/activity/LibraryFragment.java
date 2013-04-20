@@ -120,6 +120,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	private IntentCallBack intentCallBack;
 	private List<CoverCallback> callbacks = new ArrayList<CoverCallback>();
 	private Map<String, FastBitmapDrawable> coverCache = new HashMap<String, FastBitmapDrawable>();
+
+    private MenuItem searchMenuItem;
 	
 	private interface IntentCallBack {
 		void onResult( int resultCode, Intent data );
@@ -411,9 +413,10 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			}
 		});
 
-        MenuItem searchItem = menu.findItem(R.id.menu_search);
-        if (searchItem != null) {
-            final SearchView searchView = (SearchView) searchItem.getActionView();
+        this.searchMenuItem = menu.findItem(R.id.menu_search);
+        if (searchMenuItem != null) {
+            final SearchView searchView = (SearchView) searchMenuItem.getActionView();
+
             if (searchView != null) {
 
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -429,7 +432,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
                     }
                 } );
             } else {
-                searchItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                searchMenuItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         dialogFactory.buildSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
@@ -440,6 +443,16 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         }
 
 	}
+
+    public void onSearchRequested() {
+        if ( this.searchMenuItem != null && searchMenuItem.getActionView() != null ) {
+            this.searchMenuItem.expandActionView();
+            this.searchMenuItem.getActionView().requestFocus();
+        } else {
+            dialogFactory.buildSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
+        }
+    }
+
 
     @Override
     public void performSearch(String query) {

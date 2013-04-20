@@ -389,9 +389,8 @@ public class Configuration {
 
 	public boolean isSyncEnabled() {
 		String email = getSynchronizationEmail();
-		String accessKey = getSynchronizationAccessKey();
 
-		return email.length() > 0 && accessKey.length() > 0;
+		return email.length() > 0;
 	}
 
 	public boolean isFullScreenEnabled() {

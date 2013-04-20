@@ -2320,9 +2320,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 				alertDialog.show();
 
+			} else if ( progress.isEmpty() ) {
+			    Toast.makeText(getActivity().getApplicationContext(), R.string.no_sync_points, Toast.LENGTH_LONG).show();
 			} else {
-				showPickProgressDialog(progress);
-			}
+                showPickProgressDialog(progress);
+            }
 		}
 	}
 

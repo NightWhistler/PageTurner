@@ -146,6 +146,7 @@
     <string name="tts_failed">TTS Failed.</string>
 
     <string name="search_library">Search library</string>
+    <string name="no_sync_points">You don\'t have any cloud-sync points stored yet.\nSync points are stored automatically when you leave PageTurner.</string>
 
     <!-- Preferences -->
 

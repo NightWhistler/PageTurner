@@ -47,7 +47,7 @@ public class CatalogListAdapter extends BaseAdapter {
 
             Entry nextEntry = new Entry();
             nextEntry.addLink(feed.getNextLink());
-            nextEntry.setTitle("Next page...");
+            nextEntry.setTitle(context.getString(R.string.next_page));
 
             feed.addEntry(nextEntry);
         }
@@ -56,7 +56,7 @@ public class CatalogListAdapter extends BaseAdapter {
             Entry prevEntry = new Entry();
 
             prevEntry.addLink(feed.getPreviousLink());
-            prevEntry.setTitle("Previous page...");
+            prevEntry.setTitle(context.getString(R.string.prev_page));
 
             feed.addEntryAt(0, prevEntry);
         }

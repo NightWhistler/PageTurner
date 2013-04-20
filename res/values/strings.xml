@@ -149,6 +149,10 @@
     <string name="no_sync_points">You don\'t have any cloud-sync points stored yet.\nSync points are stored automatically when you leave PageTurner.</string>
     <string name="no_new_books_found">The scan did not find any new books.</string>
 
+    <string name="next_page">Next page…</string>
+    <string name="prev_page">Previous page…</string>
+
+
     <!-- Preferences -->
 
     <string name="pref_sync_settings">Sync settings</string>

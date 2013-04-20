@@ -37,6 +37,8 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	
 	private int foldersScanned = 0;
 	private int booksImported = 0;
+
+    private boolean emptyLibrary;
 	
 	private String importFailed = null;
 	
@@ -63,6 +65,8 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 			importFailed = String.format( context.getString(R.string.no_such_folder), parent.getPath());			
 			return null;
 		}
+
+        this.emptyLibrary = this.libraryService.findAllByTitle(null).getSize() == 0;
 		
 		List<File> books = new ArrayList<File>();			
 		findEpubsInFolder(parent, books);
@@ -76,7 +80,9 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 			
 			LOG.info("Importing: " + book.getAbsolutePath() );
 			try {
-				importBook( book );									
+                if ( importBook( book ) ) {
+                    booksImported++;
+                }
 			} catch (OutOfMemoryError oom ) {
 				errors.add(book.getName() + ": Out of memory.");
 				return null;
@@ -84,7 +90,6 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 			
 			i++;
 			publishProgress(UPDATE_IMPORT, i, total);
-			booksImported++;
 		}
 		
 		return null;
@@ -126,31 +131,34 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 			}
 		}
 	}
-	
-	private void importBook(File file) {
-		try {
-			
-			if ( libraryService.hasBook(file.getName() ) ) {
-				return;
-			}
-			
-			String fileName = file.getAbsolutePath();
-			
-			// read epub file
-	        EpubReader epubReader = new EpubReader();
-	        				
-			Book importedBook = epubReader.readEpubLazy(fileName, "UTF-8", 
-					Arrays.asList(MediatypeService.mediatypes));							
-			
-        	libraryService.storeBook(fileName, importedBook, false, this.copyToLibrary);
-			
-		} catch (Exception io ) {
-			errors.add( file + ": " + io.getMessage() );
-			LOG.error("Error while reading book: " + file, io); 
-		}
-	}
-	
-	@Override
+
+    private boolean importBook(File file) {
+
+        if (! libraryService.hasBook(file.getName() ) ) {
+            try {
+
+                String fileName = file.getAbsolutePath();
+
+                // read epub file
+                EpubReader epubReader = new EpubReader();
+
+                Book importedBook = epubReader.readEpubLazy(fileName, "UTF-8",
+                        Arrays.asList(MediatypeService.mediatypes));
+
+                libraryService.storeBook(fileName, importedBook, false, this.copyToLibrary);
+
+                return true;
+
+            } catch (Exception io ) {
+                errors.add( file + ": " + io.getMessage() );
+                LOG.error("Error while reading book: " + file, io);
+            }
+        }
+
+        return false;
+    }
+
+    @Override
 	protected void onProgressUpdate(Integer... values) {
 		
 		String message;
@@ -170,7 +178,7 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 		if ( importFailed != null ) {
 			callBack.importFailed(importFailed);
 		} else if ( ! isCancelled() ) {
-			this.callBack.importComplete(booksImported, errors);
+			this.callBack.importComplete(booksImported, errors, emptyLibrary);
 		}		
 	}
 }

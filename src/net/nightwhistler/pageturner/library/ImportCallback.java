@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface ImportCallback {
 
-	void importComplete( int booksImported, List<String> failures );
+	void importComplete( int booksImported, List<String> failures, boolean emptyLibrary );
 	
 	void importStatusUpdate( String update );
 		

@@ -615,7 +615,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	
 	@Override
-	public void importComplete(int booksImported, List<String> errors) {
+	public void importComplete(int booksImported, List<String> errors, boolean emptyLibrary) {
 		
 		if ( !isAdded() || getActivity() == null ) {
 			return;
@@ -656,8 +656,14 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		} else {
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			builder.setTitle(R.string.no_books_found);
-			builder.setMessage( getString(R.string.no_bks_fnd_text) );
-			builder.setNeutralButton(android.R.string.ok, dismiss);
+
+            if ( emptyLibrary ) {
+                builder.setMessage( getString(R.string.no_bks_fnd_text) );
+            } else {
+                builder.setMessage( getString(R.string.no_new_books_found));
+            }
+
+            builder.setNeutralButton(android.R.string.ok, dismiss);
 			
 			builder.show();
 		}

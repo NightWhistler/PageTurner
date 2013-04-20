@@ -793,6 +793,16 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		private Runnable lastRunnable;
 		private Character lastCharacter;
+
+        private Drawable holoDrawable;
+
+        public  CoverScrollListener() {
+            try {
+                this.holoDrawable = getResources().getDrawable(R.drawable.list_activated_holo);
+            } catch (IllegalStateException i) {
+                //leave it null
+            }
+        }
 		
 		@Override
 		public void onScroll(AbsListView view, final int firstVisibleItem,
@@ -835,7 +845,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 							for ( int i=0; i < alphabetBar.getChildCount(); i++ ) {
 								View child = alphabetBar.getChildAt(i);
 								if ( child.getTag().equals(keyChar) ) {
-									child.setBackgroundDrawable( getResources().getDrawable(R.drawable.list_activated_holo));
+									child.setBackgroundDrawable( holoDrawable );
 								} else {
 									child.setBackgroundDrawable(null);
 								}

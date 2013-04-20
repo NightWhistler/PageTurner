@@ -52,4 +52,10 @@ public class CatalogActivity extends RoboSherlockFragmentActivity {
 	public void onBackPressed() {
 		catalogFragment.onBackPressed();
 	}
+
+    @Override
+    public boolean onSearchRequested() {
+        catalogFragment.onSearchRequested();
+        return true;
+    }
 }

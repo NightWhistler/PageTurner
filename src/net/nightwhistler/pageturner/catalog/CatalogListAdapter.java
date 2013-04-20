@@ -42,6 +42,26 @@ public class CatalogListAdapter extends BaseAdapter {
 	
 	public void setFeed( Feed feed ) {
 		this.feed = feed;
+
+        if ( feed.getNextLink() != null ) {
+
+            Entry nextEntry = new Entry();
+            nextEntry.addLink(feed.getNextLink());
+            nextEntry.setTitle("Next page...");
+
+            feed.addEntry(nextEntry);
+        }
+
+        if ( feed.getPreviousLink() != null ) {
+            Entry prevEntry = new Entry();
+
+            prevEntry.addLink(feed.getPreviousLink());
+            prevEntry.setTitle("Previous page...");
+
+            feed.addEntryAt(0, prevEntry);
+        }
+
+
 		this.notifyDataSetChanged();		
 	}
 	

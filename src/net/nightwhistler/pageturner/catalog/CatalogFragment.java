@@ -10,6 +10,7 @@ import java.util.Stack;
 
 import javax.annotation.Nullable;
 
+import com.actionbarsherlock.widget.SearchView;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
@@ -17,6 +18,7 @@ import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.activity.DialogFactory;
 import net.nightwhistler.pageturner.activity.LibraryActivity;
 import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
 import net.nightwhistler.pageturner.activity.ReadingActivity;
@@ -54,7 +56,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public class CatalogFragment extends RoboSherlockFragment implements
-		LoadFeedCallback {
+		LoadFeedCallback, DialogFactory.SearchCallBack {
 	
     private static final String STATE_NAV_ARRAY_KEY = "nav_array";    
 	
@@ -86,11 +88,16 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
 	@Inject
 	private Provider<DownloadFileTask> downloadFileTaskProvider;
+
+    @Inject
+    private DialogFactory dialogFactory;
 	
     @Inject
 	private CatalogListAdapter adapter;
 	
 	private LinkListener linkListener;
+
+    private MenuItem searchMenuItem;
 
 	private static interface LinkListener {
 		void linkUpdated();
@@ -116,12 +123,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		if( keyCode == KeyEvent.KEYCODE_SEARCH
 				&& action == KeyEvent.ACTION_DOWN) {
-			onSearchClick();
+			onSearchRequested();
 			return true;
 
 		} else if ( keyCode == KeyEvent.KEYCODE_BACK
                 && action == KeyEvent.ACTION_DOWN) {
-            onBackPressed();;
+            onBackPressed();
             return true;
         }
 
@@ -214,35 +221,18 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}
     }
     
-	public void onSearchClick() {
+	public void onSearchRequested() {
 
-		AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+        if ( searchMenuItem == null || ! searchMenuItem.isEnabled() ) {
+            return;
+        }
 
-		alert.setTitle(R.string.search_books);
-		alert.setMessage(R.string.enter_query);
-
-		// Set an EditText view to get user input
-		final EditText input = new EditText(getActivity());
-		alert.setView(input);
-
-		alert.setPositiveButton(android.R.string.search_go,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						CharSequence value = input.getText();
-						if ( value != null ) {
-							performSearch(value.toString());
-						}
-					}
-				});
-
-		alert.setNegativeButton(android.R.string.cancel,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						// Canceled.
-					}
-				});
-
-		alert.show();
+        if ( searchMenuItem.getActionView() != null ) {
+            this.searchMenuItem.expandActionView();
+            this.searchMenuItem.getActionView().requestFocus();
+        } else {
+            dialogFactory.buildSearchDialog(R.string.search_books, R.string.enter_query, CatalogFragment.this);
+        }
 	}
 
 	public void onEntryClicked( Entry entry, int position ) {		
@@ -340,7 +330,37 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {		
 		getSherlockActivity().getSupportActionBar().setHomeButtonEnabled(true);		
-		inflater.inflate(R.menu.catalog_menu, menu);		
+		inflater.inflate(R.menu.catalog_menu, menu);
+
+        this.searchMenuItem = menu.findItem(R.id.search);
+        if (searchMenuItem != null) {
+            final SearchView searchView = (SearchView) searchMenuItem.getActionView();
+            searchView.setSubmitButtonEnabled(true);
+
+            if (searchView != null) {
+
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        performSearch(query);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String query) {
+                        return  false;
+                    }
+                } );
+            } else {
+                searchMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        dialogFactory.buildSearchDialog(R.string.search_books, R.string.enter_query, CatalogFragment.this);
+                        return false;
+                    }
+                });
+            }
+        }
 	}
 	
 	@Override
@@ -351,8 +371,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			return;
 		}
 		
-		boolean nextEnabled = feed.getNextLink() != null;
-		boolean prevEnabled = feed.getPreviousLink() != null || navStack.size() > 0;
+		//boolean nextEnabled = feed.getNextLink() != null;
+		//boolean prevEnabled = feed.getPreviousLink() != null || navStack.size() > 0;
+
+        boolean nextEnabled = false;
+        boolean prevEnabled = false;
+
 		boolean searchEnabled = feed.getSearchLink() != null;
 		
 		for ( int i=0; i < menu.size(); i++ ) {
@@ -381,7 +405,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		
+
 		
 		switch (item.getItemId()) {
 		case android.R.id.home:
@@ -399,9 +423,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				loadURL(adapter.getFeed().getPreviousLink().getHref());
 			}
 			break;
-		case R.id.search:
-			onSearchClick();
-			break;
+
 		case R.id.prefs:
 			Intent prefsIntent = new Intent(getActivity(), PageTurnerPrefsActivity.class);
 			startActivity(prefsIntent);

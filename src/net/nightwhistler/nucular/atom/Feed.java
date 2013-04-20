@@ -40,7 +40,11 @@ public class Feed extends AtomElement {
 	
 	public List<Entry> getEntries() {
 		return Collections.unmodifiableList( entries );
-	}	
+	}
+
+    public void addEntryAt(int position, Entry entry) {
+        this.entries.add(position, entry);
+    }
 	
 	public void addEntry(Entry entry) {
 		this.entries.add(entry);

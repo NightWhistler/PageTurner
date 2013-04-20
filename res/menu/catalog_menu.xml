@@ -17,13 +17,13 @@
         android:showAsAction="always"
         android:visible="false"
         android:enabled="false" />
-     
-      <item android:id="@+id/search"
-        android:icon="@drawable/zoom"
-        android:showAsAction="ifRoom"
-        android:visible="false"
-        android:enabled="false" 
-        android:title="@string/search_books"/>
+
+     <item android:id="@+id/search"
+          android:icon="@drawable/zoom"
+          android:title="@string/search_books"
+          android:orderInCategory="0"
+          android:actionViewClass="com.actionbarsherlock.widget.SearchView"
+          android:showAsAction="ifRoom|collapseActionView" />
       
        <item android:id="@+id/prefs"
         android:icon="@drawable/cog"

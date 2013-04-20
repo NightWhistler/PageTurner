@@ -98,7 +98,7 @@ public class PageTurnerSpine {
 			total += pagesPerSection.size();
 		}
 		
-		return total;
+		return Math.max(0, total - 1);
 	}
 	
 	public List<List<Integer>> getPageOffsets() {

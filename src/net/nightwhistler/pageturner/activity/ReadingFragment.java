@@ -543,6 +543,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                     offset += part.length() +1;
 
+/*
                     //Every 5 parts we sleep to give the engine a chance to start synthesizing
                     if ( i % 5 == 0 ) {
                         try {
@@ -551,6 +552,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                             //just carry on
                         }
                     }
+*/
                 }
             } catch (TTSFailedException e) {
                 //Just stop streaming
@@ -693,7 +695,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	@TargetApi(Build.VERSION_CODES.FROYO)
 	private void unsubscribeFromMediaButtons() {		
-		if ( this.mediaReceiver != null ) {
+		if ( this.mediaReceiver != null && getActivity() != null ) {
 			getActivity().unregisterReceiver(mediaReceiver);
 			this.mediaReceiver = null;
 		
@@ -1771,7 +1773,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         LOG.debug("onStop() called.");
 		printScreenAndCallState("onStop()");
-       // this.textToSpeech.shutdown();
 
 		this.waitDialog.dismiss();			
         libraryService.close();

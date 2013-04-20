@@ -154,9 +154,11 @@ public class Configuration {
 
 	public static final String KEY_OPDS_SITES = "opds_sites";
 
-	private static final String READING_DIRECTION = "reading_direction";
+	public static final String READING_DIRECTION = "reading_direction";
 
-	private static final String KEY_NOOK_TOP_BUTTONS_DIRECTION = "nook_touch_top_buttons_direction";
+    public static final String DIM_SYSTEM_UI = "dim_system_ui";
+
+	public static final String KEY_NOOK_TOP_BUTTONS_DIRECTION = "nook_touch_top_buttons_direction";
 
 	// Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink
 	// based Android device
@@ -386,6 +388,10 @@ public class Configuration {
 	public String getSynchronizationAccessKey() {
 		return settings.getString(ACCESS_KEY, "").trim();
 	}
+
+    public boolean isDimSystemUI() {
+        return isFullScreenEnabled() && settings.getBoolean(DIM_SYSTEM_UI, false);
+    }
 
 	public boolean isSyncEnabled() {
 		String email = getSynchronizationEmail();

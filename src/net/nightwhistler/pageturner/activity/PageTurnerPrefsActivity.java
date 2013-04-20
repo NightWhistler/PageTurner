@@ -19,6 +19,7 @@
 
 package net.nightwhistler.pageturner.activity;
 
+import android.preference.*;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
@@ -26,10 +27,6 @@ import roboguice.RoboGuice;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockPreferenceActivity;
 
@@ -72,5 +69,13 @@ public class PageTurnerPrefsActivity extends RoboSherlockPreferenceActivity {
 				pref.setEntryValues(getResources().getStringArray(R.array.builtinFonts));
 			}
 		}
+
+        if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
+
+            Preference uiPref = screen.findPreference(Configuration.DIM_SYSTEM_UI);
+            PreferenceGroup group = (PreferenceGroup) screen.findPreference("visual_prefs");
+
+            group.removePreference(uiPref);
+        }
 	}
 }

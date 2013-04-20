@@ -94,6 +94,7 @@
     </PreferenceCategory>
 
 	<PreferenceCategory
+                android:key="visual_prefs"
                 android:title="@string/pref_visual_settings">  
                 
 	<net.nightwhistler.pageturner.prefs.LanguageSwitchPreference 
@@ -111,6 +112,13 @@
             android:title="@string/pref_full_screen"
             android:summary="@string/pref_full_screen_summary"
             android:defaultValue="false" />
+
+    <CheckBoxPreference
+        android:key="dim_system_ui"
+        android:title="@string/pref_dim_system_ui"
+        android:summary="@string/pref_dim_system_ui_summary"
+        android:defaultValue="false"
+        android:dependency="full_screen"/>
             
 	<CheckBoxPreference			
             android:key="show_pagenum"

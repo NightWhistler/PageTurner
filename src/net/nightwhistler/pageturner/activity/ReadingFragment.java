@@ -887,6 +887,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			getSherlockActivity().getSupportActionBar().show();
 		}
 
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isDimSystemUI() ) {
+            getSherlockActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        }
+
+
 		if (config.isKeepScreenOn()) {
 			getActivity().getWindow()
 					.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

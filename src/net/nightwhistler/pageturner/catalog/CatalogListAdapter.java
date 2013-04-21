@@ -18,6 +18,8 @@
  */
 package net.nightwhistler.pageturner.catalog;
 
+import android.util.DisplayMetrics;
+import android.widget.ImageView;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
@@ -34,7 +36,9 @@ public class CatalogListAdapter extends BaseAdapter {
 	
 	private Feed feed;	
 	private Context context;
-	
+
+    private int displayDensity;
+
 	@Inject
 	public CatalogListAdapter(Context context) {
 		this.context = context;
@@ -59,6 +63,10 @@ public class CatalogListAdapter extends BaseAdapter {
 	public Feed getFeed() {
 		return feed;
 	}
+
+    public void setDisplayDensity(int density) {
+        this.displayDensity = density;
+    }
 
 	@Override
 	public int getCount() {
@@ -88,9 +96,13 @@ public class CatalogListAdapter extends BaseAdapter {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		final Link imgLink = Catalog.getImageLink(getFeed(), entry);
 
-		rowView = inflater.inflate(R.layout.catalog_item, parent, false);			 			
+		rowView = inflater.inflate(R.layout.catalog_item, parent, false);
+		Catalog.loadBookDetails(context, rowView, entry, imgLink, true, this.displayDensity );
 
-		Catalog.loadBookDetails(context, rowView, entry, imgLink, true );
+        ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);
+        int maxWidth = Catalog.getMaxThumbnailWidth(displayDensity);
+        icon.setMinimumWidth(maxWidth);
+
 		return rowView;
 	}
 	

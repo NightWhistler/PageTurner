@@ -10,6 +10,7 @@ import java.util.Stack;
 
 import javax.annotation.Nullable;
 
+import android.util.DisplayMetrics;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.widget.SearchView;
@@ -30,6 +31,7 @@ import net.nightwhistler.pageturner.library.LibraryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -55,8 +57,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		LoadFeedCallback, DialogFactory.SearchCallBack {
 	
     private static final String STATE_NAV_ARRAY_KEY = "nav_array";    
-	
-   // private String baseURL = "";
 
 	private ProgressDialog downloadDialog;
 
@@ -89,6 +89,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
     @Inject
 	private CatalogListAdapter adapter;
+
+    @Inject
+    private Provider<DisplayMetrics> metricsProvider;
+
+    private int displayDensity;
 	
 	private LinkListener linkListener;
 
@@ -107,8 +112,13 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				navStack.addAll(navList);
 			}
 		}
-		
-		//this.baseURL = config.getBaseOPDSFeed();
+
+        DisplayMetrics metrics = metricsProvider.get();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        this.displayDensity = metrics.densityDpi;
+        this.adapter.setDisplayDensity(displayDensity);
+        LOG.debug("Metrics at init: " + this.displayDensity );
 
 	}
 	
@@ -140,6 +150,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+
 		setHasOptionsMenu(true);
 		catalogList.setAdapter(adapter);
         catalogList.setOnScrollListener(new LoadingScrollListener());
@@ -585,14 +596,14 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		
 		final Link imgLink = Catalog.getImageLink(feed, entry);
 		
-		Catalog.loadBookDetails(getActivity(), layout, entry, imgLink, false);
+		Catalog.loadBookDetails(getActivity(), layout, entry, imgLink, false, displayDensity);
 		final ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
 		
 		linkListener = new LinkListener() {
 			
 			@Override
 			public void linkUpdated() {
-				Catalog.loadImageLink(getActivity(), icon, imgLink, false);				
+				Catalog.loadImageLink(getActivity(), icon, imgLink, false, displayDensity);
 			}
 		};
 		
@@ -675,7 +686,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
                     LOG.debug("Starting download for " + nextLink.getHref() + " after scroll");
 
                     lastLoadedUrl = nextLink.getHref();
-                    loadURL(nextEntry, nextLink.getHref(), false, ResultType.APPEND );
+                    loadURL(nextEntry, nextLink.getHref(), false, ResultType.APPEND);
                 }
             }
         }

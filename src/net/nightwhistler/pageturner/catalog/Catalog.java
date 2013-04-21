@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
+import android.util.DisplayMetrics;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
@@ -75,7 +76,7 @@ public class Catalog {
 	 * @param imageLink
 	 * @param abbreviateText
 	 */
-	public static void loadBookDetails(Context context, View layout, Entry entry, Link imageLink, boolean abbreviateText ) {
+	public static void loadBookDetails(Context context, View layout, Entry entry, Link imageLink, boolean abbreviateText, int displayDensity ) {
 		
 		HtmlSpanner spanner = new HtmlSpanner();
 		
@@ -84,7 +85,7 @@ public class Catalog {
 				.findViewById(R.id.itemDescription);
 
 		ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
-		loadImageLink(context, icon, imageLink, abbreviateText);
+		loadImageLink(context, icon, imageLink, abbreviateText, displayDensity);
 				
 		title.setText( entry.getTitle());
 
@@ -104,8 +105,17 @@ public class Catalog {
 		
 		desc.setText(text);
 	}
-	
-	public static void loadImageLink(Context context, ImageView icon, Link imageLink, boolean scaleToThumbnail ) {
+
+    public static int getMaxThumbnailWidth( int displayDensity ) {
+        double density = ( (double) displayDensity / 160.0 );
+        return (int) (MAX_THUMBNAIL_WIDTH * density);
+    }
+
+	public static void loadImageLink(Context context, ImageView icon, Link imageLink, boolean scaleToThumbnail, int displayDensity ) {
+
+        int maxWidth = getMaxThumbnailWidth(displayDensity);
+
+        LOG.debug("Got screen density: " + displayDensity + " - rescaling icons to " + maxWidth);
 
 		try {
 
@@ -115,10 +125,10 @@ public class Catalog {
 				Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,
 						data.length);
 
-				if ( scaleToThumbnail && bitmap.getWidth() > MAX_THUMBNAIL_WIDTH ) {
-					int newHeight = getThumbnailHeight(bitmap.getHeight(), bitmap.getWidth() );
+				if ( scaleToThumbnail && bitmap.getWidth() > maxWidth ) {
+					int newHeight = getThumbnailHeight(bitmap.getHeight(), bitmap.getWidth(), maxWidth );
 					icon.setImageBitmap( Bitmap.createScaledBitmap(bitmap,
-							MAX_THUMBNAIL_WIDTH, newHeight, true));
+							maxWidth, newHeight, true));
 					bitmap.recycle();				
 				} else {
 					icon.setImageBitmap(bitmap);
@@ -133,18 +143,18 @@ public class Catalog {
 		if ( unknownCoverScaled == null ) {
 			Bitmap coverBitmap = ( (BitmapDrawable) context.getResources().getDrawable(
 					R.drawable.unknown_cover)).getBitmap();
-			int newHeight = getThumbnailHeight(coverBitmap.getHeight(), coverBitmap.getWidth() );
-			unknownCoverScaled = Bitmap.createScaledBitmap(coverBitmap, MAX_THUMBNAIL_WIDTH, newHeight, false);
+			int newHeight = getThumbnailHeight(coverBitmap.getHeight(), coverBitmap.getWidth(), maxWidth );
+			unknownCoverScaled = Bitmap.createScaledBitmap(coverBitmap, maxWidth, newHeight, false);
 		}		
 				
 		icon.setImageBitmap(unknownCoverScaled);
 		
 	}
 	
-	public static int getThumbnailHeight( int originalHeight, int originalWidth ) {
+	public static int getThumbnailHeight( int originalHeight, int originalWidth, int newWidth ) {
 		float factor = (float) originalHeight / (float) originalWidth;
 		
-		return (int) (MAX_THUMBNAIL_WIDTH * factor);
+		return (int) (newWidth * factor);
 	}	
 
 	

@@ -33,6 +33,8 @@ import com.google.inject.Inject;
 
 @ContextSingleton
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
+
+    private static final String LIB_BOOKS_TABLE = "lib_books";
 	
 	public enum Field { 
 		file_name("text primary key"), title("text"), a_first_name("text"),
@@ -42,17 +44,15 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		private String fieldDef;
 	
 		private Field(String fieldDef) { this.fieldDef = fieldDef; }		
-	}	
-	
-	private SQLiteDatabase database;
-	
+	}
+
 	public enum Order { ASC , DESC }
 	
 	private static final String DB_NAME = "PageTurnerLibrary";
 	private static final int VERSION = 4;
 
 	private static String getCreateTableString() {
-		String create = "create table lib_books ( ";
+		String create = "create table " + LIB_BOOKS_TABLE + " ( ";
 		
 		boolean first = true;
 		
@@ -78,11 +78,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	}
 	
 	private synchronized SQLiteDatabase getDataBase() {
-		if ( this.database == null || ! this.database.isOpen()) {
-			this.database = getWritableDatabase();
-		}
-		
-		return this.database;
+		return getWritableDatabase();
 	}
 	
 	@Override
@@ -94,7 +90,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {		
 		
 		if ( oldVersion == 3 ) {
-			db.execSQL("ALTER TABLE lib_books ADD COLUMN progress integer" );
+			db.execSQL("ALTER TABLE " + LIB_BOOKS_TABLE + " ADD COLUMN progress integer" );
 		}
 	}	
 	
@@ -102,16 +98,9 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		
 		String[] args = { fileName };
 		
-		getDataBase().delete("lib_books", Field.file_name + " = ?", args );		
-	}	
-	
-	public void close() {
-		if ( this.database != null ) {
-			database.close();
-			this.database = null;
-		}
+		getDataBase().delete(LIB_BOOKS_TABLE, Field.file_name + " = ?", args );
 	}
-	
+
 	public void updateLastRead( String fileName, int progress ) {
 		
 		String whereClause = Field.file_name.toString() + " like ?";
@@ -124,7 +113,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 			content.put(Field.progress.toString(), progress );
 		}
 		
-		getDataBase().update("lib_books", content, whereClause, args);		
+		getDataBase().update(LIB_BOOKS_TABLE, content, whereClause, args);
 	}	
 	
 	public void storeNewBook(String fileName, String authorFirstName,
@@ -146,7 +135,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		content.put(Field.file_name.toString(), fileName );
 		content.put(Field.date_added.toString(), new Date().getTime() );			
 			
-		getDataBase().insert("lib_books", null, content);
+		getDataBase().insert(LIB_BOOKS_TABLE, null, content);
 	}
 	
 	public boolean hasBook( String fileName ) {
@@ -155,7 +144,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		
 		String whereClause = Field.file_name.toString() + " like ?";
 		
-		Cursor findBook = getDataBase().query( "lib_books", fieldsAsString(fields), whereClause,
+		Cursor findBook = getDataBase().query( LIB_BOOKS_TABLE, fieldsAsString(fields), whereClause,
 				args, null, null, null );
 		
 		boolean result =  findBook.getCount() != 0;
@@ -223,7 +212,8 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
             args = getFilterArgs(args, filter);
         }
 		
-		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
+		Cursor cursor = getDataBase().query(LIB_BOOKS_TABLE,
+                fieldsAsString(Field.values()),
 				whereClause, args, null, null,
 				"LOWER(" + orderField + ") " + ordering  );		
 		
@@ -242,7 +232,8 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
             args = getFilterArgs(args, filter);
         }
 						
-		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
+		Cursor cursor = getDataBase().query(LIB_BOOKS_TABLE,
+                fieldsAsString(Field.values()),
 				whereClause,args, null, null,
 				fieldName != null ? "LOWER(" + fieldName.toString() + ") " + order.toString() : null );		
 		
@@ -251,8 +242,8 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 	
 	private List<String> getKeys( Field fieldName, Order order ) {
 		String[] keyField = { fieldName.toString() };
-		Cursor fieldCursor = getDataBase().query("lib_books", keyField, null, 
-				new String[0], null, null, 
+		Cursor fieldCursor = getDataBase().query(LIB_BOOKS_TABLE,
+                keyField, null,	new String[0], null, null,
 				fieldName != null ? "LOWER(" + fieldName.toString() + ") " + order.toString() : null);
 				
 		List<String> keys = new ArrayList<String>();
@@ -281,9 +272,10 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
             whereClause = getFilterClause(filter, whereClause);
             args = getFilterArgs(args, filter);
         }
-	
-						
-		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
+
+
+		Cursor cursor = getDataBase().query(LIB_BOOKS_TABLE,
+                fieldsAsString(Field.values()),
 			    whereClause, args, null, null,
 				fieldName != null ? "LOWER(" + fieldName.toString() + ") " 
 						+ order.toString() : null );		

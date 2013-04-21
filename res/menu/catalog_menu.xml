@@ -5,18 +5,6 @@
     <item android:id="@+id/open_library"
         android:icon="@drawable/book_star"
         android:title="@string/open_library" />
-    
-    <item android:id="@+id/left"
-        android:icon="@drawable/arrow_left"
-        android:showAsAction="always"
-        android:visible="false"
-        android:enabled="false" />
-    
-     <item android:id="@+id/right"
-        android:icon="@drawable/arrow_right"
-        android:showAsAction="always"
-        android:visible="false"
-        android:enabled="false" />
 
      <item android:id="@+id/search"
           android:icon="@drawable/zoom"

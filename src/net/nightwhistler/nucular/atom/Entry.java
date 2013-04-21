@@ -35,7 +35,9 @@ import java.util.List;
 public class Entry extends AtomElement {
 
 	private String updated;
-	private String summary;	
+	private String summary;
+
+    private Feed feed;
 
 	public String getUpdated() {
 		return updated;
@@ -43,7 +45,15 @@ public class Entry extends AtomElement {
 
 	public void setUpdated(String updated) {
 		this.updated = updated;
-	}		
+	}
+
+    public void setFeed(Feed feed) {
+        this.feed = feed;
+    }
+
+    public Feed getFeed() {
+        return feed;
+    }
 	
 	public Link getAlternateLink() {
 		Link atomLink = getAtomLink();

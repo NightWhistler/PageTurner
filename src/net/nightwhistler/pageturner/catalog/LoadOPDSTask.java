@@ -57,6 +57,8 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 		
 	private boolean asDetailsFeed;
 
+    private LoadFeedCallback.ResultType resultType;
+
 	@Inject
 	LoadOPDSTask(Context context, Configuration config, HttpClient httpClient) {
 		this.context = context;
@@ -101,6 +103,7 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 			
 			InputStream stream = response.getEntity().getContent();			
 			Feed feed = Nucular.readAtomFeedFromStream(stream);
+            feed.setURL(baseUrl);
 			feed.setDetailFeed(asDetailsFeed);
 
             if (isBaseFeed) {
@@ -178,6 +181,10 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
 	}
 
+    void setResultType(LoadFeedCallback.ResultType type) {
+        this.resultType = type;
+    }
+
 	public LoadOPDSTask setCallBack(LoadFeedCallback callBack) {
 		this.callBack = callBack;
 		return this;
@@ -230,7 +237,7 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
 		if (val instanceof Feed) {
 			Feed result = (Feed) val;
-			callBack.setNewFeed(result);
+			callBack.setNewFeed(result, resultType);
 		} else if (val instanceof Link) {
 			callBack.notifyLinkUpdated();
 		}

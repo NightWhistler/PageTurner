@@ -10,6 +10,7 @@ import java.util.Stack;
 
 import javax.annotation.Nullable;
 
+import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.widget.SearchView;
 import net.nightwhistler.nucular.atom.AtomConstants;
@@ -41,12 +42,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -60,7 +56,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
     private static final String STATE_NAV_ARRAY_KEY = "nav_array";    
 	
-    private String baseURL = "";
+   // private String baseURL = "";
 
 	private ProgressDialog downloadDialog;
 
@@ -112,7 +108,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			}
 		}
 		
-		this.baseURL = config.getBaseOPDSFeed();
+		//this.baseURL = config.getBaseOPDSFeed();
+
 	}
 	
 	public boolean dispatchKeyEvent(KeyEvent event) {
@@ -145,6 +142,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		super.onViewCreated(view, savedInstanceState);
 		setHasOptionsMenu(true);
 		catalogList.setAdapter(adapter);
+        catalogList.setOnScrollListener(new LoadingScrollListener());
 		catalogList.setOnItemClickListener(new OnItemClickListener() {			
 			@Override
 			public void onItemClick(AdapterView<?> list, View arg1, int position,
@@ -162,13 +160,14 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}	
 	
 	private void loadOPDSFeed(String url) {
-		loadOPDSFeed(null, url, false);
+		loadOPDSFeed(null, url, false, ResultType.REPLACE);
 	}
 	
-	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed ) {
+	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed, ResultType resultType ) {
 		LoadOPDSTask task = this.loadOPDSTaskProvider.get();
 		task.setCallBack(this);
 
+        task.setResultType(resultType);
 		task.setPreviousEntry(entry);	
 		task.setAsDetailsFeed(asDetailsFeed);
 		
@@ -190,7 +189,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				String downloadUrl = uri.toString().replace("epub://", "http://");
 				startDownload(false, downloadUrl);
 			} else {
-				loadOPDSFeed(baseURL);
+				loadOPDSFeed(config.getBaseOPDSFeed());
 			}
 		}
 	}
@@ -237,12 +236,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			loadCustomSiteFeed();
 		} else if ( entry.getAlternateLink() != null ) {
 			String href = entry.getAlternateLink().getHref();
-			loadURL(entry, href, true);
+			loadURL(entry, href, true, ResultType.REPLACE);
 		} else if ( entry.getEpubLink() != null ) {
 			loadFakeFeed(entry);
 		} else if ( entry.getAtomLink() != null ) {
 			String href = entry.getAtomLink().getHref();
-			loadURL(entry, href, false);
+			loadURL(entry, href, false, ResultType.REPLACE);
 		} 
 	}	
 	
@@ -258,6 +257,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		navStack.add(Catalog.CUSTOM_SITES_ID);
 		
 		Feed customSites = new Feed();
+        customSites.setURL(Catalog.CUSTOM_SITES_ID);
 		customSites.setTitle(getString(R.string.custom_site));
 
 		
@@ -274,11 +274,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		
 		customSites.setId(Catalog.CUSTOM_SITES_ID);
 		
-		setNewFeed(customSites);		
+		setNewFeed(customSites, ResultType.REPLACE);
 	}
 
 	public void loadFakeFeed(Entry entry) {
-		String base = baseURL;
+
+        String base = entry.getFeed().getURL();
 
 		if (!navStack.isEmpty()) {
 			base = navStack.peek();
@@ -294,12 +295,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 
 	private void loadURL(String url) {
-		loadURL(null, url, false);
+		loadURL(null, url, false, ResultType.REPLACE);
 	}
 
-	private void loadURL(Entry entry, String url, boolean asDetailsFeed) {
+	private void loadURL(Entry entry, String url, boolean asDetailsFeed, ResultType resultType) {
 
-		String base = baseURL;
+		String base = entry.getFeed().getURL();
 
 		if (!navStack.isEmpty()) {
 			base = navStack.peek();
@@ -311,12 +312,14 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			if ( base != null && ! base.equals(Catalog.CUSTOM_SITES_ID)) {
 				target = new URL(new URL(base), url).toString();
 			}
-			
-			this.baseURL = target;
+
 			LOG.info("Loading " + target);
 
-			navStack.push(target);
-			loadOPDSFeed(entry, target, asDetailsFeed);
+            if ( resultType == ResultType.REPLACE ) {
+			    navStack.push(target);
+            }
+
+			loadOPDSFeed(entry, target, asDetailsFeed, resultType);
 		} catch (MalformedURLException u) {
 			LOG.error("Malformed URL:", u);
 		}
@@ -365,12 +368,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		if ( feed == null ) {
 			return;
 		}
-		
-		//boolean nextEnabled = feed.getNextLink() != null;
-		//boolean prevEnabled = feed.getPreviousLink() != null || navStack.size() > 0;
-
-        boolean nextEnabled = false;
-        boolean prevEnabled = false;
 
 		boolean searchEnabled = feed.getSearchLink() != null;
 		
@@ -380,12 +377,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			boolean enabled = false;
 			
 			switch (item.getItemId()) {
-			case R.id.left:
-				enabled = prevEnabled;
-				break;
-			case R.id.right:
-				enabled = nextEnabled;
-				break;
+
 			case R.id.search:
 				enabled = searchEnabled;
 				break;			
@@ -405,20 +397,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		switch (item.getItemId()) {
 		case android.R.id.home:
 			navStack.clear();
-			this.baseURL = config.getBaseOPDSFeed();
-			loadOPDSFeed(baseURL);
+			loadOPDSFeed(config.getBaseOPDSFeed());
 			return true;
-		case R.id.right:
-			loadURL(adapter.getFeed().getNextLink().getHref());
-			break;
-		case R.id.left:
-			if (navStack.size() > 0) {
-				getActivity().onBackPressed();
-			} else if (adapter.getFeed().getPreviousLink() != null) {
-				loadURL(adapter.getFeed().getPreviousLink().getHref());
-			}
-			break;
-
 		case R.id.prefs:
 			Intent prefsIntent = new Intent(getActivity(), PageTurnerPrefsActivity.class);
 			startActivity(prefsIntent);
@@ -450,8 +430,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		navStack.pop();
 		
 		if (navStack.isEmpty()) {
-			this.baseURL = config.getBaseOPDSFeed();
-			loadOPDSFeed(baseURL);
+			loadOPDSFeed(config.getBaseOPDSFeed());
 		} else if ( navStack.peek().equals(Catalog.CUSTOM_SITES_ID) ) {
 			loadCustomSiteFeed();
 		}else {
@@ -551,7 +530,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		
 		if ( entry.getEpubLink() != null ) {
 			
-			String base = baseURL;
+			String base = feed.getURL();
 
 			if (!navStack.isEmpty()) {
 				base = navStack.peek();
@@ -626,14 +605,19 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				Toast.LENGTH_LONG).show();		
 	}
 	
-	public void setNewFeed(Feed result) {		
+	public void setNewFeed(Feed result, ResultType resultType) {
 
 		if (result != null) {
 			
 			if ( result.isDetailFeed() ) {
 				showItemPopup(result);
 			} else {
-				adapter.setFeed(result);
+
+                if ( resultType == null || resultType == ResultType.REPLACE ) {
+				    adapter.setFeed(result);
+                } else {
+                    adapter.addEntriesFromFeed(result);
+                }
 
 				getSherlockActivity().supportInvalidateOptionsMenu();
 				getSherlockActivity().getSupportActionBar().setTitle(result.getTitle());
@@ -662,4 +646,44 @@ public class CatalogFragment extends RoboSherlockFragment implements
         LOG.debug("Start loading.");
         setSupportProgressBarIndeterminateVisibility(true);
     }
+
+    private class LoadingScrollListener implements AbsListView.OnScrollListener {
+
+        private static final int LOAD_THRESHOLD = 2;
+
+        private String lastLoadedUrl = "";
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+            if ( totalItemCount - (firstVisibleItem + visibleItemCount) <= LOAD_THRESHOLD && adapter.getCount() > 0) {
+
+                Entry lastEntry = adapter.getItem( adapter.getCount() -1 );
+                Feed feed = lastEntry.getFeed();
+
+                if ( feed == null || feed.getNextLink() == null) {
+                    return;
+                }
+
+                Link nextLink = feed.getNextLink();
+
+                if ( ! nextLink.getHref().equals(lastLoadedUrl) ) {
+                    Entry nextEntry = new Entry();
+                    nextEntry.setFeed(feed);
+                    nextEntry.addLink(nextLink);
+
+                    LOG.debug("Starting download for " + nextLink.getHref() + " after scroll");
+
+                    lastLoadedUrl = nextLink.getHref();
+                    loadURL(nextEntry, nextLink.getHref(), false, ResultType.APPEND );
+                }
+            }
+        }
+
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+        }
+    }
+
 }

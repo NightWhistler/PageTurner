@@ -39,29 +39,20 @@ public class CatalogListAdapter extends BaseAdapter {
 	public CatalogListAdapter(Context context) {
 		this.context = context;
 	}
-	
+
+    public void addEntriesFromFeed( Feed newFeed ) {
+        for ( Entry entry: newFeed.getEntries() ) {
+            this.feed.addEntry(entry);
+
+            //Point the parent back at the original feed, bit of a hack
+            entry.setFeed(newFeed);
+        }
+
+        this.notifyDataSetChanged();
+    }
+
 	public void setFeed( Feed feed ) {
 		this.feed = feed;
-
-        if ( feed.getNextLink() != null ) {
-
-            Entry nextEntry = new Entry();
-            nextEntry.addLink(feed.getNextLink());
-            nextEntry.setTitle(context.getString(R.string.next_page));
-
-            feed.addEntry(nextEntry);
-        }
-
-        if ( feed.getPreviousLink() != null ) {
-            Entry prevEntry = new Entry();
-
-            prevEntry.addLink(feed.getPreviousLink());
-            prevEntry.setTitle(context.getString(R.string.prev_page));
-
-            feed.addEntryAt(0, prevEntry);
-        }
-
-
 		this.notifyDataSetChanged();		
 	}
 	

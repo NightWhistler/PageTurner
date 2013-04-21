@@ -4,8 +4,10 @@ import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 
 public interface LoadFeedCallback {
+
+    public static enum ResultType { REPLACE, APPEND }
 	
-	void setNewFeed( Feed feed );
+	void setNewFeed( Feed feed, ResultType resultType );
 	
 	void loadFakeFeed( Entry entry );
 	

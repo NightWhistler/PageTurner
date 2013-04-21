@@ -53,6 +53,7 @@ public class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
 		fakeFeed.addEntry(singleEntry);
 		fakeFeed.setTitle(singleEntry.getTitle());
 		fakeFeed.setDetailFeed(true);
+        fakeFeed.setURL(this.singleEntry.getFeed().getURL());
 
 		try {
 			Catalog.loadImageLink(client, new HashMap<String, byte[]>(),
@@ -67,7 +68,7 @@ public class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
 	@Override
 	protected void onPostExecute(Feed result) {
         callBack.onLoadingDone();
-		callBack.setNewFeed(result);
+		callBack.setNewFeed(result, null);
 	}
 }
 

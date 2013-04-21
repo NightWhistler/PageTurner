@@ -12,4 +12,8 @@ public interface LoadFeedCallback {
 	void errorLoadingFeed( String error );
 		
 	void notifyLinkUpdated();
+
+    void onLoadingStart();
+
+    void onLoadingDone();
 }

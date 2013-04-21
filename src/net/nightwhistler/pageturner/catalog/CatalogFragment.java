@@ -10,6 +10,7 @@ import java.util.Stack;
 
 import javax.annotation.Nullable;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.widget.SearchView;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
@@ -42,7 +43,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -62,7 +62,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
     private String baseURL = "";
 
-	private ProgressDialog waitDialog;
 	private ProgressDialog downloadDialog;
 
 	private static final Logger LOG = LoggerFactory
@@ -154,9 +153,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				onEntryClicked(entry, position);
 			}
 		});
-		
-		this.waitDialog = new ProgressDialog(getActivity());
-		this.waitDialog.setOwnerActivity(getActivity());
 
 		this.downloadDialog = new ProgressDialog(getActivity());
 
@@ -172,7 +168,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed ) {
 		LoadOPDSTask task = this.loadOPDSTaskProvider.get();
 		task.setCallBack(this);
-		task.setWaitDialog(waitDialog);
+
 		task.setPreviousEntry(entry);	
 		task.setAsDetailsFeed(asDetailsFeed);
 		
@@ -292,7 +288,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		
 		LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
 		task.setCallBack(this);
-		task.setWaitDialog(waitDialog);
 		task.setSingleEntry(entry);
 		
 		task.execute(base);
@@ -441,7 +436,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Override
 	public void onStop() {
 		downloadDialog.dismiss();
-		waitDialog.dismiss();
 
 		super.onStop();
 	}
@@ -628,7 +622,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 	@Override
 	public void errorLoadingFeed(String error) {
-		waitDialog.hide();
 		Toast.makeText(getActivity(), getString(R.string.feed_failed) + ": " + error,
 				Toast.LENGTH_LONG).show();		
 	}
@@ -645,9 +638,28 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				getSherlockActivity().supportInvalidateOptionsMenu();
 				getSherlockActivity().getSupportActionBar().setTitle(result.getTitle());
 			}
-			
-			waitDialog.hide();
 		} 
 	}
-	
+
+    private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
+        SherlockFragmentActivity activity = getSherlockActivity();
+        if ( activity != null) {
+            LOG.debug("Setting progress bar to " + enable );
+            activity.setSupportProgressBarIndeterminateVisibility(enable);
+        } else {
+            LOG.debug("Got null activity.");
+        }
+    }
+
+    @Override
+    public void onLoadingDone() {
+        LOG.debug("Done loading.");
+        setSupportProgressBarIndeterminateVisibility(false);
+    }
+
+    @Override
+    public void onLoadingStart() {
+        LOG.debug("Start loading.");
+        setSupportProgressBarIndeterminateVisibility(true);
+    }
 }

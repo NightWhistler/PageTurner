@@ -21,8 +21,7 @@ public class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
 
 	private Entry singleEntry;
 	private LoadFeedCallback callBack;
-	private Dialog waitDialog;
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger("LoadFakeFeedTask");
 	
 	private Context context;	
@@ -42,15 +41,10 @@ public class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
 		this.singleEntry = singleEntry;
 		return this;
 	}
-	
-	public void setWaitDialog(Dialog waitDialog) {
-		this.waitDialog = waitDialog;
-	}	
 
 	@Override
 	protected void onPreExecute() {
-		waitDialog.setTitle(context.getString(R.string.loading_wait));
-		waitDialog.show();
+		callBack.onLoadingStart();
 	}
 
 	@Override
@@ -72,6 +66,7 @@ public class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
 
 	@Override
 	protected void onPostExecute(Feed result) {
+        callBack.onLoadingDone();
 		callBack.setNewFeed(result);
 	}
 }

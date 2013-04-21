@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.app.Activity;
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
@@ -48,13 +51,12 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 	
 	private Entry previousEntry;
 	private boolean isBaseFeed;
-	private Dialog waitDialog;
 	private LoadFeedCallback callBack;
 	
 	private String errorMessage;
 		
 	private boolean asDetailsFeed;
-	
+
 	@Inject
 	LoadOPDSTask(Context context, Configuration config, HttpClient httpClient) {
 		this.context = context;
@@ -64,9 +66,7 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
 	@Override
 	protected void onPreExecute() {
-		waitDialog.setTitle(context.getString(R.string.loading_wait));
-		waitDialog.setOnCancelListener(this);
-		waitDialog.show();
+        callBack.onLoadingStart();
 	}
 
 	@Override
@@ -177,11 +177,6 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 		}
 
 	}
-	
-	public LoadOPDSTask setWaitDialog(Dialog waitDialog) {
-		this.waitDialog = waitDialog;
-		return this;
-	}
 
 	public LoadOPDSTask setCallBack(LoadFeedCallback callBack) {
 		this.callBack = callBack;
@@ -199,6 +194,8 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 	
 	@Override
 	protected void onPostExecute(Feed result) {
+
+        callBack.onLoadingDone();
 
 		if (result == null) {
 			callBack.errorLoadingFeed(errorMessage);
@@ -233,7 +230,6 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
 		if (val instanceof Feed) {
 			Feed result = (Feed) val;
-
 			callBack.setNewFeed(result);
 		} else if (val instanceof Link) {
 			callBack.notifyLinkUpdated();

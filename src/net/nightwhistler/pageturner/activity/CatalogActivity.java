@@ -18,6 +18,7 @@
  */
 package net.nightwhistler.pageturner.activity;
 
+import com.actionbarsherlock.view.Window;
 import roboguice.RoboGuice;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
@@ -36,13 +37,22 @@ public class CatalogActivity extends RoboSherlockFragmentActivity {
 		Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class); 
 		PageTurner.changeLanguageSetting(this, config);
 		setTheme( config.getTheme() );
-		
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.activity_catalog);
 		catalogFragment = (CatalogFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_catalog);
 	}
-	
-	@Override
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        setSupportProgressBarIndeterminate(true);
+        setSupportProgressBarIndeterminateVisibility(true);
+    }
+
+    @Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		return catalogFragment.dispatchKeyEvent(event);
 	}

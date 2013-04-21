@@ -335,10 +335,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
         this.searchMenuItem = menu.findItem(R.id.search);
         if (searchMenuItem != null) {
             final SearchView searchView = (SearchView) searchMenuItem.getActionView();
-            searchView.setSubmitButtonEnabled(true);
 
             if (searchView != null) {
 
+                searchView.setSubmitButtonEnabled(true);
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {

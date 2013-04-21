@@ -1538,7 +1538,15 @@ public class BookView extends ScrollView {
 
 	private class CalculatePageNumbersTask extends
 			AsyncTask<Object, Void, List<List<Integer>>> {
-		@Override
+
+        @Override
+        protected void onPreExecute() {
+            for ( BookViewListener listener: listeners ) {
+                listener.onStartCalculatePageNumbers();
+            }
+        }
+
+        @Override
 		protected List<List<Integer>> doInBackground(Object... params) {
 
 			try {
@@ -1562,6 +1570,13 @@ public class BookView extends ScrollView {
 
 		@Override
 		protected void onPostExecute(List<List<Integer>> result) {
+
+            LOG.debug("Pagenumber calculation completed.");
+
+            for ( BookViewListener listener: listeners ) {
+                listener.onCalculatePageNumbersComplete();
+            }
+
 			spine.setPageOffsets(result);
 			progressUpdate();
 		}

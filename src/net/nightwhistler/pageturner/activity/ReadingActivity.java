@@ -18,6 +18,7 @@
  */
 package net.nightwhistler.pageturner.activity;
 
+import com.actionbarsherlock.view.Window;
 import roboguice.RoboGuice;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
@@ -50,11 +51,20 @@ public class ReadingActivity extends RoboSherlockFragmentActivity {
         }
 
 		setTheme( theme );
-		super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
+        super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_reading);
 
 		readingFragment = (ReadingFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_reading);
 	}
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        setSupportProgressBarIndeterminate(true);
+        setSupportProgressBarIndeterminateVisibility(false);
+    }
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {

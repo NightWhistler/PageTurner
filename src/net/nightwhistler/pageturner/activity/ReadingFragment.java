@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.widget.*;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -852,6 +853,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		pageNumberView.setTypeface(config.getDefaultFontFamily().getDefaultTypeface());
 
 		pageNumberView.setText(builder);
+        pageNumberView.invalidate();
 	}
 
 	private void updateFromPrefs() {
@@ -2253,7 +2255,27 @@ public class ReadingFragment extends RoboSherlockFragment implements
         task.execute(query);
     }
 
-	private void onSearchClick() {
+    private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
+        SherlockFragmentActivity activity = getSherlockActivity();
+        if ( activity != null) {
+            LOG.debug("Setting progress bar to " + enable );
+            activity.setSupportProgressBarIndeterminateVisibility(enable);
+        } else {
+            LOG.debug("Got null activity.");
+        }
+    }
+
+    @Override
+    public void onCalculatePageNumbersComplete() {
+       setSupportProgressBarIndeterminateVisibility(false);
+    }
+
+    @Override
+    public void onStartCalculatePageNumbers() {
+        setSupportProgressBarIndeterminateVisibility(true);
+    }
+
+    private void onSearchClick() {
 
         if ( this.searchView != null ) {
             this.searchView.setIconified(false);
@@ -2379,8 +2401,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			bookView.restore();
 		}
 	}
-
-
 	
 	private class PageTurnerMediaReceiver extends BroadcastReceiver {
 		
@@ -2401,32 +2421,3 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 	}	
 }
-
-class PageTurnerEventReceiver extends BroadcastReceiver {
-
-	public boolean wasScreenOn = true;
-	
-	private final Logger LOG = LoggerFactory.getLogger("PTEventReceiver");
-
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		
-		LOG.debug("Got intent: " + intent.getAction() );
-		
-		if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-			LOG.debug("Screen just turned off");
-			// do whatever you need to do here
-			wasScreenOn = false;
-		} else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-			LOG.debug("Screen just turned on");
-			// and do whatever you need to do here
-			wasScreenOn = true;
-		} 
-	}
-	
-	public boolean isWasScreenOn() {
-		return wasScreenOn;
-	}
-
-}		
-

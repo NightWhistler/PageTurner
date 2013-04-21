@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.widget.SearchView;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
@@ -987,6 +988,16 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		alphabetDivider.setVisibility(vis);		
 		listView.setFastScrollEnabled(visible);
 	}
+
+    private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
+        SherlockFragmentActivity activity = getSherlockActivity();
+        if ( activity != null) {
+            LOG.debug("Setting progress bar to " + enable );
+            activity.setSupportProgressBarIndeterminateVisibility(enable);
+        } else {
+            LOG.debug("Got null activity.");
+        }
+    }
 	
 	private class MenuSelectionListener implements OnNavigationListener {	
 		
@@ -1092,10 +1103,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		@Override
 		protected void onPreExecute() {
+            setSupportProgressBarIndeterminateVisibility(true);
+
             if ( this.filter == null )  {
-			    waitDialog.setTitle(R.string.loading_library);
-			    waitDialog.show();
-			
 			    coverCache.clear();
             }
 		}
@@ -1140,9 +1150,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		protected void onPostExecute(QueryResult<LibraryBook> result) {
 			 loadQueryData(result);
 
-            if ( filter == null ) {
-                waitDialog.hide();
-            }
+            setSupportProgressBarIndeterminateVisibility(false);
 
             if (filter == null && sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
                 askedUserToImport = true;

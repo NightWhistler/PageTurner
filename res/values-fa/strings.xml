@@ -103,5 +103,131 @@
     
     <string name="download">بارگیری کتاب‌ها</string> <!-- Download books -->
     <string name="downloading">درحال بارگیری کتاب …</string> <!-- Downloading book… -->
-        
+     <!-- Preferences -->
+
+    <string name="pref_sync_settings">تنظیمات همگام‌سازی</string>
+    <string name="pref_email">نشانی رایانامه</string>
+    <string name="pref_email_summary">این برایِ همگام‌سازی روند مطالعه‌تان با دیگر دستگاه‌ها است. خالی بگذارید تا همگام‌سازی غیرفعال شود.</string>
+    <string name="pref_email_message">لطفاً نشانی رایانامهٔ معتبری را وارد کنید.</string>
+
+    <string name="pref_device_name">نام دستگاه</string>
+    <string name="pref_device_name_summary">نام منحصر به فرد برای دستگاه برای پیشگیری از ناسازگاری نام‌ها.</string>
+    <string name="pref_device_name_message">نامی برای دستگاه‌تان انتخاب کنید.</string>
+
+    <string name="pref_access_key">کلید دسترسی</string>
+    <string name="pref_access_key_summary">کلید دسترسی برای همزمان‌سازی دستگاه مورد نیاز است. وب‌گاه‌مان را ببینید تا روش گرفتن کلید را یاد بگیرید.</string>
+    <string name="pref_access_key_message">لطفاً کلید دسترسی‌تان را وارد کنید.</string>
+
+
+    <string name="pref_autoscroll_settings">تنظیمات مرور خودکار</string>
+    <string name="pref_scroll_style">قالب مرور خودکار</string>
+    <!-- <string name="pref_scroll_style_summary"></string> -->
+
+    <string name="pref_scroll_speed">سرعت مرور خودکار</string>
+    <string name="pref_scroll_speed_summary">تعداد ثانیه‌هایی که یک صفحه نمایش داده خواهد شد.</string>
+
+
+    <string name="pref_my_books_settings">تنظیمات کتاب‌هایم</string>
+    <string name="pref_copy_to_library">کپی در پوشهٔ کتابخانه</string>
+    <string name="pref_copy_to_library_summary">آیا PageTurner اجارهٔ کپی پرونده‌ها درون پوشهٔ کتابخانهٔ خود را دارد؟</string>
+
+<!--
+    <string name="pref_calibre_server"></string>
+    <string name="pref_calibre_server_summary"></string>
+    <string name="pref_calibre_server_message"></string>
+    <string name="pref_calibre_server_hint"></string>
+    <string name="pref_calibre_user"></string>
+    <string name="pref_calibre_user_summary"></string>
+    <string name="pref_calibre_user_hint"></string>
+    <string name="pref_calibre_password"></string>
+    <string name="pref_calibre_password_summary"></string>
+-->
+
+    <string name="pref_visual_settings">تنظیمات نمایشی</string>
+    <string name="pref_full_screen">تمام صفحه</string>
+    <string name="pref_full_screen_summary">پنهان کردن تمامی نوار وضعیت‌ها</string>
+
+
+    <string name="pref_screen_orientation">جهت‌دهی صفحه</string>
+    <string name="pref_screen_orientation_summary">اجازه می‌دهد تا جهت‌دهی خودکار صفحه را قفل کنید.</string>
+
+    <!--
+    <string name="pref_keep_screen_on"></string>
+    <string name="pref_keep_screen_on_summary"></string>
+    -->
+    
+    <string name="pref_set_brightness">تنظیمات درخشندگی</string>
+    <string name="pref_set_brightness_summary">به PageTurner اجازهٔ کنترل درخشندگی صفحه را می‌دهد.</string>
+
+    <string name="pref_day_bright">درخشندگی صفحه</string>
+    <string name="pref_day_bright_summary">درخشندگی صفحه</string>
+
+    <string name="pref_day_night">درخشندگی صفحه</string>
+    <string name="pref_day_night_summary">برای حالت شب</string>
+
+    <string name="pref_text_display_settings">تنظیمات نمایش متن</string>
+    <!-- <string name="pref_font_face"></string> -->
+    <string name="pref_font_face_summary">قلم اصلی برای نمایش متن</string>
+ 
+    <!--   <string name="pref_strip_whitespace"></string> -->
+    <string name="pref_strip_whitespace_summary">خطوط خالی بی‌استفادهٔ کتاب را پاک می‌کند.</string>
+
+    <string name="pref_itext_size">اندازهٔ متن</string>
+    <string name="pref_itext_size_summary">اندازه‌ قلم برای نمایش متن کتاب‌ها</string>
+
+    <string name="pref_margin_h">حاشیه‌های عمودی</string>
+    <string name="pref_margin_h_summary">فضای خالی در چپ و راست لبهٔ صفحه نمایش رها می‌کند.</string>
+
+    <string name="pref_margin_v">اندازهٔ حاشیه‌ها</string>
+    <string name="pref_margin_v_summary">فضای عمودی بیشتری بین خطوط قرار می‌دهد.</string>
+
+    <string name="pref_line_spacing">فاصله‌گذاری بین خطوط</string>
+    <string name="pref_line_spacing_summary">فضای عمودی بیشتری بین خطوط قرار می‌دهد.</string>
+
+    <string name="pref_colour_settings">تنظیمات رنگ</string>
+    <string name="pref_day_text">رنگ متن</string>
+    <string name="pref_day_text_summary">برای حالت روز</string>
+
+    <string name="pref_day_bg">رنگ پیش‌زمینه</string>
+    <string name="pref_day_bg_summary">برای حالت روز</string>
+
+    <string name="pref_day_link">رنگ پیوند</string>
+    <string name="pref_day_link_summary">برای حالت روز</string>
+
+    <string name="pref_night_text">رنگ متن</string>
+    <string name="pref_night_text_summary">برای حالت شب</string>
+
+    <string name="pref_night_bg">رنگ پیش‌زمینه</string>
+    <string name="pref_night_bg_summary">برای حالت شب</string>
+
+    <string name="pref_night_link">رنگ پیوند</string>
+    <string name="pref_night_link_summary">برای حالت شب</string>
+
+    <string name="pref_animations">انیمیشن‌ها</string>
+    <string name="pref_h_animation">انیمیشن‌های افقی</string>
+    <string name="pref_h_animation_summary">انیمیشن‌های تغییر صفحهٔ افقی</string>
+
+    <string name="pref_v_animation">انیمیشن‌های عمودی</string>
+    <string name="pref_v_animation_summary">انیمیشن‌های تغییر صفحهٔ عمودی</string>
+
+    <string name="pref_navigation_settings">تنظیمات ناوبری</string>
+    <string name="pref_scrolling">فعال کردن مرور</string>
+    <string name="pref_scrolling_summary">فعال کردن قالب مرور به شکل مرورگر وب</string>
+
+<!--
+    <string name="pref_nav_vol"></string>
+    <string name="pref_nav_vol_summary"></string>
+-->
+
+    <string name="pref_nav_swipe_h">فعال کردن حرکت جارویی افقی صفحات</string>
+    <string name="pref_nav_swipe_h_summary">جارو کردن چپ/راست صفحات.</string>
+
+    <string name="pref_nav_swipe_v">فعال کردن حرکت جارویی عمودی صفحات</string>
+    <string name="pref_nav_swipe_v_summary">جارو کردن بالا/پایین صفحات.</string>
+    
+    <string name="pref_nav_tap_h">فعال کردن حرکت برگه‌ای چپ/راست</string>
+    <string name="pref_nav_tap_h_summary">برای برگ زدن، به چپ و راست صفحات ضربه بزنید.</string>
+    <string name="pref_nav_tap_v">فعال کردن حرکت برگه‌ای بالا/پایین</string>
+    <string name="pref_nav_tap_v_summary">برای برگ‌زدن، به بالا و پایین صفحات ضربه بزنید.</string>
+       
 </resources>

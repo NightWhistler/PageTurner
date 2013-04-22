@@ -88,6 +88,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import roboguice.RoboGuice;
 
+import static net.nightwhistler.pageturner.PlatformUtil.executeTask;
+
 public class BookView extends ScrollView {
 
 	private int storedIndex;
@@ -422,16 +424,7 @@ public class BookView extends ScrollView {
 	private void loadText(List<SearchTextTask.SearchResult> hightListResults) {
 		executeTask(new LoadTextTask(hightListResults));
 	}
-	
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private <A, B, C> void executeTask( AsyncTask<A, B, C> task, A... params ) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-		}
-		else {
-			task.execute(params);
-		}
-	}	
+
 	
 	public void setFontFamily(FontFamily family) {
 		this.childView.setTypeface(family.getDefaultTypeface());

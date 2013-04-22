@@ -1,6 +1,8 @@
 package net.nightwhistler.pageturner;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.view.LayoutInflater;
 
@@ -32,5 +34,15 @@ public class PlatformUtil {
 			return (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 	}
-	
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static <A, B, C> void executeTask( AsyncTask<A, B, C> task, A... params ) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+        }
+        else {
+            task.execute(params);
+        }
+    }
+
 }

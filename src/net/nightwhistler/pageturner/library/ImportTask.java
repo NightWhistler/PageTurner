@@ -39,16 +39,20 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	private int booksImported = 0;
 
     private boolean emptyLibrary;
+    private boolean silent;
 	
 	private String importFailed = null;
 	
 	public ImportTask( Context context, LibraryService libraryService,
-			ImportCallback callBack, Configuration config, boolean copyToLibrary ) {
+			ImportCallback callBack, Configuration config, boolean copyToLibrary,
+            boolean silent) {
+
 		this.context = context;
 		this.libraryService = libraryService;
 		this.callBack = callBack;
 		this.copyToLibrary = copyToLibrary;
 		this.config = config;
+        this.silent = silent;
 	}		
 	
 	@Override
@@ -169,16 +173,18 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 			message = String.format(context.getString(R.string.scan_folders), values[1]);			
 		}
 		
-		callBack.importStatusUpdate(message);		
+		callBack.importStatusUpdate(message, silent);
 	}
 	
 	@Override
 	protected void onPostExecute(Void result) {
-		
+
+        this.callBack.taskCompleted(this, isCancelled());
+
 		if ( importFailed != null ) {
-			callBack.importFailed(importFailed);
+			callBack.importFailed(importFailed, silent);
 		} else if ( ! isCancelled() ) {
-			this.callBack.importComplete(booksImported, errors, emptyLibrary);
-		}		
+			this.callBack.importComplete(booksImported, errors, emptyLibrary, silent);
+		}
 	}
 }

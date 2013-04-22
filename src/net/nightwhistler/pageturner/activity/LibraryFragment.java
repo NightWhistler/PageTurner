@@ -2,11 +2,7 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.widget.SearchView;
@@ -17,13 +13,8 @@ import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.Configuration.LibraryView;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.library.ImportCallback;
-import net.nightwhistler.pageturner.library.ImportTask;
-import net.nightwhistler.pageturner.library.KeyedQueryResult;
-import net.nightwhistler.pageturner.library.KeyedResultAdapter;
-import net.nightwhistler.pageturner.library.LibraryBook;
-import net.nightwhistler.pageturner.library.LibraryService;
-import net.nightwhistler.pageturner.library.QueryResult;
+import net.nightwhistler.pageturner.library.CleanFilesTask;
+import net.nightwhistler.pageturner.library.*;
 import net.nightwhistler.pageturner.view.BookCaseView;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 
@@ -116,13 +107,15 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	private boolean askedUserToImport;
 	private boolean oldKeepScreenOn;
 	
-	private static final Logger LOG = LoggerFactory.getLogger(LibraryActivity.class); 
+	private static final Logger LOG = LoggerFactory.getLogger("LibraryActivity");
 	
 	private IntentCallBack intentCallBack;
 	private List<CoverCallback> callbacks = new ArrayList<CoverCallback>();
 	private Map<String, FastBitmapDrawable> coverCache = new HashMap<String, FastBitmapDrawable>();
 
     private MenuItem searchMenuItem;
+
+    private Queue<QueuedTask<?,?,?>> taskQueue = new LinkedList<QueuedTask<?, ?, ?>>();
 	
 	private interface IntentCallBack {
 		void onResult( int resultCode, Intent data );
@@ -193,6 +186,12 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				android.R.id.text1, getResources().getStringArray(R.array.libraryQueries));
 
 		actionBar.setListNavigationCallbacks(adapter, new MenuSelectionListener() );
+
+
+        refreshView();
+        executeTask(new CleanFilesTask(this, libraryService, config));
+        executeTask(new ImportTask(getActivity(), libraryService, this, config, config.isCopyToLibrayEnabled(),
+                true), new File(config.getLibraryFolder()) );
 	}
 
 	private void clearCoverCache() {
@@ -274,7 +273,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				libraryService.deleteBook( libraryBook.getFileName() );
-				new LoadBooksTask(config.getLastLibraryQuery()).execute();
+				refreshView();
 				dialog.dismiss();			
 			}
 		});			
@@ -302,17 +301,66 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 		
 	private void startImport(File startFolder, boolean copy) {		
-		ImportTask importTask = new ImportTask(getActivity(), libraryService, this, config, copy);
+		ImportTask importTask = new ImportTask(getActivity(), libraryService, this, config, copy, false);
 		importDialog.setOnCancelListener(importTask);
 		importDialog.show();		
 				
 		this.oldKeepScreenOn = listView.getKeepScreenOn();
 		listView.setKeepScreenOn(true);
-		
-		importTask.execute(startFolder);
+
+        executeTask( importTask, startFolder );
 	}
-	
-	@Override
+
+    private <A,B,C> void executeTask( AsyncTask<A,B,C> task, A... parameters ) {
+
+        setSupportProgressBarIndeterminateVisibility(true);
+
+        this.taskQueue.add(new QueuedTask<A, B, C>(task, parameters));
+        LOG.debug( "Scheduled task of type " + task.getClass().getSimpleName()
+                + " total tasks scheduled now: " + this.taskQueue.size() );
+
+        if ( this.taskQueue.size() == 1 ) {
+            this.taskQueue.peek().execute();
+        }
+    }
+
+
+    @Override
+    public void taskCompleted(AsyncTask<?, ?, ?> task, boolean wasCancelled) {
+
+        if ( ! wasCancelled ) {
+            QueuedTask queuedTask = this.taskQueue.remove();
+
+            if ( queuedTask.getTask() != task ) {
+                throw new RuntimeException("Tasks out of sync! Expected "+
+                        queuedTask.getTask() + " but got " + task );
+            }
+
+            LOG.debug( "Completion of task of type " + task.getClass().getSimpleName()
+                    + " total tasks scheduled now: " + this.taskQueue.size() );
+
+            if ( ! this.taskQueue.isEmpty() ) {
+                this.taskQueue.peek().execute();
+            }
+        }
+
+        if ( this.taskQueue.isEmpty() ) {
+            setSupportProgressBarIndeterminateVisibility(false);
+        }
+
+    }
+
+    public void clearTaskQueue() {
+
+        LOG.debug("Clearing task queue.");
+
+        if ( ! this.taskQueue.isEmpty() ) {
+            taskQueue.peek().cancel();
+            this.taskQueue.clear();
+        }
+    }
+
+    @Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if ( this.intentCallBack != null ) {
 			this.intentCallBack.onResult(resultCode, data);
@@ -339,7 +387,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				}
 				
 				switcher.showNext();
-				new LoadBooksTask(config.getLastLibraryQuery()).execute();
+				refreshView();
 				return true;				
             }
         };
@@ -458,7 +506,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
     @Override
     public void performSearch(String query) {
         if ( query != null ) {
-            new LoadBooksTask(config.getLastLibraryQuery(), query.toString() ).execute();
+            executeTask(new LoadBooksTask(config.getLastLibraryQuery(), query.toString()));
         }
     }
 	
@@ -592,35 +640,22 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		if (actionBar.getSelectedNavigationIndex() != lastSelection.ordinal() ) {
 			actionBar.setSelectedNavigationItem(lastSelection.ordinal());
 		} else {
-			new LoadBooksTask(lastSelection).execute();
+            executeTask(new LoadBooksTask(lastSelection));
 		}
 	}
 	
 	@Override
-	public void importCancelled() {
+	public void importComplete(int booksImported, List<String> errors, boolean emptyLibrary, boolean silent) {
 		
 		if ( !isAdded() || getActivity() == null ) {
 			return;
 		}
-		
-		listView.setKeepScreenOn(oldKeepScreenOn);
-		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
-		
-		//Switch to the "recently added" view.
-		if ( actionBar.getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
-			new LoadBooksTask(LibrarySelection.LAST_ADDED).execute();
-		} else {
-			actionBar.setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
-		}
-	}
-	
-	
-	@Override
-	public void importComplete(int booksImported, List<String> errors, boolean emptyLibrary) {
-		
-		if ( !isAdded() || getActivity() == null ) {
-			return;
-		}
+
+        if ( silent ) {
+            //Schedule refresh without clearing the queue
+            executeTask(new LoadBooksTask(config.getLastLibraryQuery()));
+            return;
+        }
 		
 		importDialog.hide();			
 		
@@ -650,7 +685,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			
 			//Switch to the "recently added" view.
 			if (getSherlockActivity().getSupportActionBar().getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
-				new LoadBooksTask(LibrarySelection.LAST_ADDED).execute();
+				loadView(LibrarySelection.LAST_ADDED, "importComplete()");
 			} else {
 				getSherlockActivity().getSupportActionBar().setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
 			}
@@ -672,9 +707,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	
 	@Override
-	public void importFailed(String reason) {
+	public void importFailed(String reason, boolean silent) {
 		
-		if ( !isAdded() || getActivity() == null ) {
+		if (silent || !isAdded() || getActivity() == null ) {
 			return;
 		}
 		
@@ -687,9 +722,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	}
 	
 	@Override
-	public void importStatusUpdate(String update) {
+	public void importStatusUpdate(String update, boolean silent) {
 		
-		if ( !isAdded() || getActivity() == null ) {
+		if (silent || !isAdded() || getActivity() == null ) {
 			return;
 		}
 		
@@ -772,9 +807,32 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			return rowView;
 		}	
 	
-	}	
-	
-	private void loadCover( ImageView imageView, LibraryBook book, int index ) {
+	}
+
+    private void loadView( LibrarySelection selection, String from ) {
+        LOG.debug("Loading view: " + selection + " from " + from);
+        clearTaskQueue();
+        executeTask(new LoadBooksTask(selection));
+    }
+
+    private void refreshView() {
+        LOG.debug("View refresh requested");
+        loadView(config.getLastLibraryQuery(), "refreshView()");
+    }
+
+    @Override
+    public void booksDeleted(int numberOfDeletedBooks) {
+
+        LOG.debug("Got " + numberOfDeletedBooks + " deleted books.");
+
+        if ( numberOfDeletedBooks > 0 ) {
+
+            //Schedule a refresh without clearing the task queue
+            executeTask(new LoadBooksTask(config.getLastLibraryQuery()));
+        }
+    }
+
+    private void loadCover( ImageView imageView, LibraryBook book, int index ) {
 		Drawable draw = coverCache.get(book.getFileName());			
 		
 		if ( draw != null ) {
@@ -1005,11 +1063,14 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		public boolean onNavigationItemSelected(int pos, long arg1) {
 
 			LibrarySelection newSelections = LibrarySelection.values()[pos];
+
+            if ( newSelections != config.getLastLibraryQuery() ) {
+			    config.setLastLibraryQuery(newSelections);
 			
-			config.setLastLibraryQuery(newSelections);
-			
-			bookAdapter.clear();
-			new LoadBooksTask(newSelections).execute();
+			    bookAdapter.clear();
+                loadView(newSelections, "onNavigationItemSelected()");
+            }
+
 			return false;
 		}
 	}	
@@ -1103,7 +1164,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		@Override
 		protected void onPreExecute() {
-            setSupportProgressBarIndeterminateVisibility(true);
 
             if ( this.filter == null )  {
 			    coverCache.clear();
@@ -1150,13 +1210,13 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		protected void onPostExecute(QueryResult<LibraryBook> result) {
 			 loadQueryData(result);
 
-            setSupportProgressBarIndeterminateVisibility(false);
-
             if (filter == null && sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
                 askedUserToImport = true;
                 buildImportQuestionDialog();
                 importQuestion.show();
             }
+
+            taskCompleted(this, isCancelled());
 		}
 		
 	}

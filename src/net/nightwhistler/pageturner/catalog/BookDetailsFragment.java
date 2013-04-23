@@ -155,6 +155,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         } else {
             buyNowButton.setVisibility(View.GONE);
         }
+        */
 
         if (entry.getAuthor() != null) {
             String authorText = String.format(
@@ -164,7 +165,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         } else {
             authorTextView.setText("");
         }
-        */
+
 
         final Link imgLink = Catalog.getImageLink(feed, entry);
 

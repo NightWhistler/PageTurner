@@ -21,10 +21,7 @@ import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.activity.DialogFactory;
-import net.nightwhistler.pageturner.activity.LibraryActivity;
-import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
-import net.nightwhistler.pageturner.activity.ReadingActivity;
+import net.nightwhistler.pageturner.activity.*;
 import net.nightwhistler.pageturner.catalog.DownloadFileTask.DownloadFileCallback;
 import net.nightwhistler.pageturner.library.LibraryService;
 
@@ -258,7 +255,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 
 	public void loadFakeFeed(Entry entry) {
-        //Load fragment or switch to new Activity
+        Intent intent = new Intent( getActivity(), CatalogBookDetailsActivity.class );
+        intent.putExtra("entry", entry);
+
+        getActivity().startActivity(intent);
 	}
 
 	private void loadURL(String url) {

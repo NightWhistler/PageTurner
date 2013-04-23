@@ -18,11 +18,12 @@
  */
 package net.nightwhistler.nucular.atom;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class AtomElement {
+public abstract class AtomElement implements Serializable {
 
 	private String title;
 	private String id;

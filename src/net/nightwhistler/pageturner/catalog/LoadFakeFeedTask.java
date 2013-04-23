@@ -27,6 +27,8 @@ public class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
 	private Context context;	
 	private HttpClient client;
 
+    private Feed fakeFeed;
+
 	@Inject
 	public LoadFakeFeedTask(Context context, HttpClient httpClient) {		
 		this.context = context;
@@ -45,30 +47,35 @@ public class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
 	@Override
 	protected void onPreExecute() {
 		callBack.onLoadingStart();
+
+        this.fakeFeed = new Feed();
+        fakeFeed.addEntry(singleEntry);
+        fakeFeed.setTitle(singleEntry.getTitle());
+        fakeFeed.setDetailFeed(true);
+        fakeFeed.setURL(this.singleEntry.getFeed().getURL());
+
+        callBack.setNewFeed(fakeFeed, null);
 	}
 
 	@Override
 	protected Feed doInBackground(String... params) {
-		Feed fakeFeed = new Feed();
-		fakeFeed.addEntry(singleEntry);
-		fakeFeed.setTitle(singleEntry.getTitle());
-		fakeFeed.setDetailFeed(true);
-        fakeFeed.setURL(this.singleEntry.getFeed().getURL());
 
 		try {
 			Catalog.loadImageLink(client, new HashMap<String, byte[]>(),
 					singleEntry.getImageLink(), params[0]);
+
 		} catch (IOException io) {
 			LOG.error("Could not load image: ", io);
 		}
+
 
 		return fakeFeed;
 	}
 
 	@Override
 	protected void onPostExecute(Feed result) {
+        callBack.notifyLinkUpdated();
         callBack.onLoadingDone();
-		callBack.setNewFeed(result, null);
 	}
 }
 

@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -52,10 +53,13 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     @InjectView(R.id.itemIcon)
     private ImageView icon;
 
+    @InjectView(R.id.buyNowButton)
     private Button buyNowButton;
 
+    @InjectView(R.id.readNowButton)
     private Button downloadButton;
 
+    @InjectView(R.id.addToLibraryButton)
     private Button addToLibraryButton;
 
     private int displayDensity;
@@ -64,13 +68,6 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     private LinkListener linkListener;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        DisplayMetrics metrics = metricsProvider.get();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-        this.displayDensity = metrics.densityDpi;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,20 +76,16 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        DisplayMetrics metrics = metricsProvider.get();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        //FIXME: move to Activity, this has nothing to do with a fragment
-
-        Intent intent = getActivity().getIntent();
-        Uri uri = intent.getData();
-
-        if (uri != null && uri.toString().startsWith("epub://")) {
-            String downloadUrl = uri.toString().replace("epub://", "http://");
-            startDownload(false, downloadUrl);
-        }
+        this.displayDensity = metrics.densityDpi;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         this.downloadDialog = new ProgressDialog(getActivity());
 
         this.downloadDialog.setIndeterminate(false);
@@ -101,8 +94,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     }
 
     public void loadFakeFeed(Entry entry) {
-        String base = entry.getFeed().getURL();
 
+        String base = entry.getFeed().getURL();
 
         LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
         task.setCallBack(this);
@@ -116,7 +109,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         //If we're here, the feed always has just 1 entry
         final Entry entry = feed.getEntries().get(0);
 
-
+        /*
         if ( entry.getEpubLink() != null ) {
 
             String base = feed.getURL();
@@ -143,6 +136,9 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
                 throw new RuntimeException(e);
             }
 
+        } else {
+            downloadButton.setVisibility(View.GONE);
+            addToLibraryButton.setVisibility(View.GONE);
         }
 
         if (entry.getBuyLink() != null) {
@@ -156,6 +152,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
                     startActivity(i);
                 }
             });
+        } else {
+            buyNowButton.setVisibility(View.GONE);
         }
 
         if (entry.getAuthor() != null) {
@@ -166,6 +164,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         } else {
             authorTextView.setText("");
         }
+        */
 
         final Link imgLink = Catalog.getImageLink(feed, entry);
 
@@ -193,6 +192,12 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
+        SherlockFragmentActivity activity = getSherlockActivity();
+        if ( activity != null) {
+            activity.setSupportProgressBarIndeterminateVisibility(enable);
+        }
+    }
 
     public void notifyLinkUpdated() {
         if ( linkListener != null ) {
@@ -203,15 +208,15 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     @Override
     public void onLoadingStart() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        setSupportProgressBarIndeterminateVisibility(true);
     }
 
     @Override
     public void onLoadingDone() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        setSupportProgressBarIndeterminateVisibility(false);
     }
 
-    private void startDownload(final boolean openOnCompletion, final String url) {
+    public void startDownload(final boolean openOnCompletion, final String url) {
 
         DownloadFileTask.DownloadFileCallback callBack = new DownloadFileTask.DownloadFileCallback() {
 

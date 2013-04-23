@@ -19,7 +19,9 @@
 package net.nightwhistler.nucular.atom;
 
 
-public class Link {
+import java.io.Serializable;
+
+public class Link implements Serializable {
 
 	private String href;
 	private String type;

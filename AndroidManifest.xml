@@ -53,6 +53,10 @@
         <activity
             android:name="net.nightwhistler.pageturner.activity.FileBrowseActivity"
             android:label="@string/browse" />
+
+        <activity
+                android:name="net.nightwhistler.pageturner.activity.CatalogBookDetailsActivity"
+                android:label="@string/book_details" />
         
         <activity
             android:name="net.nightwhistler.pageturner.activity.CatalogActivity"

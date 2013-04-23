@@ -133,7 +133,8 @@ public class Catalog {
 				} else {
 					icon.setImageBitmap(bitmap);
 				}
-				
+
+
 				return;
 			} 
 		} catch (OutOfMemoryError mem ) {

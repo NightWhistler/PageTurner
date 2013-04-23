@@ -58,8 +58,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
     private static final String STATE_NAV_ARRAY_KEY = "nav_array";    
 
-	private ProgressDialog downloadDialog;
-
 	private static final Logger LOG = LoggerFactory
 			.getLogger("CatalogFragment");
 
@@ -77,12 +75,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
 	@Inject
 	private Provider<LoadOPDSTask> loadOPDSTaskProvider;
-	
-	@Inject
-	private Provider<LoadFakeFeedTask> loadFakeFeedTaskProvider;
-	
-	@Inject
-	private Provider<DownloadFileTask> downloadFileTaskProvider;
 
     @Inject
     private DialogFactory dialogFactory;
@@ -93,15 +85,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
     @Inject
     private Provider<DisplayMetrics> metricsProvider;
 
-    private int displayDensity;
-	
-	private LinkListener linkListener;
-
     private MenuItem searchMenuItem;
-
-	private static interface LinkListener {
-		void linkUpdated();
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -116,9 +100,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
         DisplayMetrics metrics = metricsProvider.get();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        this.displayDensity = metrics.densityDpi;
+        int displayDensity = metrics.densityDpi;
         this.adapter.setDisplayDensity(displayDensity);
-        LOG.debug("Metrics at init: " + this.displayDensity );
+        LOG.debug("Metrics at init: " + displayDensity );
 
 	}
 	
@@ -162,12 +146,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 				onEntryClicked(entry, position);
 			}
 		});
-
-		this.downloadDialog = new ProgressDialog(getActivity());
-
-		this.downloadDialog.setIndeterminate(false);		
-		this.downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		this.downloadDialog.setCancelable(true);
 	}	
 	
 	private void loadOPDSFeed(String url) {
@@ -189,19 +167,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		Intent intent = getActivity().getIntent();
-		
 		if (!navStack.empty()) {			
 			loadOPDSFeed(navStack.peek());
 		} else {
-			Uri uri = intent.getData();
-
-			if (uri != null && uri.toString().startsWith("epub://")) {
-				String downloadUrl = uri.toString().replace("epub://", "http://");
-				startDownload(false, downloadUrl);
-			} else {
-				loadOPDSFeed(config.getBaseOPDSFeed());
-			}
+			loadOPDSFeed(config.getBaseOPDSFeed());
 		}
 	}
 
@@ -289,20 +258,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 
 	public void loadFakeFeed(Entry entry) {
-
-        String base = entry.getFeed().getURL();
-
-		if (!navStack.isEmpty()) {
-			base = navStack.peek();
-		}
-
-		navStack.push(base);
-		
-		LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
-		task.setCallBack(this);
-		task.setSingleEntry(entry);
-		
-		task.execute(base);
+        //Load fragment or switch to new Activity
 	}
 
 	private void loadURL(String url) {
@@ -424,13 +380,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		return true;
 	}
 
-	@Override
-	public void onStop() {
-		downloadDialog.dismiss();
-
-		super.onStop();
-	}
-
 	// TODO Refactor this. Let the platform push/pop fragments from the fragment stack.
 	public void onBackPressed() {
 		if (navStack.isEmpty()) {
@@ -449,192 +398,32 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		}
 	}
 
-	public void notifyLinkUpdated() {
-		adapter.notifyDataSetChanged();
-		
-		if ( linkListener != null ) {
-			linkListener.linkUpdated();
-			linkListener = null;
-		}		
-	}
-	
-	private void startDownload(final boolean openOnCompletion, final String url) {
-		
-		DownloadFileCallback callBack = new DownloadFileCallback() {
-			
-			@Override
-			public void onDownloadStart() {
-				downloadDialog.setMessage(getString(R.string.downloading));
-				downloadDialog.show();				
-			}
-			
-			@Override
-			public void progressUpdate(long progress, long total, int percentage) {				
-				downloadDialog.setMax( Long.valueOf(total).intValue() );
-				downloadDialog.setProgress(Long.valueOf(progress).intValue());				
-			}
-			
-			@Override
-			public void downloadSuccess(File destFile) {
+    @Override
+    public void notifyLinkUpdated() {
+        adapter.notifyDataSetChanged();
+    }
 
-				downloadDialog.hide();
-				
-				if ( openOnCompletion ) {				
-					Intent intent;
-					
-					intent = new Intent(getActivity().getBaseContext(),
-						ReadingActivity.class);
-					intent.setData(Uri.parse(destFile.getAbsolutePath()));
-				
-					startActivity(intent);
-					getActivity().finish();			
-				} else {
-					Toast.makeText(getActivity(), R.string.download_complete,
-							Toast.LENGTH_LONG).show();
-				}				
-			}
-			
-			@Override
-			public void downloadFailed() {
-				
-				downloadDialog.hide();
-				
-				Toast.makeText(getActivity(), R.string.book_failed,
-						Toast.LENGTH_LONG).show();				
-			}
-		};
-		
-		final DownloadFileTask task = this.downloadFileTaskProvider.get();
-		
-		OnCancelListener cancelListener = new OnCancelListener() {
-			
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				task.cancel(true);				
-			}
-		};
-		
-		downloadDialog.setOnCancelListener(cancelListener);
-		
-		task.setCallBack(callBack);
-		task.execute(url);
-		
-	}
-	
-	private void showItemPopup(final Feed feed) {
-		
-		//If we're here, the feed always has just 1 entry
-		final Entry entry = feed.getEntries().get(0);
-		
-		//Also, we don't want this entry on the nav-stack
-		navStack.pop();
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(feed.getTitle());
-		View layout = getLayoutInflater(null).inflate(R.layout.catalog_download, null);
-		builder.setView( layout );		
-
-		TextView authorTextView = (TextView) layout
-				.findViewById(R.id.itemAuthor);
-
-		builder.setNegativeButton(android.R.string.cancel, null);
-		
-		if ( entry.getEpubLink() != null ) {
-			
-			String base = feed.getURL();
-
-			if (!navStack.isEmpty()) {
-				base = navStack.peek();
-			}
-			
-			try {
-				final URL url = new URL(new URL(base), entry.getEpubLink().getHref());
-				
-				builder.setPositiveButton(R.string.read, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						startDownload(true, url.toExternalForm());						
-					}
-				});
-				
-				builder.setNeutralButton(R.string.add_to_library, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						startDownload(false, url.toExternalForm());						
-					}
-				});				
-				
-			} catch (MalformedURLException e) {
-				throw new RuntimeException(e);
-			}
-			
-		}	
-
-		if (entry.getBuyLink() != null) {
-			builder.setNeutralButton(R.string.buy_now, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					String url = entry.getBuyLink().getHref();
-					Intent i = new Intent(Intent.ACTION_VIEW);
-					i.setData(Uri.parse(url));
-					startActivity(i);
-				}
-			});
-		}
-
-		if (entry.getAuthor() != null) {
-			String authorText = String.format(
-					getString(R.string.book_by), entry.getAuthor()
-							.getName());
-			authorTextView.setText(authorText);
-		} else {
-			authorTextView.setText("");
-		}
-		
-		final Link imgLink = Catalog.getImageLink(feed, entry);
-		
-		Catalog.loadBookDetails(getActivity(), layout, entry, imgLink, false, displayDensity);
-		final ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
-		
-		linkListener = new LinkListener() {
-			
-			@Override
-			public void linkUpdated() {
-				Catalog.loadImageLink(getActivity(), icon, imgLink, false, displayDensity);
-			}
-		};
-		
-		builder.show();
-	}
-
-	@Override
+    @Override
 	public void errorLoadingFeed(String error) {
 		Toast.makeText(getActivity(), getString(R.string.feed_failed) + ": " + error,
 				Toast.LENGTH_LONG).show();		
 	}
-	
-	public void setNewFeed(Feed result, ResultType resultType) {
 
-		if (result != null) {
-			
-			if ( result.isDetailFeed() ) {
-				showItemPopup(result);
-			} else {
+    public void setNewFeed(Feed result, ResultType resultType) {
 
-                if ( resultType == null || resultType == ResultType.REPLACE ) {
-				    adapter.setFeed(result);
-                } else {
-                    adapter.addEntriesFromFeed(result);
-                }
+        if (result != null) {
 
-				getSherlockActivity().supportInvalidateOptionsMenu();
-				getSherlockActivity().getSupportActionBar().setTitle(result.getTitle());
-			}
-		} 
-	}
+            if ( resultType == null || resultType == ResultType.REPLACE ) {
+                adapter.setFeed(result);
+            } else {
+                adapter.addEntriesFromFeed(result);
+            }
+
+            getSherlockActivity().supportInvalidateOptionsMenu();
+            getSherlockActivity().getSupportActionBar().setTitle(result.getTitle());
+        }
+
+    }
 
     private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
         SherlockFragmentActivity activity = getSherlockActivity();

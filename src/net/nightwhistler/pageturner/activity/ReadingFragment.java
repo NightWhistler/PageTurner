@@ -2282,7 +2282,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             return;
         }
 
-        dialogFactory.buildSearchDialog(R.string.search_text, R.string.enter_query, this).show();
+        dialogFactory.showSearchDialog(R.string.search_text, R.string.enter_query, this);
     }
 	
 

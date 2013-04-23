@@ -237,7 +237,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
             this.searchMenuItem.expandActionView();
             this.searchMenuItem.getActionView().requestFocus();
         } else {
-            dialogFactory.buildSearchDialog(R.string.search_books, R.string.enter_query, CatalogFragment.this);
+            dialogFactory.showSearchDialog(R.string.search_books, R.string.enter_query, CatalogFragment.this);
         }
 	}
 
@@ -364,7 +364,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
                 searchMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        dialogFactory.buildSearchDialog(R.string.search_books, R.string.enter_query, CatalogFragment.this);
+                        dialogFactory.showSearchDialog(R.string.search_books, R.string.enter_query, CatalogFragment.this);
                         return false;
                     }
                 });

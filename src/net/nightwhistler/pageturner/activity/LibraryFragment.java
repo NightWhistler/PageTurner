@@ -484,7 +484,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
                 searchMenuItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        dialogFactory.buildSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
+                        dialogFactory.showSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
                         return false;
                     }
                 });
@@ -498,7 +498,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             this.searchMenuItem.expandActionView();
             this.searchMenuItem.getActionView().requestFocus();
         } else {
-            dialogFactory.buildSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
+            dialogFactory.showSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
         }
     }
 

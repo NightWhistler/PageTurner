@@ -41,7 +41,7 @@ public class DialogFactory {
         void performSearch(String query);
     }
 
-    public AlertDialog buildSearchDialog( int titleId, int questionId, final SearchCallBack callBack ) {
+    public void showSearchDialog( int titleId, int questionId, final SearchCallBack callBack ) {
 
         final AlertDialog.Builder searchInputDialogBuilder = new AlertDialog.Builder(context);
 
@@ -93,8 +93,6 @@ public class DialogFactory {
                 return false;
             }
         });
-
-        return searchInputDialogBuilder.create();
     }
 
 	public AlertDialog buildAboutDialog() {

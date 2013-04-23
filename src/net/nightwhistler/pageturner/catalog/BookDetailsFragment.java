@@ -69,7 +69,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         DisplayMetrics metrics = metricsProvider.get();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        int displayDensity = metrics.densityDpi;
+        this.displayDensity = metrics.densityDpi;
     }
 
     @Override

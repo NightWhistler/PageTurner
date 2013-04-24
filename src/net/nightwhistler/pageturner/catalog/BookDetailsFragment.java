@@ -93,23 +93,12 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         this.downloadDialog.setCancelable(true);
     }
 
-    public void loadFakeFeed(Entry entry) {
-
-        String base = entry.getFeed().getURL();
-
-        LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
-        task.setCallBack(this);
-        task.setSingleEntry(entry);
-
-        task.execute(base);
-    }
-
     @Override
     public void setNewFeed(Feed feed, ResultType resultType) {
         //If we're here, the feed always has just 1 entry
         final Entry entry = feed.getEntries().get(0);
 
-        /*
+
         if ( entry.getEpubLink() != null ) {
 
             String base = feed.getURL();
@@ -155,7 +144,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         } else {
             buyNowButton.setVisibility(View.GONE);
         }
-        */
+
 
         if (entry.getAuthor() != null) {
             String authorText = String.format(
@@ -176,8 +165,15 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             @Override
             public void linkUpdated() {
                 Catalog.loadImageLink(getActivity(), icon, imgLink, false, displayDensity);
+                imgLink.setBinData(null); //Clear data, we no longer need it
             }
         };
+
+        LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
+        task.setCallback(this);
+        task.setBaseURL(feed.getURL());
+
+        task.execute(imgLink);
     }
 
     @Override

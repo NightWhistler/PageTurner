@@ -93,10 +93,15 @@ public class CatalogListAdapter extends BaseAdapter {
 		View rowView;
 		final Entry entry = getItem(position);
 
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		final Link imgLink = Catalog.getImageLink(getFeed(), entry);
+        if ( convertView == null ) {
+		    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            rowView = inflater.inflate(R.layout.catalog_item, parent, false);
+        } else {
+            rowView = convertView;
+        }
 
-		rowView = inflater.inflate(R.layout.catalog_item, parent, false);
+        final Link imgLink = Catalog.getImageLink(getFeed(), entry);
+
 		Catalog.loadBookDetails(context, rowView, entry, imgLink, true, this.displayDensity );
 
         ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);

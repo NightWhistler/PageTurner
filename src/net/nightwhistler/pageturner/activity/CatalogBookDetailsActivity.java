@@ -25,6 +25,7 @@ import android.view.KeyEvent;
 import com.actionbarsherlock.view.Window;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 import net.nightwhistler.nucular.atom.Entry;
+import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
@@ -57,11 +58,11 @@ public class CatalogBookDetailsActivity extends RoboSherlockFragmentActivity {
             String downloadUrl = uri.toString().replace("epub://", "http://");
             detailsFragment.startDownload(false, downloadUrl);
         } else {
-            Serializable ser = intent.getSerializableExtra("entry");
-            Entry entry = (Entry) ser;
+            Serializable ser = intent.getSerializableExtra("fakeFeed");
+            Feed fakeFeed = (Feed) ser;
 
-            if ( entry != null ) {
-                detailsFragment.loadFakeFeed(entry);
+            if ( fakeFeed != null ) {
+                detailsFragment.setNewFeed(fakeFeed, null);
             }
         }
 

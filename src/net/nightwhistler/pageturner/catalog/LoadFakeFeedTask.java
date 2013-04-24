@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
+import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.R;
 
 import org.apache.http.client.HttpClient;
@@ -17,65 +18,55 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-public class LoadFakeFeedTask extends AsyncTask<String, Integer, Feed> {
+public class LoadFakeFeedTask extends AsyncTask<Link, Integer, Void> {
 
-	private Entry singleEntry;
-	private LoadFeedCallback callBack;
+    private LoadFeedCallback callback;
 
 	private static final Logger LOG = LoggerFactory.getLogger("LoadFakeFeedTask");
 	
 	private Context context;	
 	private HttpClient client;
 
-    private Feed fakeFeed;
+    private String baseURL;
 
 	@Inject
-	public LoadFakeFeedTask(Context context, HttpClient httpClient) {		
+	public LoadFakeFeedTask(Context context, HttpClient httpClient) {
 		this.context = context;
 		this.client = httpClient;
 	}
-	
-	public void setCallBack(LoadFeedCallback callBack) {
-		this.callBack = callBack;
-	}	
-	
-	public LoadFakeFeedTask setSingleEntry(Entry singleEntry) {
-		this.singleEntry = singleEntry;
-		return this;
-	}
+
+
+    public void setCallback( LoadFeedCallback callback ) {
+        this.callback = callback;
+    }
+
+    public void setBaseURL( String baseURL ) {
+        this.baseURL = baseURL;
+    }
 
 	@Override
 	protected void onPreExecute() {
-		callBack.onLoadingStart();
-
-        this.fakeFeed = new Feed();
-        fakeFeed.addEntry(singleEntry);
-        fakeFeed.setTitle(singleEntry.getTitle());
-        fakeFeed.setDetailFeed(true);
-        fakeFeed.setURL(this.singleEntry.getFeed().getURL());
-
-        callBack.setNewFeed(fakeFeed, null);
+		callback.onLoadingStart();
 	}
 
 	@Override
-	protected Feed doInBackground(String... params) {
+	protected Void doInBackground(Link... params) {
 
 		try {
 			Catalog.loadImageLink(client, new HashMap<String, byte[]>(),
-					singleEntry.getImageLink(), params[0]);
+					params[0], baseURL);
 
 		} catch (IOException io) {
 			LOG.error("Could not load image: ", io);
 		}
 
-
-		return fakeFeed;
+		return null;
 	}
 
 	@Override
-	protected void onPostExecute(Feed result) {
-        callBack.notifyLinkUpdated();
-        callBack.onLoadingDone();
+	protected void onPostExecute(Void result) {
+        callback.notifyLinkUpdated();
+        callback.onLoadingDone();
 	}
 }
 

@@ -255,8 +255,17 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 
 	public void loadFakeFeed(Entry entry) {
+
+        Feed originalFeed = entry.getFeed();
+
+        Feed fakeFeed = new Feed();
+        fakeFeed.addEntry(entry);
+        fakeFeed.setTitle(entry.getTitle());
+        fakeFeed.setDetailFeed(true);
+        fakeFeed.setURL(originalFeed.getURL());
+
         Intent intent = new Intent( getActivity(), CatalogBookDetailsActivity.class );
-        intent.putExtra("entry", entry);
+        intent.putExtra("fakeFeed", fakeFeed);
 
         getActivity().startActivity(intent);
 	}

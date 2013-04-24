@@ -8,9 +8,7 @@ public interface LoadFeedCallback {
     public static enum ResultType { REPLACE, APPEND }
 	
 	void setNewFeed( Feed feed, ResultType resultType );
-	
-	void loadFakeFeed( Entry entry );
-	
+
 	void errorLoadingFeed( String error );
 		
 	void notifyLinkUpdated();

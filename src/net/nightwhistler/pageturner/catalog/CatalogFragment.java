@@ -215,7 +215,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			String href = entry.getAlternateLink().getHref();
 			loadURL(entry, href, true, ResultType.REPLACE);
 		} else if ( entry.getEpubLink() != null ) {
-			loadFakeFeed(entry);
+            ((CatalogActivity) getActivity() ).loadFakeFeed(entry);
 		} else if ( entry.getAtomLink() != null ) {
 			String href = entry.getAtomLink().getHref();
 			loadURL(entry, href, false, ResultType.REPLACE);
@@ -252,22 +252,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		customSites.setId(Catalog.CUSTOM_SITES_ID);
 		
 		setNewFeed(customSites, ResultType.REPLACE);
-	}
-
-	public void loadFakeFeed(Entry entry) {
-
-        Feed originalFeed = entry.getFeed();
-
-        Feed fakeFeed = new Feed();
-        fakeFeed.addEntry(entry);
-        fakeFeed.setTitle(entry.getTitle());
-        fakeFeed.setDetailFeed(true);
-        fakeFeed.setURL(originalFeed.getURL());
-
-        Intent intent = new Intent( getActivity(), CatalogBookDetailsActivity.class );
-        intent.putExtra("fakeFeed", fakeFeed);
-
-        getActivity().startActivity(intent);
 	}
 
 	private void loadURL(String url) {

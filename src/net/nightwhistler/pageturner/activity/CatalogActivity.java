@@ -18,7 +18,10 @@
  */
 package net.nightwhistler.pageturner.activity;
 
+import android.content.Intent;
 import com.actionbarsherlock.view.Window;
+import net.nightwhistler.nucular.atom.Entry;
+import net.nightwhistler.nucular.atom.Feed;
 import roboguice.RoboGuice;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
@@ -50,6 +53,22 @@ public class CatalogActivity extends RoboSherlockFragmentActivity {
         super.onPostCreate(savedInstanceState);
         setSupportProgressBarIndeterminate(true);
         setSupportProgressBarIndeterminateVisibility(true);
+    }
+
+    public void loadFakeFeed(Entry entry) {
+
+        Feed originalFeed = entry.getFeed();
+
+        Feed fakeFeed = new Feed();
+        fakeFeed.addEntry(entry);
+        fakeFeed.setTitle(entry.getTitle());
+        fakeFeed.setDetailFeed(true);
+        fakeFeed.setURL(originalFeed.getURL());
+
+        Intent intent = new Intent( this, CatalogBookDetailsActivity.class );
+        intent.putExtra("fakeFeed", fakeFeed);
+
+        startActivity(intent);
     }
 
     @Override

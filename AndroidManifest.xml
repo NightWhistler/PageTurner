@@ -56,13 +56,8 @@
 
         <activity
                 android:name="net.nightwhistler.pageturner.activity.CatalogBookDetailsActivity"
-                android:label="@string/book_details" />
-        
-        <activity
-            android:name="net.nightwhistler.pageturner.activity.CatalogActivity"
-            android:label="Catalog" >
-         
-         
+                android:label="@string/book_details" >
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -71,7 +66,12 @@
 
                 <data android:scheme="epub" />
             </intent-filter>
+
         </activity>
+        
+        <activity
+            android:name="net.nightwhistler.pageturner.activity.CatalogActivity"
+            android:label="Catalog" />
         
         <activity
             android:name="net.nightwhistler.pageturner.activity.ManageSitesActivity"

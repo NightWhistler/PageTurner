@@ -19,9 +19,12 @@
 package net.nightwhistler.pageturner.activity;
 
 import android.content.Intent;
+import android.support.v4.app.FragmentTransaction;
 import com.actionbarsherlock.view.Window;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
+import net.nightwhistler.pageturner.catalog.BookDetailsFragment;
+import net.nightwhistler.pageturner.catalog.CatalogParent;
 import roboguice.RoboGuice;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
@@ -31,9 +34,15 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
+import roboguice.inject.InjectFragment;
 
-public class CatalogActivity extends RoboSherlockFragmentActivity {
-	private CatalogFragment catalogFragment;
+public class CatalogActivity extends RoboSherlockFragmentActivity implements CatalogParent {
+
+    @InjectFragment(R.id.fragment_catalog)
+    private CatalogFragment catalogFragment;
+
+    @InjectFragment(R.id.fragment_book_details)
+    private BookDetailsFragment detailsFragment;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +54,22 @@ public class CatalogActivity extends RoboSherlockFragmentActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_catalog);
-		catalogFragment = (CatalogFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_catalog);
-	}
+
+        hideDetailsView();
+    }
+
+    private void hideDetailsView() {
+        if ( detailsFragment != null ) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.hide(detailsFragment);
+            ft.commit();
+        }
+    }
+
+    @Override
+    public void onFeedReplaced() {
+        hideDetailsView();
+    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -55,20 +78,28 @@ public class CatalogActivity extends RoboSherlockFragmentActivity {
         setSupportProgressBarIndeterminateVisibility(true);
     }
 
-    public void loadFakeFeed(Entry entry) {
+    @Override
+    public void loadFakeFeed(Feed fakeFeed) {
 
-        Feed originalFeed = entry.getFeed();
+        if ( detailsFragment != null ) {
 
-        Feed fakeFeed = new Feed();
-        fakeFeed.addEntry(entry);
-        fakeFeed.setTitle(entry.getTitle());
-        fakeFeed.setDetailFeed(true);
-        fakeFeed.setURL(originalFeed.getURL());
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+            ft.show(detailsFragment);
+            ft.commit();
 
-        Intent intent = new Intent( this, CatalogBookDetailsActivity.class );
-        intent.putExtra("fakeFeed", fakeFeed);
+            detailsFragment.setNewFeed(fakeFeed, null);
+        } else {
+            Intent intent = new Intent( this, CatalogBookDetailsActivity.class );
+            intent.putExtra("fakeFeed", fakeFeed);
 
-        startActivity(intent);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void loadFeedFromUrl(String url) {
+        catalogFragment.loadURL(url);
     }
 
     @Override

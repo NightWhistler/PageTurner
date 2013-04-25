@@ -53,8 +53,7 @@ public class LoadFakeFeedTask extends AsyncTask<Link, Integer, Void> {
 	protected Void doInBackground(Link... params) {
 
 		try {
-			Catalog.loadImageLink(client, new HashMap<String, byte[]>(),
-					params[0], baseURL);
+			Catalog.loadImageLink(client, null,	params[0], baseURL);
 
 		} catch (IOException io) {
 			LOG.error("Could not load image: ", io);

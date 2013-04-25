@@ -162,13 +162,10 @@ public class Catalog {
 	public static void loadImageLink(HttpClient client, Map<String, byte[]> cache, Link imageLink,
 			String baseUrl) throws IOException {
 
-		//client.getCredentialsProvider().setCredentials(new AuthScope(null, -1),
-				//new UsernamePasswordCredentials(user, password));
-
 		if (imageLink != null) {
 			String href = imageLink.getHref();
 
-			if (cache.containsKey(href)) {
+			if (cache != null && cache.containsKey(href)) {
 				imageLink.setBinData(cache.get(href));
 			} else {
 
@@ -178,9 +175,12 @@ public class Catalog {
 
 				HttpResponse resp = client.execute(new HttpGet(target));
 
+
 				imageLink.setBinData(EntityUtils.toByteArray(resp.getEntity()));
 
-				cache.put(href, imageLink.getBinData());
+                if ( cache != null ) {
+				    cache.put(href, imageLink.getBinData());
+                }
 			}
 		}
 	}	

@@ -150,6 +150,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 	
 	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed, ResultType resultType ) {
+
+        if ( resultType == ResultType.REPLACE ) {
+            ((CatalogParent) getActivity()).onFeedReplaced();
+        }
+
 		LoadOPDSTask task = this.loadOPDSTaskProvider.get();
 		task.setCallBack(this);
 
@@ -215,12 +220,24 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			String href = entry.getAlternateLink().getHref();
 			loadURL(entry, href, true, ResultType.REPLACE);
 		} else if ( entry.getEpubLink() != null ) {
-            ((CatalogActivity) getActivity() ).loadFakeFeed(entry);
+            loadFakeFeek(entry);
 		} else if ( entry.getAtomLink() != null ) {
 			String href = entry.getAtomLink().getHref();
 			loadURL(entry, href, false, ResultType.REPLACE);
 		} 
-	}	
+	}
+
+    private void loadFakeFeek( Entry entry ) {
+        Feed originalFeed = entry.getFeed();
+
+        Feed fakeFeed = new Feed();
+        fakeFeed.addEntry(entry);
+        fakeFeed.setTitle(entry.getTitle());
+        fakeFeed.setDetailFeed(true);
+        fakeFeed.setURL(originalFeed.getURL());
+
+        ((CatalogParent) getActivity()).loadFakeFeed(fakeFeed);
+    }
 	
 	private void loadCustomSiteFeed() {
 		
@@ -254,11 +271,15 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		setNewFeed(customSites, ResultType.REPLACE);
 	}
 
-	private void loadURL(String url) {
+	public void loadURL(String url) {
 		loadURL(null, url, false, ResultType.REPLACE);
 	}
 
 	private void loadURL(Entry entry, String url, boolean asDetailsFeed, ResultType resultType) {
+
+        if ( resultType == ResultType.REPLACE ) {
+            ((CatalogParent) getActivity()).onFeedReplaced();
+        }
 
 		String base = entry.getFeed().getURL();
 

@@ -36,11 +36,14 @@ import android.view.KeyEvent;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 import roboguice.inject.InjectFragment;
 
+import javax.annotation.Nullable;
+
 public class CatalogActivity extends RoboSherlockFragmentActivity implements CatalogParent {
 
     @InjectFragment(R.id.fragment_catalog)
     private CatalogFragment catalogFragment;
 
+    @Nullable
     @InjectFragment(R.id.fragment_book_details)
     private BookDetailsFragment detailsFragment;
 	

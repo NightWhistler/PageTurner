@@ -48,7 +48,15 @@ public class CatalogBookDetailsActivity extends RoboSherlockFragmentActivity {
 
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_catalog_details);
+        if (getResources().getConfiguration().orientation
+                == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+             // If the screen is now in landscape mode, we can show the
+            // dialog in-line with the list so we don't need this activity.
+            finish();
+            return;
+        }
+
+        setContentView(R.layout.activity_catalog_details);
 		detailsFragment = (BookDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_bookdetails);
 
         Intent intent = getIntent();

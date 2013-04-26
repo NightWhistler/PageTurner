@@ -70,8 +70,14 @@ public class CatalogActivity extends RoboSherlockFragmentActivity implements Cat
     }
 
     @Override
-    public void onFeedReplaced() {
-        hideDetailsView();
+    public void onFeedReplaced(Feed feed) {
+
+        if ( detailsFragment != null && feed.getSize() == 1
+                && feed.getEntries().get(0).getEpubLink() != null ) {
+            loadFakeFeed(feed);
+        } else {
+            hideDetailsView();
+        }
     }
 
     @Override

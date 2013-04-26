@@ -19,6 +19,7 @@ public final class AtomConstants {
 	public static final String REL_COVER = "http://opds-spec.org/cover";
 	
 	public static final String REL_ALTERNATE = "alternate";
+    public static final String REL_RELATED = "related";
 	
 
 	public static final String REL_NEXT = "next";

@@ -15,6 +15,6 @@ public interface CatalogParent {
 
     void loadFeedFromUrl( String url );
 
-    void onFeedReplaced();
+    void onFeedReplaced( Feed feed );
 
 }

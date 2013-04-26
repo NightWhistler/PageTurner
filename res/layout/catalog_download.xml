@@ -48,6 +48,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <LinearLayout
+
             android:id="@+id/relatedLinksContainer"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

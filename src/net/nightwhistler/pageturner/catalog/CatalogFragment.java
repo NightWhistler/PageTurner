@@ -151,10 +151,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
 	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed, ResultType resultType ) {
 
-        if ( resultType == ResultType.REPLACE ) {
-            ((CatalogParent) getActivity()).onFeedReplaced();
-        }
-
 		LoadOPDSTask task = this.loadOPDSTaskProvider.get();
 		task.setCallBack(this);
 
@@ -260,7 +256,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			entry.setTitle(site.getName());
 			entry.setSummary(site.getDescription());
 			
-			Link link = new Link(site.getUrl(), AtomConstants.TYPE_ATOM, AtomConstants.REL_BUY);
+			Link link = new Link(site.getUrl(), AtomConstants.TYPE_ATOM, AtomConstants.REL_BUY, null);
 			entry.addLink(link);
 			
 			customSites.addEntry(entry);
@@ -277,11 +273,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 	private void loadURL(Entry entry, String url, boolean asDetailsFeed, ResultType resultType) {
 
-        if ( resultType == ResultType.REPLACE ) {
-            ((CatalogParent) getActivity()).onFeedReplaced();
-        }
-
-		String base = entry.getFeed().getURL();
+        String base = entry.getFeed().getURL();
 
 		if (!navStack.isEmpty()) {
 			base = navStack.peek();
@@ -429,6 +421,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
             if ( resultType == null || resultType == ResultType.REPLACE ) {
                 adapter.setFeed(result);
+                ((CatalogParent) getActivity() ).onFeedReplaced(result);
             } else {
                 adapter.addEntriesFromFeed(result);
             }

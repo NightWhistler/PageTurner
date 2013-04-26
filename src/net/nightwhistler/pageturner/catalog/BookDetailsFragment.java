@@ -62,6 +62,9 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     @InjectView(R.id.addToLibraryButton)
     private Button addToLibraryButton;
 
+    @InjectView(R.id.relatedLinksContainer)
+    ViewGroup altLinkParent;
+
     private int displayDensity;
 
     private ProgressDialog downloadDialog;
@@ -155,6 +158,22 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             authorTextView.setText("");
         }
 
+        for ( final Link altLink: entry.getAlternateLinks() ) {
+            TextView linkTextView = new TextView(getActivity());
+            linkTextView.setTextAppearance( getActivity(), android.R.style.TextAppearance_Medium );
+            linkTextView.setText( altLink.getTitle() );
+            linkTextView.setBackgroundResource(android.R.drawable.list_selector_background );
+
+
+            linkTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                   // ((CatalogParent) getActivity()).loadFeedFromUrl(altLink.getHref());
+                }
+            } );
+
+            altLinkParent.addView(linkTextView);
+        }
 
         final Link imgLink = Catalog.getImageLink(feed, entry);
 

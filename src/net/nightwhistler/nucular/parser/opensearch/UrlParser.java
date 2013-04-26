@@ -19,7 +19,8 @@ public class UrlParser extends ElementParser {
 		Link link = new Link(
 				attributes.get("template"),
 				attributes.get("type"),
-				attributes.get("rel"));
+				attributes.get("rel"),
+                attributes.get("title"));
 		
 		this.element.addLink(link);
 	}

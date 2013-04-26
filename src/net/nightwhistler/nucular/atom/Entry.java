@@ -29,7 +29,9 @@ import static net.nightwhistler.nucular.atom.AtomConstants.REL_THUMBNAIL_ALT;
 import static net.nightwhistler.nucular.atom.AtomConstants.TYPE_ATOM;
 import static net.nightwhistler.nucular.atom.AtomConstants.TYPE_EPUB;
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_STANZA_BUY;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_RELATED;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Entry extends AtomElement {
@@ -92,7 +94,25 @@ public class Entry extends AtomElement {
 		
 		return link;
 	}
-	
+
+    public List<Link> getAlternateLinks() {
+
+        List<Link> result = new ArrayList<Link>();
+
+        for ( Link link: getLinks() ) {
+
+            String rel = link.getRel() != null ? link.getRel() : "";
+            String type = link.getType() != null ? link.getType() : "";
+
+            if ( rel.equals(REL_RELATED) && type.startsWith(TYPE_ATOM ) ) {
+                result.add(link);
+            }
+        }
+
+        return result;
+
+    }
+
 	public Link getThumbnailLink() {		
 		return findByRel(REL_THUMBNAIL, REL_THUMBNAIL_ALT, REL_STANZA_THUMBNAIL_IMAGE);
 	}

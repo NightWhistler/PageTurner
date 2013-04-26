@@ -219,7 +219,7 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 		entry.setId(Catalog.CUSTOM_SITES_ID);
 
         if ( iconLink != null ) {
-            Link thumbnailLink = new Link(iconLink.getHref(), iconLink.getType(), AtomConstants.REL_IMAGE);
+            Link thumbnailLink = new Link(iconLink.getHref(), iconLink.getType(), AtomConstants.REL_IMAGE, null);
             entry.addLink(thumbnailLink);
         }
 

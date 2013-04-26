@@ -71,6 +71,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     private LinkListener linkListener;
 
+    private Feed feed;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -94,13 +96,15 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         this.downloadDialog.setIndeterminate(false);
         this.downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         this.downloadDialog.setCancelable(true);
+
+        if ( this.feed != null ) {
+            doSetFeed(feed);
+        }
     }
 
-    @Override
-    public void setNewFeed(Feed feed, ResultType resultType) {
+    private void doSetFeed(Feed feed) {
         //If we're here, the feed always has just 1 entry
         final Entry entry = feed.getEntries().get(0);
-
 
         if ( entry.getEpubLink() != null ) {
 
@@ -158,17 +162,19 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             authorTextView.setText("");
         }
 
+        altLinkParent.removeAllViews();
+
         for ( final Link altLink: entry.getAlternateLinks() ) {
             TextView linkTextView = new TextView(getActivity());
             linkTextView.setTextAppearance( getActivity(), android.R.style.TextAppearance_Medium );
             linkTextView.setText( altLink.getTitle() );
             linkTextView.setBackgroundResource(android.R.drawable.list_selector_background );
-
+            linkTextView.setTextColor(R.color.abs__bright_foreground_holo_light);
 
             linkTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                   // ((CatalogParent) getActivity()).loadFeedFromUrl(altLink.getHref());
+                    ((CatalogParent) getActivity()).loadFeedFromUrl(altLink.getHref());
                 }
             } );
 
@@ -177,14 +183,16 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
         final Link imgLink = Catalog.getImageLink(feed, entry);
 
-        Catalog.loadBookDetails(getActivity(), mainLayout, entry, imgLink, false, displayDensity);
+        Catalog.loadBookDetails(getActivity(), mainLayout, entry, imgLink, false, altLinkParent.getWidth() / 2);
 
         linkListener = new LinkListener() {
 
             @Override
             public void linkUpdated() {
-                Catalog.loadImageLink(getActivity(), icon, imgLink, false, displayDensity);
-                imgLink.setBinData(null); //Clear data, we no longer need it
+                if ( imgLink != null ) {
+                    Catalog.loadImageLink(getActivity(), icon, imgLink, altLinkParent.getWidth() / 2);
+                    imgLink.setBinData(null); //Clear data, we no longer need it
+                }
             }
         };
 
@@ -193,6 +201,14 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         task.setBaseURL(feed.getURL());
 
         task.execute(imgLink);
+    }
+
+    @Override
+    public void setNewFeed(Feed feed, ResultType resultType) {
+        this.feed = feed;
+        if ( this.downloadButton != null ) {
+            doSetFeed(feed);
+        }
     }
 
     @Override

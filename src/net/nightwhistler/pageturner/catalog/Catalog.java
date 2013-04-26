@@ -76,7 +76,7 @@ public class Catalog {
 	 * @param imageLink
 	 * @param abbreviateText
 	 */
-	public static void loadBookDetails(Context context, View layout, Entry entry, Link imageLink, boolean abbreviateText, int displayDensity ) {
+	public static void loadBookDetails(Context context, View layout, Entry entry, Link imageLink, boolean abbreviateText, int maxWidth ) {
 		
 		HtmlSpanner spanner = new HtmlSpanner();
 		
@@ -85,7 +85,8 @@ public class Catalog {
 				.findViewById(R.id.itemDescription);
 
 		ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
-		loadImageLink(context, icon, imageLink, abbreviateText, displayDensity);
+
+		loadImageLink(context, icon, imageLink, maxWidth);
 				
 		title.setText( entry.getTitle());
 
@@ -111,11 +112,7 @@ public class Catalog {
         return (int) (MAX_THUMBNAIL_WIDTH * density);
     }
 
-	public static void loadImageLink(Context context, ImageView icon, Link imageLink, boolean scaleToThumbnail, int displayDensity ) {
-
-        int maxWidth = getMaxThumbnailWidth(displayDensity);
-
-        LOG.debug("Got screen density: " + displayDensity + " - rescaling icons to " + maxWidth);
+	public static void loadImageLink(Context context, ImageView icon, Link imageLink, int maxWidth ) {
 
 		try {
 
@@ -125,15 +122,17 @@ public class Catalog {
 				Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,
 						data.length);
 
-				if ( scaleToThumbnail && bitmap.getWidth() > maxWidth ) {
+				if ( maxWidth > 0 && bitmap.getWidth() > maxWidth ) {
 					int newHeight = getThumbnailHeight(bitmap.getHeight(), bitmap.getWidth(), maxWidth );
-					icon.setImageBitmap( Bitmap.createScaledBitmap(bitmap,
-							maxWidth, newHeight, true));
-					bitmap.recycle();				
+
+					 icon.setImageBitmap( Bitmap.createScaledBitmap(bitmap,
+						    	maxWidth, newHeight, true));
+
+					 bitmap.recycle();
+
 				} else {
 					icon.setImageBitmap(bitmap);
 				}
-
 
 				return;
 			} 

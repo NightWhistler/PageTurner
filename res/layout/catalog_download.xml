@@ -5,39 +5,58 @@
     
 <LinearLayout 
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:id="@+id/mainLayout">
 
-     <ImageView
-        android:id="@+id/itemIcon"       
-        android:src="@drawable/book" 
-        android:layout_width="250px"
-        android:layout_height="250px"
-        android:layout_gravity="center"
-       />
-
-
-    <View style="@style/Divider"/>
-
-
-
-    <TextView
-        android:id="@+id/itemTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/large_text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-    
-     <TextView
-            android:id="@+id/itemAuthor"
-            android:layout_width="fill_parent"
+    <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/no_author_byline"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:id="@+id/topBlock">
+
+
+        <ImageView
+                android:id="@+id/itemIcon"
+                android:src="@drawable/book"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:layout_alignParentTop="true"
+                android:paddingRight="2dp"
+                android:paddingBottom="2dp"
+                />
+
+        <LinearLayout android:layout_height="wrap_content"
+                      android:layout_width="wrap_content"
+                      android:orientation="vertical"
+                      android:layout_centerInParent="true"
+                      android:layout_toRightOf="@id/itemIcon">
+        <TextView
+                android:id="@+id/itemTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/large_text"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                />
+
+        <TextView
+                android:id="@+id/itemAuthor"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/no_author_byline"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        </LinearLayout>
+
+
+
+
+
+
+    </RelativeLayout>
+
 
     <View style="@style/Divider"/>
-
 
 
     <TextView
@@ -46,6 +65,9 @@
         android:layout_height="wrap_content"
         android:text="@string/small_text"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <View style="@style/Divider"/>
+
 
     <LinearLayout
 

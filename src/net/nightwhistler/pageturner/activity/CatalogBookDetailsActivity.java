@@ -18,6 +18,7 @@
  */
 package net.nightwhistler.pageturner.activity;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,11 +32,12 @@ import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.catalog.BookDetailsFragment;
 import net.nightwhistler.pageturner.catalog.CatalogFragment;
+import net.nightwhistler.pageturner.catalog.CatalogParent;
 import roboguice.RoboGuice;
 
 import java.io.Serializable;
 
-public class CatalogBookDetailsActivity extends RoboSherlockFragmentActivity {
+public class CatalogBookDetailsActivity extends RoboSherlockFragmentActivity implements CatalogParent {
 
     private BookDetailsFragment detailsFragment;
 	
@@ -75,6 +77,21 @@ public class CatalogBookDetailsActivity extends RoboSherlockFragmentActivity {
         }
 
 	}
+
+    @Override
+    public void loadFakeFeed(Feed fakeFeed) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void onFeedReplaced(Feed feed) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void loadFeedFromUrl(String url) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {

@@ -102,7 +102,7 @@ public class CatalogListAdapter extends BaseAdapter {
 
         final Link imgLink = Catalog.getImageLink(getFeed(), entry);
 
-		Catalog.loadBookDetails(context, rowView, entry, imgLink, true, this.displayDensity );
+		Catalog.loadBookDetails(context, rowView, entry, imgLink, true, Catalog.getMaxThumbnailWidth(this.displayDensity) );
 
         ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);
         int maxWidth = Catalog.getMaxThumbnailWidth(displayDensity);

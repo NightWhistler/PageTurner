@@ -72,7 +72,7 @@ public class PageTurnerPrefsActivity extends RoboSherlockPreferenceActivity {
 
         if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
 
-            Preference uiPref = screen.findPreference(Configuration.DIM_SYSTEM_UI);
+            Preference uiPref = screen.findPreference(Configuration.KEY_DIM_SYSTEM_UI);
             PreferenceGroup group = (PreferenceGroup) screen.findPreference("visual_prefs");
 
             group.removePreference(uiPref);

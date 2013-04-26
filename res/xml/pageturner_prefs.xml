@@ -88,8 +88,13 @@
         			
         			<intent android:action="net.nightwhistler.pageturner.activitiy.ManageSitesActivity"/>
         			         
-    			</PreferenceScreen>            	
-			
+    			</PreferenceScreen>
+
+            <CheckBoxPreference
+                android:key="accept_self_signed"
+                android:title="@string/pref_accept_self_signed"
+                android:summary="@string/pref_accept_self_signed_summary"
+                android:defaultValue="false" />
                 
     </PreferenceCategory>
 

@@ -79,11 +79,10 @@ public class PageTurnerWebProgressService implements ProgressService {
 	private SimpleDateFormat dateFormat;
 
 	@Inject
-	public PageTurnerWebProgressService(Context context, Configuration config) {
+	public PageTurnerWebProgressService(Context context, Configuration config, HttpClient client) {
 		this.httpContext = new BasicHttpContext();
 		this.config = config;
-        this.client = new SSLHttpClient(context);
-
+        this.client = client;
 		
 		this.dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		// explicitly set timezone of input if needed
@@ -224,39 +223,4 @@ public class PageTurnerWebProgressService implements ProgressService {
 		
 		return hash;		
 	}
-	
-	public class SSLHttpClient extends DefaultHttpClient {
-
-		final Context context;
-
-		public SSLHttpClient(Context context) {
-			this.context = context;
-		}
-
-		@Override protected ClientConnectionManager createClientConnectionManager() {
-			SchemeRegistry registry = new SchemeRegistry();
-			registry.register(
-					new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-			registry.register(new Scheme("https", newSSlSocketFactory(), 443));
-			return new SingleClientConnManager(getParams(), registry);
-		}
-
-		private SSLSocketFactory newSSlSocketFactory() {
-			try {
-				KeyStore trusted = KeyStore.getInstance("BKS");
-				InputStream in = context.getResources().openRawResource(R.raw.pageturner);
-				try {
-					trusted.load(in, "pageturner".toCharArray());
-				} finally {
-					in.close();
-				}
-				return new SSLSocketFactory(trusted);
-			} catch (Exception e) {
-				throw new AssertionError(e);
-			}
-		}
-	}
-
-	
-	
 }

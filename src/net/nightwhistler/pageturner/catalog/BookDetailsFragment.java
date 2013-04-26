@@ -162,6 +162,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             authorTextView.setText("");
         }
 
+        /*
         altLinkParent.removeAllViews();
 
         for ( final Link altLink: entry.getAlternateLinks() ) {
@@ -180,6 +181,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
             altLinkParent.addView(linkTextView);
         }
+        */
 
         final Link imgLink = Catalog.getImageLink(feed, entry);
 
@@ -221,7 +223,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     @Override
     public void errorLoadingFeed(String error) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        Toast.makeText(getActivity(), error, Toast.LENGTH_LONG ).show();
     }
 
     private void setSupportProgressBarIndeterminateVisibility(boolean enable) {

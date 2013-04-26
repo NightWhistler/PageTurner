@@ -154,9 +154,11 @@ public class Configuration {
 
 	public static final String KEY_OPDS_SITES = "opds_sites";
 
-	public static final String READING_DIRECTION = "reading_direction";
+	public static final String KEY_READING_DIRECTION = "reading_direction";
 
-    public static final String DIM_SYSTEM_UI = "dim_system_ui";
+    public static final String KEY_DIM_SYSTEM_UI = "dim_system_ui";
+
+    public static final String KEY_ACCEPT_SELF_SIGNED = "accept_self_signed";
 
 	public static final String KEY_NOOK_TOP_BUTTONS_DIRECTION = "nook_touch_top_buttons_direction";
 
@@ -252,6 +254,10 @@ public class Configuration {
 				&& !isScrollingEnabled();
 	}
 
+    public boolean isAcceptSelfSignedCertificates() {
+        return settings.getBoolean(KEY_ACCEPT_SELF_SIGNED, false);
+    }
+
 	public int getLastPosition(String fileName) {
 
 		String bookHash = Integer.toHexString(fileName.hashCode());
@@ -288,7 +294,7 @@ public class Configuration {
 	}
 
 	public ReadingDirection getReadingDirection() {
-		String value = settings.getString(READING_DIRECTION,
+		String value = settings.getString(KEY_READING_DIRECTION,
 				ReadingDirection.LEFT_TO_RIGHT.name());
 		return ReadingDirection.valueOf(value.toUpperCase(Locale.US));
 	}
@@ -390,7 +396,7 @@ public class Configuration {
 	}
 
     public boolean isDimSystemUI() {
-        return isFullScreenEnabled() && settings.getBoolean(DIM_SYSTEM_UI, false);
+        return isFullScreenEnabled() && settings.getBoolean(KEY_DIM_SYSTEM_UI, false);
     }
 
 	public boolean isSyncEnabled() {

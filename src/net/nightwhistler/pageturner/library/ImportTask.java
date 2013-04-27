@@ -179,6 +179,8 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 	@Override
 	protected void onPostExecute(Void result) {
 
+        LOG.debug("Import task completed, imported " + booksImported  + " books.");
+
         this.callBack.taskCompleted(this, isCancelled());
 
 		if ( importFailed != null ) {

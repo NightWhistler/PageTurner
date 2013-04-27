@@ -663,8 +663,10 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		}
 
         if ( silent ) {
-            //Schedule refresh without clearing the queue
-            executeTask(new LoadBooksTask(config.getLastLibraryQuery()));
+            if ( booksImported > 0 ) {
+                //Schedule refresh without clearing the queue
+                executeTask(new LoadBooksTask(config.getLastLibraryQuery()));
+            }
             return;
         }
 		

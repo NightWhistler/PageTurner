@@ -205,13 +205,24 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-        showBookDetails(this.bookAdapter.getResultAt(position));
+
+        if ( config.getLongShortPressBehaviour() == Configuration.LongShortPressBehaviour.NORMAL ) {
+            showBookDetails(this.bookAdapter.getResultAt(position));
+        } else {
+            openBook(this.bookAdapter.getResultAt(position));
+        }
 	}	
 	
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view,
 			int position, long id) {
-        openBook(this.bookAdapter.getResultAt(position));
+
+        if ( config.getLongShortPressBehaviour() == Configuration.LongShortPressBehaviour.NORMAL ) {
+            openBook(this.bookAdapter.getResultAt(position));
+        } else {
+            showBookDetails(this.bookAdapter.getResultAt(position));
+        }
+
 		return true;
 	}
 	

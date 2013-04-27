@@ -285,6 +285,14 @@
     <string name="pref_dim_system_ui">Dim System UI</string>
     <string name="pref_dim_system_ui_summary">Dims the System UI buttons when reading in fullscreen mode.</string>
 
+    <string name="pref_long_short">Switch long press / short press</string>
+    <string name="pref_long_short_summary">How to open books in the library</string>
+
+    <string-array name="long_short_labels">
+        <item>Long press to open, short press for details</item>
+        <item>Short press to open, long press for details</item>
+     </string-array>
+
     
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>

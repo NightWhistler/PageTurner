@@ -78,5 +78,10 @@
  	    <item>iw</item>
  	    <item>fa</item> 	    
  	</string-array>
+
+    <string-array name="long_short">
+        <item>normal</item>
+        <item>reversed</item>
+    </string-array>
     
 </resources>

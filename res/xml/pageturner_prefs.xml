@@ -80,7 +80,17 @@
 				android:title="@string/pref_copy_to_library"
 				android:summary="@string/pref_copy_to_library_summary"
 				android:defaultValue="true"
-				/> 			
+				/>
+
+                <ListPreference
+                    android:key="long_short"
+                    android:title="@string/pref_long_short"
+                    android:summary="@string/pref_long_short_summary"
+                    android:defaultValue="normal"
+                    android:entries="@array/long_short_labels"
+                    android:entryValues="@array/long_short"
+                    />
+
 				
                <PreferenceScreen        			
         			android:title="@string/pref_manage_sites"

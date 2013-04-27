@@ -90,6 +90,10 @@ public class Configuration {
 		LEFT_TO_RIGHT, RIGHT_TO_LEFT;
 	}
 
+    public static enum LongShortPressBehaviour {
+        NORMAL, REVERSED
+    }
+
 	public static final String BASE_OPDS_FEED = "http://www.pageturner-reader.org/opds/feeds.xml";
 	public static final String BASE_SYNC_URL = "http://api.pageturner-reader.org/progress/";
 
@@ -159,6 +163,8 @@ public class Configuration {
     public static final String KEY_DIM_SYSTEM_UI = "dim_system_ui";
 
     public static final String KEY_ACCEPT_SELF_SIGNED = "accept_self_signed";
+
+    public static final String KEY_LONG_SHORT = "long_short";
 
 	public static final String KEY_NOOK_TOP_BUTTONS_DIRECTION = "nook_touch_top_buttons_direction";
 
@@ -292,6 +298,12 @@ public class Configuration {
 
 		return offsets.getOffsets();
 	}
+
+    public LongShortPressBehaviour getLongShortPressBehaviour() {
+        String value = settings.getString(KEY_LONG_SHORT,
+                LongShortPressBehaviour.NORMAL.name() );
+        return LongShortPressBehaviour.valueOf( value.toUpperCase(Locale.US) );
+    }
 
 	public ReadingDirection getReadingDirection() {
 		String value = settings.getString(KEY_READING_DIRECTION,

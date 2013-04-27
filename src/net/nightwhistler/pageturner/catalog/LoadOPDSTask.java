@@ -206,7 +206,9 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
 		if (result == null) {
 			callBack.errorLoadingFeed(errorMessage);
-		} 
+		}  else if ( result.getSize() == 0 ) {
+            callBack.errorLoadingFeed( context.getString(R.string.empty_opds_feed) );
+        }
 	}
 
 	private void addCustomSitesEntry(Feed feed) {

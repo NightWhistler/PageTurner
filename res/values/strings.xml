@@ -152,6 +152,8 @@
     <string name="next_page">Next page…</string>
     <string name="prev_page">Previous page…</string>
 
+    <string name="empty_opds_feed">The feed was empty. Please check that you are using the correct URL.</string>
+
 
     <!-- Preferences -->
 

@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -211,6 +212,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     private com.actionbarsherlock.widget.SearchView searchView;
 
     private Map<String, TTSPlaybackItem> ttsItemPrep = new HashMap<String, TTSPlaybackItem>();
+    private List<SearchTextTask.SearchResult> searchResults = new ArrayList<SearchTextTask.SearchResult>();
 
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
@@ -1712,6 +1714,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		MenuItem showToc = menu.findItem(R.id.show_toc);
 		MenuItem tts = menu.findItem( R.id.text_to_speech );
 
+        MenuItem searchResultsItem = menu.findItem(R.id.show_search_results);
+
 		showToc.setEnabled(this.tocDialog != null);
 		tts.setEnabled(ttsAvailable);
 
@@ -1733,6 +1737,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if (!isIntentAvailable(getActivity(), intent)) {
 			menu.findItem(R.id.open_file).setVisible(false);
 		}
+
+        searchResultsItem.setVisible( searchResults != null && searchResults.size() > 0 );
 
 		getActivity().getWindow().addFlags(
 				WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -1841,6 +1847,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		// Handle item selection
 		switch (item.getItemId()) {
 
+        case R.id.show_search_results:
+            showSearchResultDialog(searchResults);
+            return true;
 		case R.id.profile_night:
 			config.setColourProfile(ColourProfile.NIGHT);
 			this.restartActivity();
@@ -2233,6 +2242,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                 if (!isCancelled()) {
                     if (result.size() > 0) {
+                        searchResults = result;
                         showSearchResultDialog(result);
                     } else {
                         Toast.makeText(getActivity(),
@@ -2288,6 +2298,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private void showSearchResultDialog(
 			final List<SearchTextTask.SearchResult> results) {
+
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.search_results);
 

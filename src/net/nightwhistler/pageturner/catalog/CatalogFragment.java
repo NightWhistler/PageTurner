@@ -273,9 +273,13 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 	private void loadURL(Entry entry, String url, boolean asDetailsFeed, ResultType resultType) {
 
-        String base = entry.getFeed().getURL();
+        String base = null;
 
-		if (!navStack.isEmpty()) {
+        if ( entry != null && entry.getFeed() != null ) {
+            base = entry.getFeed().getURL();
+        }
+
+		if (base == null && !navStack.isEmpty()) {
 			base = navStack.peek();
 		}
 

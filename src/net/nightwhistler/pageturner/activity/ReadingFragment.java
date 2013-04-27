@@ -21,10 +21,7 @@ package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -225,6 +222,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private String fileName;
 	private int progressPercentage;
+
+    private String language = "en";
 	
 	private int currentPageNumber = -1;	
 	
@@ -972,6 +971,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return;
 		}
 
+        this.language = this.bookView.getBook().getMetadata().getLanguage();
+        LOG.debug("Got language for book: " + language );
+
 		this.bookTitle = book.getTitle();
 		this.titleBase = this.bookTitle;
 		getActivity().setTitle(titleBase);
@@ -1040,6 +1042,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				}
 			});
 
+            android.view.MenuItem newItem3 = menu
+                    .add(getString(R.string.lookup_wiktionary));
+            newItem3.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(android.view.MenuItem item) {
+                    lookupWiktionary(word.toString());
+                    return true;
+                }
+            });
+
 			android.view.MenuItem newItem2 = menu
 					.add(getString(R.string.google_lookup));
 			newItem2.setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -1072,11 +1084,26 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		startActivityForResult(intent, 5);
 	}
 
+    private String getLanguageCode() {
+        if ( this.language == null || this.language.equals("") || this.language.equalsIgnoreCase("und") ) {
+            return Locale.getDefault().getLanguage();
+        }
+
+        return this.language;
+    }
+
 	@Override
 	public void lookupWikipedia(String text) {
-		openBrowser("http://en.wikipedia.org/wiki/Special:Search?search="
+
+		openBrowser("http://" + getLanguageCode() + ".wikipedia.org/wiki/Special:Search?search="
 				+ URLEncoder.encode(text));
 	}
+
+    public void lookupWiktionary(String text) {
+        openBrowser("http://" + getLanguageCode() + ".wiktionary.org/w/index.php?title=Special%3ASearch&search="
+                + URLEncoder.encode(text));
+
+    }
 
 	@Override
 	public void lookupGoogle(String text) {

@@ -1,16 +1,6 @@
-package net.nightwhistler.pageturner;
-
-import android.*;
-import android.R;
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.view.LayoutInflater;
-
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -26,6 +16,16 @@ import android.view.LayoutInflater;
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
+
+package net.nightwhistler.pageturner;
+
+import android.*;
+import android.R;
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.view.LayoutInflater;
 
 public class PlatformUtil {
 

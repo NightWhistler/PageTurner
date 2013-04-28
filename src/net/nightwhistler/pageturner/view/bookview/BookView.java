@@ -723,7 +723,7 @@ public class BookView extends ScrollView {
 	private void flatten(List<TOCReference> refs, List<TocEntry> entries,
 			int level) {
 
-		if (refs == null || refs.isEmpty()) {
+		if (spine == null || refs == null || refs.isEmpty()) {
 			return;
 		}
 

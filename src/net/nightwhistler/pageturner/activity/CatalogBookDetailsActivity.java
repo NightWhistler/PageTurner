@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Alex Kuiper
+ * Copyright (C) 2013 Alex Kuiper
  * 
  * This file is part of PageTurner
  *

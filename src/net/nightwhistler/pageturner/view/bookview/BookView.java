@@ -1459,11 +1459,16 @@ public class BookView extends ScrollView {
 								Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					}
 				}
-				
+
+                //If the view isn't ready yet, wait a bit.
+                while ( getInnerView().getWidth() == 0 ) {
+                    Thread.sleep(100);
+                }
+
                 strategy.loadText(result);
 
 				return result;
-			} catch (IOException io) {
+			} catch (Exception io) {
 				return new SpannableString("Could not load text: "
 						+ io.getMessage());
 			}

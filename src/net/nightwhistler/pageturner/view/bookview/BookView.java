@@ -1156,7 +1156,7 @@ public class BookView extends ScrollView {
 		
 		List<List<Integer>> pageOffsets = spine.getPageOffsets();
 		
-		if ( index >= pageOffsets.size() ) {
+		if ( pageOffsets == null || index >= pageOffsets.size() ) {
 			return -1;
 		}
 		

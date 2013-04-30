@@ -289,7 +289,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		loadURL(null, url, false, ResultType.REPLACE);
 	}
 
-	private void loadURL(Entry entry, String url, boolean asDetailsFeed, ResultType resultType) {
+    private void loadURL(Entry entry, String url, boolean asDetailsFeed, ResultType resultType) {
 
         String base = null;
 
@@ -433,13 +433,15 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
     @Override
 	public void errorLoadingFeed(String error) {
-		Toast.makeText(getActivity(), getString(R.string.feed_failed) + ": " + error,
-				Toast.LENGTH_LONG).show();		
+		if ( isAdded() ) {
+            Toast.makeText(getActivity(), getString(R.string.feed_failed) + ": " + error,
+				Toast.LENGTH_LONG).show();
+        }
 	}
 
     public void setNewFeed(Feed result, ResultType resultType) {
 
-        if (result != null) {
+        if (result != null && isAdded() ) {
 
             if ( resultType == null || resultType == ResultType.REPLACE ) {
                 adapter.setFeed(result);

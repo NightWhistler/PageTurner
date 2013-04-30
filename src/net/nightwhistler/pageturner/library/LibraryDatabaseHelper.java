@@ -81,7 +81,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		if ( this.database == null || ! this.database.isOpen()) {
 			this.database = getWritableDatabase();
 		}
-		
+
 		return this.database;
 	}
 	
@@ -105,7 +105,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		getDataBase().delete("lib_books", Field.file_name + " = ?", args );		
 	}	
 	
-	public void close() {
+	public synchronized  void close() {
 		if ( this.database != null ) {
 			database.close();
 			this.database = null;
@@ -164,7 +164,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return result;
 	}	
 	
-	public KeyedQueryResult<LibraryBook> findByField( Field fieldName, String fieldValue,
+	public synchronized  KeyedQueryResult<LibraryBook> findByField( Field fieldName, String fieldValue,
 			Field orderField, Order ordering) {
 						
 		String[] args = { fieldValue };
@@ -186,7 +186,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return new KeyedBookResult( cursor, keys );
 	}
 	
-	public QueryResult<LibraryBook> findAllOrderedBy( Field fieldName, Order order ) {
+	public synchronized  QueryResult<LibraryBook> findAllOrderedBy( Field fieldName, Order order ) {
 						
 		Cursor cursor = getDataBase().query("lib_books", fieldsAsString(Field.values()), 
 				fieldName != null ? fieldName.toString() + " is not null" : null,
@@ -217,7 +217,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return keys;
 	}
 	
-	public KeyedQueryResult<LibraryBook> findAllKeyedBy(Field fieldName, Order order ) {
+	public synchronized KeyedQueryResult<LibraryBook> findAllKeyedBy(Field fieldName, Order order ) {
 		
 		List<String> keys = getKeys(fieldName, order);
 						

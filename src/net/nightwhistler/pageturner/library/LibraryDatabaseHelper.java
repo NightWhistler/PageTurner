@@ -222,7 +222,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return new KeyedBookResult( cursor, keys );
 	}
 
-	public QueryResult<LibraryBook> findAllOrderedBy( Field fieldName, Order order, String filter ) {
+	public synchronized QueryResult<LibraryBook> findAllOrderedBy( Field fieldName, Order order, String filter ) {
 
         String whereClause = fieldName != null ? fieldName.toString() + " is not null" : null;
         String[] args = new String[0];

@@ -194,7 +194,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         return newArgs;
     }
 	
-	public KeyedQueryResult<LibraryBook> findByField( Field fieldName, String fieldValue,
+	public synchronized  KeyedQueryResult<LibraryBook> findByField( Field fieldName, String fieldValue,
 			Field orderField, Order ordering, String filter) {
 
         String[] args = { fieldValue };
@@ -261,7 +261,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return keys;
 	}
 	
-	public KeyedQueryResult<LibraryBook> findAllKeyedBy(Field fieldName, Order order, String filter ) {
+	public synchronized KeyedQueryResult<LibraryBook> findAllKeyedBy(Field fieldName, Order order, String filter ) {
 		
 		List<String> keys = getKeys(fieldName, order);
 

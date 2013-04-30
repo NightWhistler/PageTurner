@@ -245,7 +245,9 @@ public class PageTurnerSpine {
 	private static String encode(String input) {
         StringBuilder resultStr = new StringBuilder();
         for (char ch : input.toCharArray()) {
-            if (isUnsafe(ch)) {
+            if ( ch == '\\' ) { //Some books use \ as a separator... invalid, but we'll try to fix it
+                resultStr.append('/');
+            } else if (isUnsafe(ch)) {
                 resultStr.append('%');
                 resultStr.append(toHex(ch / 16));
                 resultStr.append(toHex(ch % 16));

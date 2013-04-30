@@ -897,7 +897,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				coverCache.put(book.getFileName(), drawable);
 			} catch (OutOfMemoryError err) {
 				clearCoverCache();
-			}
+			} catch (IllegalStateException i) {
+                //Do nothing, happens when we're no longer attached.
+            }
 		}
 	}
 	

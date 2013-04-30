@@ -649,9 +649,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	public void onPause() {
 		
 		this.bookAdapter.clear();
-		this.libraryService.close();
 		//We clear the list to free up memory.
-		
+
+        this.clearTaskQueue();
 		this.clearCoverCache();
 		
 		super.onPause();

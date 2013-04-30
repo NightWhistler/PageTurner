@@ -119,9 +119,9 @@
 
 		
 		<dependency>
-			<groupId>org.acra</groupId>
+			<groupId>ch.acra</groupId>
 			<artifactId>acra</artifactId>
-			<version>4.2.3</version>
+			<version>4.4.0</version>
 			<scope>compile</scope>
 		</dependency>
  

@@ -20,11 +20,14 @@
 package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 
+import android.content.res.AssetFileDescriptor;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.hlidskialf.android.hardware.ShakeListener;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -433,6 +436,15 @@ public class ReadingFragment extends RoboSherlockFragment implements
             this.ttsPlaybackItemQueue.updateSpeechCompletedCallbacks(this);
             uiHandler.post( progressBarUpdater );
         }
+
+        new ShakeListener(getActivity()).setOnShakeListener(new ShakeListener.OnShakeListener() {
+            @Override
+            public void onShake() {
+                if ( ! ttsIsRunning() ) {
+                    startTextToSpeech();
+                }
+            }
+        });
 	}
 
 	private void saveConfigState() {
@@ -489,7 +501,20 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
 			subscribeToMediaButtons();
 		}
-		
+
+        try {
+            MediaPlayer beepPlayer = new MediaPlayer();
+            AssetFileDescriptor descriptor = getActivity().getAssets().openFd("beep.mp3");
+            beepPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
+            descriptor.close();
+
+            beepPlayer.prepare();
+
+            beepPlayer.start();
+        } catch (IOException io) {
+             //We'll manage without the beep :)
+        }
+
 		File fos = new File( config.getTTSFolder() );
         fos.mkdir();
 
@@ -545,16 +570,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                     offset += part.length() +1;
 
-/*
-                    //Every 5 parts we sleep to give the engine a chance to start synthesizing
-                    if ( i % 5 == 0 ) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException in) {
-                            //just carry on
-                        }
-                    }
-*/
                 }
             } catch (TTSFailedException e) {
                 //Just stop streaming
@@ -584,7 +599,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     public void run() {
                         stopTextToSpeech();
                         waitDialog.hide();
-                        Toast.makeText(getActivity(), R.string.tts_failed, Toast.LENGTH_SHORT).show();
+                        if ( getActivity() != null ) {
+                            Toast.makeText(getActivity(), R.string.tts_failed, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } );
 

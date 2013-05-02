@@ -478,6 +478,8 @@ public class BookView extends ScrollView {
 
         int x = (int) layout.getPrimaryHorizontal(offset);
 
+        LOG.debug("Coordinates for offset " + offset + " x:" + x + " y:" + y );
+
         int[] result = { x, y };
 
         return  result;
@@ -660,27 +662,6 @@ public class BookView extends ScrollView {
 
 		loadText(result);
 	}
-
-    private int readingPointer;
-
-    public void setReadingPointer( int position ) {
-
-        InnerView view = (InnerView) getInnerView();
-
-        if ( position != readingPointer ) {
-            readingPointer = position;
-
-            if ( position == -1 ) {
-                view.setReadingPosition(null);
-                view.invalidate();
-            } else {
-                view.setReadingPosition( findPositionForOffset(position - this.getPosition()) );
-            }
-
-            //view.invalidate();
-        }
-    }
-
 
 	private void doNavigation(int index) {
 
@@ -1316,7 +1297,6 @@ public class BookView extends ScrollView {
 
 		private BookView bookView;
 
-        private int[] readingPosition;
         private Paint paint = new Paint();
 
 		public InnerView(Context context, AttributeSet attributes) {
@@ -1341,20 +1321,6 @@ public class BookView extends ScrollView {
 			this.bookView = bookView;
 		}
 
-        public void setReadingPosition(int[] pos) {
-            this.readingPosition = pos;
-        }
-
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            super.onDraw(canvas);
-
-            if ( readingPosition != null ) {
-                paint.setStyle(Paint.Style.FILL);
-                canvas.drawRect(0f, readingPosition[1], readingPosition[0], readingPosition[1] + 5, paint );
-            }
-        }
     }
 
 	private static enum BookReadPhase {

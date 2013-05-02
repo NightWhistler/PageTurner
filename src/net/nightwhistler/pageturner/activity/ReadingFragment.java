@@ -671,14 +671,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
                         mediaProgressBar.setProgress(currentDuration);
 
                         bookView.navigateTo(bookView.getIndex(), currentDuration );
-                        bookView.setReadingPointer(currentDuration);
 
                     }
                 }
             }
 			
-            // Running this thread after 100 milliseconds
-            uiHandler.postDelayed(this, 100);
+            // Running this thread after 500 milliseconds
+            uiHandler.postDelayed(this, 500);
 
 		}
 	};
@@ -769,7 +768,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
         this.textToSpeech.stop();
 
         this.ttsItemPrep.clear();
-        this.bookView.setReadingPointer(-1);
 
         saveReadingPosition();
 	}

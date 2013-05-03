@@ -297,6 +297,11 @@
         <item>Short press to open, long press for details</item>
      </string-array>
 
+    <string name="pref_dev_settings">Development settings</string>
+
+    <string name="pref_acra">Send error reports</string>
+    <string name="pref_acra_summary">Allow PageTurner to send anonymous error reports when it crashes.</string>
+
     
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>

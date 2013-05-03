@@ -380,6 +380,16 @@
             android:dependency="scrolling" />           
                 
     </PreferenceCategory>
-    
+
+    <PreferenceCategory
+            android:title="@string/pref_dev_settings">
+
+
+    <CheckBoxPreference android:key="acra.enable"
+                        android:title="@string/pref_acra"
+                        android:summary="@string/pref_acra_summary"
+                        android:defaultValue="true"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

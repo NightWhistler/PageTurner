@@ -261,8 +261,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			Toast.makeText(getActivity(), R.string.no_custom_sites, Toast.LENGTH_LONG).show();
 			return;
 		}
-		
-		navStack.add(Catalog.CUSTOM_SITES_ID);
+
+        pushUrlToNavStack(Catalog.CUSTOM_SITES_ID);
 		
 		Feed customSites = new Feed();
         customSites.setURL(Catalog.CUSTOM_SITES_ID);
@@ -311,14 +311,20 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			LOG.info("Loading " + target);
 
             if ( resultType == ResultType.REPLACE ) {
-			    navStack.push(target);
+			    pushUrlToNavStack(target);
             }
 
 			loadOPDSFeed(entry, target, asDetailsFeed, resultType);
 		} catch (MalformedURLException u) {
 			LOG.error("Malformed URL:", u);
 		}
-	}	
+	}
+
+    private void pushUrlToNavStack(String url) {
+        if ( navStack.isEmpty() || ! url.equals(navStack.peek()) ) {
+            navStack.push(url);
+        }
+    }
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {		

@@ -20,11 +20,14 @@
 package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 
+import android.content.res.AssetFileDescriptor;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.hlidskialf.android.hardware.ShakeListener;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -183,7 +186,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	private AnimatedImageView dummyView;
 	
 	@InjectView(R.id.mediaProgress)
-	private ProgressBar mediaProgressBar;
+	private SeekBar mediaProgressBar;
 
 	@InjectView(R.id.pageNumberView)
 	private TextView pageNumberView;
@@ -193,6 +196,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	@InjectView(R.id.stopButton)
 	private ImageButton stopButton;
+
+    @InjectView(R.id.nextButton)
+    private ImageButton nextButton;
+
+    @InjectView(R.id.prevButton)
+    private ImageButton prevButton;
 	
 	@Inject
 	private TelephonyManager telephonyManager;
@@ -316,6 +325,27 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			}
 		});
 
+        this.mediaProgressBar.setOnSeekBarChangeListener( new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar,
+                                          int progress, boolean fromUser) {
+                if (fromUser) {
+                    seekToPointInPlayback(progress);
+                }
+            }
+        });
+
+
 		this.textToSpeech = new TextToSpeech(getActivity().getApplicationContext(), new TextToSpeech.OnInitListener() {
 			@Override
 			public void onInit(int status) {
@@ -355,20 +385,53 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 
         MediaPlayer mediaPlayer = item.getMediaPlayer();
-		uiHandler.removeCallbacks(progressBarUpdater);
+        uiHandler.removeCallbacks(progressBarUpdater);
 
-		if ( buttonId == R.id.stopButton ) {			
-			stopTextToSpeech(true);
-		} else if ( buttonId == R.id.playPauseButton ) {
-			if ( mediaPlayer.isPlaying() ) {
-				mediaPlayer.pause();
-			} else {
-				mediaPlayer.start();
-				uiHandler.post(progressBarUpdater);
-			}
-		}		
-		
-	}	
+        switch ( buttonId ) {
+            case R.id.stopButton:
+                stopTextToSpeech(true);
+                return;
+            case R.id.nextButton:
+                performSkip(true);
+                uiHandler.post(progressBarUpdater);
+                return;
+            case R.id.prevButton:
+                performSkip(false);
+                uiHandler.post(progressBarUpdater);
+                return;
+
+            case R.id.playPauseButton:
+                if ( mediaPlayer.isPlaying() ) {
+                    mediaPlayer.pause();
+                } else {
+                    mediaPlayer.start();
+                    uiHandler.post(progressBarUpdater);
+                }
+                return;
+        }
+	}
+
+    private void performSkip( boolean toEnd ) {
+
+        if ( ! ttsIsRunning() ) {
+            return;
+        }
+
+        TTSPlaybackItem item = this.ttsPlaybackItemQueue.peek();
+
+        if ( item != null ) {
+            MediaPlayer player = item.getMediaPlayer();
+
+            if ( toEnd ) {
+                player.seekTo( player.getDuration() );
+            } else {
+                player.seekTo(0);
+            }
+
+        }
+
+
+    }
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -433,6 +496,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
             this.ttsPlaybackItemQueue.updateSpeechCompletedCallbacks(this);
             uiHandler.post( progressBarUpdater );
         }
+
+        /*
+        new ShakeListener(getActivity()).setOnShakeListener(new ShakeListener.OnShakeListener() {
+            @Override
+            public void onShake() {
+                if ( ! ttsIsRunning() ) {
+                    startTextToSpeech();
+                }
+            }
+        });
+        */
 	}
 
 	private void saveConfigState() {
@@ -483,6 +557,28 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	    	LOG.debug(calledFrom + ": No active call.");
 	    }
 	}
+
+    private void playBeep( boolean error ) {
+        try {
+            MediaPlayer beepPlayer = new MediaPlayer();
+
+            String file = "beep.mp3";
+
+            if ( error ) {
+                file = "error.mp3";
+            }
+
+            AssetFileDescriptor descriptor = getActivity().getAssets().openFd(file);
+            beepPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
+            descriptor.close();
+
+            beepPlayer.prepare();
+
+            beepPlayer.start();
+        } catch (IOException io) {
+            //We'll manage without the beep :)
+        }
+    }
 	
 	private void startTextToSpeech() {
 
@@ -497,7 +593,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
 			subscribeToMediaButtons();
 		}
-		
+
+        playBeep(false);
+
 		File fos = new File( config.getTTSFolder() );
         fos.mkdir();
 
@@ -582,7 +680,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     public void run() {
                         stopTextToSpeech(true);
                         waitDialog.hide();
-                        Toast.makeText(getActivity(), R.string.tts_failed, Toast.LENGTH_SHORT).show();
+
+                        playBeep(true);
+                        if ( getActivity() != null ) {
+                            Toast.makeText(getActivity(), R.string.tts_failed, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } );
 
@@ -663,10 +765,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                         double percentage = (double) mediaPlayer.getCurrentPosition() / (double) mediaPlayer.getDuration();
 
-                        int currentDuration = item.getOffset() + (int) (percentage * item.getText().length());
+                        mediaProgressBar.setMax(mediaPlayer.getDuration());
+                        mediaProgressBar.setProgress(mediaPlayer.getCurrentPosition());
 
-                        mediaProgressBar.setMax(item.getTotalTextLength());
-                        mediaProgressBar.setProgress(currentDuration);
+                        int currentDuration = item.getOffset() + (int) (percentage * item.getText().length());
 
                         bookView.navigateTo(bookView.getIndex(), currentDuration );
 
@@ -674,8 +776,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 }
             }
 			
-            // Running this thread after 500 milliseconds
-            uiHandler.postDelayed(this, 500);
+            // Running this thread after 100 milliseconds
+            uiHandler.postDelayed(this, 100);
 
 		}
 	};
@@ -1264,36 +1366,39 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		int action = event.getAction();
 		int keyCode = event.getKeyCode();
-		
-		switch (keyCode) {
-		
-		case KeyEvent.KEYCODE_MEDIA_PLAY:
-		case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-		case KeyEvent.KEYCODE_MEDIA_PAUSE:
-			if ( action == KeyEvent.ACTION_DOWN ) {
-				onMediaButtonEvent( R.id.playPauseButton );	
-				playPauseButton.setPressed(true);				
-			} else {
-				playPauseButton.setPressed(false);
-			}
-			
-			playPauseButton.invalidate();
-			return true;			
-			
-		case KeyEvent.KEYCODE_MEDIA_STOP:
-			if ( action == KeyEvent.ACTION_DOWN ) {
-				onMediaButtonEvent(R.id.stopButton);
-				stopButton.setPressed(true);
-			} else {
-				stopButton.setPressed(false);				
-			}
-			
-			stopButton.invalidate();
-			return true;
-		}
+
+        switch (keyCode) {
+
+            case KeyEvent.KEYCODE_MEDIA_PLAY:
+            case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+            case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                return simulateButtonPress(action, R.id.playPauseButton, playPauseButton);
+
+            case KeyEvent.KEYCODE_MEDIA_STOP:
+                return simulateButtonPress(action, R.id.stopButton, stopButton );
+
+            case KeyEvent.KEYCODE_MEDIA_NEXT:
+               return simulateButtonPress(action, R.id.nextButton, nextButton );
+
+            case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                return simulateButtonPress(action, R.id.prevButton, prevButton );
+        }
 		
 		return false;
 	}
+
+    private boolean simulateButtonPress(int action, int idToSend, ImageButton buttonToClick ) {
+        if ( action == KeyEvent.ACTION_DOWN ) {
+            onMediaButtonEvent(idToSend);
+            buttonToClick.setPressed(true);
+        } else {
+            buttonToClick.setPressed(false);
+        }
+
+        buttonToClick.invalidate();
+        return true;
+    }
+
 	
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		

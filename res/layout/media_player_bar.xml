@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/mediaPlayerLayout"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_alignBottom="@id/mainContainer"
+                android:visibility="gone"
+                android:background="@color/translucent_black"
+        >
+
+    <SeekBar android:id="@+id/mediaProgress"
+                 style="?android:attr/progressBarStyleHorizontal"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+            />
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/mediaProgress"
+            android:orientation="horizontal"
+            android:layout_centerHorizontal="true">
+
+
+        <ImageButton
+                android:id="@+id/prevButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/previous"
+                android:background="?selectableItemBackground"
+                android:onClick="onMediaButtonEvent"
+                />
+
+        <ImageButton
+                android:id="@+id/playPauseButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/play_pause"
+                android:background="?selectableItemBackground"
+                android:onClick="onMediaButtonEvent"
+                />
+
+        <ImageButton
+                android:id="@+id/stopButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/playPauseButton"
+                android:src="@drawable/stop"
+                android:background="?selectableItemBackground"
+                android:onClick="onMediaButtonEvent"
+                />
+
+
+        <ImageButton
+                android:id="@+id/nextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/next"
+                android:background="?selectableItemBackground"
+                android:onClick="onMediaButtonEvent"
+                />
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>

@@ -92,46 +92,8 @@
         	android:layout_below="@id/percentageField"        	        	
 			android:background="@color/translucent_black" />   
   </RelativeLayout>
-  
-  	<RelativeLayout 
-        	android:id="@+id/mediaPlayerLayout" 
-        	android:layout_width="fill_parent" 
-        	android:layout_height="wrap_content"
-        	android:orientation="horizontal"        
-        	android:layout_alignBottom="@id/mainContainer"
-        	android:visibility="gone"  
-        	android:background="@color/translucent_black"          
-        	>   
-      
-      <ImageButton
-          android:id="@+id/playPauseButton"
-          android:layout_width="wrap_content" 
-      	  android:layout_height="wrap_content"
-      	  android:layout_alignParentLeft="true"
-      	  android:src="@drawable/play_pause"   
-      	  android:background="?selectableItemBackground"  
-      	  android:onClick="onMediaButtonEvent"
-          />
-      
-      <ImageButton
-          android:id="@+id/stopButton"
-          android:layout_width="wrap_content" 
-      	  android:layout_height="wrap_content"
-      	  android:layout_toRightOf="@id/playPauseButton"
-      	  android:src="@drawable/stop" 
-      	  android:background="?selectableItemBackground" 
-      	  android:onClick="onMediaButtonEvent"    	  
-          />      
-      	
-      <ProgressBar android:id="@+id/mediaProgress"
-        	style="?android:attr/progressBarStyleHorizontal"
-        	android:layout_width="match_parent"        	
-        	android:layout_height="wrap_content"
-        	android:layout_centerVertical="true"
-        	android:layout_toRightOf="@id/stopButton"
-			 />
-            
-  </RelativeLayout>    
+
+  <include layout="@layout/media_player_bar" />
     	
     	
 </RelativeLayout>

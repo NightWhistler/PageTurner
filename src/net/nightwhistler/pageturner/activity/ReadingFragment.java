@@ -837,7 +837,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		String pageString;
 
-		if (pageNumber > 0) {
+		if ( !config.isScrollingEnabled() && pageNumber > 0) {
 			pageString = Integer.toString(pageNumber) + "\n";
 		} else {
 			pageString = "\n";

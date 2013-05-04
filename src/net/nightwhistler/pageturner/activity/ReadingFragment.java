@@ -350,7 +350,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         TTSPlaybackItem item = this.ttsPlaybackItemQueue.peek();
 		
 		if ( item == null ) {
-			stopTextToSpeech();
+			stopTextToSpeech(false);
 			return;
 		}
 
@@ -358,7 +358,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		uiHandler.removeCallbacks(progressBarUpdater);
 
 		if ( buttonId == R.id.stopButton ) {			
-			stopTextToSpeech();
+			stopTextToSpeech(true);
 		} else if ( buttonId == R.id.playPauseButton ) {
 			if ( mediaPlayer.isPlaying() ) {
 				mediaPlayer.pause();
@@ -545,16 +545,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                     offset += part.length() +1;
 
-/*
-                    //Every 5 parts we sleep to give the engine a chance to start synthesizing
-                    if ( i % 5 == 0 ) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException in) {
-                            //just carry on
-                        }
-                    }
-*/
                 }
             } catch (TTSFailedException e) {
                 //Just stop streaming
@@ -582,7 +572,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 uiHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        stopTextToSpeech();
+                        stopTextToSpeech(true);
                         waitDialog.hide();
                         Toast.makeText(getActivity(), R.string.tts_failed, Toast.LENGTH_SHORT).show();
                     }
@@ -645,7 +635,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	    
 			if ( phoneState == TelephonyManager.CALL_STATE_RINGING || 
 					phoneState == TelephonyManager.CALL_STATE_OFFHOOK ) {
-				stopTextToSpeech();
+				stopTextToSpeech(false);
 				return;
 			}
 
@@ -756,12 +746,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	}
 	
-	private void stopTextToSpeech() {
+	private void stopTextToSpeech(boolean unsubscribeMediaButtons) {
 
         this.ttsPlaybackItemQueue.deactivate();
 
 		this.mediaLayout.setVisibility(View.GONE);
-		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
+		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO && unsubscribeMediaButtons ) {
 			unsubscribeFromMediaButtons();
 		}
 

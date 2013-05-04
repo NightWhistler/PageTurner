@@ -549,7 +549,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		boolean bookCaseActive = switcher.getDisplayedChild() != 0;
+		boolean bookCaseActive = config.getLibraryView() == LibraryView.BOOKCASE;
 		
 		menu.findItem(R.id.shelves_view).setVisible(! bookCaseActive);
 		menu.findItem(R.id.list_view).setVisible(bookCaseActive);

@@ -582,11 +582,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	private void startTextToSpeech() {
 
-        // Request audio focus for playback
-        int result = audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN);
-
-        if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+        if ( audioManager.isMusicActive() ) {
             return;
         }
 
@@ -1366,6 +1362,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		int action = event.getAction();
 		int keyCode = event.getKeyCode();
+
+        if ( audioManager.isMusicActive() && ! ttsIsRunning() ) {
+            return false;
+        }
 
         switch (keyCode) {
 

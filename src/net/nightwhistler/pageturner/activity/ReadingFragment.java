@@ -196,7 +196,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	@Inject
 	private TelephonyManager telephonyManager;
-	
+
 	@Inject
 	private PowerManager powerManager;
 	
@@ -485,8 +485,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 	
 	private void startTextToSpeech() {
-		
-		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
+
+        // Request audio focus for playback
+        int result = audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN);
+
+        if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            return;
+        }
+
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
 			subscribeToMediaButtons();
 		}
 		

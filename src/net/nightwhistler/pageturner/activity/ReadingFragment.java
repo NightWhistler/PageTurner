@@ -2195,11 +2195,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private void sendProgressUpdateToServer(final int index, final int position) {
 
+        libraryService.updateReadingProgress(fileName, progressPercentage);
+
 		backgroundHandler.post(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					libraryService.updateReadingProgress(fileName, progressPercentage);
 					progressService.storeProgress(fileName,
 							index, position,
 							progressPercentage);

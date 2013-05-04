@@ -141,19 +141,22 @@ public class Catalog {
 				Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,
 						data.length);
 
-				if ( maxWidth > 0 && bitmap.getWidth() > maxWidth ) {
-					int newHeight = getThumbnailHeight(bitmap.getHeight(), bitmap.getWidth(), maxWidth );
+                if ( bitmap != null ) {
 
-					 icon.setImageBitmap( Bitmap.createScaledBitmap(bitmap,
-						    	maxWidth, newHeight, true));
+                    if ( maxWidth > 0 && bitmap.getWidth() > maxWidth ) {
+                        int newHeight = getThumbnailHeight(bitmap.getHeight(), bitmap.getWidth(), maxWidth );
 
-					 bitmap.recycle();
+                        icon.setImageBitmap( Bitmap.createScaledBitmap(bitmap,
+                                maxWidth, newHeight, true));
 
-				} else {
-					icon.setImageBitmap(bitmap);
-				}
+                        bitmap.recycle();
 
-				return;
+                    } else {
+                        icon.setImageBitmap(bitmap);
+                    }
+
+                    return;
+                }
 			} 
 		} catch (OutOfMemoryError mem ) {
 

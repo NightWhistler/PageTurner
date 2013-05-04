@@ -179,10 +179,22 @@ public class Configuration {
 	// expand to other devices like the Sony PRS-T1
 	public static final Boolean IS_EINK_DEVICE = IS_NOOK_TOUCH;
 
+
+    private String defaultSerifFont;
+    private String defaultSansFont;
+
 	@Inject
 	public Configuration(Context context) {
 		this.settings = PreferenceManager.getDefaultSharedPreferences(context);
 		this.context = context;
+
+        if ( IS_NOOK_TOUCH ) {
+            defaultSerifFont = "serif";
+            defaultSansFont = "sans";
+        } else {
+            defaultSerifFont = "gen_book_bas";
+            defaultSansFont = "sans";
+        }
 
 		// On Nook Touch, preset some different defaults on first load
 		// (these values work better w/ e-ink)
@@ -190,6 +202,7 @@ public class Configuration {
 			SharedPreferences.Editor editor = this.settings.edit();
 			editor.putString(KEY_FONT_FACE, "sans");
 			editor.putString(KEY_SERIF_FONT, "serif");
+
 			editor.putInt(KEY_TEXT_SIZE, 32);
 			editor.putString(KEY_SCROLL_STYLE, "timer"); // enum is ScrollStyle.PAGE_TIMER
 			final String no_animation = AnimationStyle.NONE.name().toLowerCase(Locale.US);
@@ -577,15 +590,15 @@ public class Configuration {
 	}
 
 	public FontFamily getSerifFontFamily() {
-		return getFontFamily(KEY_SERIF_FONT, "gen_book_bas");
+		return getFontFamily(KEY_SERIF_FONT, defaultSerifFont );
 	}
 
 	public FontFamily getSansSerifFontFamily() {
-		return getFontFamily(KEY_SANS_SERIF_FONT, "sans");
+		return getFontFamily(KEY_SANS_SERIF_FONT, defaultSansFont );
 	}
 
 	public FontFamily getDefaultFontFamily() {
-		return getFontFamily(KEY_FONT_FACE, "gen_book_bas");
+		return getFontFamily(KEY_FONT_FACE, defaultSerifFont );
 	}
 
 	public int getBrightNess() {

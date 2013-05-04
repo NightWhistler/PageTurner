@@ -92,7 +92,7 @@ public class TextLoader {
 
     }
 
-    public Spannable getText( Resource resource, HtmlSpanner spanner ) throws IOException {
+    public Spannable getText( Resource resource, HtmlSpanner spanner, boolean allowCaching ) throws IOException {
 
         if ( renderedText.containsKey(resource.getHref()) ) {
             LOG.debug("Returning cached text for href " + resource.getHref() );
@@ -101,7 +101,10 @@ public class TextLoader {
 
         Spannable result = spanner.fromHtml(resource.getReader());
 
-        renderedText.put(resource.getHref(), result);
+        if ( allowCaching ) {
+            renderedText.put(resource.getHref(), result);
+        }
+
         return result;
     }
 

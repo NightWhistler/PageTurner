@@ -1262,34 +1262,29 @@ public class BookView extends ScrollView {
 		}
 	}
 
-	private List<Integer> getOffsetsForResource(int spineIndex )
-			throws IOException {
-		
-		HtmlSpanner mySpanner = new HtmlSpanner();
-		final ResourceLoader privateLoader = new ResourceLoader(fileName);
-		
-		ImageTagHandler tagHandler = new ImageTagHandler(true) {
-			protected void registerCallback(String resolvedHref, ImageCallback callback) {
-				privateLoader.registerCallback(resolvedHref, callback);
-			}
-		};
-		
-		mySpanner.registerHandler("table", tableHandler );
-		mySpanner.registerHandler("img", tagHandler);
-		mySpanner.registerHandler("image", tagHandler);
-		
-		CharSequence text;
-		
-		if ( spineIndex == getIndex() ) {
-			text = strategy.getText();
-		} else {
-			Resource res = spine.getResourceForIndex(spineIndex);
-			text = mySpanner.fromHtml(res.getReader());
-			privateLoader.load();
-		}
-		
-		return new FixedPagesStrategy(this, configuration, new StaticLayoutFactory()).getPageOffsets(text, true);
-	}
+    private List<Integer> getOffsetsForResource(int spineIndex )
+            throws IOException {
+
+        HtmlSpanner mySpanner = new HtmlSpanner();
+        final ResourceLoader privateLoader = new ResourceLoader(fileName);
+
+        ImageTagHandler tagHandler = new ImageTagHandler(true) {
+            protected void registerCallback(String resolvedHref, ImageCallback callback) {
+                privateLoader.registerCallback(resolvedHref, callback);
+            }
+        };
+
+        mySpanner.registerHandler("table", tableHandler );
+        mySpanner.registerHandler("img", tagHandler);
+        mySpanner.registerHandler("image", tagHandler);
+
+        Resource res = spine.getResourceForIndex(spineIndex);
+        CharSequence text = textLoader.getText(res, spanner, false);
+
+        privateLoader.load();
+
+        return new FixedPagesStrategy(this, configuration, new StaticLayoutFactory()).getPageOffsets(text, true);
+    }
 	
 	
 
@@ -1414,7 +1409,7 @@ public class BookView extends ScrollView {
 			publishProgress(BookReadPhase.PARSE_TEXT);
 
 			try {
-				Spannable result = textLoader.getText(resource, spanner);
+				Spannable result = textLoader.getText(resource, spanner, true);
 				loader.load(); // Load all image resources.
 
 				// Highlight search results (if any)

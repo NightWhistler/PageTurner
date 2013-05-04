@@ -93,7 +93,7 @@
 			android:background="@color/translucent_black" />   
   </RelativeLayout>
 
-  <include layout="@layout/mediaPlayerBar" />
+  <include layout="@layout/media_player_bar" />
     	
     	
 </RelativeLayout>

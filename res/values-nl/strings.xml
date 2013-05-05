@@ -124,7 +124,47 @@
     <string name="end_of_section">Einde van het hoofdstuk.\nKlik hier om verder te gaan.</string>
     <string name="download_complete">Download gereed.\nHet boek is toegevoegd aan je boeken.</string>
 
-	 <!-- Preferences -->    
+    <string name="custom_site">Mijn OPDS sites</string>
+    <string name="add_site">Eigen site toevoegen</string>
+    <string name="edit_site">Site bewerken</string>
+    <string name="add_site_header">Wat voor site wil je toevoegen?</string>
+    <string name="calibre_server">Calibre content server</string>
+    <string name="cops_server">COPS server</string>
+    <string name="c2opds_server">Calibre2OPDS</string>
+    <string name="generic_server">Generic OPDS site</string>
+    <string name="save">Wijzigingen opslaan</string>
+
+    <string name="custom_site_desc">Je eigen OPDS / Calibre sites. Je kan nieuwe sites toevoegen vanuit het voorkeuren scherm.</string>
+    <string name="site_name">Site naam</string>
+    <string name="site_url">Site URL</string>
+    <string name="site_desc">Omschrijving</string>
+    <string name="site_username">Gebruikersnaam</string>
+    <string name="site_password">Wachtwoord</string>
+
+    <string name="msg_name_blank">Vul a.u.b. een naam in.</string>
+    <string name="msg_url_blank">Vul a.u.b. een URL in.</string>
+
+    <string name="edit">Bewerken</string>
+
+    <string name="no_custom_sites">Je hebt nog geen sites toegevoegd. Voeg eerst één of meer sites toe vanuit het voorkeuren scherm.</string>
+    <string name="text_to_speech">Voorlezen (TTS)</string>
+
+    <string name="init_tts">TTS wordt gestart…\nEven geduld a.u.b.</string>
+    <string name="tts_failed">TTS kon niet worden gestart.</string>
+
+    <string name="search_library">Bibliotheek doorzoeken</string>
+    <string name="no_sync_points">Je hebt nog geen opgeslagen cloud-sync punten.\nSync punten worden opgeslagen bij het verlaten van PageTurner.</string>
+    <string name="no_new_books_found">De scan heeft geen nieuwe boeken gevonden.</string>
+
+    <string name="next_page">Volgende pagina…</string>
+    <string name="prev_page">Vorige pagina…</string>
+
+    <string name="empty_opds_feed">De feed was lees. Controleer a.u.b. of de URL correct is.</string>
+    <string name="search_results_item">Zoekresultaten…</string>
+    <string name="lookup_wiktionary">Zoeken op Wiktionary</string>
+
+
+    <!-- Preferences -->
         
     <string name="pref_sync_settings">Synchronisatie instellingen</string>
     <string name="pref_email">E-mail adres</string>
@@ -220,6 +260,66 @@
    
     <string name="pref_show_pagenum">Toon paginanummers</string>
     <string name="pref_show_pagenum_summary">Laat paginanummers zien tijdens het lezen. Het kan een paar seconden duren voordat pagina-nummers getoond worden.</string>
-    
-    
+
+    <string name="pref_nook_touch">Nook Touch voorkeuren</string>
+    <string name="pref_nook_touch_button_nav">Navigation knoppen</string>
+    <string name="pref_nook_touch_button_nav_summary">Hoe moeten de navigatie knoppen aan de zijkant van de Nook gebruikt worden?</string>
+
+    <string name="pref_reading_direction">Lees richting</string>
+    <string name="pref_reading_direction_summary">Lees van links naar rechts of rechts naar links (Hebreeuws en Arabisch)</string>
+
+    <string-array name="reading_directionsLabels">
+        <item>Links naar rechts</item>
+        <item>Rechts naar links</item>
+    </string-array>
+
+    <string name="pref_manage_sites">Beheer OPDS / Calibre Catalog sites</string>
+    <string name="pref_manage_sites_summary">Beheer je eigen OPDS sites of Calibre servers.</string>
+
+    <string name="pref_serif_font">Serif lettertype</string>
+    <string name="pref_serif_summary">Het lettertype dat gebruikt wordt als een boek een Serif font vraagt.</string>
+
+    <string name="pref_sans_serif_font">Sans-Serif lettertype</string>
+    <string name="pref_sans_serif_summary">Het lettertype dat gebruikt wordt als een boek een Sans-Serif font vraagt.</string>
+
+    <string name="pref_lang">UI Taal</string>
+    <string name="pref_lang_summary">Schakel PageTurner naar een andere taal.</string>
+    <string name="language_switch_message">De nieuwe taal instelling wordt actief bij het openen van een nieuw boek.</string>
+
+    <string name="pref_accept_self_signed">Accepteer alle certificaten</string>
+    <string name="pref_accept_self_signed_summary">Staat toe dat PageTurner verbinding maakt met sites die een niet-vertrouwd certificaat gebruiken.</string>
+
+    <string-array name="supported_languagesLabels">
+        <item>Gebruik apparaat instelling</item>
+        <item>Engels</item>
+        <item>Nederlands</item>
+        <item>Duits</item>
+        <item>Spaans</item>
+        <item>Italiaans</item>
+        <item>Arabisch</item>
+        <item>Hebreeuws</item>
+        <item>Farsi</item>
+    </string-array>
+
+
+    <string name="pref_dim_system_ui">Dim systeem knoppen</string>
+    <string name="pref_dim_system_ui_summary">Dimt de systeem toetsen in volledig scherm modus.</string>
+
+    <string name="pref_long_short">Verwissel lange klik / korte klik</string>
+    <string name="pref_long_short_summary">Bepaalt hoe boeken geopend worden in de bibliotheek.</string>
+
+    <string-array name="long_short_labels">
+        <item>Vasthouden opent direct, kort klikken voor details</item>
+        <item>Kort klikken opent direct, vasthouden voor details</item>
+    </string-array>
+
+    <string name="pref_dev_settings">Ontwikkel instellingen</string>
+
+    <string name="pref_acra">Verstuur fout rapportages</string>
+    <string name="pref_acra_summary">Staat PageTurner toe om anonieme rapporten te versturen bij crashes.</string>
+
+    <string name="opds_settings">OPDS instellingen</string>
+
+
+
 </resources>

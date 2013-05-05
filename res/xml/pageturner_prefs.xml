@@ -91,6 +91,9 @@
                     android:entryValues="@array/long_short"
                     />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/opds_settings">
 				
                <PreferenceScreen        			
         			android:title="@string/pref_manage_sites"
@@ -151,7 +154,7 @@
     
    	<CheckBoxPreference 
    	    	android:title="@string/pref_keep_screen_on"
-   	    	android:summary="@string/pref_keep_screen_on"
+   	    	android:summary="@string/pref_keep_screen_on_summary"
    	    	android:key="keep_screen_on"
    	    	android:defaultValue="false"
    	    	/>

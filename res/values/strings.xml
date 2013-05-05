@@ -245,7 +245,8 @@
     <string name="pref_nav_tap_v_summary">Tap the top/bottom edge of the screen to change pages.</string>
     <string name="pref_show_pagenum">Show page numbers</string>
     <string name="pref_show_pagenum_summary">Shows page numbers while reading. It may take a few seconds for page numbers to be displayed the first time.</string>
-   <string name="pref_nook_touch">Nook Touch Preferences</string>
+
+    <string name="pref_nook_touch">Nook Touch Preferences</string>
    <string name="pref_nook_touch_button_nav">Button Navigation</string>
    <string name="pref_nook_touch_button_nav_summary">How should the buttons on the side of the Nook turn the page?</string>
     
@@ -301,6 +302,8 @@
 
     <string name="pref_acra">Send error reports</string>
     <string name="pref_acra_summary">Allow PageTurner to send anonymous error reports when it crashes.</string>
+
+    <string name="opds_settings">OPDS settings</string>
 
     
     <!-- Translation is not needed for the strings below -->

@@ -22,10 +22,7 @@ import static net.nightwhistler.pageturner.catalog.Catalog.getImageLink;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import android.app.Activity;
 import com.actionbarsherlock.app.SherlockActivity;
@@ -112,6 +109,7 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 
             HttpGet get = new HttpGet(baseUrl);
             get.setHeader("User-Agent", config.getUserAgent() );
+            get.setHeader("Accept-Language", config.getLocale().getLanguage());
 			HttpResponse response = httpClient.execute(get);
 			
 			if ( response.getStatusLine().getStatusCode() != 200 ) {

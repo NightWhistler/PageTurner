@@ -97,8 +97,6 @@
     <string name="read">Read now</string>
     <string name="download">Download books</string>
     <string name="downloading">Downloading book…</string>
-    <string name="feed_failed">Could not contact the site. Please try again.</string>
-    <string name="book_failed">Could not download the book. Please try again.</string>
     <string name="browse">Browse…</string>
     <string name="search_books">Search for books</string>
     <string name="enter_query">Please enter a search-term</string>
@@ -115,8 +113,11 @@
     <string name="loading_text">Loading text…</string>
     <string name="end_of_section">End of chapter.\nClick here to continue.</string>
     <string name="download_complete">Download complete.\nThe book has been added to your library</string>
-    
-    
+
+
+    <string name="feed_failed">Could not contact the site. Please try again.</string>
+    <string name="book_failed">Could not download the book. Please try again.</string>
+
     <string name="custom_site">My custom OPDS sites</string>
     <string name="add_site">Add custom site</string>
     <string name="edit_site">Edit custom site</string>
@@ -319,9 +320,8 @@
     <string name="default_last_read" translatable="false">Last read: never</string>
     <string name="default_filename" translatable="false">book.epub</string>
     <string name="default_book_title" translatable="false">Title of the book</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
-    
+    <string name="hello_world" translatable="false">Hello world!</string>
+
     
 
 </resources>

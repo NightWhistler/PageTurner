@@ -124,6 +124,9 @@
     <string name="end_of_section">Einde van het hoofdstuk.\nKlik hier om verder te gaan.</string>
     <string name="download_complete">Download gereed.\nHet boek is toegevoegd aan je boeken.</string>
 
+    <string name="feed_failed">Kon geen verbinding maken met de site. Probeer het a.u.b. opnieuw.</string>
+    <string name="book_failed">Kon het boek niet downloaden. Probeer het a.u.b. opnieuw.</string>
+
     <string name="custom_site">Mijn OPDS sites</string>
     <string name="add_site">Eigen site toevoegen</string>
     <string name="edit_site">Site bewerken</string>

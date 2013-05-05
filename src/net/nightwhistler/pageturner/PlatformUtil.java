@@ -19,8 +19,6 @@
 
 package net.nightwhistler.pageturner;
 
-import android.*;
-import android.R;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.AsyncTask;

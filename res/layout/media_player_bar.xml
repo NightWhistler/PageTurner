@@ -46,7 +46,6 @@
                 android:id="@+id/stopButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/playPauseButton"
                 android:src="@drawable/stop"
                 android:background="?selectableItemBackground"
                 android:onClick="onMediaButtonEvent"

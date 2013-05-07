@@ -22,6 +22,7 @@ package net.nightwhistler.pageturner.view.bookview;
 import android.text.Spannable;
 import android.text.Spanned;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.MediaType;
 import nl.siegmann.epublib.domain.Resource;
@@ -45,6 +46,8 @@ public class TextLoader {
     private String currentFile;
     private Book currentBook;
     private Map<String, Spannable> renderedText = new HashMap<String, Spannable>();
+
+    private Map<String, FastBitmapDrawable> imageCache = new HashMap<String, FastBitmapDrawable>();
 
     private static final Logger LOG = LoggerFactory.getLogger("TextLoader");
 
@@ -92,6 +95,18 @@ public class TextLoader {
 
     }
 
+    public FastBitmapDrawable getCachedImage( String href ) {
+        return imageCache.get( href );
+    }
+
+    public boolean hasCachedImage( String href ) {
+        return imageCache.containsKey(href);
+    }
+
+    public void storeImageInChache( String href, FastBitmapDrawable drawable ) {
+        this.imageCache.put(href, drawable);
+    }
+
     public Spannable getText( Resource resource, HtmlSpanner spanner, boolean allowCaching ) throws IOException {
 
         if ( renderedText.containsKey(resource.getHref()) ) {
@@ -108,7 +123,8 @@ public class TextLoader {
         return result;
     }
 
-    private void closeCurrentBook() {
+
+    public void closeCurrentBook() {
 
         if ( currentBook != null ) {
             for ( Resource res: currentBook.getResources().getAll() ) {
@@ -119,6 +135,16 @@ public class TextLoader {
         currentBook = null;
         currentFile = null;
         renderedText.clear();
+        clearImageCache();
     }
+
+    public void clearImageCache() {
+        for (Map.Entry<String, FastBitmapDrawable> draw : imageCache.entrySet()) {
+            draw.getValue().destroy();
+        }
+
+        imageCache.clear();
+    }
+
 
 }

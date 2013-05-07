@@ -125,8 +125,6 @@ public class BookView extends ScrollView {
 
 	private static final Logger LOG = LoggerFactory.getLogger("BookView");
 
-	private Map<String, FastBitmapDrawable> imageCache = new HashMap<String, FastBitmapDrawable>();
-
     @Inject
     private TextLoader textLoader;
 
@@ -201,13 +199,6 @@ public class BookView extends ScrollView {
 		this.configuration = configuration;
 	}
 
-	private void clearImageCache() {
-		for (Map.Entry<String, FastBitmapDrawable> draw : imageCache.entrySet()) {
-			draw.getValue().destroy();
-		}
-
-		imageCache.clear();
-	}
 
     public PageChangeStrategy getStrategy() {
         return this.strategy;
@@ -331,7 +322,7 @@ public class BookView extends ScrollView {
 
 	public void releaseResources() {
 		this.strategy.clearText();
-		this.clearImageCache();
+		this.textLoader.closeCurrentBook();
 	}
 
 	public void setLinkColor(int color) {
@@ -923,7 +914,6 @@ public class BookView extends ScrollView {
 
 			} catch (OutOfMemoryError outofmem) {
 				LOG.error("Could not load image", outofmem);
-				clearImageCache();
 			}
 
 			if (bitmap != null) {
@@ -935,8 +925,8 @@ public class BookView extends ScrollView {
 				setImageSpan(builder, drawable, start, end);
 
 				LOG.debug("Storing image in cache: " + storedHref);
-							
-				imageCache.put(storedHref, drawable);				
+
+                textLoader.storeImageInChache(storedHref, drawable);
 			}
 		}		
 		
@@ -1060,8 +1050,8 @@ public class BookView extends ScrollView {
 
 				String resolvedHref = spine.resolveHref(src);
 
-				if (imageCache.containsKey(resolvedHref) && ! fakeImages ) {
-					Drawable drawable = imageCache.get(resolvedHref);
+                if ( textLoader.hasCachedImage(resolvedHref) && ! fakeImages ) {
+                    Drawable drawable = textLoader.getCachedImage(resolvedHref);
 					setImageSpan(builder, drawable, start, builder.length());
 					LOG.debug("Got cached href: " + resolvedHref);
 				} else {
@@ -1345,7 +1335,6 @@ public class BookView extends ScrollView {
 		@Override
 		protected void onPreExecute() {
 			this.wasBookLoaded = book != null;
-			clearImageCache();
 		}
 
 		private void setBook(Book book) {

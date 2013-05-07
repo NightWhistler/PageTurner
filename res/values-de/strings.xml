@@ -131,53 +131,50 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     
     <string name="end_of_section">Ende des Kapitels.\nHier antippen um weiterzulesen.</string>
 
-
-    <!-- Not yet translated -->
-
-    <string name="download_complete">Download complete.\nThe book has been added to your library</string>
+    <string name="download_complete">Fertig heruntergeladen.\nDas Buch wurde zum Bücherregal hinzugefügt.</string>
 
 
-    <string name="feed_failed">Could not contact the site. Please try again.</string>
-    <string name="book_failed">Could not download the book. Please try again.</string>
+    <string name="feed_failed">Konnte Bibliothek nicht erreichen. Bitte erneut versuchen.</string>
+    <string name="book_failed">Konnte Buch nicht herunterladen. Bitte erneut versuchen.</string>
 
-    <string name="custom_site">My custom OPDS sites</string>
-    <string name="add_site">Add custom site</string>
-    <string name="edit_site">Edit custom site</string>
-    <string name="add_site_header">What kind of site would you like to add?</string>
-    <string name="calibre_server">Calibre content server</string>
-    <string name="cops_server">COPS server</string>
+    <string name="custom_site">Eigene OPDS Bibliothek</string>
+    <string name="add_site">OPDS Bibliothek hinzufügen</string>
+    <string name="edit_site">Bibliothek bearbeiten</string>
+    <string name="add_site_header">Welche Art von Bibliothek möchten sie hinzufügen?</string>
+    <string name="calibre_server">Calibre BibliothekServer</string>
+    <string name="cops_server">COPS Server</string>
     <string name="c2opds_server">Calibre2OPDS</string>
-    <string name="generic_server">Generic OPDS site</string>
-    <string name="save">Save changes</string>
+    <string name="generic_server">Allgemeine OPDS Bibliothek</string>
+    <string name="save">Speichern</string>
 
-    <string name="custom_site_desc">Your own OPDS / Calibre sites. You can add sites from the Preferences screen.</string>
-    <string name="site_name">Site name</string>
-    <string name="site_url">Site URL</string>
-    <string name="site_desc">Description</string>
-    <string name="site_username">Username</string>
-    <string name="site_password">Password</string>
+    <string name="custom_site_desc">Eigene OPDS/Calibre Bibliothek. Neue Bibliotheken über das Einstellungen Menu ergänzen.</string>
+    <string name="site_name">Bibliothek Name</string>
+    <string name="site_url">Bibliothek URL</string>
+    <string name="site_desc">Beschreibung</string>
+    <string name="site_username">Benutzername</string>
+    <string name="site_password">Kennwort</string>
 
-    <string name="msg_name_blank">Please fill in a name.</string>
-    <string name="msg_url_blank">Please fill in a URL.</string>
+    <string name="msg_name_blank">Bitte einen Namen angeben.</string>
+    <string name="msg_url_blank">Bitte eine URL angeben.</string>
 
-    <string name="edit">Edit</string>
+    <string name="edit">Bearbeiten</string>
 
-    <string name="no_custom_sites">You don\'t have any custom sites defined. Please add some in the preferences.</string>
-    <string name="text_to_speech">Read out loud (TTS)</string>
+    <string name="no_custom_sites">Sie haben keine Bibliothek definiert. Bitte fügen sie welche über das Einstellungen Menü hinzu.</string>
+    <string name="text_to_speech">Vorlesen (TTS)</string>
 
-    <string name="init_tts">Initializing TTS…\nPlease wait.</string>
-    <string name="tts_failed">TTS Failed.</string>
+    <string name="init_tts">Initialisiere TTS…\nBitte warten.</string>
+    <string name="tts_failed">TTS Fehler.</string>
 
-    <string name="search_library">Search library</string>
-    <string name="no_sync_points">You don\'t have any cloud-sync points stored yet.\nSync points are stored automatically when you leave PageTurner.</string>
-    <string name="no_new_books_found">The scan did not find any new books.</string>
+    <string name="search_library">Durchsuche Bibliothek</string>
+    <string name="no_sync_points">Sie haben bisher keine Cloud-Sync Punkte angelegt. Diese werden automatisch angelegt wenn Sie PageTurner verlassen.</string>
+    <string name="no_new_books_found">Die Suche hat keine neuen Bücher gefunden.</string>
 
-    <string name="next_page">Next page…</string>
-    <string name="prev_page">Previous page…</string>
+    <string name="next_page">Nächste Seite…</string>
+    <string name="prev_page">Vorherige Seite…</string>
 
-    <string name="empty_opds_feed">The feed was empty. Please check that you are using the correct URL.</string>
-    <string name="search_results_item">Search results…</string>
-    <string name="lookup_wiktionary">Search on Wiktionary</string>
+    <string name="empty_opds_feed">Keine Daten empfangen. Bitte prüfen Sie ob die korrekte URL eingegeben wurde.</string>
+    <string name="search_results_item">Suche…</string>
+    <string name="lookup_wiktionary">Suche in Wiktionary</string>
 
 
 
@@ -205,7 +202,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="pref_copy_to_library">In Buchregal kopieren</string>
     <string name="pref_copy_to_library_summary">Soll PageTurner die Buchdateien in seinen eigenen Buchregal Ordner kopieren?</string>
     <string name="pref_calibre_server">Calibre Server</string>
-    <string name="pref_calibre_server_summary">Verbinde zu Deiner eigenen Calibre Bücherei</string>
+    <string name="pref_calibre_server_summary">Verbinde zu Deiner eigenen Calibre Bibliothek</string>
     <string name="pref_calibre_server_message">Calibre URL</string>
     <string name="pref_calibre_server_hint">z.B. http://192.168.1.1:8080/opds</string>
 
@@ -281,65 +278,63 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="pref_show_pagenum">Zeige Seitenzahlen</string>
     <string name="pref_show_pagenum_summary">Zeige Seitenzahlen während des Lesens. Es kann ein paar Sekunden dauern bis sie zum ersten mal dargestellt werden.</string>
 
-    <!-- Not yet translated -->
+    <string name="pref_nook_touch">Nook Touch Einstellungen</string>
+    <string name="pref_nook_touch_button_nav">Tasten-Bedienung</string>
+    <string name="pref_nook_touch_button_nav_summary">Wie sollen die Tasten auf der Seite des Nook die Seiten umblättern?</string>
 
-    <string name="pref_nook_touch">Nook Touch Preferences</string>
-    <string name="pref_nook_touch_button_nav">Button Navigation</string>
-    <string name="pref_nook_touch_button_nav_summary">How should the buttons on the side of the Nook turn the page?</string>
-
-    <string name="pref_reading_direction">Reading direction</string>
-    <string name="pref_reading_direction_summary">Read left to right or right to left (Hebrew and Arabic)</string>
+    <string name="pref_reading_direction">Leserichtung</string>
+    <string name="pref_reading_direction_summary">Von links nach rechts oder rechts nach links?</string>
 
     <string-array name="reading_directionsLabels">
-        <item>Left to right</item>
-        <item>Right to left</item>
+        <item>Links nach rechts</item>
+        <item>Rechts nach links</item>
     </string-array>
 
-    <string name="pref_manage_sites">Manage OPDS / Calibre Catalogs</string>
-    <string name="pref_manage_sites_summary">Add and remove custom online catalogs and Calibre servers.</string>
+    <string name="pref_manage_sites">Verwalte OPDS / Calibre Bibliotheken</string>
+    <string name="pref_manage_sites_summary">Ergänze und entferne OPDS/Calibre Bibliotheken.</string>
 
-    <string name="pref_serif_font">Serif font</string>
-    <string name="pref_serif_summary">Font to use if a book requests a Serif font.</string>
+    <string name="pref_serif_font">Serif Schrift</string>
+    <string name="pref_serif_summary">Schriftart zur Verwendung wenn ein Buch eine Serif-Schrift benötigt.</string>
 
-    <string name="pref_sans_serif_font">Sans-Serif font</string>
-    <string name="pref_sans_serif_summary">Font to use if a book requests a Sans-Serif font.</string>
+    <string name="pref_sans_serif_font">Sans-Serif Schrift</string>
+    <string name="pref_sans_serif_summary">Schriftart zur Verwendung wenn ein Buch eine Sans-Serif-Schrift benötigt.</string>
 
-    <string name="pref_lang">UI Language</string>
-    <string name="pref_lang_summary">Allows you to switch PageTurner\'s language settings.</string>
-    <string name="language_switch_message">The new language setting will become active the next time you open a book.</string>
+    <string name="pref_lang">Sprache Bedienung</string>
+    <string name="pref_lang_summary">Erlaubt die Anpassung von PageTurner\'s Spracheinstellungen.</string>
+    <string name="language_switch_message">Die neuen Spracheinstellungen werden aktiv wenn sie das nächste Buch öffnen.</string>
 
-    <string name="pref_accept_self_signed">Accept self-signed certificates</string>
-    <string name="pref_accept_self_signed_summary">Allows you to connect to OPDS sites which use self-signed certificates.</string>
+    <string name="pref_accept_self_signed">Akzeptiere selbst-signierte Zertifikate</string>
+    <string name="pref_accept_self_signed_summary">Erlaubt die Verbindung zu OPDS Blbiotheken die selbst-signierte Zertifikate verwenden.</string>
 
     <string-array name="supported_languagesLabels">
-        <item>Use device setting</item>
-        <item>English</item>
-        <item>Dutch</item>
-        <item>German</item>
-        <item>Spanish</item>
-        <item>Italian</item>
-        <item>Arabic</item>
-        <item>Hebrew</item>
-        <item>Farsi</item>
+        <item>Geräteeinstellung verwenden</item>
+        <item>Englisch</item>
+        <item>Niederländisch</item>
+        <item>Deutsch</item>
+        <item>Spanisch</item>
+        <item>Italienisch</item>
+        <item>Arabisch</item>
+        <item>Hebräisch</item>
+        <item>Persisch</item>
     </string-array>
 
 
-    <string name="pref_dim_system_ui">Dim System UI</string>
-    <string name="pref_dim_system_ui_summary">Dims the System UI buttons when reading in fullscreen mode.</string>
+    <string name="pref_dim_system_ui">Verdunkle System-Oberfläche</string>
+    <string name="pref_dim_system_ui_summary">Verdunkelt die System-Oberfläche wenn im Vollbild gelesen wird.</string>
 
-    <string name="pref_long_short">Switch long press / short press</string>
-    <string name="pref_long_short_summary">How to open books in the library</string>
+    <string name="pref_long_short">Wechsel zwischen langes Halten / kurzes Tippen</string>
+    <string name="pref_long_short_summary">Wie ein Buch geöffnet werden kann.</string>
 
     <string-array name="long_short_labels">
-        <item>Long press to open, short press for details</item>
-        <item>Short press to open, long press for details</item>
+        <item>Langes halten zum Öffnen, kurzes Tippen für Details.</item>
+        <item>Kurzes Tippen zum Öffnen, langes Halten für Details.</item>
     </string-array>
 
-    <string name="pref_dev_settings">Development settings</string>
+    <string name="pref_dev_settings">Entwicklungs-Einstellungen</string>
 
-    <string name="pref_acra">Send error reports</string>
-    <string name="pref_acra_summary">Allow PageTurner to send anonymous error reports when it crashes.</string>
+    <string name="pref_acra">Sende Fehler-Berichte</string>
+    <string name="pref_acra_summary">Erlaubt es PageTurner, bei Problemen anonyme Fehler-Berichte zu senden.</string>
 
-    <string name="opds_settings">OPDS settings</string>
+    <string name="opds_settings">OPDS Einstellungen</string>
         
 </resources>

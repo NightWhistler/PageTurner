@@ -69,10 +69,16 @@ public class CatalogActivity extends RoboSherlockFragmentActivity implements Cat
         }
     }
 
+    private boolean isTwoPaneView() {
+        return  getResources().getConfiguration().orientation
+                == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                && detailsFragment != null;
+    }
+
     @Override
     public void onFeedReplaced(Feed feed) {
 
-        if ( detailsFragment != null && feed.getSize() == 1
+        if ( isTwoPaneView() && feed.getSize() == 1
                 && feed.getEntries().get(0).getEpubLink() != null ) {
             loadFakeFeed(feed);
         } else {
@@ -90,7 +96,7 @@ public class CatalogActivity extends RoboSherlockFragmentActivity implements Cat
     @Override
     public void loadFakeFeed(Feed fakeFeed) {
 
-        if ( detailsFragment != null ) {
+        if ( isTwoPaneView() ) {
 
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);

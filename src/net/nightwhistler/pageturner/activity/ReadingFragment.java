@@ -593,7 +593,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
         playBeep(false);
 
 		File fos = new File( config.getTTSFolder() );
-        fos.mkdir();
+
+        if ( ! fos.mkdir() ) {
+            showTTSFailed();
+            return;
+        }
 
         saveReadingPosition();
 		//Delete any old TTS files still present.
@@ -654,6 +658,23 @@ public class ReadingFragment extends RoboSherlockFragment implements
         }
     }
 
+    private void showTTSFailed() {
+        uiHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                stopTextToSpeech(true);
+                waitDialog.hide();
+
+				playBeep(true);
+                if ( getActivity() != null ) {
+	                Toast.makeText(getActivity(), R.string.tts_failed, Toast.LENGTH_SHORT).show();
+                }
+
+                Toast.makeText(getActivity(), R.string.tts_failed, Toast.LENGTH_SHORT).show();
+            }
+        } );
+    }
+
     /** Checked exception to indicate TTS failure **/
     private static class TTSFailedException extends Exception {}
 
@@ -670,20 +691,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             ttsItemPrep.put(fileName, item);
 
             if ( textToSpeech.synthesizeToFile(part, params, fileName) != TextToSpeech.SUCCESS ) {
-
-                uiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        stopTextToSpeech(true);
-                        waitDialog.hide();
-
-                        playBeep(true);
-                        if ( getActivity() != null ) {
-                            Toast.makeText(getActivity(), R.string.tts_failed, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                } );
-
+                showTTSFailed();
                 throw new TTSFailedException();
             }
         }

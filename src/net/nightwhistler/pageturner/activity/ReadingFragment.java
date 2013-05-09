@@ -54,6 +54,7 @@ import net.nightwhistler.pageturner.view.ProgressListAdapter;
 import net.nightwhistler.pageturner.view.SearchResultAdapter;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import net.nightwhistler.pageturner.view.bookview.BookViewListener;
+import net.nightwhistler.pageturner.view.bookview.TextLoader;
 import net.nightwhistler.pageturner.view.bookview.TextSelectionCallback;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
@@ -215,6 +216,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
     @Inject
     private TTSPlaybackQueue ttsPlaybackItemQueue;
 
+    @Inject
+    private TextLoader textLoader;
+
     private com.actionbarsherlock.widget.SearchView searchView;
 
     private Map<String, TTSPlaybackItem> ttsItemPrep = new HashMap<String, TTSPlaybackItem>();
@@ -304,28 +308,28 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.progressBar.setFocusable(true);
 		this.progressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
-			private int seekValue;
+            private int seekValue;
 
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				bookView.navigateToPercentage(this.seekValue);
-			}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                bookView.navigateToPercentage(this.seekValue);
+            }
 
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-			}
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
-			@Override
-			public void onProgressChanged(SeekBar seekBar,
-					int progress, boolean fromUser) {
-				if (fromUser) {
-					seekValue = progress;
-					percentageField.setText(progress + "% ");
-				}
-			}
-		});
+            @Override
+            public void onProgressChanged(SeekBar seekBar,
+                                          int progress, boolean fromUser) {
+                if (fromUser) {
+                    seekValue = progress;
+                    percentageField.setText(progress + "% ");
+                }
+            }
+        });
 
-        this.mediaProgressBar.setOnSeekBarChangeListener( new SeekBar.OnSeekBarChangeListener() {
+        this.mediaProgressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -356,8 +360,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.bookView.setConfiguration(config);
 
 		this.bookView.addListener(this);
-		this.bookView.setSpanner(RoboGuice.getInjector(getActivity()).getInstance(
-				HtmlSpanner.class));
+
 	}
 	
 	private void seekToPointInPlayback(int position) {
@@ -875,7 +878,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return;
 		}
 
-        LOG.debug("Start playback for item " + item.getFileName() );
+        LOG.debug("Start playback for item " + item.getFileName());
         LOG.debug("Text: '" + item.getText() + "'");
 		
 		if ( item.getMediaPlayer().isPlaying() ) {
@@ -883,7 +886,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 
         item.setOnSpeechCompletedCallback(this);
-        uiHandler.post( progressBarUpdater );
+        uiHandler.post(progressBarUpdater);
 		item.getMediaPlayer().start();
 
 	}
@@ -994,9 +997,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		int marginH = config.getHorizontalMargin();
 		int marginV = config.getVerticalMargin();
 
+        this.textLoader.setFontFamily(config.getDefaultFontFamily());
 		this.bookView.setFontFamily(config.getDefaultFontFamily());
-		this.bookView.setSansSerifFontFamily(config.getSansSerifFontFamily());
-		this.bookView.setSerifFontFamily(config.getSerifFontFamily());
+		this.textLoader.setSansSerifFontFamily(config.getSansSerifFontFamily());
+		this.textLoader.setSerifFontFamily(config.getSerifFontFamily());
 
 		bookView.setHorizontalMargin(marginH);
 		bookView.setVerticalMargin(marginV);
@@ -1005,7 +1009,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			bookView.setEnableScrolling(config.isScrollingEnabled());
 		}
 
-		bookView.setStripWhiteSpace(config.isStripWhiteSpaceEnabled());
+		textLoader.setStripWhiteSpace(config.isStripWhiteSpaceEnabled());
 		bookView.setLineSpacing(config.getLineSpacing());
 
 		if (config.isFullScreenEnabled()) {
@@ -1226,7 +1230,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public void lookupWikipedia(String text) {
 
 		openBrowser("http://" + getLanguageCode() + ".wikipedia.org/wiki/Special:Search?search="
-				+ URLEncoder.encode(text));
+                + URLEncoder.encode(text));
 	}
 
     public void lookupWiktionary(String text) {

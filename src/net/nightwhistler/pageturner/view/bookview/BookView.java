@@ -86,7 +86,7 @@ import roboguice.RoboGuice;
 
 import static net.nightwhistler.pageturner.PlatformUtil.executeTask;
 
-public class BookView extends ScrollView {
+public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack {
 
 	private int storedIndex;
 	private String storedAnchor;
@@ -95,7 +95,6 @@ public class BookView extends ScrollView {
 
 	private Set<BookViewListener> listeners;
 
-	private HtmlSpanner spanner;
 	private TableHandler tableHandler;
 
 	private PageTurnerSpine spine;
@@ -103,7 +102,6 @@ public class BookView extends ScrollView {
 	private String fileName;
 	private Book book;
 
-	private Map<String, Integer> anchors;
 
 	private int prevIndex = -1;
 	private int prevPos = -1;
@@ -146,13 +144,17 @@ public class BookView extends ScrollView {
 		FIXME: disabled text selection for now.
 		if (Build.VERSION.SDK_INT >= 11) {
 			childView.setTextIsSelectable(true);
-		}
-*/
+		}  */
 		
 		this.setSmoothScrollingEnabled(false);
-
-		this.anchors = new HashMap<String, Integer>();
 		this.tableHandler = new TableHandler();
+        this.textLoader.registerTagNodeHandler("table", tableHandler);
+
+        ImageTagHandler imgHandler = new ImageTagHandler(false);
+        this.textLoader.registerTagNodeHandler("img", imgHandler);
+        this.textLoader.registerTagNodeHandler("image", imgHandler);
+
+        this.textLoader.setLinkCallBack(this);
 	}
 
 	private void onInnerViewResize() {
@@ -164,37 +166,15 @@ public class BookView extends ScrollView {
 		}
 	}
 
-	public void setSpanner(HtmlSpanner spanner) {
-		this.spanner = spanner;
-
-		ImageTagHandler imgHandler = new ImageTagHandler(false);
-		spanner.registerHandler("img", imgHandler);
-		spanner.registerHandler("image", imgHandler);
-
-		spanner.registerHandler("a", new AnchorHandler(new LinkTagHandler()));
-
-		spanner.registerHandler("h1",
-				new AnchorHandler(spanner.getHandlerFor("h1")));
-		spanner.registerHandler("h2",
-				new AnchorHandler(spanner.getHandlerFor("h2")));
-		spanner.registerHandler("h3",
-				new AnchorHandler(spanner.getHandlerFor("h3")));
-		spanner.registerHandler("h4",
-				new AnchorHandler(spanner.getHandlerFor("h4")));
-		spanner.registerHandler("h5",
-				new AnchorHandler(spanner.getHandlerFor("h5")));
-		spanner.registerHandler("h6",
-				new AnchorHandler(spanner.getHandlerFor("h6")));
-
-		spanner.registerHandler("p",
-				new AnchorHandler(spanner.getHandlerFor("p")));
-		spanner.registerHandler("table", tableHandler);
-	}
 
 	public void setConfiguration(Configuration configuration) {
 		this.configuration = configuration;
 	}
 
+    @Override
+    public void linkClicked(String href) {
+        navigateTo(spine.resolveHref(href));
+    }
 
     public PageChangeStrategy getStrategy() {
         return this.strategy;
@@ -238,10 +218,6 @@ public class BookView extends ScrollView {
 	public void setOnTouchListener(OnTouchListener l) {
 		super.setOnTouchListener(l);
 		this.childView.setOnTouchListener(l);
-	}
-
-	public void setStripWhiteSpace(boolean stripWhiteSpace) {
-		this.spanner.setStripExtraWhiteSpace(stripWhiteSpace);
 	}
 
 	public ClickableSpan[] getLinkAt(float x, float y) {
@@ -383,7 +359,6 @@ public class BookView extends ScrollView {
 
 	public void clear() {
 		this.childView.setText("");
-		this.anchors.clear();
 		this.storedAnchor = null;
 		this.storedIndex = -1;
 		this.book = null;
@@ -412,21 +387,10 @@ public class BookView extends ScrollView {
 		executeTask(new LoadTextTask(hightListResults));
 	}
 
-	
-	public void setFontFamily(FontFamily family) {
-		this.childView.setTypeface(family.getDefaultTypeface());
-		this.tableHandler.setTypeFace(family.getDefaultTypeface());
-
-		this.spanner.setDefaultFont(family);
-	}
-	
-	public void setSerifFontFamily(FontFamily family) {
-		this.spanner.setSerifFont(family);
-	}
-	
-	public void setSansSerifFontFamily(FontFamily family) {
-		this.spanner.setSansSerifFont(family);
-	}
+    public void setFontFamily(FontFamily family) {
+        this.childView.setTypeface(family.getDefaultTypeface());
+        this.tableHandler.setTypeFace(family.getDefaultTypeface());
+    }
 
 	public void pageDown() {
 		strategy.pageDown();
@@ -747,103 +711,18 @@ public class BookView extends ScrollView {
 	 */
 	private void restorePosition() {
 
-		if (this.storedAnchor != null && this.anchors.containsKey(storedAnchor)) {
-			strategy.setPosition(anchors.get(storedAnchor));
-			this.storedAnchor = null;
+        if (this.storedAnchor != null  ) {
+
+            Integer anchorValue = this.textLoader.getAnchor(
+                    spine.getCurrentHref(), storedAnchor );
+
+            if ( anchorValue != null ) {
+                strategy.setPosition(anchorValue);
+			    this.storedAnchor = null;
+            }
 		}
 
 		this.strategy.updatePosition();
-	}
-
-	/**
-	 * Many books use
-	 * <p>
-	 * and
-	 * <h1>tags as anchor points. This class harvests those point by wrapping
-	 * the original handler.
-	 * 
-	 * @author Alex Kuiper
-	 * 
-	 */
-	private class AnchorHandler extends TagNodeHandler {
-
-		private TagNodeHandler wrappedHandler;
-
-		public AnchorHandler(TagNodeHandler wrappedHandler) {
-			this.wrappedHandler = wrappedHandler;
-		}
-		
-		@Override
-		public void beforeChildren(TagNode node, SpannableStringBuilder builder) {
-			this.wrappedHandler.beforeChildren(node, builder);
-		}
-
-		@Override
-		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-				int start, int end) {
-
-			String id = node.getAttributeByName("id");
-			if (id != null) {
-				anchors.put(id, start);
-			}
-
-			wrappedHandler.handleTagNode(node, builder, start, end);
-		}
-	}
-
-	/**
-	 * Creates clickable links.
-	 * 
-	 * @author work
-	 * 
-	 */
-	private class LinkTagHandler extends TagNodeHandler {
-
-		private List<String> externalProtocols;
-
-		public LinkTagHandler() {
-			this.externalProtocols = new ArrayList<String>();
-			externalProtocols.add("http://");
-			externalProtocols.add("epub://");
-			externalProtocols.add("https://");
-			externalProtocols.add("http://");
-			externalProtocols.add("ftp://");
-			externalProtocols.add("mailto:");
-		}
-
-		@Override
-		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-				int start, int end) {
-
-			String href = node.getAttributeByName("href");
-
-			if (href == null) {
-				return;
-			}
-
-			final String linkHref = href;
-
-			// First check if it should be a normal URL link
-			for (String protocol : this.externalProtocols) {
-				if (href.toLowerCase(Locale.US).startsWith(protocol)) {
-					builder.setSpan(new URLSpan(href), start, end,
-							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-					return;
-				}
-			}
-
-			// If not, consider it an internal nav link.
-			ClickableSpan span = new ClickableSpan() {
-
-				@Override
-				public void onClick(View widget) {
-					navigateTo(spine.resolveHref(linkHref));
-				}
-			};
-
-			builder.setSpan(span, start, end,
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		}
 	}
 
 	private void setImageSpan(SpannableStringBuilder builder,
@@ -1269,7 +1148,7 @@ public class BookView extends ScrollView {
         mySpanner.registerHandler("image", tagHandler);
 
         Resource res = spine.getResourceForIndex(spineIndex);
-        CharSequence text = textLoader.getText(res, spanner, false);
+        CharSequence text = textLoader.getText(res,  false);
 
         privateLoader.load();
 
@@ -1398,7 +1277,7 @@ public class BookView extends ScrollView {
 			publishProgress(BookReadPhase.PARSE_TEXT);
 
 			try {
-				Spannable result = textLoader.getText(resource, spanner, true);
+				Spannable result = textLoader.getText(resource, true);
 				loader.load(); // Load all image resources.
 
 				// Highlight search results (if any)

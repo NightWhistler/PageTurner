@@ -21,7 +21,10 @@ package net.nightwhistler.pageturner.view.bookview;
 
 import android.text.Spannable;
 import android.text.Spanned;
+import com.google.inject.Inject;
+import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.MediaType;
@@ -32,16 +35,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Singleton storage for opened book and rendered text.
  *
  * Optimization in case of rotation of the screen.
  */
-public class TextLoader {
+public class TextLoader implements LinkTagHandler.LinkCallBack {
 
     private String currentFile;
     private Book currentBook;
@@ -49,7 +50,59 @@ public class TextLoader {
 
     private Map<String, FastBitmapDrawable> imageCache = new HashMap<String, FastBitmapDrawable>();
 
+    private Map<String, Map<String, Integer>> anchors = new HashMap<String, Map<String, Integer>>();
+    private List<AnchorHandler> anchorHandlers = new ArrayList<AnchorHandler>();
+
     private static final Logger LOG = LoggerFactory.getLogger("TextLoader");
+
+    private HtmlSpanner htmlSpanner;
+
+    private LinkTagHandler.LinkCallBack linkCallBack;
+
+    @Inject
+    public void setHtmlSpanner(HtmlSpanner spanner) {
+        this.htmlSpanner = spanner;
+
+        spanner.registerHandler("a", registerAnchorHandler(new LinkTagHandler(this)));
+
+        spanner.registerHandler("h1",
+                registerAnchorHandler(spanner.getHandlerFor("h1")));
+        spanner.registerHandler("h2",
+                registerAnchorHandler(spanner.getHandlerFor("h2")));
+        spanner.registerHandler("h3",
+                registerAnchorHandler(spanner.getHandlerFor("h3")));
+        spanner.registerHandler("h4",
+                registerAnchorHandler(spanner.getHandlerFor("h4")));
+        spanner.registerHandler("h5",
+                registerAnchorHandler(spanner.getHandlerFor("h5")));
+        spanner.registerHandler("h6",
+                registerAnchorHandler(spanner.getHandlerFor("h6")));
+
+        spanner.registerHandler("p",
+                registerAnchorHandler(spanner.getHandlerFor("p")));
+
+    }
+
+    private AnchorHandler registerAnchorHandler( TagNodeHandler wrapThis ) {
+        AnchorHandler handler = new AnchorHandler(wrapThis);
+        anchorHandlers.add(handler);
+        return handler;
+    }
+
+    @Override
+    public void linkClicked(String href) {
+        if ( linkCallBack != null ) {
+            linkCallBack.linkClicked(href);
+        }
+    }
+
+    public void setLinkCallBack( LinkTagHandler.LinkCallBack callBack ) {
+        this.linkCallBack = callBack;
+    }
+
+    public void registerTagNodeHandler( String tag, TagNodeHandler handler ) {
+        this.htmlSpanner.registerHandler(tag, handler);
+    }
 
     public Book initBook(String fileName) throws IOException {
 
@@ -63,6 +116,8 @@ public class TextLoader {
         }
 
         closeCurrentBook();
+
+        this.anchors = new HashMap<String, Map<String, Integer>>();
 
         // read epub file
         EpubReader epubReader = new EpubReader();
@@ -95,6 +150,31 @@ public class TextLoader {
 
     }
 
+    public Integer getAnchor( String href, String anchor ) {
+        if ( this.anchors.containsKey(href) ) {
+            Map<String, Integer> nestedMap = this.anchors.get( href );
+            return nestedMap.get(anchor);
+        }
+
+        return null;
+    }
+
+    public void setFontFamily(FontFamily family) {
+        this.htmlSpanner.setDefaultFont(family);
+    }
+
+    public void setSerifFontFamily(FontFamily family) {
+        this.htmlSpanner.setSerifFont(family);
+    }
+
+    public void setSansSerifFontFamily(FontFamily family) {
+        this.htmlSpanner.setSansSerifFont(family);
+    }
+
+    public void setStripWhiteSpace(boolean stripWhiteSpace) {
+        this.htmlSpanner.setStripExtraWhiteSpace(stripWhiteSpace);
+    }
+
     public FastBitmapDrawable getCachedImage( String href ) {
         return imageCache.get( href );
     }
@@ -107,14 +187,33 @@ public class TextLoader {
         this.imageCache.put(href, drawable);
     }
 
-    public Spannable getText( Resource resource, HtmlSpanner spanner, boolean allowCaching ) throws IOException {
+    private void registerNewAnchor(String href, String anchor, int position ) {
+        if ( ! anchors.containsKey(href)) {
+            anchors.put(href, new HashMap<String, Integer>());
+        }
+
+        anchors.get(href).put(anchor, position);
+    }
+
+    public Spannable getText( final Resource resource, boolean allowCaching ) throws IOException {
 
         if ( renderedText.containsKey(resource.getHref()) ) {
             LOG.debug("Returning cached text for href " + resource.getHref() );
             return renderedText.get(resource.getHref());
         }
 
-        Spannable result = spanner.fromHtml(resource.getReader());
+        AnchorHandler.AnchorCallback callback = new AnchorHandler.AnchorCallback() {
+            @Override
+            public void registerAnchor(String anchor, int position) {
+                registerNewAnchor(resource.getHref(), anchor, position);
+            }
+        };
+
+        for ( AnchorHandler handler: this.anchorHandlers ) {
+            handler.setCallback(callback);
+        }
+
+        Spannable result = htmlSpanner.fromHtml(resource.getReader());
 
         if ( allowCaching ) {
             renderedText.put(resource.getHref(), result);
@@ -122,7 +221,6 @@ public class TextLoader {
 
         return result;
     }
-
 
     public void closeCurrentBook() {
 
@@ -136,6 +234,7 @@ public class TextLoader {
         currentFile = null;
         renderedText.clear();
         clearImageCache();
+        anchors.clear();
     }
 
     public void clearImageCache() {
@@ -145,6 +244,8 @@ public class TextLoader {
 
         imageCache.clear();
     }
+
+
 
 
 }

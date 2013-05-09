@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/mediaPlayerLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:layout_alignBottom="@id/mainContainer"
                 android:visibility="gone"
                 android:background="@color/translucent_black"
         >
+
+
+    <TextView
+            android:id="@+id/wordView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/opaque_white" />
 
     <SeekBar android:id="@+id/mediaProgress"
                  style="?android:attr/progressBarStyleHorizontal"
@@ -66,4 +74,4 @@
 
 
 
-</RelativeLayout>
+</LinearLayout>

@@ -168,7 +168,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	private RelativeLayout titleBarLayout;
 		
 	@InjectView(R.id.mediaPlayerLayout)
-	private RelativeLayout mediaLayout;
+	private LinearLayout mediaLayout;
 
 	@InjectView(R.id.titleProgress)
 	private SeekBar progressBar;
@@ -199,6 +199,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     @InjectView(R.id.prevButton)
     private ImageButton prevButton;
+
+    @InjectView(R.id.wordView)
+    private TextView wordView;
 	
 	@Inject
 	private TelephonyManager telephonyManager;
@@ -794,6 +797,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
                         int currentDuration = item.getOffset() + (int) (percentage * item.getText().length());
 
                         bookView.navigateTo(bookView.getIndex(), currentDuration );
+
+                        wordView.setText( item.getText() );
 
                     }
                 }

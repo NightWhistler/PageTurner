@@ -27,7 +27,6 @@ import java.util.*;
 import android.content.res.AssetFileDescriptor;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.hlidskialf.android.hardware.ShakeListener;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -96,7 +95,6 @@ import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
 import android.telephony.TelephonyManager;
-import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
@@ -113,7 +111,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 
 import com.actionbarsherlock.view.Menu;
@@ -594,7 +591,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		File fos = new File( config.getTTSFolder() );
 
-        if ( ! fos.mkdir() ) {
+        if ( fos.exists() && ! fos.isDirectory() ) {
+            fos.delete();
+        }
+
+        fos.mkdir();
+
+        if ( ! (fos.exists() && fos.isDirectory() )  ) {
+            LOG.error("Failed to create folder " + fos.getAbsolutePath() );
             showTTSFailed();
             return;
         }
@@ -617,7 +621,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.waitDialog.setTitle(R.string.init_tts);
 		this.waitDialog.show();
 
-        backgroundHandler.post(new StreamToDiskRunnable());
+        //backgroundHandler.post(new StreamToDiskRunnable());
+        new Thread( new StreamToDiskRunnable() ).start();
 	}
 
     private class StreamToDiskRunnable implements Runnable {
@@ -631,10 +636,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
             }
 
             File ttsFolder = new File( config.getTTSFolder() );
-            String textToSpeak = text.toString().substring( bookView.getPosition() );
+            String textToSpeak = text.toString().substring( bookView.getStartOfCurrentPage() );
 
-            String[] parts = textToSpeak.split("\\.|\n");
-            int offset = bookView.getPosition();
+            textToSpeak = textToSpeak.replace( "\n", "~" );
+            textToSpeak = textToSpeak.replace( ".", ".~" );
+            textToSpeak = textToSpeak.replace( "?", "?~" );
+            textToSpeak = textToSpeak.replace( "!", "!~" );
+
+            String[] parts = textToSpeak.split("\\~");
+
+            int offset = bookView.getStartOfCurrentPage();
 
             try {
                 for ( int i=0; i < parts.length && ttsIsRunning(); i++ ) {
@@ -646,11 +657,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     boolean lastPart = i == parts.length -1;
 
                     //Utterance ID doubles as the filename
-                    String pageName = new File( ttsFolder, "tts_" + Integer.toHexString( part.hashCode()) + ".wav").getAbsolutePath();
+                    String pageName = new File( ttsFolder, "tts_" + UUID.randomUUID() + ".wav").getAbsolutePath();
                     streamPartToDisk(pageName, part, offset, textToSpeak.length(), lastPart);
 
                     offset += part.length() +1;
 
+                    Thread.yield();
                 }
             } catch (TTSFailedException e) {
                 //Just stop streaming
@@ -681,7 +693,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
     private void streamPartToDisk(String fileName, String part, int offset, int totalLength, boolean endOfPage )
         throws TTSFailedException {
 
-        if ( part.trim().length() > 0 ) {
+        LOG.debug("Request to stream text to file " + fileName + " with text " + part );
+
+        if ( part.trim().length() > 0 || endOfPage ) {
 
             HashMap<String, String> params = new HashMap<String, String>();
 
@@ -690,10 +704,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
             TTSPlaybackItem item = new TTSPlaybackItem( part, new MediaPlayer(), totalLength, offset, endOfPage, fileName);
             ttsItemPrep.put(fileName, item);
 
-            if ( textToSpeech.synthesizeToFile(part, params, fileName) != TextToSpeech.SUCCESS ) {
+            int result = textToSpeech.synthesizeToFile(part, params, fileName);
+            if ( result != TextToSpeech.SUCCESS ) {
+                LOG.error("synthesizeToFile failed with result " + result);
                 showTTSFailed();
                 throw new TTSFailedException();
             }
+        } else {
+            LOG.debug("Skipping part, since it's empty.");
         }
     }
 	
@@ -744,7 +762,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	private Runnable progressBarUpdater = new Runnable() {
 		public void run() {
-			
+
+
 			int phoneState = telephonyManager.getCallState();
 	    
 			if ( phoneState == TelephonyManager.CALL_STATE_RINGING || 
@@ -842,13 +861,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	private void startPlayback() {
 
+        LOG.debug("startPlayback() - doing peek()");
+
         final TTSPlaybackItem item = this.ttsPlaybackItemQueue.peek();
 
         if ( item == null ) {
+            LOG.debug("Got null item, bailing out.");
 			return;
 		}
 
         LOG.debug("Start playback for item " + item.getFileName() );
+        LOG.debug("Text: '" + item.getText() + "'");
 		
 		if ( item.getMediaPlayer().isPlaying() ) {
 			return;
@@ -1931,7 +1954,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if (this.bookView != null) {
 
 			int index = this.bookView.getIndex();
-			int position = this.bookView.getPosition();
+			int position = this.bookView.getProgressPosition();
 			
 			if ( index != -1 && position != -1 ) {			
 				config.setLastPosition(this.fileName, position);
@@ -2298,7 +2321,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void onSaveInstanceState(final Bundle outState) {
 		if (this.bookView != null) {
-			outState.putInt(POS_KEY, this.bookView.getPosition());
+			outState.putInt(POS_KEY, this.bookView.getProgressPosition());
 			outState.putInt(IDX_KEY, this.bookView.getIndex());
 		}
 
@@ -2533,7 +2556,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			waitDialog.hide();
 
 			int index = bookView.getIndex();
-			int pos = bookView.getPosition();
+			int pos = bookView.getProgressPosition();
 
 			if (progress != null) {
 

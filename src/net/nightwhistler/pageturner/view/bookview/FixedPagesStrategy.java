@@ -205,7 +205,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		
 	}
 
-    public int getStartOfCurrentPage() {
+    public int getTopLeftPosition() {
         if ( this.pageNum >= this.pageOffsets.size() ) {
             return this.pageOffsets.get( this.pageOffsets.size() -1 );
         }
@@ -213,13 +213,13 @@ public class FixedPagesStrategy implements PageChangeStrategy {
         return this.pageOffsets.get(this.pageNum);
     }
 	
-	public int getPosition() {
+	public int getProgressPosition() {
 
         if ( storedPosition > 0 || this.pageOffsets.isEmpty() ||  this.pageNum == -1 ) {
             return this.storedPosition;
         }
 
-		return getStartOfCurrentPage();
+		return getTopLeftPosition();
 	}
 	
 	public android.text.Spanned getText() {

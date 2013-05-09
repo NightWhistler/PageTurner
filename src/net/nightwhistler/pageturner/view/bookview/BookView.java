@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,11 +48,8 @@ import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.MediaType;
 import nl.siegmann.epublib.domain.Resource;
 import nl.siegmann.epublib.domain.TOCReference;
-import nl.siegmann.epublib.epub.EpubReader;
-import nl.siegmann.epublib.service.MediatypeService;
 import nl.siegmann.epublib.util.StringUtil;
 
 import org.htmlcleaner.TagNode;
@@ -409,7 +405,7 @@ public class BookView extends ScrollView {
 	}
 
 	void loadText() {
-		executeTask( new LoadTextTask() );
+		executeTask(new LoadTextTask());
 	}
 
 	private void loadText(List<SearchTextTask.SearchResult> hightListResults) {
@@ -562,11 +558,11 @@ public class BookView extends ScrollView {
 	public void navigateTo(String rawHref) {
 
 		this.prevIndex = this.getIndex();
-		this.prevPos = this.getPosition();
+		this.prevPos = this.getProgressPosition();
 
 		// URLDecode the href, so it does not contain %20 etc.
 		String href = URLDecoder.decode(StringUtil.substringBefore(rawHref,
-				Constants.FRAGMENT_SEPARATOR_CHAR));
+                Constants.FRAGMENT_SEPARATOR_CHAR));
 
 		// Don't decode the anchor.
 		String anchor = StringUtil.substringAfterLast(rawHref,
@@ -633,7 +629,7 @@ public class BookView extends ScrollView {
 			this.strategy.setPosition(0);
 		}
 
-		this.prevPos = this.getPosition();
+		this.prevPos = this.getProgressPosition();
 		doNavigation(index);
 	}
 
@@ -642,7 +638,7 @@ public class BookView extends ScrollView {
 		SearchTextTask.SearchResult searchResult = result
 				.get(selectedResultIndex);
 		
-		this.prevPos = this.getPosition();
+		this.prevPos = this.getProgressPosition();
 		this.strategy.setPosition(searchResult.getStart());
 
 		this.prevIndex = this.getIndex();
@@ -674,7 +670,7 @@ public class BookView extends ScrollView {
 
 	public void navigateTo(int index, int position) {
 
-		this.prevPos = this.getPosition();
+		this.prevPos = this.getProgressPosition();
 		this.strategy.setPosition(position);
 
 		doNavigation(index);
@@ -732,8 +728,12 @@ public class BookView extends ScrollView {
 		return this.spine.getPosition();
 	}
 
-	public int getPosition() {
-		return strategy.getPosition();
+    public int getStartOfCurrentPage() {
+        return strategy.getTopLeftPosition();
+    }
+
+	public int getProgressPosition() {
+		return strategy.getProgressPosition();
 	}
 
 	public void setPosition(int pos) {
@@ -849,7 +849,7 @@ public class BookView extends ScrollView {
 	private void setImageSpan(SpannableStringBuilder builder,
 			Drawable drawable, int start, int end) {
 		builder.setSpan(new ImageSpan(drawable), start, end,
-				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 		if (spine.isCover()) {
 			builder.setSpan(new CenterSpan(), start, end,
@@ -1167,7 +1167,7 @@ public class BookView extends ScrollView {
 		if (this.spine != null && this.strategy.getText() != null
 				&& this.strategy.getText().length() > 0) {
 
-			double progressInPart = (double) this.getPosition()
+			double progressInPart = (double) this.getProgressPosition()
 					/ (double) this.strategy.getText().length();
 
 			if (strategy.getText().length() > 0 && strategy.isAtEnd()) {
@@ -1179,7 +1179,7 @@ public class BookView extends ScrollView {
 			if (progress != -1) {
 
 				int pageNumber = getPageNumberFor(getIndex(),
-						getPosition());
+						getProgressPosition());
 
 				for (BookViewListener listener : this.listeners) {
 					listener.progressUpdate(progress, pageNumber,
@@ -1230,7 +1230,7 @@ public class BookView extends ScrollView {
 			Spanned text = null;
 
 			if (this.strategy != null) {
-				pos = this.strategy.getPosition();
+				pos = this.strategy.getTopLeftPosition();
 				text = this.strategy.getText();
 				this.strategy.clearText();
 				wasNull = false;
@@ -1373,7 +1373,7 @@ public class BookView extends ScrollView {
 			if (BookView.this.book == null) {
 				try {
                     publishProgress(BookReadPhase.OPEN_FILE);
-					setBook( textLoader.initBook(fileName) );
+					setBook(textLoader.initBook(fileName));
 				} catch (IOException io) {
 					this.error = io.getMessage();
 					return null;

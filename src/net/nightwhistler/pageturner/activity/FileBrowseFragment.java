@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.Context;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
@@ -148,7 +149,7 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 			View rowView;		
 			final File file = getItem(position);
 
-			LayoutInflater inflater = PlatformUtil.getLayoutInflater(getActivity());
+            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 						
 			if ( convertView == null ) {				
 				rowView = inflater.inflate(R.layout.folder_line, parent, false);

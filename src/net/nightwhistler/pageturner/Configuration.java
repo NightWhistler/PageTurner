@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import android.content.pm.PackageManager;
+import android.os.Debug;
 import net.nightwhistler.htmlspanner.FontFamily;
 
 import org.json.JSONArray;
@@ -720,15 +721,38 @@ public class Configuration {
         return getPageTurnerFolder() + "/tts";
     }
 
-	/*
+	/**
 	 * Returns the bytes of available memory left on the heap. Not totally sure
 	 * if it works reliably.
 	 */
-	public long getAvailableBytesOfMemory() {
-		Runtime runtime = Runtime.getRuntime();
+	public static double getMemoryUsage() {
+		/*
+        Runtime runtime = Runtime.getRuntime();
 		long maxHeapMemoryBytes = runtime.maxMemory();
 		long allocatedMemoryBytes = runtime.totalMemory()
 				- runtime.freeMemory();
-		return (maxHeapMemoryBytes - allocatedMemoryBytes);
+		return (double) allocatedMemoryBytes / (double) maxHeapMemoryBytes;
+		*/
+        long max = Runtime.getRuntime().maxMemory();
+        long used = Runtime.getRuntime().totalMemory();
+
+        return (double) used / (double) max;
 	}
+
+    /*
+        Returns the available bitmap memory.
+        On newer Android versions this is the same as the normaL
+        heap memory.
+     */
+    public static double getBitmapMemoryUsage() {
+
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+            return getMemoryUsage();
+        }
+
+        long max = Runtime.getRuntime().maxMemory();
+        long used = Debug.getNativeHeapAllocatedSize();
+
+        return (double) used / (double) max;
+    }
 }

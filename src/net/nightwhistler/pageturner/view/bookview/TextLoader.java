@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.MediaType;
@@ -43,6 +44,11 @@ import java.util.*;
  * Optimization in case of rotation of the screen.
  */
 public class TextLoader implements LinkTagHandler.LinkCallBack {
+
+    /**
+     * We start clearing the cache if memory usage exceeds 75%.
+     */
+    private static final double CASH_CLEAR_THRESHOLD = 0.75;
 
     private String currentFile;
     private Book currentBook;
@@ -213,6 +219,17 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
             handler.setCallback(callback);
         }
 
+        double memoryUsage = Configuration.getMemoryUsage();
+        double bitmapUsage = Configuration.getBitmapMemoryUsage();
+
+        LOG.debug("Current memory usage is " +  (int) (memoryUsage * 100) + "%" );
+        LOG.debug("Current bitmap memory usage is " +  (int) (bitmapUsage * 100) + "%" );
+
+        //If memory usage gets over the threshold, try to free up memory
+        if ( memoryUsage > CASH_CLEAR_THRESHOLD || bitmapUsage > CASH_CLEAR_THRESHOLD ) {
+            clearCachedText();
+        }
+
         Spannable result = htmlSpanner.fromHtml(resource.getReader());
 
         if ( allowCaching ) {
@@ -220,6 +237,13 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         }
 
         return result;
+    }
+
+    private void clearCachedText() {
+        clearImageCache();
+        anchors.clear();
+
+        renderedText.clear();
     }
 
     public void closeCurrentBook() {

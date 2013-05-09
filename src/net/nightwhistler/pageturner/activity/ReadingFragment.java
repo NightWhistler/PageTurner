@@ -1078,6 +1078,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	private void restartActivity() {
 
 		onStop();
+
+        //Clear any cached text.
+        textLoader.closeCurrentBook();
 		Intent intent = new Intent(getActivity(), ReadingActivity.class);
 		intent.setData(Uri.parse(this.fileName));
 		startActivity(intent);

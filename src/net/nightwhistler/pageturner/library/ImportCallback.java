@@ -33,6 +33,5 @@ public interface ImportCallback {
 		
 	void importFailed( String reason, boolean silent );
 
-    void taskCompleted( AsyncTask<?,?,?> task, boolean wasCancelled );
-	
+
 }

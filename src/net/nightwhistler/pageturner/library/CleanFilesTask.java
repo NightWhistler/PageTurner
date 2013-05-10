@@ -26,6 +26,7 @@ import net.nightwhistler.pageturner.library.ImportCallback;
 import net.nightwhistler.pageturner.library.LibraryBook;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.QueryResult;
+import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import java.util.List;
 /**
  * Task which deletes all files in the library that no longer exist.
  */
-public class CleanFilesTask extends AsyncTask<Void, Void, Void> {
+public class CleanFilesTask extends QueueableAsyncTask<Void, Void, Void> {
 
     private Configuration config;
 
@@ -78,8 +79,7 @@ public class CleanFilesTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
-        callback.taskCompleted(this, isCancelled());
+    protected void doOnPostExecute(Void aVoid) {
         callback.booksDeleted(deletedFiles);
     }
 }

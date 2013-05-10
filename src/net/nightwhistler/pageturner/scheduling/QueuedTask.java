@@ -17,17 +17,17 @@
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
 
-package net.nightwhistler.pageturner.library;
+package net.nightwhistler.pageturner.scheduling;
 
 import android.os.AsyncTask;
 import net.nightwhistler.pageturner.PlatformUtil;
 
 public class QueuedTask<A, B, C> {
 
-    private AsyncTask<A, B, C> task;
+    private QueueableAsyncTask<A, B, C> task;
     private A[] parameters;
 
-    public QueuedTask(AsyncTask<A,B,C> task, A[] params ) {
+    public QueuedTask(QueueableAsyncTask<A,B,C> task, A[] params ) {
         this.task = task;
         this.parameters = params;
     }

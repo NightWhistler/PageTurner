@@ -26,6 +26,7 @@ import java.util.List;
 
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 import nl.siegmann.epublib.service.MediatypeService;
@@ -38,7 +39,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 
-public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCancelListener {	
+public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implements OnCancelListener {
 	
 	private Context context;
 	private LibraryService libraryService;
@@ -194,13 +195,11 @@ public class ImportTask extends AsyncTask<File, Integer, Void> implements OnCanc
 		
 		callBack.importStatusUpdate(message, silent);
 	}
-	
-	@Override
-	protected void onPostExecute(Void result) {
+
+    @Override
+    protected void doOnPostExecute(Void aVoid) {
 
         LOG.debug("Import task completed, imported " + booksImported  + " books.");
-
-        this.callBack.taskCompleted(this, isCancelled());
 
 		if ( importFailed != null ) {
 			callBack.importFailed(importFailed, silent);

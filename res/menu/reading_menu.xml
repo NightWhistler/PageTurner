@@ -42,7 +42,7 @@
           android:icon="@drawable/zoom"
           android:orderInCategory="0"
           android:actionViewClass="com.actionbarsherlock.widget.SearchView"
-          android:showAsAction="ifRoom|collapseActionView" />
+          android:showAsAction="always|collapseActionView" />
 
     <item android:id="@+id/show_search_results"
           android:title="@string/search_results"

@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/mediaProgress"
             android:orientation="horizontal"
-            android:layout_centerHorizontal="true">
+            android:layout_gravity="center_horizontal">
 
 
         <ImageButton

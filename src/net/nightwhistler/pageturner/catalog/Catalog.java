@@ -170,7 +170,6 @@ public class Catalog {
 		}		
 				
 		icon.setImageBitmap(unknownCoverScaled);
-		
 	}
 	
 	public static int getThumbnailHeight( int originalHeight, int originalWidth, int newWidth ) {

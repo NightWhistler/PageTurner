@@ -63,30 +63,32 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
 
         Link imageLink = entries[0];
 
-        if (imageLink != null) {
-            String href = imageLink.getHref();
+        if ( imageLink == null ) {
+            return null;
+        }
 
-            if (cache != null && cache.containsKey(href)) {
-                imageLink.setBinData(cache.get(href));
-            } else {
+        String href = imageLink.getHref();
 
-                try {
-                    String target = new URL(new URL(baseUrl), href).toString();
+        if (cache != null && cache.containsKey(href)) {
+            imageLink.setBinData(cache.get(href));
+        } else {
 
-                    Log.i("LoadThumbnailTask", "Downloading image: " + target);
+            try {
+                String target = new URL(new URL(baseUrl), href).toString();
 
-                    this.currentRequest = new HttpGet(target);
-                    HttpResponse resp = httpClient.execute(this.currentRequest);
+                Log.i("LoadThumbnailTask", "Downloading image: " + target);
 
-                    imageLink.setBinData(EntityUtils.toByteArray(resp.getEntity()));
+                this.currentRequest = new HttpGet(target);
+                HttpResponse resp = httpClient.execute(this.currentRequest);
 
-                    if ( cache != null ) {
-                        cache.put(href, imageLink.getBinData());
-                    }
+                imageLink.setBinData(EntityUtils.toByteArray(resp.getEntity()));
 
-                } catch (IOException io) {
-                    //Ignore and exit.
+                if ( cache != null ) {
+                    cache.put(href, imageLink.getBinData());
                 }
+
+            } catch (IOException io) {
+                //Ignore and exit.
             }
         }
 

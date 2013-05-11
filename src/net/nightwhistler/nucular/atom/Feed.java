@@ -51,6 +51,10 @@ public class Feed extends AtomElement {
 		this.entries.add(entry);
         entry.setFeed(this);
 	}
+
+    public void removeEntry(Entry entry) {
+        this.entries.remove(entry);
+    }
 	
 	public Link getNextLink() {
 		return findByRel(REL_NEXT);

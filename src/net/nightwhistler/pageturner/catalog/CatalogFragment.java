@@ -199,6 +199,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
             taskQueue.executeTask(task, url);
         } else {
             taskQueue.jumpQueueExecuteTask(task, url);
+            this.adapter.setLoading(true);
         }
 		
 
@@ -478,6 +479,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
                 adapter.setFeed(result);
                 ((CatalogParent) getActivity() ).onFeedReplaced(result);
             } else {
+                this.adapter.setLoading(false);
                 adapter.addEntriesFromFeed(result);
             }
 

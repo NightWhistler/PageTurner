@@ -77,6 +77,10 @@ public class LoadFakeFeedTask extends AsyncTask<Link, Integer, Void> {
 
         Link imageLink = params[0];
 
+        if ( imageLink == null ) {
+            return null;
+        }
+
         try {
             String href = imageLink.getHref();
             String target = new URL(new URL(baseURL), href).toString();

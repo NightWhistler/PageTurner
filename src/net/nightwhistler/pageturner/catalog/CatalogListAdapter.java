@@ -20,6 +20,7 @@ package net.nightwhistler.pageturner.catalog;
 
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
@@ -39,10 +40,29 @@ public class CatalogListAdapter extends BaseAdapter {
 
     private int displayDensity;
 
+    private Entry loadingEntry = new Entry();
+
 	@Inject
 	public CatalogListAdapter(Context context) {
 		this.context = context;
 	}
+
+    public void setLoading(boolean loading) {
+        if ( loading ) {
+            if ( feed.getSize() > 0 &&  !feed.getEntries().contains(this.loadingEntry) ) {
+
+                Entry lastEntry = feed.getEntries().get( feed.getSize() - 1);
+                feed.addEntry(this.loadingEntry);
+
+                this.loadingEntry.setFeed(lastEntry.getFeed());
+
+            }
+        } else {
+            feed.removeEntry(this.loadingEntry);
+        }
+
+        notifyDataSetChanged();
+    }
 
     public void addEntriesFromFeed( Feed newFeed ) {
         for ( Entry entry: newFeed.getEntries() ) {
@@ -87,13 +107,20 @@ public class CatalogListAdapter extends BaseAdapter {
 	public long getItemId(int position) {
 		return position;
 	}
+
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View rowView;
 		final Entry entry = getItem(position);
 
-        if ( convertView == null ) {
+        if ( entry == this.loadingEntry ) {
+            ProgressBar bar = new ProgressBar(this.context);
+            bar.setIndeterminate(true);
+            return bar;
+        }
+
+        if ( convertView == null || convertView instanceof  ProgressBar  ) {
 		    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             rowView = inflater.inflate(R.layout.catalog_item, parent, false);
         } else {

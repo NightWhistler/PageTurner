@@ -17,6 +17,8 @@ public abstract class QueueableAsyncTask<Params, Progress, Result> extends Async
 
     private QueueCallback callback;
 
+    private boolean cancelRequested = false;
+
     /**
      * Overridden and made final to implement notification.
      *
@@ -27,10 +29,37 @@ public abstract class QueueableAsyncTask<Params, Progress, Result> extends Async
     @Override
     protected final void onPostExecute(Result result) {
         if ( callback != null ) {
-            callback.taskCompleted( this, isCancelled() );
+            callback.taskCompleted( this, this.cancelRequested );
         }
 
         doOnPostExecute(result);
+    }
+
+    /**
+     * Called when a cancellation is requested.
+     *
+     * Default simply sets a flag.
+     */
+    public void requestCancellation() {
+        this.cancelRequested = true;
+    }
+
+    @Override
+    protected final void onCancelled(Result result) {
+        if ( callback != null ) {
+            callback.taskCompleted( this, this.cancelRequested );
+        }
+
+        doOnCancelled (result);
+    }
+
+    @Override
+    protected final void onCancelled() {
+        onCancelled(null);
+    }
+
+    public void doOnCancelled(Result result) {
+
     }
 
     public void setCallback( QueueCallback callback ) {

@@ -80,8 +80,14 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 		LOG.debug("User aborted import.");	
 		this.cancel(true);
 	}
-	
-	@Override
+
+    @Override
+    public void requestCancellation() {
+        super.requestCancellation();
+        this.cancel(true);
+    }
+
+    @Override
 	protected Void doInBackground(File... params) {
 		File parent = params[0];
 		

@@ -1,6 +1,7 @@
 package net.nightwhistler.pageturner.scheduling;
 
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
     private LinkedList<QueuedTask<?,?,?>> taskQueue = new LinkedList<QueuedTask<?, ?, ?>>();
     private TaskQueueListener listener;
 
-    public synchronized <A,B,C> void executeTask( QueueableAsyncTask<A,B,C> task, A... parameters ) {
+    public <A,B,C> void executeTask( QueueableAsyncTask<A,B,C> task, A... parameters ) {
 
         task.setCallback(this);
 
@@ -49,22 +50,31 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
      * @param <B>
      * @param <C>
      */
-    public synchronized <A,B,C> void jumpQueueExecuteTask( QueueableAsyncTask<A,B,C> task, A... parameters ) {
+    public <A,B,C> void jumpQueueExecuteTask( QueueableAsyncTask<A,B,C> task, A... parameters ) {
+
+        Log.d("TaskQueue", "Queue-jump requested for " + task.getClass().getSimpleName() );
 
         if ( this.taskQueue.isEmpty() ) {
+            Log.d("TaskQueue", "Delegating to simple schedule since the queue is empty.");
             executeTask(task, parameters);
         } else {
 
-            taskQueue.remove().cancel();
+            QueuedTask top = taskQueue.remove();
+            Log.d("TaskQueue", "Cancelling task of type " + top.getTask().getClass().getSimpleName() );
+            top.cancel();
 
             task.setCallback(this);
             taskQueue.add( 0, new QueuedTask<A, B, C>(task, parameters));
+
+            Log.d("TaskQueue", "Starting task of type " + task.getClass().getSimpleName()
+                    + " with queue " + getQueueAsString() );
+
             taskQueue.peek().execute();
         }
 
     }
 
-    public synchronized void clear() {
+    public void clear() {
 
         Log.d("TaskQueue", "Clearing task queue.");
 
@@ -83,23 +93,45 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
         this.listener = listener;
     }
 
+    private String getQueueAsString() {
+        StringBuilder builder = new StringBuilder("[");
+
+        for ( int i=0; i < this.taskQueue.size(); i++ ) {
+            builder.append( this.taskQueue.get(i).getTask().getClass().getSimpleName() );
+            if ( i < this.taskQueue.size() -1 ) {
+                builder.append(", ");
+            }
+        }
+
+        builder.append("]");
+
+        return builder.toString();
+    }
+
     @Override
-    public synchronized void taskCompleted(QueueableAsyncTask<?, ?, ?> task, boolean wasCancelled) {
+    public void taskCompleted(QueueableAsyncTask<?, ?, ?> task, boolean wasCancelled) {
 
         if ( ! wasCancelled ) {
             QueuedTask queuedTask = this.taskQueue.remove();
 
             if ( queuedTask.getTask() != task ) {
-                throw new RuntimeException("Tasks out of sync! Expected "+
-                        queuedTask.getTask() + " but got " + task );
+
+                String errorMsg = "Tasks out of sync! Expected "+
+                        queuedTask.getTask() + " but got " + task.getClass().getSimpleName() +
+                        " with queue: " + getQueueAsString();
+                Log.e("TaskQueue", errorMsg );
+
+                throw new RuntimeException(errorMsg);
             }
 
-           Log.d( "TaskQueue", "Completion of task of type " + task.getClass().getSimpleName()
-                    + " total tasks scheduled now: " + this.taskQueue.size() );
+            Log.d( "TaskQueue", "Completion of task of type " + task.getClass().getSimpleName()
+                    + " total tasks scheduled now: " + this.taskQueue.size() + " with queue: " + getQueueAsString() );
 
             if ( ! this.taskQueue.isEmpty() ) {
                 this.taskQueue.peek().execute();
             }
+        } else {
+            Log.d("TaskQueue", "Got taskCompleted for task " + task.getClass().getSimpleName() + " which was cancelled.");
         }
 
         if ( this.taskQueue.isEmpty() ) {

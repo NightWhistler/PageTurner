@@ -46,7 +46,7 @@ public class QueuedTask<A, B, C> {
     }
 
     public void cancel() {
-        this.task.cancel(true);
+        this.task.requestCancellation();
     }
 
     public AsyncTask<A,B,C> getTask() {

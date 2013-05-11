@@ -50,7 +50,9 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
     }
 
     @Override
-    protected void onCancelled() {
+    public void requestCancellation() {
+        super.requestCancellation();
+
         Log.d("LoadThumbnailTask", "Got cancel request");
 
         if ( currentRequest != null ) {

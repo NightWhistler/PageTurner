@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner.catalog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.util.Log;
 import com.google.inject.Inject;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
@@ -71,8 +72,11 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 	}
 
     @Override
-    protected void onCancelled() {
+    public void requestCancellation() {
+        super.requestCancellation();
+
         LOG.debug("Got cancel request");
+
         if ( currentRequest != null ) {
             currentRequest.abort();
         }

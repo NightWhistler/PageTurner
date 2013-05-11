@@ -22,12 +22,12 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 import javax.annotation.Nullable;
 
+import android.os.Build;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -69,6 +69,8 @@ import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragmen
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import static net.nightwhistler.pageturner.catalog.Catalog.getImageLink;
+
 public class CatalogFragment extends RoboSherlockFragment implements
 		LoadFeedCallback, DialogFactory.SearchCallBack, TaskQueue.TaskQueueListener {
 	
@@ -91,6 +93,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
 	@Inject
 	private Provider<LoadOPDSTask> loadOPDSTaskProvider;
+
+    @Inject
+    private Provider<ParseBinDataTask> parseBinDataTaskProvider;
+
+    @Inject
+    private Provider<LoadThumbnailTask> loadThumbnailTaskProvider;
 
     @Inject
     private DialogFactory dialogFactory;
@@ -119,6 +127,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
         DisplayMetrics metrics = metricsProvider.get();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
+        this.taskQueue.setTaskQueueListener(this);
         int displayDensity = metrics.densityDpi;
         this.adapter.setDisplayDensity(displayDensity);
         LOG.debug("Metrics at init: " + displayDensity );
@@ -181,10 +190,18 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		task.setCallBack(this);
 
         task.setResultType(resultType);
-		task.setPreviousEntry(entry);	
 		task.setAsDetailsFeed(asDetailsFeed);
+
+        //If we're going to load a completely new feed,
+        //cancel all pending downloads.
+        if ( resultType == ResultType.REPLACE ) {
+            taskQueue.clear();
+            taskQueue.executeTask(task, url);
+        } else {
+            taskQueue.jumpQueueExecuteTask(task, url);
+        }
 		
-		task.execute(url);
+
 	}	
 
 	@Override
@@ -466,9 +483,46 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
             getSherlockActivity().supportInvalidateOptionsMenu();
             getSherlockActivity().getSupportActionBar().setTitle(result.getTitle());
+
+            queueImageLoading(result);
+        }
+    }
+
+    private void queueImageLoading( Feed feed ) {
+
+        Map<String, byte[]> cache = new HashMap<String, byte[]>();
+
+        for (final Entry entry : feed.getEntries()) {
+
+            Link imageLink = getImageLink(feed, entry);
+
+            if (imageLink != null) {
+                String href = imageLink.getHref();
+
+                // If the image is contained in the feed, load it
+                // directly
+                if (href.startsWith("data:image/png;base64")) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+                        ParseBinDataTask binDataTask = this.parseBinDataTaskProvider.get();
+                        binDataTask.setLoadFeedCallback(this);
+
+                        taskQueue.executeTask(binDataTask, imageLink);
+                    }
+                }else {
+
+                    LoadThumbnailTask thumbnailTask = this.loadThumbnailTaskProvider.get();
+                    thumbnailTask.setCache(cache);
+                    thumbnailTask.setBaseUrl( feed.getURL() );
+                    thumbnailTask.setLoadFeedCallback(this);
+
+                    taskQueue.executeTask(thumbnailTask, imageLink);
+                }
+            }
         }
 
+        cache.clear();
     }
+
 
     private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
         SherlockFragmentActivity activity = getSherlockActivity();
@@ -501,12 +555,15 @@ public class CatalogFragment extends RoboSherlockFragment implements
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
-            if ( totalItemCount - (firstVisibleItem + visibleItemCount) <= LOAD_THRESHOLD && adapter.getCount() > 0) {
+            int lastVisibleItem = firstVisibleItem + visibleItemCount;
+
+            if ( totalItemCount - lastVisibleItem  <= LOAD_THRESHOLD && adapter.getCount() > 0) {
 
                 Entry lastEntry = adapter.getItem( adapter.getCount() -1 );
                 Feed feed = lastEntry.getFeed();
 
                 if ( feed == null || feed.getNextLink() == null) {
+                    LOG.debug("Scroll down detected, but no next link available");
                     return;
                 }
 

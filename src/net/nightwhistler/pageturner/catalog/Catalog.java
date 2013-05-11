@@ -179,30 +179,4 @@ public class Catalog {
 		return (int) (newWidth * factor);
 	}	
 
-	
-	public static void loadImageLink(HttpClient client, Map<String, byte[]> cache, Link imageLink,
-			String baseUrl) throws IOException {
-
-		if (imageLink != null) {
-			String href = imageLink.getHref();
-
-			if (cache != null && cache.containsKey(href)) {
-				imageLink.setBinData(cache.get(href));
-			} else {
-
-				String target = new URL(new URL(baseUrl), href).toString();
-
-				LOG.info("Downloading image: " + target);
-
-				HttpResponse resp = client.execute(new HttpGet(target));
-
-
-				imageLink.setBinData(EntityUtils.toByteArray(resp.getEntity()));
-
-                if ( cache != null ) {
-				    cache.put(href, imageLink.getBinData());
-                }
-			}
-		}
-	}	
 }

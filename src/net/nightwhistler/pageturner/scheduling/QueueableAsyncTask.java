@@ -3,11 +3,11 @@ package net.nightwhistler.pageturner.scheduling;
 import android.os.AsyncTask;
 
 /**
- * Created with IntelliJ IDEA.
- * User: alex
- * Date: 5/10/13
- * Time: 7:39 AM
- * To change this template use File | Settings | File Templates.
+ * Subclass of AsyncTask which notifies the scheduler when it's done.
+ *
+  * @param <Params>
+ * @param <Progress>
+ * @param <Result>
  */
 public abstract class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
 
@@ -17,6 +17,13 @@ public abstract class QueueableAsyncTask<Params, Progress, Result> extends Async
 
     private QueueCallback callback;
 
+    /**
+     * Overridden and made final to implement notification.
+     *
+     * Subclasses should override doOnPostExecute() instead.
+     *
+     * @param result
+     */
     @Override
     protected final void onPostExecute(Result result) {
         if ( callback != null ) {
@@ -30,5 +37,12 @@ public abstract class QueueableAsyncTask<Params, Progress, Result> extends Async
         this.callback = callback;
     }
 
-    protected abstract void doOnPostExecute(Result result);
+    /**
+     * Gets executed on the UI thread.
+     *
+     * Override this to implement your on post-processing operations.
+     *
+     * @param result
+     */
+    protected void doOnPostExecute(Result result) { }
 }

@@ -22,6 +22,15 @@ package net.nightwhistler.pageturner.scheduling;
 import android.os.AsyncTask;
 import net.nightwhistler.pageturner.PlatformUtil;
 
+/**
+ * Wraps a QueueableAsyncTask and its parameters, so that it can be executed later.
+ *
+ * It's essentially a simple Command Object for tasks.
+ *
+ * @param <A>
+ * @param <B>
+ * @param <C>
+ */
 public class QueuedTask<A, B, C> {
 
     private QueueableAsyncTask<A, B, C> task;
@@ -31,7 +40,6 @@ public class QueuedTask<A, B, C> {
         this.task = task;
         this.parameters = params;
     }
-
 
     public void execute() {
         PlatformUtil.executeTask(task, parameters);

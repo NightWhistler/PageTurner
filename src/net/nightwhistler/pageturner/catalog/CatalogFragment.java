@@ -43,6 +43,7 @@ import net.nightwhistler.pageturner.activity.*;
 import net.nightwhistler.pageturner.catalog.DownloadFileTask.DownloadFileCallback;
 import net.nightwhistler.pageturner.library.LibraryService;
 
+import net.nightwhistler.pageturner.scheduling.TaskQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public class CatalogFragment extends RoboSherlockFragment implements
-		LoadFeedCallback, DialogFactory.SearchCallBack {
+		LoadFeedCallback, DialogFactory.SearchCallBack, TaskQueue.TaskQueueListener {
 	
     private static final String STATE_NAV_ARRAY_KEY = "nav_array";    
 
@@ -99,6 +100,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
     @Inject
     private Provider<DisplayMetrics> metricsProvider;
+
+    @Inject
+    private TaskQueue taskQueue;
 
     private MenuItem searchMenuItem;
 
@@ -139,9 +143,13 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		return false;		
 	}
-	
 
-	@Override
+    @Override
+    public void queueEmpty() {
+        onLoadingDone();
+    }
+
+    @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_catalog, container, false);
 	}

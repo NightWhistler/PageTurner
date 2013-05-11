@@ -36,6 +36,7 @@ import net.nightwhistler.nucular.parser.opensearch.SearchDescription;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 
+import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -53,7 +54,7 @@ import android.util.Base64;
 
 import com.google.inject.Inject;
 
-public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
+public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> implements
 		OnCancelListener {
 	
 	private static final Logger LOG = LoggerFactory.getLogger("LoadOPDSTask");
@@ -214,9 +215,9 @@ public class LoadOPDSTask extends AsyncTask<String, Object, Feed> implements
 	public void setAsDetailsFeed(boolean asDetailsFeed) {
 		this.asDetailsFeed = asDetailsFeed;
 	}
-	
-	@Override
-	protected void onPostExecute(Feed result) {
+
+    @Override
+    protected void doOnPostExecute(Feed result) {
 
         callBack.onLoadingDone();
 

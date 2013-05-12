@@ -22,13 +22,10 @@ package net.nightwhistler.pageturner.view.bookview;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.text.*;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import android.graphics.Canvas;
-import android.text.Spanned;
-import android.text.SpannedString;
-import android.text.StaticLayout;
-import android.text.TextPaint;
 import android.widget.TextView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +64,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	
 	@Override
 	public void clearText() {
-		this.text = new SpannedString("");
+		this.text = new SpannableStringBuilder("");
 		this.childView.setText(text);
 		this.pageOffsets = new ArrayList<Integer>();
 	}

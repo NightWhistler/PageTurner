@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import android.graphics.*;
+import android.view.ActionMode;
 import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
@@ -1182,8 +1183,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
         return new FixedPagesStrategy(this, configuration, new StaticLayoutFactory()).getPageOffsets(text, true);
     }
-	
-	
 
 	public static class InnerView extends TextView {
 
@@ -1213,6 +1212,16 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			this.bookView = bookView;
 		}
 
+        @Override
+        public ActionMode startActionMode(ActionMode.Callback callback) {
+
+            ActionMode mode = super.startActionMode(callback);
+
+            LOG.debug("InnerView starting action-mode");
+
+            return new WrappingActionMode(mode);
+
+        }
     }
 
 	private static enum BookReadPhase {
@@ -1298,7 +1307,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			}
 
 			if (resource == null) {
-				return new SpannedString(
+				return new SpannableStringBuilder(
 						"Sorry, it looks like you clicked a dead link.\nEven books have 404s these days.");
 			}
 

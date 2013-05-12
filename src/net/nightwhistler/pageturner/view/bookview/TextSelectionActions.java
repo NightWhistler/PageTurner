@@ -43,13 +43,14 @@ public class TextSelectionActions implements ActionMode.Callback {
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		// TODO Auto-generated method stub
+
+        mode.finish();
 
 		return true;
 	}
 
 	@Override
-	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+	public boolean onCreateActionMode(final ActionMode mode, Menu menu) {
 
 		menu.removeItem(android.R.id.selectAll);
 
@@ -59,6 +60,7 @@ public class TextSelectionActions implements ActionMode.Callback {
 				@Override
 				public boolean onMenuItemClick(android.view.MenuItem item) {
 					callBack.lookupDictionary(bookView.getSelectedText());
+                    mode.finish();
 					return true;
 				}
 			});
@@ -69,6 +71,7 @@ public class TextSelectionActions implements ActionMode.Callback {
 			@Override
 			public boolean onMenuItemClick(android.view.MenuItem item) {
 				callBack.lookupWikipedia(bookView.getSelectedText());
+                mode.finish();
 				return true;
 			}
 		});
@@ -78,6 +81,7 @@ public class TextSelectionActions implements ActionMode.Callback {
 			@Override
 			public boolean onMenuItemClick(android.view.MenuItem item) {
 				callBack.lookupGoogle(bookView.getSelectedText());
+                mode.finish();
 				return true;
 			}
 		});
@@ -87,6 +91,7 @@ public class TextSelectionActions implements ActionMode.Callback {
             @Override
             public boolean onMenuItemClick(android.view.MenuItem item) {
                 callBack.highLight(bookView.getSelectionStart(), bookView.getSelectionEnd());
+                mode.finish();
                 return true;
             }
         });
@@ -96,7 +101,7 @@ public class TextSelectionActions implements ActionMode.Callback {
 
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {
-		//bookView.setTextSelectionEnabled(false);
+		bookView.setTextSelectionEnabled(false);
 	}
 
 	@Override

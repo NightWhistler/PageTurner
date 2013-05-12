@@ -604,8 +604,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
         fos.mkdir();
 
         if ( ! (fos.exists() && fos.isDirectory() )  ) {
+            String message = "\"Failed to create folder \" + fos.getAbsolutePath() ";
             LOG.error("Failed to create folder " + fos.getAbsolutePath() );
-            showTTSFailed();
+            showTTSFailed("Failed to create folder " + fos.getAbsolutePath() );
             return;
         }
 
@@ -676,7 +677,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         }
     }
 
-    private void showTTSFailed() {
+    private void showTTSFailed(final String message) {
         uiHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -685,10 +686,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 				playBeep(true);
                 if ( getActivity() != null ) {
-	                Toast.makeText(getActivity(), R.string.tts_failed, Toast.LENGTH_SHORT).show();
+
+                    StringBuilder textBuilder = new StringBuilder( getActivity().getString(R.string.tts_failed) );
+                    textBuilder.append("\n").append(message);
+
+	                Toast.makeText(getActivity(), textBuilder.toString(), Toast.LENGTH_SHORT).show();
                 }
 
-                Toast.makeText(getActivity(), R.string.tts_failed, Toast.LENGTH_SHORT).show();
+
             }
         } );
     }
@@ -712,8 +717,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             int result = textToSpeech.synthesizeToFile(part, params, fileName);
             if ( result != TextToSpeech.SUCCESS ) {
-                LOG.error("synthesizeToFile failed with result " + result);
-                showTTSFailed();
+                String message = "synthesizeToFile failed with result " + result;
+                LOG.error(message);
+                showTTSFailed(message);
                 throw new TTSFailedException();
             }
         } else {

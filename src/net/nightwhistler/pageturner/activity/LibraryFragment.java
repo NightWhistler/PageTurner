@@ -22,6 +22,8 @@ import java.io.File;
 import java.text.DateFormat;
 import java.util.*;
 
+import android.content.ActivityNotFoundException;
+import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.widget.SearchView;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
@@ -59,18 +61,8 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.TextView;
-import android.widget.ViewSwitcher;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
@@ -81,8 +73,12 @@ import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 
+import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
+
 public class LibraryFragment extends RoboSherlockFragment implements ImportCallback, OnItemClickListener,
         OnItemLongClickListener, DialogFactory.SearchCallBack, TaskQueue.TaskQueueListener {
+
+    protected static final int REQUEST_CODE_GET_CONTENT = 2;
 	
 	@Inject 
 	private LibraryService libraryService;
@@ -161,6 +157,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_library, container, false);
 	}
+
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -354,6 +351,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         executeTask( importTask, startFolder );
 	}
 
+
     @Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if ( this.intentCallBack != null ) {
@@ -485,7 +483,54 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             }
         }
 
+
+        // Only show open file item if we have a file manager installed
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("file/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        if (isIntentAvailable(getActivity(), intent)) {
+            menu.findItem(R.id.open_file).setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    launchFileManager();
+                    return true;
+                }
+            });
+        } else {
+            menu.findItem(R.id.open_file).setVisible(false);
+        }
+
 	}
+
+    private void launchFileManager() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("file/*");
+
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        this.intentCallBack = new IntentCallBack() {
+
+            @Override
+            public void onResult(int resultCode, Intent data) {
+                if ( resultCode == Activity.RESULT_OK && data != null ) {
+                    Intent readingIntent = new Intent( getActivity(), ReadingActivity.class);
+                    readingIntent.setData(data.getData());
+                    getActivity().setResult(Activity.RESULT_OK, readingIntent);
+
+                    getActivity().startActivityIfNeeded(readingIntent, 99);
+                }
+            }
+        };
+
+        try {
+            startActivityForResult(intent, REQUEST_CODE_GET_CONTENT);
+        } catch (ActivityNotFoundException e) {
+            // No compatible file manager was found.
+            Toast.makeText(getActivity(), getString(R.string.install_oi),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public void onSearchRequested() {
         if ( this.searchMenuItem != null && searchMenuItem.getActionView() != null ) {

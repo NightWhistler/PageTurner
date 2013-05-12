@@ -120,6 +120,8 @@ import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 
+import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
+
 public class ReadingFragment extends RoboSherlockFragment implements
 		BookViewListener, TextSelectionCallback, OnUtteranceCompletedListener,
         SpeechCompletedCallback, DialogFactory.SearchCallBack {
@@ -461,6 +463,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		this.viewSwitcher.setOnTouchListener(gestureListener);
 		this.bookView.setOnTouchListener(gestureListener);
+        this.dummyView.setOnTouchListener(gestureListener);
 		
 		registerForContextMenu(bookView);
 		saveConfigState();
@@ -1269,13 +1272,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		Intent i = new Intent(Intent.ACTION_VIEW);
 		i.setData(Uri.parse(url));
 		startActivity(i);
-	}
-
-	public static boolean isIntentAvailable(Context context, Intent intent) {
-		final PackageManager packageManager = context.getPackageManager();
-		List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
-				PackageManager.MATCH_DEFAULT_ONLY);
-		return list.size() > 0;
 	}
 
 	private void restoreColorProfile() {
@@ -2114,7 +2110,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void onScreenTap() {
 
-		stopAnimating();				
+       stopAnimating();
 
 		if (this.titleBarLayout.getVisibility() == View.VISIBLE) {
 			titleBarLayout.setVisibility(View.GONE);

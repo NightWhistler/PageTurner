@@ -20,8 +20,13 @@
           android:title="@string/profile_night"
           android:icon="@drawable/moon"
           android:showAsAction="ifRoom"
-          />                 
-    
+          />
+
+    <item android:id="@+id/open_file"
+          android:title="@string/open_file"
+          android:icon="@drawable/file"
+           />
+
     <item
         android:id="@+id/scan_books"
         android:icon="@drawable/book_refresh"

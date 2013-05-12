@@ -1215,9 +1215,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
 	@Override
-	public void highLight(int from, int to, Color color) {
-		// TODO Auto-generated method stub
-
+	public void highLight(int from, int to) {
+		bookView.highLight(from, to);
 	}
 
 	@Override

@@ -1154,6 +1154,11 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		}
 	}
 
+    public void highLight(int from, int to) {
+        ( (Spannable) childView.getText() ).setSpan(new BackgroundColorSpan(Color.YELLOW),
+                from, to, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
     private List<Integer> getOffsetsForResource(int spineIndex )
             throws IOException {
 

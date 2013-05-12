@@ -19,6 +19,7 @@
 
 package net.nightwhistler.pageturner.view.bookview;
 
+import android.graphics.Color;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import android.annotation.TargetApi;
@@ -48,10 +49,10 @@ public class TextSelectionActions implements ActionMode.Callback {
 	}
 
 	@Override
-	public boolean onCreateActionMode(ActionMode mode, Menu menu) {		
+	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 
 		menu.removeItem(android.R.id.selectAll);
-		
+
 		if (callBack.isDictionaryAvailable()) {
 			menu.add(R.string.dictionary_lookup)
 				.setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -81,8 +82,17 @@ public class TextSelectionActions implements ActionMode.Callback {
 			}
 		});
 
-		return true;
-	}
+        menu.add("Highlight")
+            .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(android.view.MenuItem item) {
+                callBack.highLight(bookView.getSelectionStart(), bookView.getSelectionEnd());
+                return true;
+            }
+        });
+
+        return true;
+    }
 
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {

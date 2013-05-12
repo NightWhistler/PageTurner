@@ -19,16 +19,20 @@
 package net.nightwhistler.nucular.atom;
 
 
-public class Link {
+import java.io.Serializable;
+
+public class Link implements Serializable {
 
 	private String href;
 	private String type;
 	private String rel;
+    private String title;
 	
-	public Link( String href, String type, String rel ) {
+	public Link( String href, String type, String rel, String title ) {
 		this.href = href;
 		this.type = type;
 		this.rel = rel;
+        this.title = title;
 	}
 	
 	private byte[] binData;
@@ -60,5 +64,13 @@ public class Link {
 	public void setBinData(byte[] binData) {
 		this.binData = binData;
 	}
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 	
 }

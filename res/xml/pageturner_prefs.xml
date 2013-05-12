@@ -35,6 +35,20 @@
 	</PreferenceCategory>
 
 	<PreferenceCategory
+            android:key="nook_prefs"
+            android:title="@string/pref_nook_touch">
+
+          <ListPreference
+              android:key="nook_touch_top_buttons_direction"
+              android:title="@string/pref_nook_touch_button_nav"
+              android:summary="@string/pref_nook_touch_button_nav_summary"
+              android:defaultValue="backward"
+              android:entries="@array/nook_touch_direction_labels"
+              android:entryValues="@array/nook_touch_directions" />
+
+        </PreferenceCategory>
+
+	<PreferenceCategory
                 android:title="@string/pref_autoscroll_settings">  		
 
  <ListPreference
@@ -66,7 +80,20 @@
 				android:title="@string/pref_copy_to_library"
 				android:summary="@string/pref_copy_to_library_summary"
 				android:defaultValue="true"
-				/> 			
+				/>
+
+                <ListPreference
+                    android:key="long_short"
+                    android:title="@string/pref_long_short"
+                    android:summary="@string/pref_long_short_summary"
+                    android:defaultValue="normal"
+                    android:entries="@array/long_short_labels"
+                    android:entryValues="@array/long_short"
+                    />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/opds_settings">
 				
                <PreferenceScreen        			
         			android:title="@string/pref_manage_sites"
@@ -75,45 +102,41 @@
         			<intent android:action="net.nightwhistler.pageturner.activitiy.ManageSitesActivity"/>
         			         
     			</PreferenceScreen>
-              	
-				<!-- 
-      			<EditTextPreference
-	            android:key="calibre_server"
-	            android:title="@string/pref_calibre_server"
-	            android:summary="@string/pref_calibre_server_summary"
-	            android:dialogTitle="@string/pref_calibre_server"
-	            android:dialogMessage="@string/pref_calibre_server_message"
-	            android:hint="@string/pref_calibre_server_hint"   
-	            />
-      			
-      			<EditTextPreference
-      			    android:key="calibre_user"
-      			    android:dialogTitle="@string/pref_calibre_user"
-      			    android:title="@string/pref_calibre_user"
-      			    android:summary="@string/pref_calibre_user_summary"
-      			    android:hint="@string/pref_calibre_user_hint"
-      			    android:inputType="textPersonName"
-      			 	/>
-      			
-      			<EditTextPreference
-      			    android:key="calibre_password"
-      			    android:dialogTitle="@string/pref_calibre_password"
-      			    android:title="@string/pref_calibre_password"
-      			    android:summary="@string/pref_calibre_password_summary"
-      			    android:inputType="textPassword"
-      			    />
-      			     -->
+
+            <CheckBoxPreference
+                android:key="accept_self_signed"
+                android:title="@string/pref_accept_self_signed"
+                android:summary="@string/pref_accept_self_signed_summary"
+                android:defaultValue="false" />
                 
     </PreferenceCategory>
 
 	<PreferenceCategory
-                android:title="@string/pref_visual_settings">  		
+                android:key="visual_prefs"
+                android:title="@string/pref_visual_settings">  
+                
+	<net.nightwhistler.pageturner.prefs.LanguageSwitchPreference 
+	    	android:key="custom_lang"
+	    	android:title="@string/pref_lang"
+	    	android:summary="@string/pref_lang_summary"
+	    	android:defaultValue="default"
+	    	android:entries="@array/supported_languagesLabels"
+        	android:entryValues="@array/supported_languages"
+        	 />	    	
+			
 
 	<CheckBoxPreference			
             android:key="full_screen"
             android:title="@string/pref_full_screen"
             android:summary="@string/pref_full_screen_summary"
             android:defaultValue="false" />
+
+    <CheckBoxPreference
+        android:key="dim_system_ui"
+        android:title="@string/pref_dim_system_ui"
+        android:summary="@string/pref_dim_system_ui_summary"
+        android:defaultValue="false"
+        android:dependency="full_screen"/>
             
 	<CheckBoxPreference			
             android:key="show_pagenum"
@@ -131,7 +154,7 @@
     
    	<CheckBoxPreference 
    	    	android:title="@string/pref_keep_screen_on"
-   	    	android:summary="@string/pref_keep_screen_on"
+   	    	android:summary="@string/pref_keep_screen_on_summary"
    	    	android:key="keep_screen_on"
    	    	android:defaultValue="false"
    	    	/>
@@ -174,6 +197,22 @@
             android:title="@string/pref_font_face"
             android:summary="@string/pref_font_face_summary"            
         	android:defaultValue="gen_book_bas"
+        	android:entries="@array/fontLabels"
+        	android:entryValues="@array/fonts" />
+     
+     <ListPreference
+     		android:key="serif_font"
+            android:title="@string/pref_serif_font"
+            android:summary="@string/pref_serif_summary"            
+        	android:defaultValue="gen_book_bas"
+        	android:entries="@array/fontLabels"
+        	android:entryValues="@array/fonts" />
+     
+     <ListPreference
+     		android:key="sans_serif_font"
+            android:title="@string/pref_sans_serif_font"
+            android:summary="@string/pref_sans_serif_summary"            
+        	android:defaultValue="sans"
         	android:entries="@array/fontLabels"
         	android:entryValues="@array/fonts" />
                     
@@ -272,7 +311,7 @@
          <ListPreference
      		android:key="h_animation"
             android:title="@string/pref_h_animation"
-            android:summary="@string/pref_h_animation"            
+            android:summary="@string/pref_h_animation_summary"            
         	android:defaultValue="curl"
         	android:entries="@array/h_animLabels"
         	android:entryValues="@array/h_anim" />
@@ -281,7 +320,7 @@
          <ListPreference
      		android:key="v_animation"
             android:title="@string/pref_v_animation"
-            android:summary="@string/pref_v_animation"            
+            android:summary="@string/pref_v_animation_summary"            
         	android:defaultValue="slide"
         	android:entries="@array/v_animLabels"
         	android:entryValues="@array/v_anim" />               
@@ -291,11 +330,19 @@
                 
 	<PreferenceCategory
                 android:title="@string/pref_navigation_settings">
-                
+         
+	  <ListPreference
+	      android:key="reading_direction"
+	      android:title="@string/pref_reading_direction"
+	      android:summary="@string/pref_reading_direction_summary"
+	      android:defaultValue="left_to_right"
+	      android:entries="@array/reading_directionsLabels"
+	      android:entryValues="@array/reading_directions" />
+	            
      <CheckBoxPreference			
             android:key="scrolling"
             android:title="@string/pref_scrolling"
-            android:summary="@string/pref_scrolling"
+            android:summary="@string/pref_scrolling_summary"
             android:defaultValue="false"
             android:disableDependentsState="true" />       
      
@@ -303,39 +350,49 @@
      <CheckBoxPreference			
             android:key="nav_vol"
             android:title="@string/pref_nav_vol"
-            android:summary="@string/pref_nav_vol"
+            android:summary="@string/pref_nav_vol_summary"
             android:defaultValue="false"
             android:dependency="scrolling" />
             
      <CheckBoxPreference			
             android:key="nav_swipe_h"
             android:title="@string/pref_nav_swipe_h"
-            android:summary="@string/pref_nav_swipe_h"
+            android:summary="@string/pref_nav_swipe_h_summary"
             android:defaultValue="true"
             android:dependency="scrolling" /> 
             
      <CheckBoxPreference			
             android:key="nav_swipe_v"
             android:title="@string/pref_nav_swipe_v"
-            android:summary="@string/pref_nav_swipe_v"
+            android:summary="@string/pref_nav_swipe_v_summary"
             android:defaultValue="true" 
             android:dependency="scrolling"/> 
             
      <CheckBoxPreference			
             android:key="nav_tap_h"
             android:title="@string/pref_nav_tap_h"
-            android:summary="@string/pref_nav_tap_h"
+            android:summary="@string/pref_nav_tap_h_summary"
             android:defaultValue="true"
             android:dependency="scrolling" />       
      
      <CheckBoxPreference			
             android:key="nav_tap_v"
             android:title="@string/pref_nav_tap_v"
-            android:summary="@string/pref_nav_tap_v"
+            android:summary="@string/pref_nav_tap_v_summary"
             android:defaultValue="true"
             android:dependency="scrolling" />           
                 
     </PreferenceCategory>
-    
+
+    <PreferenceCategory
+            android:title="@string/pref_dev_settings">
+
+
+    <CheckBoxPreference android:key="acra.enable"
+                        android:title="@string/pref_acra"
+                        android:summary="@string/pref_acra_summary"
+                        android:defaultValue="true"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

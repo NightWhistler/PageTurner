@@ -20,6 +20,7 @@ package net.nightwhistler.nucular.atom;
 
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_BUY;
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_COVER;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_ALTERNATE;
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_IMAGE;
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_STANZA_COVER_IMAGE;
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_STANZA_THUMBNAIL_IMAGE;
@@ -28,13 +29,17 @@ import static net.nightwhistler.nucular.atom.AtomConstants.REL_THUMBNAIL_ALT;
 import static net.nightwhistler.nucular.atom.AtomConstants.TYPE_ATOM;
 import static net.nightwhistler.nucular.atom.AtomConstants.TYPE_EPUB;
 import static net.nightwhistler.nucular.atom.AtomConstants.REL_STANZA_BUY;
+import static net.nightwhistler.nucular.atom.AtomConstants.REL_RELATED;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Entry extends AtomElement {
 
 	private String updated;
-	private String summary;	
+	private String summary;
+
+    private Feed feed;
 
 	public String getUpdated() {
 		return updated;
@@ -42,7 +47,24 @@ public class Entry extends AtomElement {
 
 	public void setUpdated(String updated) {
 		this.updated = updated;
-	}		
+	}
+
+    public void setFeed(Feed feed) {
+        this.feed = feed;
+    }
+
+    public Feed getFeed() {
+        return feed;
+    }
+	
+	public Link getAlternateLink() {
+		Link atomLink = getAtomLink();
+		if ( atomLink != null && atomLink.getRel() != null && atomLink.getRel().equalsIgnoreCase(REL_ALTERNATE)) {
+			return atomLink;
+		}
+		
+		return null;
+	}
 	
 	public Link getAtomLink() {
 		List<Link> links = getLinks();
@@ -72,7 +94,25 @@ public class Entry extends AtomElement {
 		
 		return link;
 	}
-	
+
+    public List<Link> getAlternateLinks() {
+
+        List<Link> result = new ArrayList<Link>();
+
+        for ( Link link: getLinks() ) {
+
+            String rel = link.getRel() != null ? link.getRel() : "";
+            String type = link.getType() != null ? link.getType() : "";
+
+            if ( rel.equals(REL_RELATED) && type.startsWith(TYPE_ATOM ) ) {
+                result.add(link);
+            }
+        }
+
+        return result;
+
+    }
+
 	public Link getThumbnailLink() {		
 		return findByRel(REL_THUMBNAIL, REL_THUMBNAIL_ALT, REL_STANZA_THUMBNAIL_IMAGE);
 	}
@@ -87,7 +127,7 @@ public class Entry extends AtomElement {
 	
 	public Link getEpubLink() {
 		for ( Link link: getLinks() ) {
-			if ( link.getType().equals(TYPE_EPUB)) {
+			if (link.getType() != null && link.getType().equals(TYPE_EPUB)) {
 				return link;
 			}
 		}

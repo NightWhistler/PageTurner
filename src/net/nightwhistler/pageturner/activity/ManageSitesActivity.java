@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2013 Alex Kuiper
+ *
+ * This file is part of PageTurner
+ *
+ * PageTurner is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * PageTurner is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
+ */
 package net.nightwhistler.pageturner.activity;
 
 import java.util.ArrayList;
@@ -5,6 +23,7 @@ import java.util.List;
 
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.CustomOPDSSite;
+import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 import roboguice.RoboGuice;
@@ -20,6 +39,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +59,10 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );
+		Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class); 
+		PageTurner.changeLanguageSetting(this, config);
+		setTheme( config.getTheme() );
+		
 		super.onCreate(savedInstanceState);		
 	
 		List<CustomOPDSSite> sites = config.getCustomOPDSSites();
@@ -74,6 +97,11 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	}
 	
 	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		showEditDialog( adapter.getItem(position) );
+	}
+	
+	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		
 		ContextAction action = ContextAction.values()[item.getItemId()];
@@ -103,10 +131,26 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	}
 	
 	private void showEditDialog(final CustomOPDSSite site) {
+		showSiteDialog(R.string.edit_site, site);		
+	}
+	
+	private void showAddSiteDialog() {		
+		showSiteDialog(R.string.add_site, null);
+	}
+	
+	private void showSiteDialog(int titleResource, final CustomOPDSSite siteParam ) {
+		
+		final CustomOPDSSite site;
+		
+		if ( siteParam == null ) {
+			site = new CustomOPDSSite();
+		} else {
+			site = siteParam;
+		}
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		
-		builder.setTitle(R.string.edit_site);
+		builder.setTitle(titleResource);
 		LayoutInflater inflater = PlatformUtil.getLayoutInflater(this);
 		
 		View layout = inflater.inflate(R.layout.edit_site, null);
@@ -115,10 +159,14 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 		final TextView siteName = (TextView) layout.findViewById(R.id.siteName);
 		final TextView siteURL = (TextView) layout.findViewById(R.id.siteUrl);
 		final TextView siteDesc = (TextView) layout.findViewById(R.id.siteDescription);
+		final TextView userName = (TextView) layout.findViewById(R.id.username);
+		final TextView password = (TextView) layout.findViewById(R.id.password);
 		
 		siteName.setText(site.getName());
 		siteURL.setText(site.getUrl());
-		siteDesc.setText(site.getDescription());		
+		siteDesc.setText(site.getDescription());
+		userName.setText(site.getUserName());
+		password.setText(site.getPassword());
 				
 		builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
 			
@@ -138,69 +186,28 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 				site.setName(siteName.getText().toString());
 				site.setDescription(siteDesc.getText().toString());
 				site.setUrl(siteURL.getText().toString());
+				site.setUserName(userName.getText().toString());
+				site.setPassword(password.getText().toString());
+							
+				if ( siteParam == null ) {
+					adapter.add(site);
+				}
 				
-				adapter.add(site);
 				storeSites();
+				adapter.notifyDataSetChanged();
 				dialog.dismiss();
 			}
 		});
 		
-		builder.setNegativeButton(android.R.string.cancel, null );
-		
+		builder.setNegativeButton(android.R.string.cancel, null );		
 	
-		builder.show();
-	}
-	
-	private void showAddSiteDialog() {
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		
-		builder.setTitle(R.string.add_site);
-		LayoutInflater inflater = PlatformUtil.getLayoutInflater(this);
-		
-		View layout = inflater.inflate(R.layout.edit_site, null);
-		builder.setView(layout);
-		
-		final TextView siteName = (TextView) layout.findViewById(R.id.siteName);
-		final TextView siteURL = (TextView) layout.findViewById(R.id.siteUrl);
-		final TextView siteDesc = (TextView) layout.findViewById(R.id.siteDescription);
-				
-		builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-				if ( siteName.getText().toString().trim().length() == 0 ) {
-					Toast.makeText(ManageSitesActivity.this, R.string.msg_name_blank, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				
-				if ( siteURL.getText().toString().trim().length() == 0 ) {
-					Toast.makeText(ManageSitesActivity.this, R.string.msg_url_blank, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				
-				CustomOPDSSite site = new CustomOPDSSite();
-				site.setName(siteName.getText().toString());
-				site.setDescription(siteDesc.getText().toString());
-				site.setUrl(siteURL.getText().toString());
-				
-				adapter.add(site);
-				storeSites();
-				dialog.dismiss();
-			}
-		});
-		
-		builder.setNegativeButton(android.R.string.cancel, null );
-		
-	
-		builder.show();
+		builder.show();	
 	}
 
 	private class CustomOPDSSiteAdapter extends ArrayAdapter<CustomOPDSSite> {
 		public CustomOPDSSiteAdapter(List<CustomOPDSSite> sites) {
 			super(ManageSitesActivity.this, 0, sites);
-		}
+		}		
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {

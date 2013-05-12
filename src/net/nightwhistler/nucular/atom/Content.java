@@ -18,7 +18,9 @@
  */
 package net.nightwhistler.nucular.atom;
 
-public class Content {
+import java.io.Serializable;
+
+public class Content implements Serializable {
 
 	private String type;
 	private String text;

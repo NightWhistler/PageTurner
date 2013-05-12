@@ -41,7 +41,15 @@ public interface PageChangeStrategy {
 	 * 
 	 * @return
 	 */
-	public int getPosition();
+	public int getTopLeftPosition();
+
+
+    /**
+     * Gets the current reading progress in the chapter.
+     * @return
+     */
+    public int getProgressPosition();
+
 	
 	/**
 	 * Returns if we're at the start of the current section
@@ -111,5 +119,19 @@ public interface PageChangeStrategy {
 	 * @return the text
 	 */
 	public Spanned getText();
+	
+	/**
+	 * Gets the text for the next page to be displayed, or null if we've reached the end.
+	 * 
+	 * @return
+	 */
+	public CharSequence getNextPageText();
+	
+	/**
+	 * Gets the text for the previous page to be displayed, or null if we've reached the start.
+	 * 
+	 * @return
+	 */
+	public CharSequence getPreviousPageText();
 	
 }

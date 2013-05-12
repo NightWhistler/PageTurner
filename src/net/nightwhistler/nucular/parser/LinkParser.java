@@ -37,7 +37,8 @@ public class LinkParser extends ElementParser {
 		Link link = new Link(
 				attributes.get("href"),
 				attributes.get("type"),
-				attributes.get("rel"));
+				attributes.get("rel"),
+                attributes.get("title"));
 		
 		this.element.addLink(link);
 	}

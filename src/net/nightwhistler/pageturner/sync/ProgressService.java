@@ -39,8 +39,5 @@ public interface ProgressService {
 	 * @return
 	 */
 	public List<BookProgress> getProgress( String fileName ) throws AccessException;
-	
-	public void setConfig( Configuration config );
-	
-	
+
 }

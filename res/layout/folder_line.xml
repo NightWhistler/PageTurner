@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <LinearLayout        
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
@@ -17,7 +17,7 @@
 
         <TextView
             android:id="@+id/folderName"
-            android:layout_width="fill_parent"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/folder_name"

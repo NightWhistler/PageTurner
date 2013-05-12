@@ -58,7 +58,6 @@ public interface BookViewListener {
 	 * of the book. Usually after a pageUp or pageDown event.
 	 * 	
 	 * @param entry
-	 * @param name
 	 */
 	void parseEntryStart( int entry);
 	
@@ -157,4 +156,14 @@ public interface BookViewListener {
 	 * when an edge is tapped.
 	 */
 	void onScreenTap();
+
+    /**
+     * Called when a background calculation for page numbers is started.
+     */
+    void onStartCalculatePageNumbers();
+
+    /**
+     * Called when the background calculation is complete.
+     */
+    void onCalculatePageNumbersComplete();
 }

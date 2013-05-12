@@ -23,14 +23,30 @@ import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 
 import android.app.Application;
+import android.content.Context;
 
-@ReportsCrashes(formKey="dC1sc0tQUVpzdlRRMDNhMFJtbW1UaWc6MQ")
+import static org.acra.ReportField.*;
+
+@ReportsCrashes(formKey = "", // will not be used
+        formUri = "http://acra.pageturner-reader.org/crash",
+        customReportContent = { REPORT_ID, APP_VERSION_CODE, APP_VERSION_NAME, ANDROID_VERSION, BRAND, PHONE_MODEL, BUILD, PRODUCT, STACK_TRACE, LOGCAT, PACKAGE_NAME }
+)
 public class PageTurner extends Application {
 	
 	@Override
 	public void onCreate() {
-        ACRA.init(this);
-        super.onCreate();
+		ACRA.init(this);
+		if(Configuration.IS_EINK_DEVICE) { // e-ink looks better with dark-on-light (esp. Nook Touch where theming breaks light-on-dark
+			setTheme(R.style.Theme_Sherlock_Light);
+		}
+		super.onCreate();
 	}
 	
+	public static void changeLanguageSetting(Context context, Configuration pageTurnerConfig) {
+		android.content.res.Configuration config = new android.content.res.Configuration(
+				context.getResources().getConfiguration());
+	    
+		config.locale = pageTurnerConfig.getLocale();
+	    context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());	    
+	}
 }

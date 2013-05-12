@@ -78,7 +78,13 @@ Once everything is in place you can build PageTurner and install it on your devi
 Eclipse
 -------
 
+*Note:* Building PageTurner in Eclipse is discouraged. We recommend using IntelliJ IDEA Community Edition instead, it imports Maven projects out of the box.
+
+
+To use PageTurner in Eclipse, there are 2 options:
+
 #The easy way
+=======
 
 The recommended way to build PageTurner in Eclipse is using the m2e-android plugin.
 

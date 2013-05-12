@@ -18,22 +18,108 @@
  */
 package net.nightwhistler.pageturner.activity;
 
+import android.content.Intent;
+import android.support.v4.app.FragmentTransaction;
+import com.actionbarsherlock.view.Window;
+import net.nightwhistler.nucular.atom.Entry;
+import net.nightwhistler.nucular.atom.Feed;
+import net.nightwhistler.pageturner.catalog.BookDetailsFragment;
+import net.nightwhistler.pageturner.catalog.CatalogParent;
 import roboguice.RoboGuice;
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.catalog.CatalogFragment;
 import android.os.Bundle;
+import android.view.KeyEvent;
 
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
+import roboguice.inject.InjectFragment;
 
-public class CatalogActivity extends RoboSherlockFragmentActivity {
-	private CatalogFragment catalogFragment;
+import javax.annotation.Nullable;
+
+public class CatalogActivity extends RoboSherlockFragmentActivity implements CatalogParent {
+
+    @InjectFragment(R.id.fragment_catalog)
+    private CatalogFragment catalogFragment;
+
+    @Nullable
+    @InjectFragment(R.id.fragment_book_details)
+    private BookDetailsFragment detailsFragment;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme( RoboGuice.getInjector(this).getInstance(Configuration.class).getTheme() );
+		Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class); 
+		PageTurner.changeLanguageSetting(this, config);
+		setTheme( config.getTheme() );
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.activity_catalog);
-		catalogFragment = (CatalogFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_catalog);
+
+        hideDetailsView();
+    }
+
+    private void hideDetailsView() {
+        if ( detailsFragment != null ) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.hide(detailsFragment);
+            ft.commit();
+        }
+    }
+
+    private boolean isTwoPaneView() {
+        return  getResources().getConfiguration().orientation
+                == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                && detailsFragment != null;
+    }
+
+    @Override
+    public void onFeedReplaced(Feed feed) {
+
+        if ( isTwoPaneView() && feed.getSize() == 1
+                && feed.getEntries().get(0).getEpubLink() != null ) {
+            loadFakeFeed(feed);
+        } else {
+            hideDetailsView();
+        }
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        setSupportProgressBarIndeterminate(true);
+        setSupportProgressBarIndeterminateVisibility(true);
+    }
+
+    @Override
+    public void loadFakeFeed(Feed fakeFeed) {
+
+        if ( isTwoPaneView() ) {
+
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+            ft.show(detailsFragment);
+            ft.commit();
+
+            detailsFragment.setNewFeed(fakeFeed, null);
+        } else {
+            Intent intent = new Intent( this, CatalogBookDetailsActivity.class );
+            intent.putExtra("fakeFeed", fakeFeed);
+
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void loadFeedFromUrl(String url) {
+        catalogFragment.loadURL(url);
+    }
+
+    @Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		return catalogFragment.dispatchKeyEvent(event);
 	}
 
 	// TODO Refactor this. Let the platform push/pop fragments from the fragment stack.
@@ -41,4 +127,10 @@ public class CatalogActivity extends RoboSherlockFragmentActivity {
 	public void onBackPressed() {
 		catalogFragment.onBackPressed();
 	}
+
+    @Override
+    public boolean onSearchRequested() {
+        catalogFragment.onSearchRequested();
+        return true;
+    }
 }

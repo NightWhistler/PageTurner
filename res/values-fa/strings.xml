@@ -103,5 +103,268 @@
     
     <string name="download">بارگیری کتاب‌ها</string> <!-- Download books -->
     <string name="downloading">درحال بارگیری کتاب …</string> <!-- Downloading book… -->
-        
+
+    <!-- Not yet translated -->
+
+    <string name="browse">Browse…</string>
+    <string name="search_books">Search for books</string>
+    <string name="enter_query">Please enter a search-term</string>
+    <string name="buy_now">Buy now</string>
+    <string name="enter_email">Cloud sync is currently disabled. To enable it, please enter an e-mail address in the preferences.</string>
+    <string name="add_to_library">Add to library</string>
+    <string name="search_wait">Searching… please wait.</string>
+    <string name="search_text">Text search</string>
+    <string name="search_hits">Searching…\nFound %d matches.</string>
+    <string name="search_cancelled">Search cancelled.</string>
+    <string name="search_no_matches">Search did not find any matches.</string>
+    <string name="search_results">Search results</string>
+    <string name="opening_file">Opening file…</string>
+    <string name="loading_text">Loading text…</string>
+    <string name="end_of_section">End of chapter.\nClick here to continue.</string>
+    <string name="download_complete">Download complete.\nThe book has been added to your library</string>
+
+
+    <string name="feed_failed">Could not contact the site. Please try again.</string>
+    <string name="book_failed">Could not download the book. Please try again.</string>
+
+    <string name="custom_site">My custom OPDS sites</string>
+    <string name="add_site">Add custom site</string>
+    <string name="edit_site">Edit custom site</string>
+    <string name="add_site_header">What kind of site would you like to add?</string>
+    <string name="calibre_server">Calibre content server</string>
+    <string name="cops_server">COPS server</string>
+    <string name="c2opds_server">Calibre2OPDS</string>
+    <string name="generic_server">Generic OPDS site</string>
+    <string name="save">Save changes</string>
+
+    <string name="custom_site_desc">Your own OPDS / Calibre sites. You can add sites from the Preferences screen.</string>
+    <string name="site_name">Site name</string>
+    <string name="site_url">Site URL</string>
+    <string name="site_desc">Description</string>
+    <string name="site_username">Username</string>
+    <string name="site_password">Password</string>
+
+    <string name="msg_name_blank">Please fill in a name.</string>
+    <string name="msg_url_blank">Please fill in a URL.</string>
+
+    <string name="edit">Edit</string>
+
+    <string name="no_custom_sites">You don\'t have any custom sites defined. Please add some in the preferences.</string>
+    <string name="text_to_speech">Read out loud (TTS)</string>
+
+    <string name="init_tts">Initializing TTS…\nPlease wait.</string>
+    <string name="tts_failed">TTS Failed.</string>
+
+    <string name="search_library">Search library</string>
+    <string name="no_sync_points">You don\'t have any cloud-sync points stored yet.\nSync points are stored automatically when you leave PageTurner.</string>
+    <string name="no_new_books_found">The scan did not find any new books.</string>
+
+    <string name="next_page">Next page…</string>
+    <string name="prev_page">Previous page…</string>
+
+    <string name="empty_opds_feed">The feed was empty. Please check that you are using the correct URL.</string>
+    <string name="search_results_item">Search results…</string>
+    <string name="lookup_wiktionary">Search on Wiktionary</string>
+
+
+
+
+    <!-- Preferences -->
+
+    <string name="pref_sync_settings">تنظیمات همگام‌سازی</string>
+    <string name="pref_email">نشانی رایانامه</string>
+    <string name="pref_email_summary">این برایِ همگام‌سازی روند مطالعه‌تان با دیگر دستگاه‌ها است. خالی بگذارید تا همگام‌سازی غیرفعال شود.</string>
+    <string name="pref_email_message">لطفاً نشانی رایانامهٔ معتبری را وارد کنید.</string>
+
+    <string name="pref_device_name">نام دستگاه</string>
+    <string name="pref_device_name_summary">نام منحصر به فرد برای دستگاه برای پیشگیری از ناسازگاری نام‌ها.</string>
+    <string name="pref_device_name_message">نامی برای دستگاه‌تان انتخاب کنید.</string>
+
+    <string name="pref_access_key">کلید دسترسی</string>
+    <string name="pref_access_key_summary">کلید دسترسی برای همزمان‌سازی دستگاه مورد نیاز است. وب‌گاه‌مان را ببینید تا روش گرفتن کلید را یاد بگیرید.</string>
+    <string name="pref_access_key_message">لطفاً کلید دسترسی‌تان را وارد کنید.</string>
+
+
+    <string name="pref_autoscroll_settings">تنظیمات مرور خودکار</string>
+    <string name="pref_scroll_style">قالب مرور خودکار</string>
+    <!-- <string name="pref_scroll_style_summary"></string> -->
+
+    <string name="pref_scroll_speed">سرعت مرور خودکار</string>
+    <string name="pref_scroll_speed_summary">تعداد ثانیه‌هایی که یک صفحه نمایش داده خواهد شد.</string>
+
+
+    <string name="pref_my_books_settings">تنظیمات کتاب‌هایم</string>
+    <string name="pref_copy_to_library">کپی در پوشهٔ کتابخانه</string>
+    <string name="pref_copy_to_library_summary">آیا PageTurner اجارهٔ کپی پرونده‌ها درون پوشهٔ کتابخانهٔ خود را دارد؟</string>
+
+
+    <string name="pref_visual_settings">تنظیمات نمایشی</string>
+    <string name="pref_full_screen">تمام صفحه</string>
+    <string name="pref_full_screen_summary">پنهان کردن تمامی نوار وضعیت‌ها</string>
+
+
+    <string name="pref_screen_orientation">جهت‌دهی صفحه</string>
+    <string name="pref_screen_orientation_summary">اجازه می‌دهد تا جهت‌دهی خودکار صفحه را قفل کنید.</string>
+
+
+    <string name="pref_set_brightness">تنظیمات درخشندگی</string>
+    <string name="pref_set_brightness_summary">به PageTurner اجازهٔ کنترل درخشندگی صفحه را می‌دهد.</string>
+
+    <string name="pref_day_bright">درخشندگی صفحه</string>
+    <string name="pref_day_bright_summary">درخشندگی صفحه</string>
+
+    <string name="pref_day_night">درخشندگی صفحه</string>
+    <string name="pref_day_night_summary">برای حالت شب</string>
+
+    <string name="pref_text_display_settings">تنظیمات نمایش متن</string>
+
+    <string name="pref_font_face_summary">قلم اصلی برای نمایش متن</string>
+
+    <string name="pref_strip_whitespace_summary">خطوط خالی بی‌استفادهٔ کتاب را پاک می‌کند.</string>
+
+    <string name="pref_itext_size">اندازهٔ متن</string>
+    <string name="pref_itext_size_summary">اندازه‌ قلم برای نمایش متن کتاب‌ها</string>
+
+    <string name="pref_margin_h">حاشیه‌های عمودی</string>
+    <string name="pref_margin_h_summary">فضای خالی در چپ و راست لبهٔ صفحه نمایش رها می‌کند.</string>
+
+    <string name="pref_margin_v">اندازهٔ حاشیه‌ها</string>
+    <string name="pref_margin_v_summary">فضای عمودی بیشتری بین خطوط قرار می‌دهد.</string>
+
+    <string name="pref_line_spacing">فاصله‌گذاری بین خطوط</string>
+    <string name="pref_line_spacing_summary">فضای عمودی بیشتری بین خطوط قرار می‌دهد.</string>
+
+    <string name="pref_colour_settings">تنظیمات رنگ</string>
+    <string name="pref_day_text">رنگ متن</string>
+    <string name="pref_day_text_summary">برای حالت روز</string>
+
+    <string name="pref_day_bg">رنگ پیش‌زمینه</string>
+    <string name="pref_day_bg_summary">برای حالت روز</string>
+
+    <string name="pref_day_link">رنگ پیوند</string>
+    <string name="pref_day_link_summary">برای حالت روز</string>
+
+    <string name="pref_night_text">رنگ متن</string>
+    <string name="pref_night_text_summary">برای حالت شب</string>
+
+    <string name="pref_night_bg">رنگ پیش‌زمینه</string>
+    <string name="pref_night_bg_summary">برای حالت شب</string>
+
+    <string name="pref_night_link">رنگ پیوند</string>
+    <string name="pref_night_link_summary">برای حالت شب</string>
+
+    <string name="pref_animations">انیمیشن‌ها</string>
+    <string name="pref_h_animation">انیمیشن‌های افقی</string>
+    <string name="pref_h_animation_summary">انیمیشن‌های تغییر صفحهٔ افقی</string>
+
+    <string name="pref_v_animation">انیمیشن‌های عمودی</string>
+    <string name="pref_v_animation_summary">انیمیشن‌های تغییر صفحهٔ عمودی</string>
+
+    <string name="pref_navigation_settings">تنظیمات ناوبری</string>
+    <string name="pref_scrolling">فعال کردن مرور</string>
+    <string name="pref_scrolling_summary">فعال کردن قالب مرور به شکل مرورگر وب</string>
+
+
+    <string name="pref_nav_swipe_h">فعال کردن حرکت جارویی افقی صفحات</string>
+    <string name="pref_nav_swipe_h_summary">جارو کردن چپ/راست صفحات.</string>
+
+    <string name="pref_nav_swipe_v">فعال کردن حرکت جارویی عمودی صفحات</string>
+    <string name="pref_nav_swipe_v_summary">جارو کردن بالا/پایین صفحات.</string>
+    
+    <string name="pref_nav_tap_h">فعال کردن حرکت برگه‌ای چپ/راست</string>
+    <string name="pref_nav_tap_h_summary">برای برگ زدن، به چپ و راست صفحات ضربه بزنید.</string>
+    <string name="pref_nav_tap_v">فعال کردن حرکت برگه‌ای بالا/پایین</string>
+    <string name="pref_nav_tap_v_summary">برای برگ‌زدن، به بالا و پایین صفحات ضربه بزنید.</string>
+
+
+    <!-- Not yet translated -->
+
+    <string name="pref_scroll_style_summary">Rolling blind or timer</string>
+
+    <string name="pref_calibre_server">Calibre content server</string>
+    <string name="pref_calibre_server_summary">Connect to your own Calibre library</string>
+    <string name="pref_calibre_server_message">Calibre URL</string>
+    <string name="pref_calibre_server_hint">http://192.168.1.1:8080/opds</string>
+    <string name="pref_calibre_user">User name</string>
+    <string name="pref_calibre_user_summary">Your calibre user name</string>
+    <string name="pref_calibre_user_hint">calibre</string>
+    <string name="pref_calibre_password">Password</string>
+    <string name="pref_calibre_password_summary">Your calibre password</string>
+
+    <string name="pref_keep_screen_on">Keep screen on</string>
+    <string name="pref_keep_screen_on_summary">Prevents the screen from locking while reading</string>
+
+    <string name="pref_font_face">Font face</string>
+    <string name="pref_strip_whitespace">Strip whitespace</string>
+
+    <string name="pref_nav_vol">Enable volume buttons</string>
+    <string name="pref_nav_vol_summary">Press volume up/down to change pages.</string>
+
+
+    <string name="pref_show_pagenum">Show page numbers</string>
+    <string name="pref_show_pagenum_summary">Shows page numbers while reading. It may take a few seconds for page numbers to be displayed the first time.</string>
+
+    <string name="pref_nook_touch">Nook Touch Preferences</string>
+    <string name="pref_nook_touch_button_nav">Button Navigation</string>
+    <string name="pref_nook_touch_button_nav_summary">How should the buttons on the side of the Nook turn the page?</string>
+
+
+    <string name="pref_reading_direction">Reading direction</string>
+    <string name="pref_reading_direction_summary">Read left to right or right to left (Hebrew and Arabic)</string>
+
+    <string-array name="reading_directionsLabels">
+        <item>Left to right</item>
+        <item>Right to left</item>
+    </string-array>
+
+    <string name="pref_manage_sites">Manage OPDS / Calibre Catalogs</string>
+    <string name="pref_manage_sites_summary">Add and remove custom online catalogs and Calibre servers.</string>
+
+    <string name="pref_serif_font">Serif font</string>
+    <string name="pref_serif_summary">Font to use if a book requests a Serif font.</string>
+
+    <string name="pref_sans_serif_font">Sans-Serif font</string>
+    <string name="pref_sans_serif_summary">Font to use if a book requests a Sans-Serif font.</string>
+
+    <string name="pref_lang">UI Language</string>
+    <string name="pref_lang_summary">Allows you to switch PageTurner\'s language settings.</string>
+    <string name="language_switch_message">The new language setting will become active the next time you open a book.</string>
+
+    <string name="pref_accept_self_signed">Accept self-signed certificates</string>
+    <string name="pref_accept_self_signed_summary">Allows you to connect to OPDS sites which use self-signed certificates.</string>
+
+    <string-array name="supported_languagesLabels">
+        <item>Use device setting</item>
+        <item>English</item>
+        <item>Dutch</item>
+        <item>German</item>
+        <item>Spanish</item>
+        <item>Italian</item>
+        <item>Arabic</item>
+        <item>Hebrew</item>
+        <item>Farsi</item>
+    </string-array>
+
+
+    <string name="pref_dim_system_ui">Dim System UI</string>
+    <string name="pref_dim_system_ui_summary">Dims the System UI buttons when reading in fullscreen mode.</string>
+
+    <string name="pref_long_short">Switch long press / short press</string>
+    <string name="pref_long_short_summary">How to open books in the library</string>
+
+    <string-array name="long_short_labels">
+        <item>Long press to open, short press for details</item>
+        <item>Short press to open, long press for details</item>
+    </string-array>
+
+    <string name="pref_dev_settings">Development settings</string>
+
+    <string name="pref_acra">Send error reports</string>
+    <string name="pref_acra_summary">Allow PageTurner to send anonymous error reports when it crashes.</string>
+
+    <string name="opds_settings">OPDS settings</string>
+
+
+
+
 </resources>

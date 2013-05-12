@@ -18,28 +18,21 @@
  */
 package net.nightwhistler.pageturner.library;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-
-import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.library.LibraryDatabaseHelper.Order;
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.Metadata;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import roboguice.inject.ContextSingleton;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-
 import com.google.inject.Inject;
+import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.library.LibraryDatabaseHelper.Order;
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.Metadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import roboguice.inject.ContextSingleton;
+
+import java.io.*;
+import java.nio.channels.FileChannel;
 
 @ContextSingleton
 public class SqlLiteLibraryService implements LibraryService {
@@ -47,9 +40,7 @@ public class SqlLiteLibraryService implements LibraryService {
 	private static final int THUMBNAIL_HEIGHT = 250;
 	
 	private static final long MAX_COVER_SIZE = 1024 * 1024; //Max 1Mb
-	
-	private static final int LIMIT = 20;
-	
+
 	@Inject
 	private LibraryDatabaseHelper helper;	
 	
@@ -174,21 +165,22 @@ public class SqlLiteLibraryService implements LibraryService {
 
 		return targetFile;
 	}
-	
+
+
 	@Override
-	public QueryResult<LibraryBook> findUnread() {
+	public QueryResult<LibraryBook> findUnread(String filter) {
 		return helper.findByField(
 				LibraryDatabaseHelper.Field.date_last_read,
 				null, LibraryDatabaseHelper.Field.title, 
-				LibraryDatabaseHelper.Order.ASC);
+				LibraryDatabaseHelper.Order.ASC, filter);
 				
-	}	
-	
-	@Override
+	}
+
+    @Override
 	public LibraryBook getBook(String fileName) {
 		QueryResult<LibraryBook> booksByFile = 
 			helper.findByField(LibraryDatabaseHelper.Field.file_name,
-					fileName, null, Order.ASC);
+					fileName, null, Order.ASC, null);
 
 		switch ( booksByFile.getSize() ) {
 		case 0:
@@ -202,36 +194,32 @@ public class SqlLiteLibraryService implements LibraryService {
 	}
 	
 	@Override
-	public QueryResult<LibraryBook> findAllByLastRead() {		
-		QueryResult<LibraryBook> result = helper.findAllOrderedBy(
+	public QueryResult<LibraryBook> findAllByLastRead(String filter) {
+		return helper.findAllOrderedBy(
 				LibraryDatabaseHelper.Field.date_last_read,
-				LibraryDatabaseHelper.Order.DESC );
-		result.setLimit(LIMIT);
-		return result;
+				LibraryDatabaseHelper.Order.DESC, filter );
 	}
 	
 	@Override
-	public QueryResult<LibraryBook> findAllByAuthor() {
+	public QueryResult<LibraryBook> findAllByAuthor(String filter) {
 		return helper.findAllKeyedBy(
 				LibraryDatabaseHelper.Field.a_last_name,
-				LibraryDatabaseHelper.Order.ASC );
+				LibraryDatabaseHelper.Order.ASC, filter );
 	
 	}
 	
 	@Override
-	public QueryResult<LibraryBook> findAllByLastAdded() {
-		QueryResult<LibraryBook> result = helper.findAllOrderedBy(
+	public QueryResult<LibraryBook> findAllByLastAdded(String filter) {
+		return helper.findAllOrderedBy(
 				LibraryDatabaseHelper.Field.date_added,
-				LibraryDatabaseHelper.Order.DESC );
-		result.setLimit(LIMIT);
-		return result;
+				LibraryDatabaseHelper.Order.DESC, filter );
 	}
 	
 	@Override
-	public KeyedQueryResult<LibraryBook> findAllByTitle() {
+	public KeyedQueryResult<LibraryBook> findAllByTitle(String filter) {
 		return helper.findAllKeyedBy(
 				LibraryDatabaseHelper.Field.title,
-				LibraryDatabaseHelper.Order.ASC );	
+				LibraryDatabaseHelper.Order.ASC, filter );
 	}
 	
 	public void close() {

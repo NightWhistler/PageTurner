@@ -79,7 +79,7 @@ public class ProgressListAdapter extends ArrayAdapter<BookProgress> implements
 		TextView deviceView = (TextView) rowView.findViewById(R.id.deviceName);
 		TextView dateView = (TextView) rowView.findViewById(R.id.timeStamp );
 		
-		if ( Build.VERSION.SDK_INT < 11 ) {
+		if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
 			deviceView.setTextColor( Color.BLACK );
 			dateView.setTextColor( Color.BLACK );			
 		}	

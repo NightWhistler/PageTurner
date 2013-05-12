@@ -18,13 +18,16 @@
  */
 package net.nightwhistler.pageturner.activity;
 
+import com.actionbarsherlock.view.Window;
 import roboguice.RoboGuice;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
+import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 
@@ -35,6 +38,8 @@ public class ReadingActivity extends RoboSherlockFragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 
         Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class);
+        PageTurner.changeLanguageSetting(this, config);
+        
         int theme = config.getTheme();
 
         if ( config.isFullScreenEnabled() ) {
@@ -46,15 +51,28 @@ public class ReadingActivity extends RoboSherlockFragmentActivity {
         }
 
 		setTheme( theme );
-		super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
+        super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_reading);
 
 		readingFragment = (ReadingFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_reading);
 	}
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        setSupportProgressBarIndeterminate(true);
+        setSupportProgressBarIndeterminateVisibility(false);
+    }
+
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		readingFragment.onWindowFocusChanged(hasFocus);
+	}
+	
+	public void onMediaButtonEvent(View view) {
+		this.readingFragment.onMediaButtonEvent(view.getId());
 	}
 
 	@Override

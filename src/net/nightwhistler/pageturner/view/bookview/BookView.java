@@ -1280,6 +1280,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 				Spannable result = textLoader.getText(resource, true);
 				loader.load(); // Load all image resources.
 
+                //Clear any old highlighting spans
+                BackgroundColorSpan[] spans = result.getSpans(0, result.length(), BackgroundColorSpan.class);
+                for ( BackgroundColorSpan span: spans ) {
+                    result.removeSpan(span);
+                }
+
 				// Highlight search results (if any)
 				for (SearchTextTask.SearchResult searchResult : this.searchResults) {
 					if (searchResult.getIndex() == spine.getPosition()) {

@@ -80,6 +80,11 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
                 HttpResponse resp = httpClient.execute(currentRequest);
 
                 int lengthOfFile = (int) resp.getEntity().getContentLength();
+
+                if ( lengthOfFile <= 0 ) {
+                    return  null;
+                }
+
                 ByteArrayOutputStream out = new ByteArrayOutputStream(lengthOfFile);
 
                 InputStream in = resp.getEntity().getContent();

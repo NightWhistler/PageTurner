@@ -79,12 +79,6 @@ public class CleanFilesTask extends QueueableAsyncTask<Void, Void, Void> {
     }
 
     @Override
-    public void requestCancellation() {
-        super.requestCancellation();
-        this.cancel(true);
-    }
-
-    @Override
     protected void doOnPostExecute(Void aVoid) {
         callback.booksDeleted(deletedFiles);
     }

@@ -57,8 +57,6 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 
     private LoadFeedCallback.ResultType resultType;
 
-    private HttpGet currentRequest;
-
 	@Inject
 	LoadOPDSTask(Context context, Configuration config, HttpClient httpClient) {
 		this.context = context;
@@ -73,13 +71,8 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 
     @Override
     public void requestCancellation() {
-        super.requestCancellation();
-
         LOG.debug("Got cancel request");
-
-        if ( currentRequest != null ) {
-            currentRequest.abort();
-        }
+        super.requestCancellation();
     }
 
     @Override
@@ -97,7 +90,7 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 
 		try {			
 
-            currentRequest = new HttpGet(baseUrl);
+            HttpGet currentRequest = new HttpGet(baseUrl);
             currentRequest.setHeader("User-Agent", config.getUserAgent() );
             currentRequest.setHeader("Accept-Language", config.getLocale().getLanguage());
 			HttpResponse response = httpClient.execute(currentRequest);
@@ -108,14 +101,18 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 				this.errorMessage = "HTTP " + response.getStatusLine().getStatusCode() + ": " + response.getStatusLine().getReasonPhrase();
 				return null;
 			}
-			
-			InputStream stream = response.getEntity().getContent();			
+
+			InputStream stream = response.getEntity().getContent();
 			Feed feed = Nucular.readAtomFeedFromStream(stream);
             feed.setURL(baseUrl);
 			feed.setDetailFeed(asDetailsFeed);
 
             if (isBaseFeed) {
                 addCustomSitesEntry(feed);
+            }
+
+            if ( isCancelled() ) {
+                return null;
             }
 
 			Link searchLink = feed.findByRel(AtomConstants.REL_SEARCH);

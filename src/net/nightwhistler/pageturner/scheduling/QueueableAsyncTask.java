@@ -1,6 +1,14 @@
 package net.nightwhistler.pageturner.scheduling;
 
 import android.os.AsyncTask;
+import net.nightwhistler.pageturner.Configuration;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Subclass of AsyncTask which notifies the scheduler when it's done.
@@ -38,10 +46,11 @@ public abstract class QueueableAsyncTask<Params, Progress, Result> extends Async
     /**
      * Called when a cancellation is requested.
      *
-     * Default simply sets a flag.
+     * Default simply sets a flag and calls cancel()
      */
     public void requestCancellation() {
         this.cancelRequested = true;
+        this.cancel(true);
     }
 
     @Override
@@ -74,4 +83,5 @@ public abstract class QueueableAsyncTask<Params, Progress, Result> extends Async
      * @param result
      */
     protected void doOnPostExecute(Result result) { }
+
 }

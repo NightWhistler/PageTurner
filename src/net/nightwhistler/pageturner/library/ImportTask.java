@@ -82,12 +82,6 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 	}
 
     @Override
-    public void requestCancellation() {
-        super.requestCancellation();
-        this.cancel(true);
-    }
-
-    @Override
 	protected Void doInBackground(File... params) {
 		File parent = params[0];
 		

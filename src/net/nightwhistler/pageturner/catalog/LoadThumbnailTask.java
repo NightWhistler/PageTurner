@@ -10,6 +10,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +33,6 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
     private Map<String, byte[]> cache = new HashMap<String, byte[]>();
     private String baseUrl;
 
-    private HttpGet currentRequest;
-
     @Inject
     public LoadThumbnailTask(HttpClient httpClient ) {
         this.httpClient = httpClient;
@@ -51,13 +52,8 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
 
     @Override
     public void requestCancellation() {
-        super.requestCancellation();
-
         Log.d("LoadThumbnailTask", "Got cancel request");
-
-        if ( currentRequest != null ) {
-            currentRequest.abort();
-        }
+        super.requestCancellation();
     }
 
     @Override
@@ -80,13 +76,37 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
 
                 Log.i("LoadThumbnailTask", "Downloading image: " + target);
 
-                this.currentRequest = new HttpGet(target);
-                HttpResponse resp = httpClient.execute(this.currentRequest);
+                HttpGet currentRequest = new HttpGet(target);
+                HttpResponse resp = httpClient.execute(currentRequest);
 
-                imageLink.setBinData(EntityUtils.toByteArray(resp.getEntity()));
+                int lengthOfFile = (int) resp.getEntity().getContentLength();
+                ByteArrayOutputStream out = new ByteArrayOutputStream(lengthOfFile);
 
-                if ( cache != null ) {
-                    cache.put(href, imageLink.getBinData());
+                InputStream in = resp.getEntity().getContent();
+
+                // here's the download code
+                byte[] buffer = new byte[1024];
+                int len1 = 0;
+                long total = 0;
+
+                while ((len1 = in.read(buffer)) > 0 && ! isCancelled() ) {
+
+                    // Make sure the user can cancel the download.
+                    if (isCancelled()) {
+                        return null;
+                    }
+
+                    total += len1;
+
+                    out.write(buffer, 0, len1);
+                }
+
+                if ( ! isCancelled() ) {
+                    imageLink.setBinData(out.toByteArray());
+
+                    if ( cache != null ) {
+                        cache.put(href, imageLink.getBinData());
+                    }
                 }
 
             } catch (IOException io) {

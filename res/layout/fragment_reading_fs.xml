@@ -92,4 +92,8 @@
         	android:layout_below="@id/percentageField"        	        	
 			android:background="@color/translucent_black" />   
   </RelativeLayout>
+
+  <include layout="@layout/media_player_bar" />
+    	
+    	
 </RelativeLayout>

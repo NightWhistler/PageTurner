@@ -39,15 +39,15 @@ public interface LibraryService {
 	
 	public void updateReadingProgress( String fileName, int progress );
 	
-	public QueryResult<LibraryBook> findAllByLastRead();
+	public QueryResult<LibraryBook> findAllByLastRead(String filter);
 	
-	public QueryResult<LibraryBook> findAllByLastAdded();
+	public QueryResult<LibraryBook> findAllByLastAdded(String filter);
 	
-	public QueryResult<LibraryBook> findAllByTitle();
+	public QueryResult<LibraryBook> findAllByTitle(String filter);
 	
-	public QueryResult<LibraryBook> findAllByAuthor();
+	public QueryResult<LibraryBook> findAllByAuthor(String filter);
 	
-	public QueryResult<LibraryBook> findUnread();
+	public QueryResult<LibraryBook> findUnread(String filter);
 	
 	public LibraryBook getBook( String fileName );
 	

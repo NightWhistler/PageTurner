@@ -37,8 +37,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 /**
- * ListAdapter class for progress downloaded from a synchronization
- * server.
+ * ListAdapter class for search results.
  * 
  * @author Alex Kuiper
  *
@@ -77,7 +76,7 @@ public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResul
 		TextView deviceView = (TextView) rowView.findViewById(R.id.deviceName);
 		TextView percentageView = (TextView) rowView.findViewById(R.id.timeStamp );
 				
-		if ( Build.VERSION.SDK_INT < 11 ) {
+		if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
 			deviceView.setTextColor( Color.BLACK );
 			percentageView.setTextColor( Color.BLACK );			
 		}

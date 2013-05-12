@@ -1,8 +1,6 @@
-package net.nightwhistler.pageturner.animation;
-
 /*
- * Copyright (C) 2011 Alex Kuiper
- * 
+ * Copyright (C) 2012 Alex Kuiper
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -18,6 +16,8 @@ package net.nightwhistler.pageturner.animation;
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
+package net.nightwhistler.pageturner.animation;
+
 import android.graphics.Canvas;
 
 /**

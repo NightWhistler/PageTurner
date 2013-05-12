@@ -51,9 +51,19 @@ public class ScrollingStrategy implements PageChangeStrategy {
 		this.childView = bookView.getInnerView();		
 		this.context = context;
 	}
-
+	
 	@Override
-	public int getPosition() {
+	public Spanned getNextPageText() {		
+		return null;
+	}
+	
+	@Override
+	public Spanned getPreviousPageText() {		
+		return null;
+	}
+	
+	@Override
+	public int getTopLeftPosition() {
 		if ( childView.getText().length() == 0 ) {
 			return storedPosition;
 		} else {
@@ -62,6 +72,10 @@ public class ScrollingStrategy implements PageChangeStrategy {
 			return findTextOffset(findClosestLineBottom(yPos));
 		}
 	}
+
+    public int getProgressPosition() {
+        return getTopLeftPosition();
+    }
 	
 	@Override
 	public boolean isAtEnd() {
@@ -78,7 +92,7 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	
 	@Override
 	public boolean isAtStart() {
-		return getPosition() == 0;
+		return getTopLeftPosition() == 0;
 	}
 	
 	@Override

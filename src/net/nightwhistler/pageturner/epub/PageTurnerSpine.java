@@ -85,7 +85,11 @@ public class PageTurnerSpine {
 	}
 	
 	public void setPageOffsets(List<List<Integer>> pageOffsets) {
-		this.pageOffsets = pageOffsets;
+        if ( pageOffsets != null ) {
+		    this.pageOffsets = pageOffsets;
+        } else {
+            pageOffsets = new ArrayList<List<Integer>>();
+        }
 	}
 	
 	public int getTotalNumberOfPages() {
@@ -94,28 +98,11 @@ public class PageTurnerSpine {
 			total += pagesPerSection.size();
 		}
 		
-		return total;
+		return Math.max(0, total - 1);
 	}
 	
-	public int getPageNumberFor( int index, int position ) {
-		
-		int pageNum = 0;
-		
-		if ( index >= pageOffsets.size() ) {
-			return -1;
-		}
-		
-		for ( int i=0; i < index; i++ ) {
-			pageNum += pageOffsets.get(i).size();			
-		}
-		
-		List<Integer> offsets = pageOffsets.get(index);
-		
-		for ( int i=0; i < offsets.size() && offsets.get(i) < position; i++ ) {
-			pageNum++;
-		}
-		
-		return pageNum;
+	public List<List<Integer>> getPageOffsets() {
+		return pageOffsets;
 	}
 	
 	
@@ -258,7 +245,9 @@ public class PageTurnerSpine {
 	private static String encode(String input) {
         StringBuilder resultStr = new StringBuilder();
         for (char ch : input.toCharArray()) {
-            if (isUnsafe(ch)) {
+            if ( ch == '\\' ) { //Some books use \ as a separator... invalid, but we'll try to fix it
+                resultStr.append('/');
+            } else if (isUnsafe(ch)) {
                 resultStr.append('%');
                 resultStr.append(toHex(ch / 16));
                 resultStr.append(toHex(ch % 16));

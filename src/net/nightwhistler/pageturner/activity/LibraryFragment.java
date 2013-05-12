@@ -1,46 +1,58 @@
+/*
+ * Copyright (C) 2012 Alex Kuiper
+ *
+ * This file is part of PageTurner
+ *
+ * PageTurner is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * PageTurner is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
+ */
 package net.nightwhistler.pageturner.activity;
 
 import java.io.File;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import android.content.ActivityNotFoundException;
+import android.widget.*;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.widget.SearchView;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.PlatformUtil;
-import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
 import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.Configuration.LibraryView;
-import net.nightwhistler.pageturner.library.ImportCallback;
-import net.nightwhistler.pageturner.library.ImportTask;
-import net.nightwhistler.pageturner.library.KeyedQueryResult;
-import net.nightwhistler.pageturner.library.KeyedResultAdapter;
-import net.nightwhistler.pageturner.library.LibraryBook;
-import net.nightwhistler.pageturner.library.LibraryService;
-import net.nightwhistler.pageturner.library.QueryResult;
+import net.nightwhistler.pageturner.PlatformUtil;
+import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.library.CleanFilesTask;
+import net.nightwhistler.pageturner.library.*;
+import net.nightwhistler.pageturner.scheduling.*;
 import net.nightwhistler.pageturner.view.BookCaseView;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -49,17 +61,8 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.TextView;
-import android.widget.ViewSwitcher;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
@@ -70,10 +73,18 @@ import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 
-public class LibraryFragment extends RoboSherlockFragment implements ImportCallback, OnItemClickListener {
+import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
+
+public class LibraryFragment extends RoboSherlockFragment implements ImportCallback, OnItemClickListener,
+        OnItemLongClickListener, DialogFactory.SearchCallBack, TaskQueue.TaskQueueListener {
+
+    protected static final int REQUEST_CODE_GET_CONTENT = 2;
 	
 	@Inject 
 	private LibraryService libraryService;
+
+    @Inject
+    private DialogFactory dialogFactory;
 	
 	@InjectView(R.id.libraryList)
 	private ListView listView;
@@ -95,6 +106,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	@Inject
 	private Configuration config;
 
+    @Inject
+    private TaskQueue taskQueue;
+
 	private Drawable backupCover;
 	private Handler handler;
 		
@@ -111,12 +125,14 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	private boolean askedUserToImport;
 	private boolean oldKeepScreenOn;
 	
-	private static final Logger LOG = LoggerFactory.getLogger(LibraryActivity.class); 
+	private static final Logger LOG = LoggerFactory.getLogger("LibraryActivity");
 	
 	private IntentCallBack intentCallBack;
 	private List<CoverCallback> callbacks = new ArrayList<CoverCallback>();
 	private Map<String, FastBitmapDrawable> coverCache = new HashMap<String, FastBitmapDrawable>();
-	
+
+    private MenuItem searchMenuItem;
+
 	private interface IntentCallBack {
 		void onResult( int resultCode, Intent data );
 	}
@@ -133,12 +149,15 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		if ( savedInstanceState != null ) {
 			this.askedUserToImport = savedInstanceState.getBoolean("import_q", false);
 		}
+
+        this.taskQueue.setTaskQueueListener(this);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_library, container, false);
 	}
+
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -149,7 +168,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
 			
-			this.bookAdapter = new BookCaseAdapter(getActivity());
+			this.bookAdapter = new BookCaseAdapter();
 			this.bookCaseView.setAdapter(bookAdapter);			
 			
 			if ( switcher.getDisplayedChild() == 0 ) {
@@ -170,6 +189,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		importDialog.setMessage(getString(R.string.scanning_epub));
 		registerForContextMenu(this.listView);	
 		this.listView.setOnItemClickListener(this);
+		this.listView.setOnItemLongClickListener(this);
 		
 		setAlphabetBarVisible(false);
 	}
@@ -185,25 +205,55 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				android.R.id.text1, getResources().getStringArray(R.array.libraryQueries));
 
 		actionBar.setListNavigationCallbacks(adapter, new MenuSelectionListener() );
+
+
+        refreshView();
+        executeTask(new CleanFilesTask(this, libraryService, config));
+        executeTask(new ImportTask(getActivity(), libraryService, this, config, config.isCopyToLibrayEnabled(),
+                true), new File(config.getLibraryFolder()) );
 	}
 
-	private void clearCoverCache() {
+    private <A,B,C> void executeTask( QueueableAsyncTask<A,B,C> task, A... parameters ) {
+        setSupportProgressBarIndeterminateVisibility(true);
+        this.taskQueue.executeTask(task, parameters);
+    }
+
+    @Override
+    public void queueEmpty() {
+        setSupportProgressBarIndeterminateVisibility(false);
+    }
+
+    private void clearCoverCache() {
 		for ( Map.Entry<String, FastBitmapDrawable> draw: coverCache.entrySet() ) {
 			draw.getValue().destroy();
 		}
 		
 		coverCache.clear();
 	}
-	
-	private void onBookClicked( LibraryBook book ) {
-		showBookDetails(book);
-	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int pos,
+	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		onBookClicked(this.bookAdapter.getResultAt(pos));
+
+        if ( config.getLongShortPressBehaviour() == Configuration.LongShortPressBehaviour.NORMAL ) {
+            showBookDetails(this.bookAdapter.getResultAt(position));
+        } else {
+            openBook(this.bookAdapter.getResultAt(position));
+        }
 	}	
+	
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view,
+			int position, long id) {
+
+        if ( config.getLongShortPressBehaviour() == Configuration.LongShortPressBehaviour.NORMAL ) {
+            openBook(this.bookAdapter.getResultAt(position));
+        } else {
+            showBookDetails(this.bookAdapter.getResultAt(position));
+        }
+
+		return true;
+	}
 	
 	private Bitmap getCover( LibraryBook book ) {
 		return BitmapFactory.decodeByteArray(book.getCoverImage(), 0, book.getCoverImage().length );
@@ -252,14 +302,18 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		String addedText = String.format( getString(R.string.added_to_lib),
 				DATE_FORMAT.format(libraryBook.getAddedToLibrary()));
 		added.setText( addedText );
-		descriptionView.setText(new HtmlSpanner().fromHtml( libraryBook.getDescription()));		
+
+        HtmlSpanner spanner = new HtmlSpanner();
+        spanner.unregisterHandler("img" ); //We don't want to render images
+
+		descriptionView.setText(spanner.fromHtml( libraryBook.getDescription()));
 		
 		builder.setNeutralButton(R.string.delete, new OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				libraryService.deleteBook( libraryBook.getFileName() );
-				new LoadBooksTask().execute(config.getLastLibraryQuery());
+				refreshView();
 				dialog.dismiss();			
 			}
 		});			
@@ -269,32 +323,36 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-
-				Intent intent = new Intent(getActivity(), ReadingActivity.class);
-				
-				intent.setData( Uri.parse(libraryBook.getFileName()));
-				getActivity().setResult(Activity.RESULT_OK, intent);
-						
-				getActivity().startActivityIfNeeded(intent, 99);				
+				openBook(libraryBook);						
 			}
 		});
 		
 		builder.show();
 	}
 	
+	private void openBook(LibraryBook libraryBook) {
+		Intent intent = new Intent(getActivity(), ReadingActivity.class);
+		
+		intent.setData( Uri.parse(libraryBook.getFileName()));
+		getActivity().setResult(Activity.RESULT_OK, intent);
+				
+		getActivity().startActivityIfNeeded(intent, 99);		
+	}
+	
 		
 	private void startImport(File startFolder, boolean copy) {		
-		ImportTask importTask = new ImportTask(getActivity(), libraryService, this, config, copy);
+		ImportTask importTask = new ImportTask(getActivity(), libraryService, this, config, copy, false);
 		importDialog.setOnCancelListener(importTask);
 		importDialog.show();		
 				
 		this.oldKeepScreenOn = listView.getKeepScreenOn();
 		listView.setKeepScreenOn(true);
-		
-		importTask.execute(startFolder);
+
+        executeTask( importTask, startFolder );
 	}
-	
-	@Override
+
+
+    @Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if ( this.intentCallBack != null ) {
 			this.intentCallBack.onResult(resultCode, data);
@@ -311,7 +369,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			public boolean onMenuItemClick(MenuItem item) {
 				
 				if ( switcher.getDisplayedChild() == 0 ) {
-					bookAdapter = new BookCaseAdapter(getActivity());
+					bookAdapter = new BookCaseAdapter();
 					bookCaseView.setAdapter(bookAdapter);	
 					config.setLibraryView(LibraryView.BOOKCASE);					
 				} else {
@@ -321,7 +379,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				}
 				
 				switcher.showNext();
-				new LoadBooksTask().execute(config.getLastLibraryQuery());
+				refreshView();
 				return true;				
             }
         };
@@ -359,7 +417,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-				Dialogs.showAboutDialog(getActivity());
+				dialogFactory.buildAboutDialog().show();
 				return true;
 			}
 		});
@@ -395,7 +453,101 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				return true;
 			}
 		});
-	}	
+
+        this.searchMenuItem = menu.findItem(R.id.menu_search);
+        if (searchMenuItem != null) {
+            final SearchView searchView = (SearchView) searchMenuItem.getActionView();
+
+            if (searchView != null) {
+
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String query) {
+                        performSearch(query);
+                        return true;
+                    }
+                } );
+            } else {
+                searchMenuItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        dialogFactory.showSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
+                        return false;
+                    }
+                });
+            }
+        }
+
+
+        // Only show open file item if we have a file manager installed
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("file/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        if (isIntentAvailable(getActivity(), intent)) {
+            menu.findItem(R.id.open_file).setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    launchFileManager();
+                    return true;
+                }
+            });
+        } else {
+            menu.findItem(R.id.open_file).setVisible(false);
+        }
+
+	}
+
+    private void launchFileManager() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("file/*");
+
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        this.intentCallBack = new IntentCallBack() {
+
+            @Override
+            public void onResult(int resultCode, Intent data) {
+                if ( resultCode == Activity.RESULT_OK && data != null ) {
+                    Intent readingIntent = new Intent( getActivity(), ReadingActivity.class);
+                    readingIntent.setData(data.getData());
+                    getActivity().setResult(Activity.RESULT_OK, readingIntent);
+
+                    getActivity().startActivityIfNeeded(readingIntent, 99);
+                }
+            }
+        };
+
+        try {
+            startActivityForResult(intent, REQUEST_CODE_GET_CONTENT);
+        } catch (ActivityNotFoundException e) {
+            // No compatible file manager was found.
+            Toast.makeText(getActivity(), getString(R.string.install_oi),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void onSearchRequested() {
+        if ( this.searchMenuItem != null && searchMenuItem.getActionView() != null ) {
+            this.searchMenuItem.expandActionView();
+            this.searchMenuItem.getActionView().requestFocus();
+        } else {
+            dialogFactory.showSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
+        }
+    }
+
+
+    @Override
+    public void performSearch(String query) {
+        if ( query != null ) {
+            executeTask(new LoadBooksTask(config.getLastLibraryQuery(), query.toString()));
+        }
+    }
 	
 	private void switchToColourProfile( ColourProfile profile ) {
 		config.setColourProfile(profile);
@@ -407,7 +559,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		boolean bookCaseActive = switcher.getDisplayedChild() != 0;
+		boolean bookCaseActive = config.getLibraryView() == LibraryView.BOOKCASE;
 		
 		menu.findItem(R.id.shelves_view).setVisible(! bookCaseActive);
 		menu.findItem(R.id.list_view).setVisible(bookCaseActive);
@@ -492,7 +644,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	}
 	
 	@Override
-	public void onStop() {		
+	public void onStop() {
 		this.libraryService.close();	
 		this.waitDialog.dismiss();
 		this.importDialog.dismiss();
@@ -507,9 +659,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	public void onPause() {
 		
 		this.bookAdapter.clear();
-		this.libraryService.close();
 		//We clear the list to free up memory.
-		
+
+        this.taskQueue.clear();
 		this.clearCoverCache();
 		
 		super.onPause();
@@ -524,38 +676,27 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
 		
-		if ( actionBar.getSelectedNavigationIndex() != lastSelection.ordinal() ) {
+		if (actionBar.getSelectedNavigationIndex() != lastSelection.ordinal() ) {
 			actionBar.setSelectedNavigationItem(lastSelection.ordinal());
 		} else {
-			new LoadBooksTask().execute(lastSelection);
+            executeTask(new LoadBooksTask(lastSelection));
 		}
 	}
 	
 	@Override
-	public void importCancelled() {
+	public void importComplete(int booksImported, List<String> errors, boolean emptyLibrary, boolean silent) {
 		
 		if ( !isAdded() || getActivity() == null ) {
 			return;
 		}
-		
-		listView.setKeepScreenOn(oldKeepScreenOn);
-		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
-		
-		//Switch to the "recently added" view.
-		if ( actionBar.getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
-			new LoadBooksTask().execute(LibrarySelection.LAST_ADDED);
-		} else {
-			actionBar.setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
-		}
-	}
-	
-	
-	@Override
-	public void importComplete(int booksImported, List<String> errors) {
-		
-		if ( !isAdded() || getActivity() == null ) {
-			return;
-		}
+
+        if ( silent ) {
+            if ( booksImported > 0 ) {
+                //Schedule refresh without clearing the queue
+                executeTask(new LoadBooksTask(config.getLastLibraryQuery()));
+            }
+            return;
+        }
 		
 		importDialog.hide();			
 		
@@ -585,15 +726,21 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			
 			//Switch to the "recently added" view.
 			if (getSherlockActivity().getSupportActionBar().getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
-				new LoadBooksTask().execute(LibrarySelection.LAST_ADDED);
+				loadView(LibrarySelection.LAST_ADDED, "importComplete()");
 			} else {
 				getSherlockActivity().getSupportActionBar().setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
 			}
 		} else {
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			builder.setTitle(R.string.no_books_found);
-			builder.setMessage( getString(R.string.no_bks_fnd_text) );
-			builder.setNeutralButton(android.R.string.ok, dismiss);
+
+            if ( emptyLibrary ) {
+                builder.setMessage( getString(R.string.no_bks_fnd_text) );
+            } else {
+                builder.setMessage( getString(R.string.no_new_books_found));
+            }
+
+            builder.setNeutralButton(android.R.string.ok, dismiss);
 			
 			builder.show();
 		}
@@ -601,9 +748,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	
 	@Override
-	public void importFailed(String reason) {
+	public void importFailed(String reason, boolean silent) {
 		
-		if ( !isAdded() || getActivity() == null ) {
+		if (silent || !isAdded() || getActivity() == null ) {
 			return;
 		}
 		
@@ -616,9 +763,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	}
 	
 	@Override
-	public void importStatusUpdate(String update) {
+	public void importStatusUpdate(String update, boolean silent) {
 		
-		if ( !isAdded() || getActivity() == null ) {
+		if (silent || !isAdded() || getActivity() == null ) {
 			return;
 		}
 		
@@ -701,9 +848,32 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			return rowView;
 		}	
 	
-	}	
-	
-	private void loadCover( ImageView imageView, LibraryBook book, int index ) {
+	}
+
+    private void loadView( LibrarySelection selection, String from ) {
+        LOG.debug("Loading view: " + selection + " from " + from);
+        this.taskQueue.clear();
+        executeTask(new LoadBooksTask(selection));
+    }
+
+    private void refreshView() {
+        LOG.debug("View refresh requested");
+        loadView(config.getLastLibraryQuery(), "refreshView()");
+    }
+
+    @Override
+    public void booksDeleted(int numberOfDeletedBooks) {
+
+        LOG.debug("Got " + numberOfDeletedBooks + " deleted books.");
+
+        if ( numberOfDeletedBooks > 0 ) {
+
+            //Schedule a refresh without clearing the task queue
+            executeTask(new LoadBooksTask(config.getLastLibraryQuery()));
+        }
+    }
+
+    private void loadCover( ImageView imageView, LibraryBook book, int index ) {
 		Drawable draw = coverCache.get(book.getFileName());			
 		
 		if ( draw != null ) {
@@ -722,6 +892,16 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		private Runnable lastRunnable;
 		private Character lastCharacter;
+
+        private Drawable holoDrawable;
+
+        public  CoverScrollListener() {
+            try {
+                this.holoDrawable = getResources().getDrawable(R.drawable.list_activated_holo);
+            } catch (IllegalStateException i) {
+                //leave it null
+            }
+        }
 		
 		@Override
 		public void onScroll(AbsListView view, final int firstVisibleItem,
@@ -764,7 +944,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 							for ( int i=0; i < alphabetBar.getChildCount(); i++ ) {
 								View child = alphabetBar.getChildAt(i);
 								if ( child.getTag().equals(keyChar) ) {
-									child.setBackgroundDrawable( getResources().getDrawable(R.drawable.list_activated_holo));
+									child.setBackgroundDrawable( holoDrawable );
 								} else {
 									child.setBackgroundDrawable(null);
 								}
@@ -816,19 +996,15 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				coverCache.put(book.getFileName(), drawable);
 			} catch (OutOfMemoryError err) {
 				clearCoverCache();
-			}
+			} catch (IllegalStateException i) {
+                //Do nothing, happens when we're no longer attached.
+            }
 		}
 	}
 	
 	
 	private class BookCaseAdapter extends KeyedResultAdapter {
-		
-		private Context context;
-		
-		public BookCaseAdapter(Context context) {
-			this.context = context;
-		}	
-		
+				
 		@Override
 		public View getView(final int index, final LibraryBook object, View convertView,
 				ViewGroup parent) {
@@ -849,9 +1025,17 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				
 				@Override
 				public void onClick(View v) {
-					onBookClicked(object);					
+					LibraryFragment.this.onItemClick(null, null, index, 0);
 				}
 			});	
+			
+			result.setOnLongClickListener( new View.OnLongClickListener() {
+				
+				@Override
+				public boolean onLongClick(View v) {
+					return LibraryFragment.this.onItemLongClick(null, null, index, 0);
+				}
+			});
 			
 			
 			final ImageView image = (ImageView) result.findViewById(R.id.bookCover);
@@ -905,6 +1089,16 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		alphabetDivider.setVisibility(vis);		
 		listView.setFastScrollEnabled(visible);
 	}
+
+    private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
+        SherlockFragmentActivity activity = getSherlockActivity();
+        if ( activity != null) {
+            LOG.debug("Setting progress bar to " + enable );
+            activity.setSupportProgressBarIndeterminateVisibility(enable);
+        } else {
+            LOG.debug("Got null activity.");
+        }
+    }
 	
 	private class MenuSelectionListener implements OnNavigationListener {	
 		
@@ -912,11 +1106,14 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		public boolean onNavigationItemSelected(int pos, long arg1) {
 
 			LibrarySelection newSelections = LibrarySelection.values()[pos];
+
+            if ( newSelections != config.getLastLibraryQuery() ) {
+			    config.setLastLibraryQuery(newSelections);
 			
-			config.setLastLibraryQuery(newSelections);
-			
-			bookAdapter.clear();
-			new LoadBooksTask().execute(newSelections);
+			    bookAdapter.clear();
+                loadView(newSelections, "onNavigationItemSelected()");
+            }
+
 			return false;
 		}
 	}	
@@ -938,8 +1135,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = super.getView(position, convertView, parent);
 			
-			
-			
 			Character tag = data.get(position);
 			view.setTag( tag );
 			
@@ -960,41 +1155,86 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			return highlightChar;
 		}
 	}
-	
-	private class LoadBooksTask extends AsyncTask<Configuration.LibrarySelection, Integer, QueryResult<LibraryBook>> {		
+
+    private void loadQueryData(QueryResult<LibraryBook> result ) {
+        if ( !isAdded() || getActivity() == null ) {
+            return;
+        }
+
+        bookAdapter.setResult(result);
+
+        if ( result instanceof KeyedQueryResult && result.getSize() >= ALPHABET_THRESHOLD ) {
+
+            final KeyedQueryResult<LibraryBook> keyedResult = (KeyedQueryResult<LibraryBook>) result;
+
+            alphabetAdapter = new AlphabetAdapter(getActivity(),
+                    R.layout.alphabet_line, R.id.alphabetLabel,	keyedResult.getAlphabet() );
+
+            alphabetBar.setAdapter(alphabetAdapter);
+
+            alphabetBar.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> arg0, View arg1,
+                                        int arg2, long arg3) {
+
+                    Character c = keyedResult.getAlphabet().get(arg2);
+                    onAlphabetBarClick(keyedResult, c);
+                }
+            });
+
+            setAlphabetBarVisible(true);
+        } else {
+            alphabetAdapter = null;
+            setAlphabetBarVisible(false);
+        }
+
+
+    }
+
+	private class LoadBooksTask extends QueueableAsyncTask<String, Integer, QueryResult<LibraryBook>> {
 		
 		private Configuration.LibrarySelection sel;
+        private String filter;
+
+        public LoadBooksTask(LibrarySelection selection) {
+            this.sel = selection;
+        }
+
+        public LoadBooksTask(LibrarySelection selection, String filter ) {
+            this(selection);
+            this.filter = filter;
+        }
 		
 		@Override
 		protected void onPreExecute() {
-			waitDialog.setTitle(R.string.loading_library);
-			waitDialog.show();
-			
-			coverCache.clear();
+
+            if ( this.filter == null )  {
+			    coverCache.clear();
+            }
 		}
 		
 		@Override
-		protected QueryResult<LibraryBook> doInBackground(Configuration.LibrarySelection... params) {
+		protected QueryResult<LibraryBook> doInBackground(String... params) {
 			
 			Exception storedException = null;
+
+            String query = this.filter;
 			
 			for ( int i=0; i < 3; i++ ) {
 
 				try {
 
-					this.sel = params[0];
-
 					switch ( sel ) {			
 					case LAST_ADDED:
-						return libraryService.findAllByLastAdded();
+						return libraryService.findAllByLastAdded(query);
 					case UNREAD:
-						return libraryService.findUnread();
+						return libraryService.findUnread(query);
 					case BY_TITLE:
-						return libraryService.findAllByTitle();
+						return libraryService.findAllByTitle(query);
 					case BY_AUTHOR:
-						return libraryService.findAllByAuthor();
+						return libraryService.findAllByAuthor(query);
 					default:
-						return libraryService.findAllByLastRead();
+						return libraryService.findAllByLastRead(query);
 					}
 				} catch (SQLiteException sql) {
 					storedException = sql;
@@ -1006,50 +1246,17 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			}
 			
 			throw new RuntimeException( "Failed after 3 attempts", storedException ); 
-		}		
-		
-		
-		@Override
-		protected void onPostExecute(QueryResult<LibraryBook> result) {
-			
-			if ( !isAdded() || getActivity() == null ) {
-				return;
-			}
-			
-			bookAdapter.setResult(result);			
-			
-			if ( result instanceof KeyedQueryResult && result.getSize() >= ALPHABET_THRESHOLD ) {
-				
-				final KeyedQueryResult<LibraryBook> keyedResult = (KeyedQueryResult<LibraryBook>) result;
-				
-				alphabetAdapter = new AlphabetAdapter(getActivity(),
-						R.layout.alphabet_line, R.id.alphabetLabel,	keyedResult.getAlphabet() );
-				
-				alphabetBar.setAdapter(alphabetAdapter);
-				
-				alphabetBar.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> arg0, View arg1,
-							int arg2, long arg3) {
-							
-						Character c = keyedResult.getAlphabet().get(arg2);
-						onAlphabetBarClick(keyedResult, c);
-					}
-				});				
-				
-				setAlphabetBarVisible(true);
-			} else {
-				alphabetAdapter = null;
-				setAlphabetBarVisible(false);								
-			}			
-			
-			waitDialog.hide();			
-			
-			if ( sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
-				askedUserToImport = true;
-				buildImportQuestionDialog();
-				importQuestion.show();
-			}
+		}
+
+        @Override
+        protected void doOnPostExecute(QueryResult<LibraryBook> result) {
+			 loadQueryData(result);
+
+            if (filter == null && sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
+                askedUserToImport = true;
+                buildImportQuestionDialog();
+                importQuestion.show();
+            }
 		}
 		
 	}

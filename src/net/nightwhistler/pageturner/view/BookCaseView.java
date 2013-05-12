@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2012 Alex Kuiper
+ *
+ * This file is part of PageTurner
+ *
+ * PageTurner is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * PageTurner is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
+ */
+
 package net.nightwhistler.pageturner.view;
 
 import roboguice.RoboGuice;
@@ -40,15 +59,16 @@ public class BookCaseView extends GridView {
 		
 		this.config = RoboGuice.getInjector(context).getInstance(Configuration.class);
 		
-		if (config.getColourProfile() == ColourProfile.DAY ) {
-			shelfBackground = BitmapFactory.decodeResource(context.getResources(),
-				R.drawable.shelf_single);
-		} else {
-			shelfBackground = BitmapFactory.decodeResource(context.getResources(),
-					R.drawable.shelf_single_dark);
+		if(!Configuration.IS_EINK_DEVICE) {
+			if (config.getColourProfile() == ColourProfile.DAY ) {
+				shelfBackground = BitmapFactory.decodeResource(context.getResources(),
+									R.drawable.shelf_single);
+			} else {
+				shelfBackground = BitmapFactory.decodeResource(context.getResources(),
+									R.drawable.shelf_single_dark);
+			}
+			setBackground(shelfBackground);
 		}
-		
-		setBackground(shelfBackground);
 		this.setFocusable(true);
 	}
 	
@@ -86,19 +106,20 @@ public class BookCaseView extends GridView {
         final int height = getHeight();
         final Bitmap background = this.background;
 
-        for (int x = 0; x < width; x += shelfWidth) {
-            for (int y = top; y < height; y += shelfHeight) {
-                canvas.drawBitmap(background, x, y, null);
-            }
-            
-            //This draws the top pixels of the shelf above the current one
-            
-            Rect source = new Rect(0, mShelfHeight - top, mShelfWidth, mShelfHeight);
-            Rect dest = new Rect(x, 0, x + mShelfWidth, top );            	
-            	
-            canvas.drawBitmap(background, source, dest, null);            
-        }        
-        
+	if(background != null) {
+		for (int x = 0; x < width; x += shelfWidth) {
+			for (int y = top; y < height; y += shelfHeight) {
+				canvas.drawBitmap(background, x, y, null);
+			}
+			
+			//This draws the top pixels of the shelf above the current one
+			
+			Rect source = new Rect(0, mShelfHeight - top, mShelfWidth, mShelfHeight);
+			Rect dest = new Rect(x, 0, x + mShelfWidth, top );
+			
+			canvas.drawBitmap(background, source, dest, null);
+		}
+	}        
 
         super.dispatchDraw(canvas);
 	}

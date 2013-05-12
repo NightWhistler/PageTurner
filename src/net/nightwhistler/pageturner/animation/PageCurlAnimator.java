@@ -82,6 +82,7 @@ public class PageCurlAnimator implements Animator {
 	private Bitmap mBackground;		
 	
 	private int backgroundColor = Color.WHITE;
+	private int edgeColor = Color.BLACK;
 
 	private boolean started = false;
 	private boolean finished = false;
@@ -137,6 +138,10 @@ public class PageCurlAnimator implements Animator {
 		this.backgroundColor = backgroundColor;
 	}
 	
+	public void setEdgeColor( int edgeColor ) {
+		this.edgeColor = edgeColor;
+	}
+	
 	private void drawDebug(Canvas canvas)
 	{
 		float posX = 10;
@@ -144,9 +149,10 @@ public class PageCurlAnimator implements Animator {
 		
 		Paint paint = new Paint();
 		paint.setStrokeWidth(5);
-		paint.setStyle(Style.STROKE);
+		paint.setStyle(Style.FILL);
 		
-		paint.setColor(Color.BLACK);		
+		paint.setColor(Color.BLACK);
+		
 		canvas.drawCircle(mOrigin.x, mOrigin.y, getWidth(), paint);
 		
 		paint.setStrokeWidth(3);
@@ -297,8 +303,11 @@ public class PageCurlAnimator implements Animator {
 		// Create our edge paint
 		mCurlEdgePaint = new Paint();		
 		mCurlEdgePaint.setAntiAlias(true);
-		mCurlEdgePaint.setStyle(Paint.Style.FILL);
-		mCurlEdgePaint.setShadowLayer(10, -5, 5, 0x99000000);
+		mCurlEdgePaint.setStyle(Paint.Style.STROKE);
+	//	mCurlEdgePaint.setColor(this.edgeColor);
+		
+	//	mCurlEdgePaint.setShadowLayer(10, -5, 5, 0x99000000);
+		
 		
 		// Set the default props, those come from an XML :D
 		mCurlSpeed = 30;		
@@ -545,9 +554,21 @@ public class PageCurlAnimator implements Animator {
 	private void drawCurlEdge( Canvas canvas )
 	{
 		if ( started && ! finished ) {
-			mCurlEdgePaint.setColor(backgroundColor);
+			
 			Path path = createCurlEdgePath();
+			
+			mCurlEdgePaint.setColor(backgroundColor);
+			mCurlEdgePaint.setStyle(Style.FILL);
+			mCurlEdgePaint.setShadowLayer(10, -5, 5, edgeColor );
+			
 			canvas.drawPath(path, mCurlEdgePaint);
+			
+			mCurlEdgePaint.setColor(edgeColor);
+			mCurlEdgePaint.setStyle(Style.STROKE);
+			mCurlEdgePaint.setShadowLayer(0, 0, 0, edgeColor );
+			
+			canvas.drawPath(path, mCurlEdgePaint);
+			
 		}
 	}	
 	

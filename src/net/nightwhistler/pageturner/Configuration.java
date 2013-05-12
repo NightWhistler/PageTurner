@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -20,14 +20,19 @@
 package net.nightwhistler.pageturner;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import android.content.pm.PackageManager;
+import android.os.Debug;
+import net.nightwhistler.htmlspanner.FontFamily;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import net.nightwhistler.htmlspanner.FontFamily;
 import roboguice.inject.ContextSingleton;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -52,7 +57,7 @@ public class Configuration {
 	private SharedPreferences settings;
 	private Context context;
 
-	private FontFamily cachedFamily;
+	private Map<String, FontFamily> fontCache = new HashMap<String, FontFamily>();
 
 	public static enum ScrollStyle {
 		ROLLING_BLIND, PAGE_TIMER
@@ -81,7 +86,15 @@ public class Configuration {
 	public static enum LibrarySelection {
 		BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
 	}
-	
+
+	public static enum ReadingDirection {
+		LEFT_TO_RIGHT, RIGHT_TO_LEFT;
+	}
+
+    public static enum LongShortPressBehaviour {
+        NORMAL, REVERSED
+    }
+
 	public static final String BASE_OPDS_FEED = "http://www.pageturner-reader.org/opds/feeds.xml";
 	public static final String BASE_SYNC_URL = "http://api.pageturner-reader.org/progress/";
 
@@ -111,6 +124,8 @@ public class Configuration {
 	public static final String KEY_NIGHT_MODE = "night_mode";
 	public static final String KEY_SCREEN_ORIENTATION = "screen_orientation";
 	public static final String KEY_FONT_FACE = "font_face";
+	public static final String KEY_SERIF_FONT = "serif_font";
+	public static final String KEY_SANS_SERIF_FONT = "sans_serif_font";
 
 	public static final String PREFIX_DAY = "day";
 	public static final String PREFIX_NIGHT = "night";
@@ -139,41 +154,129 @@ public class Configuration {
 
 	public static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
 
-	public static final String KEY_OFFSETS = "offsets";	
+	public static final String KEY_OFFSETS = "offsets";
 	public static final String KEY_SHOW_PAGENUM = "show_pagenum";
-	
+
 	public static final String KEY_OPDS_SITES = "opds_sites";
+
+	public static final String KEY_READING_DIRECTION = "reading_direction";
+
+    public static final String KEY_DIM_SYSTEM_UI = "dim_system_ui";
+
+    public static final String KEY_ACCEPT_SELF_SIGNED = "accept_self_signed";
+
+    public static final String KEY_LONG_SHORT = "long_short";
+
+	public static final String KEY_NOOK_TOP_BUTTONS_DIRECTION = "nook_touch_top_buttons_direction";
+
+	// Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink
+	// based Android device
+	
+	// NB: Believe product/model field is "NOOK" on a Nook Touch and 'NookColor'
+	// on a Nook Color
+	public static final Boolean IS_NOOK_TOUCH = "NOOK".equals(Build.PRODUCT);
+
+	// Flag for any e-ink device. Currently only supports Nook Touch but could
+	// expand to other devices like the Sony PRS-T1
+	public static final Boolean IS_EINK_DEVICE = IS_NOOK_TOUCH;
+
+
+    private String defaultSerifFont;
+    private String defaultSansFont;
 
 	@Inject
 	public Configuration(Context context) {
 		this.settings = PreferenceManager.getDefaultSharedPreferences(context);
 		this.context = context;
+
+        if ( IS_NOOK_TOUCH ) {
+            defaultSerifFont = "serif";
+            defaultSansFont = "sans";
+        } else {
+            defaultSerifFont = "gen_book_bas";
+            defaultSansFont = "sans";
+        }
+
+		// On Nook Touch, preset some different defaults on first load
+		// (these values work better w/ e-ink)
+		if (IS_NOOK_TOUCH && this.settings.getString(KEY_DEVICE_NAME, null) == null) {
+			SharedPreferences.Editor editor = this.settings.edit();
+			editor.putString(KEY_FONT_FACE, "sans");
+			editor.putString(KEY_SERIF_FONT, "serif");
+
+			editor.putInt(KEY_TEXT_SIZE, 32);
+			editor.putString(KEY_SCROLL_STYLE, "timer"); // enum is ScrollStyle.PAGE_TIMER
+			final String no_animation = AnimationStyle.NONE.name().toLowerCase(Locale.US);
+			editor.putString(KEY_H_ANIMATION, no_animation);
+			editor.putString(KEY_V_ANIMATION, no_animation);
+			editor.putInt(PREFIX_DAY + "_" + KEY_LINK,
+					Color.rgb(0x40, 0x40, 0x40));
+			editor.putInt(PREFIX_NIGHT + "_" + KEY_TEXT, Color.WHITE);
+			editor.putInt(PREFIX_NIGHT + "_" + KEY_LINK,
+					Color.rgb(0xb0, 0xb0, 0xb0));
+			editor.commit();
+		}
 	}
+
+    public String getAppVersion() {
+        String version = "";
+        try {
+            version = context.getPackageManager().getPackageInfo(
+                    context.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            // Huh? Really?
+        }
+
+        return version;
+    }
+
+    public String getUserAgent() {
+        return context.getString(R.string.app_name) + "-" + getAppVersion()
+                + "/" + Build.MODEL + ";Android-" + Build.VERSION.RELEASE;
+    }
 	
+	public Locale getLocale() {
+		
+		String languageSetting = settings.getString("custom_lang", "default");
+		
+		if ( "default".equalsIgnoreCase(languageSetting) ) {		
+			return Locale.getDefault();
+		}
+		
+		return new Locale(languageSetting);
+	}
+
 	public String getBaseOPDSFeed() {
 		return BASE_OPDS_FEED;
 	}
-	
+
 	public String getSyncServerURL() {
 		return BASE_SYNC_URL;
 	}
 
 	public boolean isVerticalTappingEnabled() {
-		return ! isScrollingEnabled() && settings.getBoolean(KEY_NAV_TAP_V, true);
+		return !isScrollingEnabled()
+				&& settings.getBoolean(KEY_NAV_TAP_V, true);
 	}
 
 	public boolean isHorizontalTappingEnabled() {
-		return ! isScrollingEnabled() && settings.getBoolean(KEY_NAV_TAP_H, true);
+		return !isScrollingEnabled()
+				&& settings.getBoolean(KEY_NAV_TAP_H, true);
 	}
 
 	public boolean isHorizontalSwipeEnabled() {
-		return ! isScrollingEnabled() && settings.getBoolean(KEY_NAV_SWIPE_H, true);
+		return !isScrollingEnabled()
+				&& settings.getBoolean(KEY_NAV_SWIPE_H, true);
 	}
 
 	public boolean isVerticalSwipeEnabled() {
 		return settings.getBoolean(KEY_NAV_SWIPE_V, true)
 				&& !isScrollingEnabled();
 	}
+
+    public boolean isAcceptSelfSignedCertificates() {
+        return settings.getBoolean(KEY_ACCEPT_SELF_SIGNED, false);
+    }
 
 	public int getLastPosition(String fileName) {
 
@@ -194,7 +297,7 @@ public class Configuration {
 
 		PageOffsets offsetsObject = PageOffsets.fromValues(this, offsets);
 		String json = offsetsObject.toJSON();
-		updateValue(KEY_OFFSETS + bookHash, json );
+		updateValue(KEY_OFFSETS + bookHash, json);
 	}
 
 	public List<List<Integer>> getPageOffsets(String fileName) {
@@ -202,12 +305,24 @@ public class Configuration {
 		String data = settings.getString(KEY_OFFSETS + bookHash, "");
 
 		PageOffsets offsets = PageOffsets.fromJSON(data);
-		
-		if ( offsets == null || ! offsets.isValid(this) ) {
+
+		if (offsets == null || !offsets.isValid(this)) {
 			return null;
 		}
-		
+
 		return offsets.getOffsets();
+	}
+
+    public LongShortPressBehaviour getLongShortPressBehaviour() {
+        String value = settings.getString(KEY_LONG_SHORT,
+                LongShortPressBehaviour.NORMAL.name() );
+        return LongShortPressBehaviour.valueOf( value.toUpperCase(Locale.US) );
+    }
+
+	public ReadingDirection getReadingDirection() {
+		String value = settings.getString(KEY_READING_DIRECTION,
+				ReadingDirection.LEFT_TO_RIGHT.name());
+		return ReadingDirection.valueOf(value.toUpperCase(Locale.US));
 	}
 
 	public void setLastPosition(String fileName, int position) {
@@ -227,54 +342,56 @@ public class Configuration {
 		// Fall-back for older settings.
 		return settings.getInt(KEY_IDX + fileName, -1);
 	}
-	
+
 	public List<CustomOPDSSite> getCustomOPDSSites() {
-		
+
 		String sites = settings.getString(KEY_OPDS_SITES, "");
-		
+
 		List<CustomOPDSSite> result = new ArrayList<CustomOPDSSite>();
 		try {
 			JSONArray array = new JSONArray(sites);
-			for ( int i=0; i < array.length(); i++ ) {
+			for (int i = 0; i < array.length(); i++) {
 				JSONObject obj = array.getJSONObject(i);
 				CustomOPDSSite site = CustomOPDSSite.fromJSON(obj);
-				
-				if ( site != null ) {
+
+				if (site != null) {
 					result.add(site);
 				}
 			}
-		}catch (JSONException js) {}
-		
+		} catch (JSONException js) {
+		}
+
 		importOldCalibreSite(result);
 		return result;
 	}
-	
+
 	private void importOldCalibreSite(List<CustomOPDSSite> sites) {
 
-		if ( this.getCalibreServer() != null && this.getCalibreServer().length() > 0 ) {
+		if (this.getCalibreServer() != null
+				&& this.getCalibreServer().length() > 0) {
 			CustomOPDSSite calibre = new CustomOPDSSite();
 			calibre.setName(context.getString(R.string.pref_calibre_server));
-			calibre.setUrl( getCalibreServer() );
-			calibre.setUserName( getCalibreUser() );
+			calibre.setUrl(getCalibreServer());
+			calibre.setUserName(getCalibreUser());
 			calibre.setPassword(getCalibrePassword());
-			
+
 			sites.add(calibre);
-			
+
 			updateValue(CALIBRE_SERVER, null);
-			
+
 			storeCustomOPDSSites(sites);
 		}
 
 	}
-	
-	public void storeCustomOPDSSites(List<CustomOPDSSite> sites ) {
-		
+
+	public void storeCustomOPDSSites(List<CustomOPDSSite> sites) {
+
 		JSONArray array = new JSONArray();
-		for ( CustomOPDSSite site: sites ) {
-			array.put( site.toJSON() );
+		for (CustomOPDSSite site : sites) {
+			array.put(site.toJSON());
 		}
-		
-		updateValue(KEY_OPDS_SITES, array.toString() );
+
+		updateValue(KEY_OPDS_SITES, array.toString());
 	}
 
 	public void setLastIndex(String fileName, int index) {
@@ -286,6 +403,12 @@ public class Configuration {
 		return !isScrollingEnabled() && settings.getBoolean(KEY_NAV_VOL, false);
 	}
 
+	public boolean isNookUpButtonForward() {
+		return !isScrollingEnabled()
+				&& "forward".equals(settings.getString(
+						KEY_NOOK_TOP_BUTTONS_DIRECTION, "backward"));
+	}
+
 	public String getSynchronizationEmail() {
 		return settings.getString(KEY_EMAIL, "").trim();
 	}
@@ -293,16 +416,19 @@ public class Configuration {
 	public boolean isShowPageNumbers() {
 		return settings.getBoolean(KEY_SHOW_PAGENUM, true);
 	}
-	
+
 	public String getSynchronizationAccessKey() {
 		return settings.getString(ACCESS_KEY, "").trim();
 	}
 
+    public boolean isDimSystemUI() {
+        return isFullScreenEnabled() && settings.getBoolean(KEY_DIM_SYSTEM_UI, false);
+    }
+
 	public boolean isSyncEnabled() {
 		String email = getSynchronizationEmail();
-		String accessKey = getSynchronizationAccessKey();
 
-		return email.length() > 0 && accessKey.length() > 0;
+		return email.length() > 0;
 	}
 
 	public boolean isFullScreenEnabled() {
@@ -396,8 +522,8 @@ public class Configuration {
 	private void updateValue(String key, Object value) {
 
 		SharedPreferences.Editor editor = settings.edit();
-		
-		if ( value == null ) {
+
+		if (value == null) {
 			editor.remove(key);
 		} else if (value instanceof String) {
 			editor.putString(key, (String) value);
@@ -431,34 +557,49 @@ public class Configuration {
 		return fam;
 	}
 
-	public FontFamily getFontFamily() {
+	private FontFamily getFontFamily(String fontKey, String defaultVal) {
 
-		String fontFace = settings.getString(KEY_FONT_FACE, "gen_book_bas");
+		String fontFace = settings.getString(fontKey, defaultVal);
 
-		if (cachedFamily != null && fontFace.equals(cachedFamily.getName())) {
-			return cachedFamily;
+		if (!fontCache.containsKey(fontFace)) {
+
+			if ("gen_book_bas".equals(fontFace)) {
+				fontCache.put(fontFace,
+						loadFamilyFromAssets(fontFace, "GentiumBookBasic"));
+			} else if ("gen_bas".equals(fontFace)) {
+				fontCache.put(fontFace,
+						loadFamilyFromAssets(fontFace, "GentiumBasic"));
+			} else if ("frankruehl".equalsIgnoreCase(fontFace)) {
+				fontCache.put(fontFace,
+						loadFamilyFromAssets(fontFace, "FrankRuehl"));
+			} else {
+
+				Typeface face = Typeface.SANS_SERIF;
+				if ("sans".equals(fontFace)) {
+					face = Typeface.SANS_SERIF;
+				} else if ("serif".equals(fontFace)) {
+					face = Typeface.SERIF;
+				} else if ("mono".equals(fontFace)) {
+					face = Typeface.MONOSPACE;
+				}
+
+				fontCache.put(fontFace, new FontFamily(fontFace, face));
+			}
 		}
 
-		if ("gen_book_bas".equals(fontFace)) {
-			return this.cachedFamily = loadFamilyFromAssets(fontFace,
-					"GentiumBookBasic");
-		}
-		if ("gen_bas".equals(fontFace)) {
-			return this.cachedFamily = loadFamilyFromAssets(fontFace,
-					"GentiumBasic");
-		}
+		return fontCache.get(fontFace);
+	}
 
-		Typeface face = Typeface.SANS_SERIF;
+	public FontFamily getSerifFontFamily() {
+		return getFontFamily(KEY_SERIF_FONT, defaultSerifFont );
+	}
 
-		if ("sans".equals(fontFace)) {
-			face = Typeface.SANS_SERIF;
-		} else if ("serif".equals(fontFace)) {
-			face = Typeface.SERIF;
-		} else if ("mono".equals(fontFace)) {
-			face = Typeface.MONOSPACE;
-		}
+	public FontFamily getSansSerifFontFamily() {
+		return getFontFamily(KEY_SANS_SERIF_FONT, defaultSansFont );
+	}
 
-		return this.cachedFamily = new FontFamily(fontFace, face);
+	public FontFamily getDefaultFontFamily() {
+		return getFontFamily(KEY_FONT_FACE, defaultSerifFont );
 	}
 
 	public int getBrightNess() {
@@ -576,15 +717,42 @@ public class Configuration {
 		return getPageTurnerFolder() + "/Books";
 	}
 
-	/*
-	  Returns the bytes of available memory left on the heap. Not
-	  totally sure if it works reliably.
+    public String getTTSFolder() {
+        return getPageTurnerFolder() + "/tts";
+    }
+
+	/**
+	 * Returns the bytes of available memory left on the heap. Not totally sure
+	 * if it works reliably.
 	 */
-	public long getAvailableBytesOfMemory()
-	{
-		Runtime runtime = Runtime.getRuntime();
+	public static double getMemoryUsage() {
+		/*
+        Runtime runtime = Runtime.getRuntime();
 		long maxHeapMemoryBytes = runtime.maxMemory();
-		long allocatedMemoryBytes = runtime.totalMemory() - runtime.freeMemory();
-		return (maxHeapMemoryBytes - allocatedMemoryBytes);
+		long allocatedMemoryBytes = runtime.totalMemory()
+				- runtime.freeMemory();
+		return (double) allocatedMemoryBytes / (double) maxHeapMemoryBytes;
+		*/
+        long max = Runtime.getRuntime().maxMemory();
+        long used = Runtime.getRuntime().totalMemory();
+
+        return (double) used / (double) max;
 	}
+
+    /*
+        Returns the available bitmap memory.
+        On newer Android versions this is the same as the normaL
+        heap memory.
+     */
+    public static double getBitmapMemoryUsage() {
+
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+            return getMemoryUsage();
+        }
+
+        long max = Runtime.getRuntime().maxMemory();
+        long used = Debug.getNativeHeapAllocatedSize();
+
+        return (double) used / (double) max;
+    }
 }

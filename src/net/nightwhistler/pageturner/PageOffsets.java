@@ -37,6 +37,8 @@ import org.json.JSONObject;
  */
 public class PageOffsets {
 
+    public static int ALGORITHM_VERSION = 2;
+
 	private int fontSize;
 	private String fontFamily;
 	
@@ -46,22 +48,25 @@ public class PageOffsets {
 	private int lineSpacing;
 	
 	private boolean fullScreen;
-	
+
+    private int algorithmVersion;
+
 	private List<List<Integer>> offsets;
 	
-	private static enum Fields { fontSize, fontFamily, vMargin, hMargin, lineSpacing, fullScreen, offsets };
+	private static enum Fields { fontSize, fontFamily, vMargin, hMargin, lineSpacing, fullScreen, offsets, algorithmVersion };
 	
 	private PageOffsets() {}
 	
 	public boolean isValid( Configuration config ) {
 		
 		return
-				this.fontFamily.equals( config.getFontFamily().getName() )
+				this.fontFamily.equals( config.getDefaultFontFamily().getName() )
 				&& this.fontSize == config.getTextSize()
 				&& this.vMargin == config.getVerticalMargin()
 				&& this.hMargin == config.getHorizontalMargin()
 				&& this.lineSpacing == config.getLineSpacing()
-				&& this.fullScreen == config.isFullScreenEnabled();
+				&& this.fullScreen == config.isFullScreenEnabled()
+                && this.algorithmVersion == ALGORITHM_VERSION;
 	}
 	
 	public List<List<Integer>> getOffsets() {
@@ -70,13 +75,14 @@ public class PageOffsets {
 	
 	public static PageOffsets fromValues( Configuration config, List<List<Integer>> offsets ) {
 		PageOffsets result = new PageOffsets();
-		result.fontFamily = config.getFontFamily().getName();
+		result.fontFamily = config.getDefaultFontFamily().getName();
 		result.fontSize = config.getTextSize();
 		result.hMargin = config.getHorizontalMargin();
 		result.vMargin = config.getVerticalMargin();
 		result.lineSpacing = config.getLineSpacing();
 		result.fullScreen = config.isFullScreenEnabled();
-		
+        result.algorithmVersion = ALGORITHM_VERSION;
+
 		result.offsets = offsets;
 		
 		return result;
@@ -95,6 +101,7 @@ public class PageOffsets {
 			result.hMargin = offsetsObject.getInt(Fields.hMargin.name());
 			result.lineSpacing = offsetsObject.getInt(Fields.lineSpacing.name());
 			result.fullScreen = offsetsObject.getBoolean(Fields.fullScreen.name() );
+            result.algorithmVersion = offsetsObject.optInt(Fields.algorithmVersion.name(), -1);
 			
 			result.offsets = readOffsets(offsetsObject.getJSONArray(Fields.offsets.name()));
 
@@ -115,6 +122,7 @@ public class PageOffsets {
 			jsonObject.put(Fields.hMargin.name(), this.hMargin );
 			jsonObject.put(Fields.lineSpacing.name(), this.lineSpacing );
 			jsonObject.put(Fields.fullScreen.name(), this.fullScreen );
+            jsonObject.put(Fields.algorithmVersion.name(), this.algorithmVersion );
 			
 			jsonObject.put(Fields.offsets.name(), new JSONArray( this.offsets ) );
 			

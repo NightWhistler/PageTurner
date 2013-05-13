@@ -604,7 +604,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             fos.delete();
         }
 
-        fos.mkdir();
+        fos.mkdirs();
 
         if ( ! (fos.exists() && fos.isDirectory() )  ) {
             String message = "\"Failed to create folder \" + fos.getAbsolutePath() ";

@@ -910,10 +910,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			builder.append("\uFFFC");
 			
 			if (src.startsWith("data:image/png;base64")) {
-				String dataString = src.substring(src
-						.indexOf(',') + 1);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-					byte[] binData = Base64.decode(dataString,
+
+                    String dataString = src.substring(src
+                            .indexOf(',') + 1);
+
+                    byte[] binData = Base64.decode(dataString,
 							Base64.DEFAULT);
 					
 					setImageSpan(builder, new BitmapDrawable(
@@ -921,11 +923,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 							BitmapFactory.decodeByteArray(binData, 0, binData.length )),
 							start, builder.length());
 					
-				} else {
-					// fallback for Android 2.1					
 				}
 
-			} else {
+			} else if ( spine != null ) {
 
 				String resolvedHref = spine.resolveHref(src);
 

@@ -35,6 +35,7 @@ import net.nightwhistler.pageturner.Configuration.ColourProfile;
 import net.nightwhistler.pageturner.Configuration.ReadingDirection;
 import net.nightwhistler.pageturner.Configuration.ScrollStyle;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.TextUtil;
 import net.nightwhistler.pageturner.animation.Animations;
 import net.nightwhistler.pageturner.animation.Animator;
 import net.nightwhistler.pageturner.animation.PageCurlAnimator;
@@ -651,12 +652,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
             File ttsFolder = new File( config.getTTSFolder() );
             String textToSpeak = text.toString().substring( bookView.getStartOfCurrentPage() );
 
-            textToSpeak = textToSpeak.replace( "\n", "~" );
-            textToSpeak = textToSpeak.replace( ".", ".~" );
-            textToSpeak = textToSpeak.replace( "?", "?~" );
-            textToSpeak = textToSpeak.replace( "!", "!~" );
-
-            String[] parts = textToSpeak.split("\\~");
+            textToSpeak = TextUtil.splitOnPunctuation(textToSpeak);
+            String[] parts = textToSpeak.split("\n");
 
             int offset = bookView.getStartOfCurrentPage();
 

@@ -631,9 +631,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.waitDialog.setTitle(R.string.init_tts);
 		this.waitDialog.show();
 
-        //backgroundHandler.post(new StreamToDiskRunnable());
-        new Thread( new StreamToDiskRunnable() ).start();
+        streamTTSToDisk();
 	}
+
+    private void streamTTSToDisk() {
+        new Thread( new StreamToDiskRunnable() ).start();
+    }
 
     private class StreamToDiskRunnable implements Runnable {
         @Override
@@ -1317,7 +1320,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		getActivity().setTitle(this.titleBase);	
 		
 		if ( this.ttsPlaybackItemQueue.isActive() && this.ttsPlaybackItemQueue.isEmpty() ) {
-			startTextToSpeech();
+			streamTTSToDisk();
 		}
 
 		this.waitDialog.hide();	

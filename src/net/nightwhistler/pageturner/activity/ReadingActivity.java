@@ -60,6 +60,12 @@ public class ReadingActivity extends RoboSherlockFragmentActivity {
 	}
 
     @Override
+    public boolean onSearchRequested() {
+        readingFragment.onSearchRequested();
+        return true;
+    }
+
+    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         setSupportProgressBarIndeterminate(true);

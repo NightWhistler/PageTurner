@@ -26,7 +26,9 @@ import java.util.*;
 
 import android.content.res.AssetFileDescriptor;
 import android.widget.*;
+import android.widget.SearchView;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.widget.*;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -221,7 +223,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     @Inject
     private TextLoader textLoader;
 
-    private com.actionbarsherlock.widget.SearchView searchView;
+    private MenuItem searchMenuItem;
 
     private Map<String, TTSPlaybackItem> ttsItemPrep = new HashMap<String, TTSPlaybackItem>();
     private List<SearchTextTask.SearchResult> searchResults = new ArrayList<SearchTextTask.SearchResult>();
@@ -1511,12 +1513,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					getActivity().finish();
 				}
 			}
-		
-		case KeyEvent.KEYCODE_SEARCH:
-			if (action == KeyEvent.ACTION_DOWN) {
-				onSearchClick();
-				return true;
-			}
 
 		case KEYCODE_NOOK_TOUCH_BUTTON_LEFT_TOP:
 		case KEYCODE_NOOK_TOUCH_BUTTON_RIGHT_TOP:
@@ -1881,6 +1877,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			initTocDialog();
 		}
 
+
 		MenuItem nightMode = menu.findItem(R.id.profile_night);
 		MenuItem dayMode = menu.findItem(R.id.profile_day);
 
@@ -1984,10 +1981,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.reading_menu, menu);
 
-        MenuItem searchItem = menu.findItem(R.id.search_text);
+        this.searchMenuItem = menu.findItem(R.id.search_text);
 
-        if (searchItem != null) {
-            this.searchView = (com.actionbarsherlock.widget.SearchView) searchItem.getActionView();
+        if (this.searchMenuItem != null) {
+            final com.actionbarsherlock.widget.SearchView searchView = (com.actionbarsherlock.widget.SearchView) searchMenuItem.getActionView();
+
             if (searchView != null) {
 
                 searchView.setSubmitButtonEnabled(true);
@@ -2043,7 +2041,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return true;
 
 		case R.id.search_text:
-			onSearchClick();
+			onSearchRequested();
 			return true;
 
 		case R.id.preferences:
@@ -2459,14 +2457,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
         setSupportProgressBarIndeterminateVisibility(true);
     }
 
-    private void onSearchClick() {
-
-        if ( this.searchView != null ) {
-            this.searchView.setIconified(false);
-            return;
+    public void onSearchRequested() {
+        if ( this.searchMenuItem != null && searchMenuItem.getActionView() != null ) {
+            getSherlockActivity().getSupportActionBar().show();
+            this.searchMenuItem.expandActionView();
+            this.searchMenuItem.getActionView().requestFocus();
+        } else {
+            dialogFactory.showSearchDialog(R.string.search_text, R.string.enter_query, this);
         }
-
-        dialogFactory.showSearchDialog(R.string.search_text, R.string.enter_query, this);
     }
 	
 

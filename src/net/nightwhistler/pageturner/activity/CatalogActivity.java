@@ -117,11 +117,6 @@ public class CatalogActivity extends RoboSherlockFragmentActivity implements Cat
         catalogFragment.loadURL(url);
     }
 
-    @Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		return catalogFragment.dispatchKeyEvent(event);
-	}
-
 	// TODO Refactor this. Let the platform push/pop fragments from the fragment stack.
 	@Override
 	public void onBackPressed() {

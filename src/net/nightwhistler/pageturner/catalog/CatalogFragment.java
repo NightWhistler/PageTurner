@@ -133,25 +133,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
         LOG.debug("Metrics at init: " + displayDensity );
 
 	}
-	
-	public boolean dispatchKeyEvent(KeyEvent event) {
-
-		int action = event.getAction();
-		int keyCode = event.getKeyCode();		
-
-		if( keyCode == KeyEvent.KEYCODE_SEARCH
-				&& action == KeyEvent.ACTION_DOWN) {
-			onSearchRequested();
-			return true;
-
-		} else if ( keyCode == KeyEvent.KEYCODE_BACK
-                && action == KeyEvent.ACTION_DOWN) {
-            onBackPressed();
-            return true;
-        }
-
-		return false;		
-	}
 
     @Override
     public void queueEmpty() {

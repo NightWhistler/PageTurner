@@ -1448,11 +1448,20 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	
 	public boolean dispatchKeyEvent(KeyEvent event) {
-		
-		int action = event.getAction();
-		int keyCode = event.getKeyCode();
-		
-		LOG.debug("Got key event: " + keyCode + " with action " + action );
+
+        int action = event.getAction();
+        int keyCode = event.getKeyCode();
+
+        LOG.debug("Got key event: " + keyCode + " with action " + action );
+
+
+        if ( searchMenuItem != null && searchMenuItem.isActionViewExpanded() ) {
+            boolean result = searchMenuItem.getActionView().dispatchKeyEvent(event);
+
+            if ( result ) {
+                return true;
+            }
+        }
 
 		final int KEYCODE_NOOK_TOUCH_BUTTON_LEFT_TOP = 92;
 		final int KEYCODE_NOOK_TOUCH_BUTTON_LEFT_BOTTOM = 93;
@@ -1527,6 +1536,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
                         pageUp(Orientation.HORIZONTAL);
                     return true;
 		}
+
+        LOG.debug("Not handling key event: returning false.");
 		return false;
 	}
 
@@ -1992,6 +2003,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 searchView.setOnQueryTextListener(new com.actionbarsherlock.widget.SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
+                        LOG.debug("got onQueryTextSubmit(" + query + ")");
                         performSearch(query);
                         return true;
                     }
@@ -2359,6 +2371,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     @Override
     public void performSearch(String query) {
+
+        LOG.debug("Starting search for: " + query );
 
         final ProgressDialog searchProgress = new ProgressDialog(getActivity());
         searchProgress.setOwnerActivity(getActivity());

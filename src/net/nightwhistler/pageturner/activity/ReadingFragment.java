@@ -37,6 +37,7 @@ import net.nightwhistler.pageturner.Configuration.ColourProfile;
 import net.nightwhistler.pageturner.Configuration.ReadingDirection;
 import net.nightwhistler.pageturner.Configuration.ScrollStyle;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.TextUtil;
 import net.nightwhistler.pageturner.animation.Animations;
 import net.nightwhistler.pageturner.animation.Animator;
 import net.nightwhistler.pageturner.animation.PageCurlAnimator;
@@ -633,9 +634,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.waitDialog.setTitle(R.string.init_tts);
 		this.waitDialog.show();
 
-        //backgroundHandler.post(new StreamToDiskRunnable());
-        new Thread( new StreamToDiskRunnable() ).start();
+        streamTTSToDisk();
 	}
+
+    private void streamTTSToDisk() {
+        new Thread( new StreamToDiskRunnable() ).start();
+    }
 
     private class StreamToDiskRunnable implements Runnable {
         @Override
@@ -650,12 +654,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
             File ttsFolder = new File( config.getTTSFolder() );
             String textToSpeak = text.toString().substring( bookView.getStartOfCurrentPage() );
 
-            textToSpeak = textToSpeak.replace( "\n", "~" );
-            textToSpeak = textToSpeak.replace( ".", ".~" );
-            textToSpeak = textToSpeak.replace( "?", "?~" );
-            textToSpeak = textToSpeak.replace( "!", "!~" );
-
-            String[] parts = textToSpeak.split("\\~");
+            textToSpeak = TextUtil.splitOnPunctuation(textToSpeak);
+            String[] parts = textToSpeak.split("\n");
 
             int offset = bookView.getStartOfCurrentPage();
 
@@ -1319,7 +1319,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		getActivity().setTitle(this.titleBase);	
 		
 		if ( this.ttsPlaybackItemQueue.isActive() && this.ttsPlaybackItemQueue.isEmpty() ) {
-			startTextToSpeech();
+			streamTTSToDisk();
 		}
 
 		this.waitDialog.hide();	

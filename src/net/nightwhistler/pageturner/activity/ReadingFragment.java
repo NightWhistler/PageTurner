@@ -2001,10 +2001,22 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                 searchView.setSubmitButtonEnabled(true);
                 searchView.setOnQueryTextListener(new com.actionbarsherlock.widget.SearchView.OnQueryTextListener() {
+
+                    //This is a work-around, since we get the onQuerySubmit() event twice
+                    //when the user hits enter
+                    private String lastQuery = "";
+
                     @Override
                     public boolean onQueryTextSubmit(String query) {
-                        LOG.debug("got onQueryTextSubmit(" + query + ")");
-                        performSearch(query);
+
+                        if ( query.equals(lastQuery) && searchResults != null ) {
+                            showSearchResultDialog(searchResults);
+                        } else if ( ! query.equals(lastQuery) ) {
+                            searchResults = null;
+                            lastQuery = query;
+                            performSearch(query);
+                        }
+
                         return true;
                     }
 
@@ -2480,11 +2492,18 @@ public class ReadingFragment extends RoboSherlockFragment implements
             dialogFactory.showSearchDialog(R.string.search_text, R.string.enter_query, this);
         }
     }
-	
+
+    //Hack to prevent showing the dialog twice
+    private boolean isSearchResultsDialogShowing = false;
 
 	private void showSearchResultDialog(
 			final List<SearchTextTask.SearchResult> results) {
 
+        if ( isSearchResultsDialogShowing ) {
+            return;
+        }
+
+        isSearchResultsDialogShowing = true;
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.search_results);
@@ -2494,6 +2513,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		AlertDialog dialog = builder.create();
 		dialog.setOwnerActivity(getActivity());
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                isSearchResultsDialogShowing = false;
+            }
+        });
 		dialog.show();
 	}
 

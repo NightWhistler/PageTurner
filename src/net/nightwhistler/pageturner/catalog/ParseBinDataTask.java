@@ -24,6 +24,11 @@ public class ParseBinDataTask extends QueueableAsyncTask<Link, Void, Void> {
     }
 
     @Override
+    protected void onPreExecute() {
+        this.callBack.onLoadingStart();
+    }
+
+    @Override
     protected Void doInBackground(Link... links) {
 
         Link imageLink = links[0];

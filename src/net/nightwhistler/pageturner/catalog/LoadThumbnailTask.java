@@ -57,6 +57,11 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
     }
 
     @Override
+    protected void onPreExecute() {
+        this.callBack.onLoadingStart();
+    }
+
+    @Override
     protected Void doInBackground(Link... entries) {
 
         Link imageLink = entries[0];

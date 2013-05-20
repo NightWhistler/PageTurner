@@ -27,6 +27,7 @@ import java.util.*;
 import android.content.res.AssetFileDescriptor;
 import android.widget.*;
 import android.widget.SearchView;
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.widget.*;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
@@ -366,6 +367,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		this.bookView.addListener(this);
 
+
 	}
 	
 	private void seekToPointInPlayback(int position) {
@@ -505,6 +507,21 @@ public class ReadingFragment extends RoboSherlockFragment implements
             this.ttsPlaybackItemQueue.updateSpeechCompletedCallbacks(this);
             uiHandler.post( progressBarUpdater );
         }
+
+        this.getSherlockActivity().getSupportActionBar().addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
+            @Override
+            public void onMenuVisibilityChanged(boolean isVisible) {
+
+                LOG.debug("Detected change of visibility in action-bar: visible=" + isVisible );
+
+                if (isVisible) {
+                    titleBarLayout.setVisibility(View.VISIBLE);
+                } else {
+                    titleBarLayout.setVisibility(View.GONE);
+                }
+            }
+        });
+
 
         /*
         new ShakeListener(getActivity()).setOnShakeListener(new ShakeListener.OnShakeListener() {
@@ -843,7 +860,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			this.mediaReceiver = null;
 		
 			audioManager.unregisterMediaButtonEventReceiver(
-					new ComponentName(getActivity(), MediaButtonReceiver.class));
+                    new ComponentName(getActivity(), MediaButtonReceiver.class));
 		}
 	}
 	
@@ -2032,6 +2049,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void onOptionsMenuClosed(android.view.Menu menu) {
 		updateFromPrefs();
+        hideTitleBar();
 	}
 
 	@Override

@@ -78,7 +78,7 @@
             android:label="@string/pref_manage_sites" >
                    
         	<intent-filter>
-           		<action android:name="net.nightwhistler.pageturner.activitiy.ManageSitesActivity" />
+           		<action android:name="net.nightwhistler.pageturner.activity.ManageSitesActivity" />
            		<category android:name="android.intent.category.DEFAULT" />
        		</intent-filter>
         </activity>        

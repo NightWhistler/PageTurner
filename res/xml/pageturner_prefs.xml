@@ -99,7 +99,7 @@
         			android:title="@string/pref_manage_sites"
         			android:summary="@string/pref_manage_sites_summary">
         			
-        			<intent android:action="net.nightwhistler.pageturner.activitiy.ManageSitesActivity"/>
+        			<intent android:action="net.nightwhistler.pageturner.activity.ManageSitesActivity"/>
         			         
     			</PreferenceScreen>
 

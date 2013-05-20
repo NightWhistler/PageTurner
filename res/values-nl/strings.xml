@@ -166,6 +166,8 @@
     <string name="search_results_item">Zoekresultaten…</string>
     <string name="lookup_wiktionary">Zoeken op Wiktionary</string>
 
+    <string name="no_search_results">Uw zoekopdracht heeft geen resultaten opgeleverd.</string>
+
 
     <!-- Preferences -->
         

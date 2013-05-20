@@ -29,6 +29,8 @@ public interface LoadFeedCallback {
 	void setNewFeed( Feed feed, ResultType resultType );
 
 	void errorLoadingFeed( String error );
+
+    void emptyFeedLoaded(Feed feed);
 		
 	void notifyLinkUpdated();
 

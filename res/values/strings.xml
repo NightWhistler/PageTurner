@@ -157,6 +157,8 @@
     <string name="search_results_item">Search results…</string>
     <string name="lookup_wiktionary">Search on Wiktionary</string>
 
+    <string name="no_search_results">Your search yielded no results.</string>
+
 
     <!-- Preferences -->
 

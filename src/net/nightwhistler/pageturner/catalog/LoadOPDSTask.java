@@ -54,6 +54,7 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 	
 	private String errorMessage;
 	private boolean asDetailsFeed;
+    private boolean asSearchFeed;
 
     private LoadFeedCallback.ResultType resultType;
 
@@ -106,6 +107,7 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 			Feed feed = Nucular.readAtomFeedFromStream(stream);
             feed.setURL(baseUrl);
 			feed.setDetailFeed(asDetailsFeed);
+            feed.setSearchFeed(asSearchFeed);
 
             if (isBaseFeed) {
                 addCustomSitesEntry(feed);
@@ -161,12 +163,16 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 		this.asDetailsFeed = asDetailsFeed;
 	}
 
+    public void setAsSearchFeed(boolean asSearchFeed) {
+        this.asSearchFeed = asSearchFeed;
+    }
+
     @Override
     protected void doOnPostExecute(Feed result) {
 		if (result == null) {
 			callBack.errorLoadingFeed(errorMessage);
 		}  else if ( result.getSize() == 0 ) {
-            callBack.errorLoadingFeed( context.getString(R.string.empty_opds_feed) );
+            callBack.emptyFeedLoaded(result);
         } else {
             callBack.setNewFeed(result, resultType);
         }

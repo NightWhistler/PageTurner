@@ -162,16 +162,17 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}	
 	
 	private void loadOPDSFeed(String url) {
-		loadOPDSFeed(null, url, false, ResultType.REPLACE);
+		loadOPDSFeed(null, url, false, false, ResultType.REPLACE);
 	}
 	
-	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed, ResultType resultType ) {
+	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed, boolean asSearchFeed, ResultType resultType ) {
 
 		LoadOPDSTask task = this.loadOPDSTaskProvider.get();
 		task.setCallBack(this);
 
         task.setResultType(resultType);
 		task.setAsDetailsFeed(asDetailsFeed);
+        task.setAsSearchFeed(asSearchFeed);
 
         //If we're going to load a completely new feed,
         //cancel all pending downloads.
@@ -182,7 +183,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
             taskQueue.jumpQueueExecuteTask(task, url);
             this.adapter.setLoading(true);
         }
-		
 
 	}	
 
@@ -215,7 +215,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			linkUrl = linkUrl.replace("{searchTerms}",
 					searchString);
 
-			loadURL(linkUrl);
+            loadURL(null, linkUrl, false, true, ResultType.REPLACE);
 		}
     }
     
@@ -239,12 +239,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			loadCustomSiteFeed();
 		} else if ( entry.getAlternateLink() != null ) {
 			String href = entry.getAlternateLink().getHref();
-			loadURL(entry, href, true, ResultType.REPLACE);
+			loadURL(entry, href, true, false, ResultType.REPLACE);
 		} else if ( entry.getEpubLink() != null ) {
             loadFakeFeek(entry);
 		} else if ( entry.getAtomLink() != null ) {
 			String href = entry.getAtomLink().getHref();
-			loadURL(entry, href, false, ResultType.REPLACE);
+			loadURL(entry, href, false, false, ResultType.REPLACE);
 		} 
 	}
 
@@ -293,10 +293,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 
 	public void loadURL(String url) {
-		loadURL(null, url, false, ResultType.REPLACE);
+		loadURL(null, url, false, false, ResultType.REPLACE);
 	}
 
-    private void loadURL(Entry entry, String url, boolean asDetailsFeed, ResultType resultType) {
+    private void loadURL(Entry entry, String url, boolean asDetailsFeed, boolean asSearchFeed, ResultType resultType) {
 
         String base = null;
 
@@ -321,7 +321,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			    pushUrlToNavStack(target);
             }
 
-			loadOPDSFeed(entry, target, asDetailsFeed, resultType);
+			loadOPDSFeed(entry, target, asDetailsFeed, asSearchFeed, resultType);
 		} catch (MalformedURLException u) {
 			LOG.error("Malformed URL:", u);
 		}
@@ -452,6 +452,15 @@ public class CatalogFragment extends RoboSherlockFragment implements
         }
 	}
 
+    @Override
+    public void emptyFeedLoaded(Feed feed) {
+        if ( feed.isSearchFeed() ) {
+            Toast.makeText(getActivity(), R.string.no_search_results, Toast.LENGTH_LONG ).show();
+        } else {
+            errorLoadingFeed( getActivity().getString(R.string.empty_opds_feed) );
+        }
+    }
+
     public void setNewFeed(Feed result, ResultType resultType) {
 
         if (result != null && isAdded() ) {
@@ -560,7 +569,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
                     LOG.debug("Starting download for " + nextLink.getHref() + " after scroll");
 
                     lastLoadedUrl = nextLink.getHref();
-                    loadURL(nextEntry, nextLink.getHref(), false, ResultType.APPEND);
+                    loadURL(nextEntry, nextLink.getHref(), false, false, ResultType.APPEND);
                 }
             }
         }

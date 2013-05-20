@@ -35,6 +35,8 @@ import static net.nightwhistler.nucular.atom.AtomConstants.REL_PREV;
 public class Feed extends AtomElement {	
 	
 	private boolean detailFeed;
+    private boolean searchFeed;
+
     private String url;
 
 	private List<Entry> entries = new ArrayList<Entry>();
@@ -85,10 +87,18 @@ public class Feed extends AtomElement {
 	public void setDetailFeed(boolean detailFeed) {
 		this.detailFeed = detailFeed;
 	}
+
+    public void setSearchFeed(boolean searchFeed) {
+        this.searchFeed = searchFeed;
+    }
 	
 	public boolean isDetailFeed() {
 		return detailFeed;
 	}
+
+    public boolean isSearchFeed() {
+        return searchFeed;
+    }
 	
 	public int getSize() {
 		return getEntries().size();

@@ -244,6 +244,11 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         Toast.makeText(getActivity(), error, Toast.LENGTH_LONG ).show();
     }
 
+    @Override
+    public void emptyFeedLoaded(Feed feed) {
+        errorLoadingFeed( getActivity().getString(R.string.empty_opds_feed) );
+    }
+
     private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
         SherlockFragmentActivity activity = getSherlockActivity();
         if ( activity != null) {

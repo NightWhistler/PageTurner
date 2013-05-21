@@ -657,7 +657,7 @@ public class Configuration {
 	}
 
 	public AnimationStyle getHorizontalAnim() {
-		String animH = settings.getString(KEY_H_ANIMATION, AnimationStyle.CURL
+		String animH = settings.getString(KEY_H_ANIMATION, AnimationStyle.SLIDE
 				.name().toLowerCase(Locale.US));
 		return AnimationStyle.valueOf(animH.toUpperCase(Locale.US));
 	}

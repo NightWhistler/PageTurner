@@ -61,5 +61,23 @@ public class TextUtilTest {
                 (TextUtil.splitOnPunctuation(input), is("'aabbcc.'\n"));
     }
 
+    @Test
+    public void testQuotedComma() {
+        String input = "'aabbcc,'ccc";
+
+        assertThat
+
+                (TextUtil.splitOnPunctuation(input), is("'aabbcc,'\nccc"));
+    }
+
+    @Test
+    public void testQuotedUnicode() {
+        String input = "“aabbcc.”";
+
+        assertThat
+
+                (TextUtil.splitOnPunctuation(input), is("“aabbcc.”\n"));
+    }
+
 
 }

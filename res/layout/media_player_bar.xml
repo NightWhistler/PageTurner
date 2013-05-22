@@ -3,20 +3,28 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/mediaPlayerLayout"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:orientation="vertical"
                 android:layout_alignBottom="@id/mainContainer"
                 android:visibility="gone"
                 android:background="@color/translucent_black"
         >
 
+    <View
+          android:layout_width="fill_parent"
+          android:layout_height="0dip"
+          android:layout_weight="1" />
 
+    <View style="@style/Divider"/>
     <TextView
             android:id="@+id/wordView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/opaque_white" />
+            android:textColor="@color/opaque_white"
+            android:background="@color/opaque_black"/>
+
+    <View style="@style/Divider" android:paddingBottom="5dip" />
 
     <SeekBar android:id="@+id/mediaProgress"
                  style="?android:attr/progressBarStyleHorizontal"

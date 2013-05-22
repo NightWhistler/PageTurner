@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  */
 public class TextUtil {
 
-    private static final Pattern PUNCTUATION = Pattern.compile("\\.+\"?'?|\\?\"?'?|!\"?'?");
+    private static final Pattern PUNCTUATION = Pattern.compile("\\.+\"?'?”?|\\?\"?'?”?|!\"?'?”?|,\"|,'|,”");
 
     private TextUtil() {}
 

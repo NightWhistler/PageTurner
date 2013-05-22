@@ -312,7 +312,7 @@
      		android:key="h_animation"
             android:title="@string/pref_h_animation"
             android:summary="@string/pref_h_animation_summary"            
-        	android:defaultValue="curl"
+        	android:defaultValue="slide"
         	android:entries="@array/h_animLabels"
         	android:entryValues="@array/h_anim" />
                     

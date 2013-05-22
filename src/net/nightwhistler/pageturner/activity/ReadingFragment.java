@@ -645,6 +645,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
             return;
         }
 
+        this.wordView.setTextColor( config.getTextColor() );
+        this.wordView.setBackgroundColor( config.getBackgroundColor() );
+
         this.ttsPlaybackItemQueue.activate();
 		this.mediaLayout.setVisibility(View.VISIBLE);
 		

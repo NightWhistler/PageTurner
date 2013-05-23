@@ -91,7 +91,7 @@ public class LoadFakeFeedTask extends AsyncTask<Link, Integer, Void> {
 
             imageLink.setBinData(EntityUtils.toByteArray(resp.getEntity()));
 
-        } catch (IOException io) {
+        } catch (Exception io) {
             LOG.error("Could not load image: ", io);
         }
 

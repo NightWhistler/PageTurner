@@ -119,7 +119,7 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
                     }
                 }
 
-            } catch (IOException io) {
+            } catch (Exception io) {
                 //Ignore and exit.
             }
         }

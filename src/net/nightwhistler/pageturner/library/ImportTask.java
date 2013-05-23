@@ -80,6 +80,15 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 
     @Override
 	protected Void doInBackground(File... params) {
+
+        /*
+        Hack: don't run automated import on an empty database, since we explicitly ask
+        the user to import.
+         */
+        if ( silent && libraryService.findAllByTitle(null).getSize() == 0 ) {
+            return null;
+        }
+
 		File parent = params[0];
 		
 		if ( ! parent.exists() ) {

@@ -19,9 +19,6 @@
 package net.nightwhistler.pageturner.catalog;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.util.Log;
 import com.google.inject.Inject;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;

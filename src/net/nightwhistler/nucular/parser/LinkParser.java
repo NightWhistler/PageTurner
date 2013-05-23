@@ -18,10 +18,10 @@
  */
 package net.nightwhistler.nucular.parser;
 
-import java.util.Map;
-
 import net.nightwhistler.nucular.atom.AtomElement;
 import net.nightwhistler.nucular.atom.Link;
+
+import java.util.Map;
 
 public class LinkParser extends ElementParser {
 

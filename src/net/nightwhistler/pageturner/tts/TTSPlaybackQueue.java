@@ -20,8 +20,6 @@
 package net.nightwhistler.pageturner.tts;
 
 import android.media.MediaPlayer;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 import java.io.File;
 import java.util.Queue;

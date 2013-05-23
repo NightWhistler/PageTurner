@@ -19,13 +19,7 @@
 
 package net.nightwhistler.pageturner.library;
 
-import android.os.AsyncTask;
-import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.library.ImportCallback;
-import net.nightwhistler.pageturner.library.LibraryBook;
-import net.nightwhistler.pageturner.library.LibraryService;
-import net.nightwhistler.pageturner.library.QueryResult;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 
 import java.io.File;

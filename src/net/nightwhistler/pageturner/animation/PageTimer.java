@@ -18,12 +18,8 @@
  */
 package net.nightwhistler.pageturner.animation;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.Paint.Style;
-import android.graphics.Rect;
 
 public class PageTimer implements Animator {
 	

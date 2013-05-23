@@ -4,9 +4,6 @@ import android.text.SpannableStringBuilder;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import org.htmlcleaner.TagNode;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Many books use
  * <p>

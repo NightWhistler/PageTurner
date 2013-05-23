@@ -20,8 +20,6 @@ package net.nightwhistler.pageturner.sync;
 
 import java.util.List;
 
-import net.nightwhistler.pageturner.Configuration;
-
 public interface ProgressService {
 
 	/**

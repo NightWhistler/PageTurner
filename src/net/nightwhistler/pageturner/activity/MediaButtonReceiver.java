@@ -18,13 +18,12 @@
  */
 package net.nightwhistler.pageturner.activity;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.view.KeyEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class which converts media-button events into PageTurner-specific events.

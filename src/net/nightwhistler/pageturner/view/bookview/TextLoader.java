@@ -20,7 +20,6 @@
 package net.nightwhistler.pageturner.view.bookview;
 
 import android.text.Spannable;
-import android.text.Spanned;
 import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;

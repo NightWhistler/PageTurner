@@ -19,8 +19,6 @@
 
 package net.nightwhistler.pageturner.library;
 
-import android.os.AsyncTask;
-
 import java.util.List;
 
 public interface ImportCallback {

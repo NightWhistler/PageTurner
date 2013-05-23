@@ -18,20 +18,26 @@
  */
 package net.nightwhistler.pageturner.catalog;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.*;
-
-import javax.annotation.Nullable;
-
+import android.content.Intent;
 import android.os.Build;
-import android.util.Base64;
+import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
+import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
+import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
@@ -39,35 +45,20 @@ import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.activity.*;
-import net.nightwhistler.pageturner.catalog.DownloadFileTask.DownloadFileCallback;
+import net.nightwhistler.pageturner.activity.DialogFactory;
+import net.nightwhistler.pageturner.activity.LibraryActivity;
+import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
 import net.nightwhistler.pageturner.library.LibraryService;
-
 import net.nightwhistler.pageturner.scheduling.TaskQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView.OnItemClickListener;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+import javax.annotation.Nullable;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.*;
 
 import static net.nightwhistler.pageturner.catalog.Catalog.getImageLink;
 

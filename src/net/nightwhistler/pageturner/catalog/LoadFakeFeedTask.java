@@ -19,15 +19,10 @@
 
 package net.nightwhistler.pageturner.catalog;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-
-import net.nightwhistler.nucular.atom.Entry;
-import net.nightwhistler.nucular.atom.Feed;
+import android.content.Context;
+import android.os.AsyncTask;
+import com.google.inject.Inject;
 import net.nightwhistler.nucular.atom.Link;
-import net.nightwhistler.pageturner.R;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -35,11 +30,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-
-import android.app.Dialog;
-import android.content.Context;
-import android.os.AsyncTask;
+import java.net.URL;
 
 public class LoadFakeFeedTask extends AsyncTask<Link, Integer, Void> {
 

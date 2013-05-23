@@ -19,12 +19,12 @@
 
 package net.nightwhistler.nucular.parser;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class StreamParser extends DefaultHandler {
 

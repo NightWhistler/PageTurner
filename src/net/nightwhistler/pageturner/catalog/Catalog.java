@@ -19,24 +19,6 @@
 
 package net.nightwhistler.pageturner.catalog;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Map;
-
-import android.util.DisplayMetrics;
-import net.nightwhistler.htmlspanner.HtmlSpanner;
-import net.nightwhistler.nucular.atom.Entry;
-import net.nightwhistler.nucular.atom.Feed;
-import net.nightwhistler.nucular.atom.Link;
-import net.nightwhistler.pageturner.R;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,6 +26,13 @@ import android.graphics.drawable.BitmapDrawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.nucular.atom.Entry;
+import net.nightwhistler.nucular.atom.Feed;
+import net.nightwhistler.nucular.atom.Link;
+import net.nightwhistler.pageturner.R;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Catalog {
 	

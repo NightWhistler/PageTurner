@@ -18,18 +18,17 @@
  */
 package net.nightwhistler.pageturner.library;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import roboguice.inject.ContextSingleton;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import com.google.inject.Inject;
+import roboguice.inject.ContextSingleton;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @ContextSingleton
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {

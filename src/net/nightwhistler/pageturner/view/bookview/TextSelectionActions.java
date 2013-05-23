@@ -19,12 +19,11 @@
 
 package net.nightwhistler.pageturner.view.bookview;
 
-import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.view.bookview.BookView;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
+import net.nightwhistler.pageturner.R;
 
 public class TextSelectionActions implements ActionMode.Callback {
 

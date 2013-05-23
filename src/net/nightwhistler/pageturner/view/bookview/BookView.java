@@ -19,20 +19,29 @@
 
 package net.nightwhistler.pageturner.view.bookview;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import android.graphics.*;
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Handler;
+import android.text.*;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ClickableSpan;
+import android.text.style.ImageSpan;
+import android.util.AttributeSet;
+import android.util.Base64;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
@@ -51,38 +60,20 @@ import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Resource;
 import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.util.StringUtil;
-
 import org.htmlcleaner.TagNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Handler;
-import android.text.Layout;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.SpannedString;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ClickableSpan;
-import android.text.style.ImageSpan;
-import android.text.style.URLSpan;
-import android.util.AttributeSet;
-import android.util.Base64;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import roboguice.RoboGuice;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static net.nightwhistler.pageturner.PlatformUtil.executeTask;
 

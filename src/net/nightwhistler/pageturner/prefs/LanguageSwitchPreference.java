@@ -19,11 +19,11 @@
 
 package net.nightwhistler.pageturner.prefs;
 
-import net.nightwhistler.pageturner.R;
 import android.content.Context;
 import android.preference.ListPreference;
 import android.util.AttributeSet;
 import android.widget.Toast;
+import net.nightwhistler.pageturner.R;
 
 public class LanguageSwitchPreference extends ListPreference {
 	

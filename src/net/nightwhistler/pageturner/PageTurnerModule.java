@@ -19,23 +19,15 @@
 
 package net.nightwhistler.pageturner;
 
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.KeyStore;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import android.content.Context;
-import android.os.Build;
+import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
+import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.inject.name.Names;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
 import net.nightwhistler.pageturner.ssl.EasySSLSocketFactory;
 import net.nightwhistler.pageturner.sync.PageTurnerWebProgressService;
 import net.nightwhistler.pageturner.sync.ProgressService;
-
 import net.nightwhistler.pageturner.tts.TTSPlaybackQueue;
 import net.nightwhistler.pageturner.view.bookview.TextLoader;
 import org.apache.http.auth.AuthScope;
@@ -45,15 +37,13 @@ import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import com.google.inject.Provides;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * This is the main Guice module for PageTurner.

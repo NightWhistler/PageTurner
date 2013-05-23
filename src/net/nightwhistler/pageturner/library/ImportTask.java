@@ -19,25 +19,22 @@
 
 package net.nightwhistler.pageturner.library;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 import nl.siegmann.epublib.service.MediatypeService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.os.AsyncTask;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implements OnCancelListener {
 	

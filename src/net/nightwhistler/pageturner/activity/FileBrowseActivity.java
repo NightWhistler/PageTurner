@@ -18,13 +18,12 @@
  */
 package net.nightwhistler.pageturner.activity;
 
-import roboguice.RoboGuice;
+import android.os.Bundle;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
-import android.os.Bundle;
-
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
+import roboguice.RoboGuice;
 
 public class FileBrowseActivity extends RoboSherlockFragmentActivity {
 	

@@ -18,6 +18,12 @@
  */
 package net.nightwhistler.pageturner.activity;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.text.Html;
 import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
@@ -25,12 +31,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.R;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.text.Html;
 
 public class DialogFactory {
 

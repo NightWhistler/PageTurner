@@ -19,11 +19,11 @@
 
 package net.nightwhistler.nucular.parser.opensearch;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Link;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SearchDescription {
 

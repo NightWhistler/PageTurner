@@ -18,9 +18,9 @@
  */
 package net.nightwhistler.nucular.parser;
 
-import java.util.Map;
-
 import net.nightwhistler.nucular.atom.Feed;
+
+import java.util.Map;
 
 
 public class FeedParser extends ElementParser {

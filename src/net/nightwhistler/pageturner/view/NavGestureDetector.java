@@ -19,13 +19,12 @@
 
 package net.nightwhistler.pageturner.view;
 
-import net.nightwhistler.pageturner.view.bookview.BookView;
-import net.nightwhistler.pageturner.view.bookview.BookViewListener;
-import android.os.Build;
 import android.text.style.ClickableSpan;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import net.nightwhistler.pageturner.view.bookview.BookView;
+import net.nightwhistler.pageturner.view.bookview.BookViewListener;
 
 /**
  * Translates low-level touch and gesture events into more high-level

@@ -19,9 +19,9 @@
 
 package net.nightwhistler.pageturner.library;
 
-import java.util.List;
-
 import android.widget.SectionIndexer;
+
+import java.util.List;
 
 /**
  * Abstract adapter super-class for KeyedQueryResults

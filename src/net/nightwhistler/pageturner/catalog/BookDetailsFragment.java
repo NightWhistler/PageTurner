@@ -18,7 +18,6 @@
  */
 package net.nightwhistler.pageturner.catalog;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;

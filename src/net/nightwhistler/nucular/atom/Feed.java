@@ -22,9 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static net.nightwhistler.nucular.atom.AtomConstants.REL_SEARCH;
-import static net.nightwhistler.nucular.atom.AtomConstants.REL_NEXT;
-import static net.nightwhistler.nucular.atom.AtomConstants.REL_PREV;
+import static net.nightwhistler.nucular.atom.AtomConstants.*;
 
 /**
  * Represents a low-level Atom feed, as parsed from XML.

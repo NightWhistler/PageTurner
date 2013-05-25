@@ -900,7 +900,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			}
 			builder.append("\uFFFC");
 			
-			if (src.startsWith("data:image/png;base64")) {
+			if (src.startsWith("data:image")) {
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
 
                     String dataString = src.substring(src

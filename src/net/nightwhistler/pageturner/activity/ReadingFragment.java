@@ -2403,7 +2403,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
             @Override
             protected void onProgressUpdate(SearchResult... values) {
 
+                if ( ! isAdded() ) {
+                    return;
+                }
+
                 super.onProgressUpdate(values);
+
                 LOG.debug("Found match at index=" + values[0].getIndex()
                         + ", offset=" + values[0].getStart() + " with context "
                         + values[0].getDisplay());
@@ -2421,15 +2426,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             @Override
             protected void onCancelled() {
-                Toast.makeText(getActivity(), R.string.search_cancelled,
+                if ( isAdded() ) {
+                    Toast.makeText(getActivity(), R.string.search_cancelled,
                         Toast.LENGTH_LONG).show();
+                }
             }
 
             protected void onPostExecute(java.util.List<SearchResult> result) {
 
                 searchProgress.dismiss();
 
-                if (!isCancelled()) {
+                if (!isCancelled() && isAdded() ) {
                     if (result.size() > 0) {
                         searchResults = result;
                         showSearchResultDialog(result);

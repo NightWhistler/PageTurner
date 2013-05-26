@@ -721,7 +721,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		builder.setSpan(new ImageSpan(drawable), start, end,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-		if (spine.isCover()) {
+		if (spine != null && spine.isCover()) {
 			builder.setSpan(new CenterSpan(), start, end,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}

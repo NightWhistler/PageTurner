@@ -567,7 +567,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             beepPlayer.prepare();
 
             beepPlayer.start();
-        } catch (IOException io) {
+        } catch (Exception io) {
             //We'll manage without the beep :)
         }
     }
@@ -912,8 +912,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     @SuppressWarnings("deprecation")
 	public void onTextToSpeechInit(int status) {					
-		this.textToSpeech.setOnUtteranceCompletedListener(this);	
+
 		this.ttsAvailable = (status == TextToSpeech.SUCCESS) && !Configuration.IS_NOOK_TOUCH;
+
+        if ( this.ttsAvailable ) {
+            this.textToSpeech.setOnUtteranceCompletedListener(this);
+        }
 	}
 	
 	private void updateFileName(Bundle savedInstanceState, String fileName) {

@@ -551,6 +551,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
     private void playBeep( boolean error ) {
+
+        if ( ! isAdded() ) {
+            return;
+        }
+
         try {
             MediaPlayer beepPlayer = new MediaPlayer();
 
@@ -675,15 +680,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 stopTextToSpeech(true);
                 waitDialog.hide();
 
-				playBeep(true);
-                if ( getActivity() != null ) {
+                if ( isAdded() ) {
+                    playBeep(true);
 
                     StringBuilder textBuilder = new StringBuilder( getActivity().getString(R.string.tts_failed) );
                     textBuilder.append("\n").append(message);
 
-	                Toast.makeText(getActivity(), textBuilder.toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), textBuilder.toString(), Toast.LENGTH_SHORT).show();
                 }
-
 
             }
         } );

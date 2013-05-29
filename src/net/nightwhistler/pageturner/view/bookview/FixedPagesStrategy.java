@@ -184,7 +184,13 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		if ( pageOffsets.size() < 1 ) {
 			return null;
 		} else if ( page >= pageOffsets.size() -1 ) {
-			return this.text.subSequence(pageOffsets.get(pageOffsets.size() -1), text.length() );
+            int startOffset = pageOffsets.get(pageOffsets.size() -1);
+
+            if ( startOffset >= 0 && startOffset <= text.length() -1 ) {
+			    return this.text.subSequence(startOffset, text.length() );
+            } else {
+                return text;
+            }
 		} else {
 			int start = this.pageOffsets.get(page);
 			int end = this.pageOffsets.get(page +1 );

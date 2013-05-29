@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.nightwhistler.pageturner"
       android:versionName="2.2-dev"
-      android:versionCode="30"
+      android:versionCode="33"
       android:installLocation="auto">
     
     <uses-sdk

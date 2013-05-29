@@ -293,6 +293,10 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
                 downloadDialog.hide();
 
+                if ( ! isAdded() ) {
+                    return;
+                }
+
                 if ( openOnCompletion ) {
                     Intent intent;
 

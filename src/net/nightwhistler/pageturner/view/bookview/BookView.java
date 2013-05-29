@@ -721,7 +721,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		builder.setSpan(new ImageSpan(drawable), start, end,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-		if (spine.isCover()) {
+		if (spine != null && spine.isCover()) {
 			builder.setSpan(new CenterSpan(), start, end,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
@@ -900,7 +900,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			}
 			builder.append("\uFFFC");
 			
-			if (src.startsWith("data:image/png;base64")) {
+			if (src.startsWith("data:image")) {
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
 
                     String dataString = src.substring(src

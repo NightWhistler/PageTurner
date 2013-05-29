@@ -551,6 +551,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
     private void playBeep( boolean error ) {
+
+        if ( ! isAdded() ) {
+            return;
+        }
+
         try {
             MediaPlayer beepPlayer = new MediaPlayer();
 
@@ -567,7 +572,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             beepPlayer.prepare();
 
             beepPlayer.start();
-        } catch (IOException io) {
+        } catch (Exception io) {
             //We'll manage without the beep :)
         }
     }
@@ -675,15 +680,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 stopTextToSpeech(true);
                 waitDialog.hide();
 
-				playBeep(true);
-                if ( getActivity() != null ) {
+                if ( isAdded() ) {
+                    playBeep(true);
 
                     StringBuilder textBuilder = new StringBuilder( getActivity().getString(R.string.tts_failed) );
                     textBuilder.append("\n").append(message);
 
-	                Toast.makeText(getActivity(), textBuilder.toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), textBuilder.toString(), Toast.LENGTH_SHORT).show();
                 }
-
 
             }
         } );
@@ -912,8 +916,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     @SuppressWarnings("deprecation")
 	public void onTextToSpeechInit(int status) {					
-		this.textToSpeech.setOnUtteranceCompletedListener(this);	
+
 		this.ttsAvailable = (status == TextToSpeech.SUCCESS) && !Configuration.IS_NOOK_TOUCH;
+
+        if ( this.ttsAvailable ) {
+            this.textToSpeech.setOnUtteranceCompletedListener(this);
+        }
 	}
 	
 	private void updateFileName(Bundle savedInstanceState, String fileName) {
@@ -2399,7 +2407,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
             @Override
             protected void onProgressUpdate(SearchResult... values) {
 
+                if ( ! isAdded() ) {
+                    return;
+                }
+
                 super.onProgressUpdate(values);
+
                 LOG.debug("Found match at index=" + values[0].getIndex()
                         + ", offset=" + values[0].getStart() + " with context "
                         + values[0].getDisplay());
@@ -2417,15 +2430,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             @Override
             protected void onCancelled() {
-                Toast.makeText(getActivity(), R.string.search_cancelled,
+                if ( isAdded() ) {
+                    Toast.makeText(getActivity(), R.string.search_cancelled,
                         Toast.LENGTH_LONG).show();
+                }
             }
 
             protected void onPostExecute(java.util.List<SearchResult> result) {
 
                 searchProgress.dismiss();
 
-                if (!isCancelled()) {
+                if (!isCancelled() && isAdded() ) {
                     if (result.size() > 0) {
                         searchResults = result;
                         showSearchResultDialog(result);

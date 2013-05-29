@@ -152,10 +152,6 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return result;
 	}
 
-    private static String getFilterClause(String filter) {
-        return getFilterClause(filter, null);
-    }
-
     private static String getFilterClause(String filter, String existingClause ) {
 
         if ( filter == null || filter.length() == 0 ) {
@@ -180,10 +176,16 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         
         String searchString =  "%" + filter + "%";
 
-        String[] newArgs = new String[existingArgs.length + 3];
-        
-        //Move original arguments 3 positions to the right
-        System.arraycopy(existingArgs, 0,newArgs, 3, existingArgs.length );
+        String[] newArgs;
+
+        if ( existingArgs != null ) {
+            newArgs = new String[existingArgs.length + 3];
+
+            //Move original arguments 3 positions to the right
+            System.arraycopy(existingArgs, 0,newArgs, 3, existingArgs.length );
+        } else  {
+            newArgs = new String[3];
+        }
 
         //And fill the first 3 with the filter-string.
         for ( int i=0; i < 3; i++ ) {
@@ -227,7 +229,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         String[] args = new String[0];
 
         if ( filter != null ) {
-            whereClause = getFilterClause(filter);
+            whereClause = getFilterClause(filter, whereClause);
             args = getFilterArgs(args, filter);
         }
 						

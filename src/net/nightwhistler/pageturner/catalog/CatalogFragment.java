@@ -484,7 +484,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
                 // If the image is contained in the feed, load it
                 // directly
-                if (href.startsWith("data:image/png;base64")) {
+                if ( href.startsWith("data:image") ) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
                         ParseBinDataTask binDataTask = this.parseBinDataTaskProvider.get();
                         binDataTask.setLoadFeedCallback(this);

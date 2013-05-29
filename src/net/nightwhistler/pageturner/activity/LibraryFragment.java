@@ -256,6 +256,10 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	}
 	
 	private void showBookDetails( final LibraryBook libraryBook ) {
+
+        if ( ! isAdded() ) {
+            return;
+        }
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.book_details);

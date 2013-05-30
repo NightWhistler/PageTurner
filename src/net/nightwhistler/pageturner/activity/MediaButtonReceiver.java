@@ -56,11 +56,13 @@ public class MediaButtonReceiver extends BroadcastReceiver {
 			KeyEvent event = (KeyEvent) intent
 					.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
 
-			Intent myIntent = new Intent(INTENT_PAGETURNER_MEDIA);
-			myIntent.putExtra("action", event.getAction());
-			myIntent.putExtra("keyCode", event.getKeyCode());
+            if ( event != null ) {
+			    Intent myIntent = new Intent(INTENT_PAGETURNER_MEDIA);
+			    myIntent.putExtra("action", event.getAction());
+			    myIntent.putExtra("keyCode", event.getKeyCode());
 
-			context.sendBroadcast(myIntent);
+			    context.sendBroadcast(myIntent);
+            }
 		}
 
 		if (isOrderedBroadcast()) {

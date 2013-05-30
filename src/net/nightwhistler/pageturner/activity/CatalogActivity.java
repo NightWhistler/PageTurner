@@ -62,7 +62,7 @@ public class CatalogActivity extends RoboSherlockFragmentActivity implements Cat
         if ( detailsFragment != null ) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.hide(detailsFragment);
-            ft.commit();
+            ft.commitAllowingStateLoss();
         }
     }
 

@@ -50,7 +50,7 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 		
 		File file = null;
 		
-		if ( data != null ) {
+		if ( data != null && data.getPath() != null ) {
 			file = new File(data.getPath());
 		}
 		

@@ -212,6 +212,11 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	}
 
     public int getTopLeftPosition() {
+
+        if ( pageOffsets.isEmpty() ) {
+            return 0;
+        }
+
         if ( this.pageNum >= this.pageOffsets.size() ) {
             return this.pageOffsets.get( this.pageOffsets.size() -1 );
         }

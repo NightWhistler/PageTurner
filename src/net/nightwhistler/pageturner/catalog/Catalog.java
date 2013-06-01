@@ -20,6 +20,7 @@
 package net.nightwhistler.pageturner.catalog;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -44,8 +45,6 @@ public class Catalog {
 	public static final String CUSTOM_SITES_ID = "IdCustomSites";
 	
     private static final int ABBREV_TEXT_LEN = 150;
-	
-	private static final int MAX_THUMBNAIL_WIDTH = 45;
 
 	private static final Logger LOG = LoggerFactory.getLogger("Catalog");
 		
@@ -109,10 +108,6 @@ public class Catalog {
 		desc.setText(text);
 	}
 
-    public static int getMaxThumbnailWidth( int displayDensity ) {
-        double density = ( (double) displayDensity / 160.0 );
-        return (int) (MAX_THUMBNAIL_WIDTH * density);
-    }
 
 	public static Drawable loadImageLink(Context context, Link imageLink ) {
 
@@ -129,7 +124,13 @@ public class Catalog {
 
 		}
 
-        return context.getResources().getDrawable( R.drawable.unknown_cover );
+        Resources res = context.getResources();
+
+        if ( res != null ) {
+            return res.getDrawable( R.drawable.unknown_cover );
+        }
+
+        return null;
     }
 
 }

@@ -132,13 +132,6 @@ public class CatalogListAdapter extends BaseAdapter {
         ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);
         Catalog.loadImageLink(context, icon, imgLink, Catalog.getMaxThumbnailWidth(this.displayDensity));
 
-
-        /*
-        ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);
-        int maxWidth = Catalog.getMaxThumbnailWidth(displayDensity);
-        icon.setMinimumWidth(maxWidth);
-        */
-
 		return rowView;
 	}
 	

@@ -547,34 +547,13 @@ public class CatalogFragment extends RoboSherlockFragment implements
         @Override
         public void onScroll(AbsListView view, final int firstVisibleItem, final int visibleItemCount, int totalItemCount) {
 
-            if ( updater != null ) {
-                handler.removeCallbacks(updater);
-            }
+            loadThumbnails(firstVisibleItem, visibleItemCount, totalItemCount );
 
-            updater = new Runnable() {
-                @Override
-                public void run() {
+            loadNextFeed(firstVisibleItem, visibleItemCount, totalItemCount );
 
-                    for ( int i=0; i < visibleItemCount; i++ ) {
-                        Entry entry = adapter.getItem( firstVisibleItem + i );
-                        Link imageLink = Catalog.getImageLink(entry.getFeed(), entry);
+        }
 
-                        if ( imageLink != null && !thumbnailCache.containsKey(imageLink.getHref() ) ) {
-                            queueImageLoading( entry.getBaseURL(), imageLink );
-                        }
-                    }
-                }
-            };
-
-            long delay;
-
-            if ( firstVisibleItem + visibleItemCount < totalItemCount ) {
-                delay = 500;
-            } else {
-                delay = 0;
-            }
-
-            handler.postDelayed( updater, delay );
+        private void loadNextFeed( final int firstVisibleItem, final int visibleItemCount, int totalItemCount ) {
 
             int lastVisibleItem = firstVisibleItem + visibleItemCount;
 
@@ -604,6 +583,36 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
         }
 
+        private void loadThumbnails( final int firstVisibleItem, final int visibleItemCount, int totalItemCount ) {
+            if ( updater != null ) {
+                handler.removeCallbacks(updater);
+            }
+
+            updater = new Runnable() {
+                @Override
+                public void run() {
+
+                    for ( int i=0; i < visibleItemCount; i++ ) {
+                        Entry entry = adapter.getItem( firstVisibleItem + i );
+                        Link imageLink = Catalog.getImageLink(entry.getFeed(), entry);
+
+                        if ( imageLink != null && !thumbnailCache.containsKey(imageLink.getHref() ) ) {
+                            queueImageLoading( entry.getBaseURL(), imageLink );
+                        }
+                    }
+                }
+            };
+
+            long delay;
+
+            if ( firstVisibleItem + visibleItemCount == totalItemCount ) {
+                delay = 0; //All items on screen, no wait
+            } else {
+                delay = 500; //Default delay
+            }
+
+            handler.postDelayed( updater, delay );
+        }
 
 
         @Override

@@ -187,6 +187,7 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 		entry.setTitle(context.getString(R.string.custom_site));
 		entry.setSummary(context.getString(R.string.custom_site_desc));
 		entry.setId(Catalog.CUSTOM_SITES_ID);
+        entry.setBaseURL( feed.getURL() );
 
         if ( iconLink != null ) {
             Link thumbnailLink = new Link(iconLink.getHref(), iconLink.getType(), AtomConstants.REL_IMAGE, null);

@@ -141,6 +141,8 @@ public class CatalogListAdapter extends BaseAdapter {
             if ( drawable != null ) {
                 icon.setImageDrawable(drawable);
             }
+        } else {
+            icon.setImageDrawable( context.getResources().getDrawable(R.drawable.unknown_cover));
         }
 
 		return rowView;

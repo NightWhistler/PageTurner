@@ -14,18 +14,8 @@
             android:layout_height="wrap_content"
             android:id="@+id/topBlock">
 
-
-        <ImageView
-                android:id="@+id/itemIcon"
-                android:src="@drawable/book"
-                android:layout_width="175dip"
-                android:layout_height="175dip"
-                android:layout_gravity="top"
-                android:layout_alignParentTop="true"
-                android:scaleType="centerInside"
-                android:paddingRight="2dp"
-                android:paddingBottom="2dp"
-                />
+        <include layout="@layout/large_book_cover"
+                 android:id="@+id/itemIcon"/>
 
         <LinearLayout android:layout_height="wrap_content"
                       android:layout_width="wrap_content"

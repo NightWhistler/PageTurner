@@ -87,10 +87,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     private ProgressDialog downloadDialog;
 
-    private LinkListener linkListener;
-
     private Feed feed;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -205,18 +202,6 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
         Catalog.loadBookDetails(mainLayout, entry, false);
 
-        linkListener = new LinkListener() {
-
-            @Override
-            public void linkUpdated() {
-                if ( imgLink != null ) {
-                    Drawable drawable = Catalog.loadImageLink(getActivity(), imgLink );
-                    imgLink.setBinData(null); //Clear data, we no longer need it
-                    icon.setImageDrawable(drawable);
-                }
-            }
-        };
-
         LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
         task.setCallback(this);
         task.setBaseURL(feed.getURL());
@@ -257,11 +242,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         }
     }
 
-    public void notifyLinkUpdated() {
-        if ( linkListener != null ) {
-            linkListener.linkUpdated();
-            linkListener = null;
-        }
+    public void notifyLinkUpdated( Link link, Drawable drawable ) {
+       icon.setImageDrawable(drawable);
     }
 
     @Override

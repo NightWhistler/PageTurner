@@ -39,10 +39,20 @@ public class CatalogListAdapter extends BaseAdapter {
 
     private Entry loadingEntry = new Entry();
 
+    private CatalogImageLoader imageLoader;
+
+    public static interface CatalogImageLoader {
+        Drawable getThumbnailFor( String baseURL, Link link );
+    }
+
 	@Inject
 	public CatalogListAdapter(Context context) {
 		this.context = context;
 	}
+
+    void setImageLoader( CatalogImageLoader imageLoader ) {
+        this.imageLoader = imageLoader;
+    }
 
     public void setLoading(boolean loading) {
         if ( loading ) {
@@ -125,9 +135,13 @@ public class CatalogListAdapter extends BaseAdapter {
 		Catalog.loadBookDetails(rowView, entry, true );
 
         ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);
-        Drawable drawable = Catalog.loadImageLink(context, imgLink );
 
-        icon.setImageDrawable(drawable);
+        if ( this.imageLoader != null && imgLink != null ) {
+            Drawable drawable = this.imageLoader.getThumbnailFor( entry.getBaseURL(), imgLink );
+            if ( drawable != null ) {
+                icon.setImageDrawable(drawable);
+            }
+        }
 
 		return rowView;
 	}

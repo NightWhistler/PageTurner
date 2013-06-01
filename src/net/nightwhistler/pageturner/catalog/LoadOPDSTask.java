@@ -106,6 +106,10 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 			feed.setDetailFeed(asDetailsFeed);
             feed.setSearchFeed(asSearchFeed);
 
+            for ( Entry entry: feed.getEntries() ) {
+                entry.setBaseURL( baseUrl );
+            }
+
             if (isBaseFeed) {
                 addCustomSitesEntry(feed);
             }

@@ -20,9 +20,13 @@
 package net.nightwhistler.pageturner.catalog;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import com.google.inject.Inject;
 import net.nightwhistler.nucular.atom.Link;
+import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -42,6 +46,9 @@ public class LoadFakeFeedTask extends AsyncTask<Link, Integer, Void> {
     private HttpClient client;
 
     private String baseURL;
+
+    private Drawable drawable;
+    private Link imageLink;
 
     @Inject
     public LoadFakeFeedTask(Context context, HttpClient httpClient) {
@@ -66,7 +73,7 @@ public class LoadFakeFeedTask extends AsyncTask<Link, Integer, Void> {
     @Override
     protected Void doInBackground(Link... params) {
 
-        Link imageLink = params[0];
+        this.imageLink = params[0];
 
         if ( imageLink == null ) {
             return null;
@@ -80,10 +87,14 @@ public class LoadFakeFeedTask extends AsyncTask<Link, Integer, Void> {
 
             HttpResponse resp = client.execute(new HttpGet(target));
 
-            imageLink.setBinData(EntityUtils.toByteArray(resp.getEntity()));
+
+            Bitmap bitmap = BitmapFactory.decodeStream( resp.getEntity().getContent() );
+            this.drawable = new FastBitmapDrawable( bitmap );
 
         } catch (Exception io) {
             LOG.error("Could not load image: ", io);
+        } catch ( OutOfMemoryError error ) {
+            LOG.error("Could not load image: ", error);
         }
 
         return null;
@@ -91,7 +102,7 @@ public class LoadFakeFeedTask extends AsyncTask<Link, Integer, Void> {
 
     @Override
     protected void onPostExecute(Void result) {
-        callback.notifyLinkUpdated();
+        callback.notifyLinkUpdated(imageLink, drawable);
         callback.onLoadingDone();
     }
 }

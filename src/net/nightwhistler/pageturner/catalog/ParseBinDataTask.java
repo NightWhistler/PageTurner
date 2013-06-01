@@ -19,10 +19,14 @@
 package net.nightwhistler.pageturner.catalog;
 
 import android.annotation.TargetApi;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Base64;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
+import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 
 /**
  * Loads images for links that have the image-data embedded as Base64 data.
@@ -32,6 +36,8 @@ public class ParseBinDataTask extends QueueableAsyncTask<Link, Void, Void> {
 
     private LoadFeedCallback callBack;
 
+    private Link imageLink;
+    private Drawable drawable;
 
     public void setLoadFeedCallback( LoadFeedCallback callBack ) {
         this.callBack = callBack;
@@ -45,18 +51,21 @@ public class ParseBinDataTask extends QueueableAsyncTask<Link, Void, Void> {
     @Override
     protected Void doInBackground(Link... links) {
 
-        Link imageLink = links[0];
+        this.imageLink = links[0];
         String href = imageLink.getHref();
         String dataString = href.substring(href.indexOf(',') + 1);
 
-        imageLink.setBinData(Base64.decode(dataString,
-                Base64.DEFAULT));
+        byte[] data = Base64.decode(dataString, Base64.DEFAULT);
+
+        Bitmap bitmap = BitmapFactory.decodeByteArray( data, 0, data.length );
+
+        this.drawable = new FastBitmapDrawable(bitmap);
 
         return null;
     }
 
     @Override
     protected void doOnPostExecute(Void aVoid) {
-        callBack.notifyLinkUpdated();
+        callBack.notifyLinkUpdated(imageLink, drawable);
     }
 }

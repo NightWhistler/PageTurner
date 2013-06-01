@@ -23,6 +23,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,6 +32,7 @@ import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +46,7 @@ public class Catalog {
     private static final int ABBREV_TEXT_LEN = 150;
 	
 	private static final int MAX_THUMBNAIL_WIDTH = 45;
-	
-	private static Bitmap unknownCoverScaled;
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger("Catalog");
 		
 	private Catalog() {}
@@ -77,11 +77,9 @@ public class Catalog {
 	
 	/**
 	 * Loads the details for the given entry into the given layout.
-	 * 
-	 * @param context
+	 *
 	 * @param layout
 	 * @param entry
-	 * @param imageLink
 	 * @param abbreviateText
 	 */
 	public static void loadBookDetails(View layout, Entry entry, boolean abbreviateText ) {
@@ -116,51 +114,22 @@ public class Catalog {
         return (int) (MAX_THUMBNAIL_WIDTH * density);
     }
 
-	public static void loadImageLink(Context context, ImageView icon, Link imageLink, int maxWidth ) {
+	public static Drawable loadImageLink(Context context, Link imageLink ) {
 
 		try {
 
 			if (imageLink != null && imageLink.getBinData() != null) {
 				byte[] data = imageLink.getBinData();
 
-				Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0,
-						data.length);
+				Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 
-                if ( bitmap != null ) {
-
-                    if ( maxWidth > 0 && bitmap.getWidth() > maxWidth ) {
-                        int newHeight = getThumbnailHeight(bitmap.getHeight(), bitmap.getWidth(), maxWidth );
-
-                        icon.setImageBitmap( Bitmap.createScaledBitmap(bitmap,
-                                maxWidth, newHeight, true));
-
-                        bitmap.recycle();
-
-                    } else {
-                        icon.setImageBitmap(bitmap);
-                    }
-
-                    return;
-                }
+                return new FastBitmapDrawable(bitmap);
 			} 
 		} catch (OutOfMemoryError mem ) {
 
 		}
-		
-		if ( unknownCoverScaled == null ) {
-			Bitmap coverBitmap = ( (BitmapDrawable) context.getResources().getDrawable(
-					R.drawable.unknown_cover)).getBitmap();
-			int newHeight = getThumbnailHeight(coverBitmap.getHeight(), coverBitmap.getWidth(), maxWidth );
-			unknownCoverScaled = Bitmap.createScaledBitmap(coverBitmap, maxWidth, newHeight, false);
-		}		
-				
-		icon.setImageBitmap(unknownCoverScaled);
-	}
-	
-	public static int getThumbnailHeight( int originalHeight, int originalWidth, int newWidth ) {
-		float factor = (float) originalHeight / (float) originalWidth;
-		
-		return (int) (newWidth * factor);
-	}	
+
+        return context.getResources().getDrawable( R.drawable.unknown_cover );
+    }
 
 }

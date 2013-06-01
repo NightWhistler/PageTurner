@@ -119,10 +119,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         this.taskQueue.setTaskQueueListener(this);
-        int displayDensity = metrics.densityDpi;
-        this.adapter.setDisplayDensity(displayDensity);
-        LOG.debug("Metrics at init: " + displayDensity );
-
 	}
 
     @Override

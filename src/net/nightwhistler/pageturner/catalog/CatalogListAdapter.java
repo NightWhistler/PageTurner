@@ -19,6 +19,7 @@
 package net.nightwhistler.pageturner.catalog;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,8 +36,6 @@ public class CatalogListAdapter extends BaseAdapter {
 	
 	private Feed feed;	
 	private Context context;
-
-    private int displayDensity;
 
     private Entry loadingEntry = new Entry();
 
@@ -82,10 +81,6 @@ public class CatalogListAdapter extends BaseAdapter {
 		return feed;
 	}
 
-    public void setDisplayDensity(int density) {
-        this.displayDensity = density;
-    }
-
 	@Override
 	public int getCount() {
 		
@@ -130,7 +125,9 @@ public class CatalogListAdapter extends BaseAdapter {
 		Catalog.loadBookDetails(rowView, entry, true );
 
         ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);
-        Catalog.loadImageLink(context, icon, imgLink, Catalog.getMaxThumbnailWidth(this.displayDensity));
+        Drawable drawable = Catalog.loadImageLink(context, imgLink );
+
+        icon.setImageDrawable(drawable);
 
 		return rowView;
 	}

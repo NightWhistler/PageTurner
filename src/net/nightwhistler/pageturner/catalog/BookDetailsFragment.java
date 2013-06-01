@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner.catalog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -209,8 +210,9 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             @Override
             public void linkUpdated() {
                 if ( imgLink != null ) {
-                    Catalog.loadImageLink(getActivity(), icon, imgLink, altLinkParent.getWidth() / 2);
+                    Drawable drawable = Catalog.loadImageLink(getActivity(), imgLink );
                     imgLink.setBinData(null); //Clear data, we no longer need it
+                    icon.setImageDrawable(drawable);
                 }
             }
         };

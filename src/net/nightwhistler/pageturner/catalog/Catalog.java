@@ -109,28 +109,4 @@ public class Catalog {
 	}
 
 
-	public static Drawable loadImageLink(Context context, Link imageLink ) {
-
-		try {
-
-			if (imageLink != null && imageLink.getBinData() != null) {
-				byte[] data = imageLink.getBinData();
-
-				Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-
-                return new FastBitmapDrawable(bitmap);
-			} 
-		} catch (OutOfMemoryError mem ) {
-
-		}
-
-        Resources res = context.getResources();
-
-        if ( res != null ) {
-            return res.getDrawable( R.drawable.unknown_cover );
-        }
-
-        return null;
-    }
-
 }

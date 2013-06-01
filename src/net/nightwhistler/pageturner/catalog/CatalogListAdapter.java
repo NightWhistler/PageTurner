@@ -136,15 +136,16 @@ public class CatalogListAdapter extends BaseAdapter {
 
         ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);
 
+        Drawable drawableToSet = context.getResources().getDrawable(R.drawable.unknown_cover);;
+
         if ( this.imageLoader != null && imgLink != null ) {
             Drawable drawable = this.imageLoader.getThumbnailFor( entry.getBaseURL(), imgLink );
             if ( drawable != null ) {
-                icon.setImageDrawable(drawable);
+                drawableToSet = drawable;
             }
-        } else {
-            icon.setImageDrawable( context.getResources().getDrawable(R.drawable.unknown_cover));
         }
 
+        icon.setImageDrawable( drawableToSet );
 		return rowView;
 	}
 	

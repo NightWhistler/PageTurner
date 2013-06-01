@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -145,14 +146,14 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		catalogList.setAdapter(adapter);
         adapter.setImageLoader(this);
         catalogList.setOnScrollListener(new LoadingScrollListener());
-		catalogList.setOnItemClickListener(new OnItemClickListener() {			
-			@Override
-			public void onItemClick(AdapterView<?> list, View arg1, int position,
-					long arg3) {
-				Entry entry = adapter.getItem(position);
-				onEntryClicked(entry, position);
-			}
-		});
+		catalogList.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> list, View arg1, int position,
+                                    long arg3) {
+                Entry entry = adapter.getItem(position);
+                onEntryClicked(entry, position);
+            }
+        });
 	}	
 	
 	private void loadOPDSFeed(String url) {
@@ -454,7 +455,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
         if ( feed.isSearchFeed() ) {
             Toast.makeText(getActivity(), R.string.no_search_results, Toast.LENGTH_LONG ).show();
         } else {
-            errorLoadingFeed( getActivity().getString(R.string.empty_opds_feed) );
+            errorLoadingFeed(getActivity().getString(R.string.empty_opds_feed));
         }
     }
 
@@ -478,11 +479,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
     @Override
     public Drawable getThumbnailFor( String baseURL, Link link ) {
-
-        if ( ! this.thumbnailCache.containsKey(link.getHref()) ) {
-            queueImageLoading( baseURL, link );
-        }
-
         return thumbnailCache.get( link.getHref() );
     }
 
@@ -545,8 +541,40 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
         private String lastLoadedUrl = "";
 
+        private Handler handler = new Handler();
+        private Runnable updater;
+
         @Override
-        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        public void onScroll(AbsListView view, final int firstVisibleItem, final int visibleItemCount, int totalItemCount) {
+
+            if ( updater != null ) {
+                handler.removeCallbacks(updater);
+            }
+
+            updater = new Runnable() {
+                @Override
+                public void run() {
+
+                    for ( int i=0; i < visibleItemCount; i++ ) {
+                        Entry entry = adapter.getItem( firstVisibleItem + i );
+                        Link imageLink = Catalog.getImageLink(entry.getFeed(), entry);
+
+                        if ( imageLink != null && !thumbnailCache.containsKey(imageLink.getHref() ) ) {
+                            queueImageLoading( entry.getBaseURL(), imageLink );
+                        }
+                    }
+                }
+            };
+
+            long delay;
+
+            if ( firstVisibleItem + visibleItemCount < totalItemCount ) {
+                delay = 500;
+            } else {
+                delay = 0;
+            }
+
+            handler.postDelayed( updater, delay );
 
             int lastVisibleItem = firstVisibleItem + visibleItemCount;
 
@@ -573,7 +601,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
                     loadURL(nextEntry, nextLink.getHref(), false, false, ResultType.APPEND);
                 }
             }
+
         }
+
+
 
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {

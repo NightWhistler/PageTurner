@@ -84,7 +84,7 @@ public class Catalog {
 	 * @param imageLink
 	 * @param abbreviateText
 	 */
-	public static void loadBookDetails(Context context, View layout, Entry entry, Link imageLink, boolean abbreviateText, int maxWidth ) {
+	public static void loadBookDetails(View layout, Entry entry, boolean abbreviateText ) {
 		
 		HtmlSpanner spanner = new HtmlSpanner();
 		
@@ -92,10 +92,6 @@ public class Catalog {
 		TextView desc = (TextView) layout
 				.findViewById(R.id.itemDescription);
 
-		ImageView icon = (ImageView) layout.findViewById(R.id.itemIcon);
-
-		loadImageLink(context, icon, imageLink, maxWidth);
-				
 		title.setText( entry.getTitle());
 
 		CharSequence text;

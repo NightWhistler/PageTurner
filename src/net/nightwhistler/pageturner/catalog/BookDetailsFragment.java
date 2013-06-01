@@ -202,7 +202,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
         final Link imgLink = Catalog.getImageLink(feed, entry);
 
-        Catalog.loadBookDetails(getActivity(), mainLayout, entry, imgLink, false, altLinkParent.getWidth() / 2);
+        Catalog.loadBookDetails(mainLayout, entry, false);
 
         linkListener = new LinkListener() {
 

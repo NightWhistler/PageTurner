@@ -43,6 +43,7 @@ import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.activity.ReadingActivity;
 import roboguice.inject.InjectView;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -73,6 +74,10 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     @InjectView(R.id.buyNowButton)
     private Button buyNowButton;
+
+    @InjectView(R.id.firstDivider)
+    @Nullable
+    private View divider;
 
     @InjectView(R.id.readNowButton)
     private Button downloadButton;
@@ -168,6 +173,11 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             });
         } else {
             buyNowButton.setVisibility(View.GONE);
+
+            if ( divider != null ) {
+                divider.setVisibility(View.GONE);
+            }
+
         }
 
 

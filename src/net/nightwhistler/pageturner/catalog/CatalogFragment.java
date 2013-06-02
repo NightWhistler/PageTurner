@@ -464,6 +464,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
         if (result != null && isAdded() ) {
 
             if ( resultType == null || resultType == ResultType.REPLACE ) {
+                destroyThumbnails();
                 thumbnailCache.clear();
                 adapter.setFeed(result);
                 ((CatalogParent) getActivity() ).onFeedReplaced(result);
@@ -474,6 +475,16 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
             getSherlockActivity().supportInvalidateOptionsMenu();
             getSherlockActivity().getSupportActionBar().setTitle(result.getTitle());
+        }
+    }
+
+    private void destroyThumbnails() {
+        for ( Map.Entry<String, Drawable> entry: thumbnailCache.entrySet() ) {
+            Drawable value = entry.getValue();
+
+            if ( value instanceof FastBitmapDrawable ) {
+                ((FastBitmapDrawable) value).destroy();
+            }
         }
     }
 

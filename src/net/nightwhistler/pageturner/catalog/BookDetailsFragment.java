@@ -54,7 +54,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
 
     @Inject
-    private Provider<LoadFakeFeedTask> loadFakeFeedTaskProvider;
+    private Provider<LoadThumbnailTask> loadThumbnailTaskProvider;
 
     @Inject
     private Provider<DownloadFileTask> downloadFileTaskProvider;
@@ -202,9 +202,9 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
         Catalog.loadBookDetails(mainLayout, entry, false);
 
-        LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
-        task.setCallback(this);
-        task.setBaseURL(feed.getURL());
+        LoadThumbnailTask task = this.loadThumbnailTaskProvider.get();
+        task.setLoadFeedCallback(this);
+        task.setBaseUrl(feed.getURL());
 
         task.execute(imgLink);
     }
@@ -244,6 +244,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     public void notifyLinkUpdated( Link link, Drawable drawable ) {
        icon.setImageDrawable(drawable);
+       onLoadingDone();
     }
 
     @Override

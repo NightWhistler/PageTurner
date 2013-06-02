@@ -903,16 +903,20 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			if (src.startsWith("data:image")) {
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
 
-                    String dataString = src.substring(src
+                    try {
+                        String dataString = src.substring(src
                             .indexOf(',') + 1);
 
-                    byte[] binData = Base64.decode(dataString,
+                        byte[] binData = Base64.decode(dataString,
 							Base64.DEFAULT);
 					
-					setImageSpan(builder, new BitmapDrawable(
+					    setImageSpan(builder, new BitmapDrawable(
 							getContext().getResources(),
 							BitmapFactory.decodeByteArray(binData, 0, binData.length )),
 							start, builder.length());
+                    } catch ( OutOfMemoryError outOfMemoryError ) {
+                        //Simply don't load
+                    }
 					
 				}
 

@@ -127,6 +127,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         // read epub file
         EpubReader epubReader = new EpubReader();
 
+        /*
         MediaType[] lazyTypes = {
                 MediatypeService.CSS, // We don't support CSS yet
 
@@ -144,6 +145,9 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
                 MediatypeService.OGG,
                 MediatypeService.SMIL, MediatypeService.XPGT,
                 MediatypeService.PLS };
+        */
+
+        MediaType[] lazyTypes = MediatypeService.mediatypes;
 
         Book newBook = epubReader.readEpubLazy(fileName, "UTF-8",
                 Arrays.asList(lazyTypes));
@@ -227,6 +231,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         //If memory usage gets over the threshold, try to free up memory
         if ( memoryUsage > CASH_CLEAR_THRESHOLD || bitmapUsage > CASH_CLEAR_THRESHOLD ) {
             clearCachedText();
+            closeLazyLoadedResources();
         }
 
         Spannable result = htmlSpanner.fromHtml(resource.getReader());
@@ -236,6 +241,14 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         }
 
         return result;
+    }
+
+    private void closeLazyLoadedResources() {
+        if ( currentBook != null ) {
+            for ( Resource res: currentBook.getResources().getAll() ) {
+                res.close();
+            }
+        }
     }
 
     private void clearCachedText() {

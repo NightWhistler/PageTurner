@@ -768,20 +768,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}	
 	
 	private Runnable progressBarUpdater = new Runnable() {
+
+        private boolean pausedBecauseOfCall = false;
+
 		public void run() {
-
-
-			int phoneState = telephonyManager.getCallState();
-	    
-			if ( phoneState == TelephonyManager.CALL_STATE_RINGING || 
-					phoneState == TelephonyManager.CALL_STATE_OFFHOOK ) {
-				stopTextToSpeech(false);
-				return;
-			}
 
             if ( ! ttsIsRunning() ) {
                 return;
             }
+
+            long delay = 1000;
 
             synchronized ( ttsPlaybackItemQueue ) {
 
@@ -791,25 +787,46 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                     MediaPlayer mediaPlayer = item.getMediaPlayer();
 
+                    int phoneState = telephonyManager.getCallState();
+
                     if ( mediaPlayer != null && mediaPlayer.isPlaying() ) {
 
-                        double percentage = (double) mediaPlayer.getCurrentPosition() / (double) mediaPlayer.getDuration();
+                        if ( phoneState == TelephonyManager.CALL_STATE_RINGING ||
+                                phoneState == TelephonyManager.CALL_STATE_OFFHOOK ) {
 
-                        mediaProgressBar.setMax(mediaPlayer.getDuration());
-                        mediaProgressBar.setProgress(mediaPlayer.getCurrentPosition());
+                            LOG.debug("Detected call, pausing TTS.");
 
-                        int currentDuration = item.getOffset() + (int) (percentage * item.getText().length());
+                            mediaPlayer.pause();
+                            this.pausedBecauseOfCall = true;
+                        } else {
 
-                        bookView.navigateTo(bookView.getIndex(), currentDuration );
+                            double percentage = (double) mediaPlayer.getCurrentPosition() / (double) mediaPlayer.getDuration();
 
-                        wordView.setText( item.getText() );
+                            mediaProgressBar.setMax(mediaPlayer.getDuration());
+                            mediaProgressBar.setProgress(mediaPlayer.getCurrentPosition());
 
+                            int currentDuration = item.getOffset() + (int) (percentage * item.getText().length());
+
+                            bookView.navigateTo(bookView.getIndex(), currentDuration );
+
+                            wordView.setText( item.getText() );
+
+                            delay = 100;
+
+                        }
+
+                    } else if ( mediaPlayer != null && phoneState == TelephonyManager.CALL_STATE_IDLE
+                            && pausedBecauseOfCall ) {
+                        LOG.debug("Call over, resuming TTS.");
+                        mediaPlayer.start();
+                        pausedBecauseOfCall = false;
+                        delay = 100;
                     }
                 }
             }
 			
             // Running this thread after 100 milliseconds
-            uiHandler.postDelayed(this, 100);
+            uiHandler.postDelayed(this, delay);
 
 		}
 	};

@@ -47,7 +47,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
     /**
      * We start clearing the cache if memory usage exceeds 75%.
      */
-    private static final double CASH_CLEAR_THRESHOLD = 0.75;
+    private static final double CACHE_CLEAR_THRESHOLD = 0.75;
 
     private String currentFile;
     private Book currentBook;
@@ -229,7 +229,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         LOG.debug("Current bitmap memory usage is " +  (int) (bitmapUsage * 100) + "%" );
 
         //If memory usage gets over the threshold, try to free up memory
-        if ( memoryUsage > CASH_CLEAR_THRESHOLD || bitmapUsage > CASH_CLEAR_THRESHOLD ) {
+        if ( memoryUsage > CACHE_CLEAR_THRESHOLD || bitmapUsage > CACHE_CLEAR_THRESHOLD) {
             clearCachedText();
             closeLazyLoadedResources();
         }

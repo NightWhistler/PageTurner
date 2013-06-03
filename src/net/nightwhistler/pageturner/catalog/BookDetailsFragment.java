@@ -85,8 +85,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     @InjectView(R.id.addToLibraryButton)
     private Button addToLibraryButton;
 
-    @InjectView(R.id.relatedLinksContainer)
-    ViewGroup altLinkParent;
+   // @InjectView(R.id.relatedLinksContainer)
+   // ViewGroup altLinkParent;
 
     private int displayDensity;
 

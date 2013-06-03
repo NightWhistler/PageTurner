@@ -201,6 +201,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         final Link imgLink = Catalog.getImageLink(feed, entry);
 
         Catalog.loadBookDetails(mainLayout, entry, false);
+        icon.setImageDrawable( getActivity().getResources().getDrawable(R.drawable.unknown_cover));
 
         LoadThumbnailTask task = this.loadThumbnailTaskProvider.get();
         task.setLoadFeedCallback(this);
@@ -243,7 +244,11 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     }
 
     public void notifyLinkUpdated( Link link, Drawable drawable ) {
-       icon.setImageDrawable(drawable);
+
+        if ( drawable != null ) {
+            icon.setImageDrawable(drawable);
+        }
+
        onLoadingDone();
     }
 

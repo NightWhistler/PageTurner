@@ -1236,43 +1236,40 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 		}
 
-		protected Spanned doInBackground(String... hrefs) {
+        protected Spanned doInBackground(String... hrefs) {
 
-			publishProgress(BookReadPhase.START);
+            publishProgress(BookReadPhase.START);
 
-			if (loader != null) {
-				loader.clear();
-			}
+            if (loader != null) {
+                loader.clear();
+            }
 
-			if (BookView.this.book == null) {
-				try {
+            try {
+
+                if (BookView.this.book == null) {
                     publishProgress(BookReadPhase.OPEN_FILE);
-					setBook(textLoader.initBook(fileName));
-				} catch (IOException io) {
-					this.error = io.getMessage();
-					return null;
-				}
-			}
+                    setBook(textLoader.initBook(fileName));
+                }
 
-			this.name = spine.getCurrentTitle();
+                this.name = spine.getCurrentTitle();
 
-			Resource resource;
+                Resource resource;
 
-			if (hrefs.length == 0) {
-				resource = spine.getCurrentResource();
-			} else {
-				resource = book.getResources().getByHref(hrefs[0]);
-			}
+                if (hrefs.length == 0) {
+                    resource = spine.getCurrentResource();
+                } else {
+                    resource = book.getResources().getByHref(hrefs[0]);
+                }
 
-			if (resource == null) {
-				return new SpannedString( getContext().getString(R.string.dead_link) );
-			}
+                if (resource == null) {
+                    return new SpannedString( getContext().getString(R.string.dead_link) );
+                }
 
-			publishProgress(BookReadPhase.PARSE_TEXT);
+                publishProgress(BookReadPhase.PARSE_TEXT);
 
-			try {
-				Spannable result = textLoader.getText(resource, true);
-				loader.load(); // Load all image resources.
+
+                Spannable result = textLoader.getText(resource, true);
+                loader.load(); // Load all image resources.
 
                 //Clear any old highlighting spans
                 BackgroundColorSpan[] spans = result.getSpans(0, result.length(), BackgroundColorSpan.class);
@@ -1280,14 +1277,14 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                     result.removeSpan(span);
                 }
 
-				// Highlight search results (if any)
-				for (SearchTextTask.SearchResult searchResult : this.searchResults) {
-					if (searchResult.getIndex() == spine.getPosition()) {
-						result.setSpan(new BackgroundColorSpan(Color.YELLOW),
-								searchResult.getStart(), searchResult.getEnd(),
-								Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-					}
-				}
+                // Highlight search results (if any)
+                for (SearchTextTask.SearchResult searchResult : this.searchResults) {
+                    if (searchResult.getIndex() == spine.getPosition()) {
+                        result.setSpan(new BackgroundColorSpan(Color.YELLOW),
+                                searchResult.getStart(), searchResult.getEnd(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                }
 
                 //If the view isn't ready yet, wait a bit.
                 while ( getInnerView().getWidth() == 0 ) {
@@ -1296,15 +1293,15 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
                 strategy.loadText(result);
 
-				return result;
-			} catch (Exception io) {
-				return new SpannableString( String.format( getContext().getString(R.string.could_not_load),
+                return result;
+            } catch (Exception io) {
+                return new SpannableString( String.format( getContext().getString(R.string.could_not_load),
                         io.getMessage()) );
-			} catch (OutOfMemoryError io) {
+            } catch (OutOfMemoryError io) {
                 return new SpannableString(getContext().getString(R.string.out_of_memory) );
             }
 
-		}
+        }
 
 		@Override
 		protected void onProgressUpdate(BookReadPhase... values) {

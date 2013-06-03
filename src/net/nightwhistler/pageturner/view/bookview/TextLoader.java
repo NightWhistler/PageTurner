@@ -213,6 +213,9 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
         Spannable result = htmlSpanner.fromHtml(resource.getReader());
 
+        //We have the rendered version, so it's safe to close the resource
+        resource.close();
+
         if ( allowCaching ) {
             renderedText.put(resource.getHref(), result);
         }

@@ -328,9 +328,10 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             public void downloadFailed() {
 
                 downloadDialog.hide();
-
-                Toast.makeText(getActivity(), R.string.book_failed,
+                if ( isAdded() ) {
+                    Toast.makeText(getActivity(), R.string.book_failed,
                         Toast.LENGTH_LONG).show();
+                }
             }
         };
 

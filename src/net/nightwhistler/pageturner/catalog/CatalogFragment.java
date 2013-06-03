@@ -19,8 +19,10 @@
 package net.nightwhistler.pageturner.catalog;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +52,7 @@ import net.nightwhistler.pageturner.activity.LibraryActivity;
 import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.scheduling.TaskQueue;
+import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import roboguice.inject.InjectView;
@@ -59,11 +62,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static net.nightwhistler.pageturner.catalog.Catalog.getImageLink;
 
 public class CatalogFragment extends RoboSherlockFragment implements
-		LoadFeedCallback, DialogFactory.SearchCallBack, TaskQueue.TaskQueueListener {
+		LoadFeedCallback, DialogFactory.SearchCallBack, TaskQueue.TaskQueueListener,
+        CatalogListAdapter.CatalogImageLoader {
 	
     private static final String STATE_NAV_ARRAY_KEY = "nav_array";    
 
@@ -103,6 +108,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
     @Inject
     private TaskQueue taskQueue;
 
+    private Map<String, Drawable> thumbnailCache = new ConcurrentHashMap<String, Drawable>();
+
     private MenuItem searchMenuItem;
 
 	@Override
@@ -137,15 +144,16 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		setHasOptionsMenu(true);
 		catalogList.setAdapter(adapter);
+        adapter.setImageLoader(this);
         catalogList.setOnScrollListener(new LoadingScrollListener());
-		catalogList.setOnItemClickListener(new OnItemClickListener() {			
-			@Override
-			public void onItemClick(AdapterView<?> list, View arg1, int position,
-					long arg3) {
-				Entry entry = adapter.getItem(position);
-				onEntryClicked(entry, position);
-			}
-		});
+		catalogList.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> list, View arg1, int position,
+                                    long arg3) {
+                Entry entry = adapter.getItem(position);
+                onEntryClicked(entry, position);
+            }
+        });
 	}	
 	
 	private void loadOPDSFeed(String url) {
@@ -236,13 +244,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 
     private void loadFakeFeek( Entry entry ) {
-        Feed originalFeed = entry.getFeed();
 
         Feed fakeFeed = new Feed();
         fakeFeed.addEntry(entry);
         fakeFeed.setTitle(entry.getTitle());
         fakeFeed.setDetailFeed(true);
-        fakeFeed.setURL(originalFeed.getURL());
+        fakeFeed.setURL(entry.getBaseURL());
 
         ((CatalogParent) getActivity()).loadFakeFeed(fakeFeed);
     }
@@ -287,8 +294,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
         String base = null;
 
-        if ( entry != null && entry.getFeed() != null ) {
-            base = entry.getFeed().getURL();
+        if ( entry != null  ) {
+            base = entry.getBaseURL();
         }
 
 		if (base == null && !navStack.isEmpty()) {
@@ -427,8 +434,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 
     @Override
-    public void notifyLinkUpdated() {
-        adapter.notifyDataSetChanged();
+    public void notifyLinkUpdated(Link link, Drawable drawable) {
+
+        if ( drawable != null ) {
+            this.thumbnailCache.put( link.getHref(), drawable );
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -444,8 +455,18 @@ public class CatalogFragment extends RoboSherlockFragment implements
         if ( feed.isSearchFeed() ) {
             Toast.makeText(getActivity(), R.string.no_search_results, Toast.LENGTH_LONG ).show();
         } else {
-            errorLoadingFeed( getActivity().getString(R.string.empty_opds_feed) );
+            errorLoadingFeed(getActivity().getString(R.string.empty_opds_feed));
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        destroyThumbnails();
+    }
+
+    @Override
+    public void onLowMemory() {
+        destroyThumbnails();
     }
 
     public void setNewFeed(Feed result, ResultType resultType) {
@@ -453,6 +474,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
         if (result != null && isAdded() ) {
 
             if ( resultType == null || resultType == ResultType.REPLACE ) {
+                destroyThumbnails();
+                thumbnailCache.clear();
                 adapter.setFeed(result);
                 ((CatalogParent) getActivity() ).onFeedReplaced(result);
             } else {
@@ -462,46 +485,54 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
             getSherlockActivity().supportInvalidateOptionsMenu();
             getSherlockActivity().getSupportActionBar().setTitle(result.getTitle());
-
-            queueImageLoading(result);
         }
     }
 
-    private void queueImageLoading( Feed feed ) {
+    private void destroyThumbnails() {
+        for ( Map.Entry<String, Drawable> entry: thumbnailCache.entrySet() ) {
+            Drawable value = entry.getValue();
 
-        Map<String, byte[]> cache = new HashMap<String, byte[]>();
-
-        for (final Entry entry : feed.getEntries()) {
-
-            Link imageLink = getImageLink(feed, entry);
-
-            if (imageLink != null) {
-                String href = imageLink.getHref();
-
-                // If the image is contained in the feed, load it
-                // directly
-                if ( href.startsWith("data:image") ) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-                        ParseBinDataTask binDataTask = this.parseBinDataTaskProvider.get();
-                        binDataTask.setLoadFeedCallback(this);
-
-                        taskQueue.executeTask(binDataTask, imageLink);
-                    }
-                }else {
-
-                    LoadThumbnailTask thumbnailTask = this.loadThumbnailTaskProvider.get();
-                    thumbnailTask.setCache(cache);
-                    thumbnailTask.setBaseUrl( feed.getURL() );
-                    thumbnailTask.setLoadFeedCallback(this);
-
-                    taskQueue.executeTask(thumbnailTask, imageLink);
-                }
+            if ( value instanceof FastBitmapDrawable ) {
+                ((FastBitmapDrawable) value).destroy();
             }
         }
-
-        cache.clear();
     }
 
+    @Override
+    public Drawable getThumbnailFor( String baseURL, Link link ) {
+        return thumbnailCache.get( link.getHref() );
+    }
+
+    private void queueImageLoading( String baseURL, Link imageLink ) {
+
+        //Make sure we only start a single background task for each url
+        if ( this.thumbnailCache.containsKey(imageLink.getHref() ) ) {
+            return;
+        } else {
+            this.thumbnailCache.put( imageLink.getHref(), getActivity().getResources().getDrawable(R.drawable.unknown_cover));
+        }
+
+        String href = imageLink.getHref();
+
+        // If the image is contained in the feed, load it
+        // directly
+        if ( href.startsWith("data:image") ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+                ParseBinDataTask binDataTask = this.parseBinDataTaskProvider.get();
+                binDataTask.setLoadFeedCallback(this);
+
+                taskQueue.executeTask(binDataTask, imageLink);
+            }
+        }else {
+
+            LoadThumbnailTask thumbnailTask = this.loadThumbnailTaskProvider.get();
+
+            thumbnailTask.setBaseUrl(baseURL);
+            thumbnailTask.setLoadFeedCallback(this);
+
+            taskQueue.executeTask(thumbnailTask, imageLink);
+        }
+    }
 
     private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
         SherlockFragmentActivity activity = getSherlockActivity();
@@ -531,8 +562,19 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
         private String lastLoadedUrl = "";
 
+        private Handler handler = new Handler();
+        private Runnable updater;
+
         @Override
-        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        public void onScroll(AbsListView view, final int firstVisibleItem, final int visibleItemCount, int totalItemCount) {
+
+            loadThumbnails(firstVisibleItem, visibleItemCount, totalItemCount );
+
+            loadNextFeed(firstVisibleItem, visibleItemCount, totalItemCount );
+
+        }
+
+        private void loadNextFeed( final int firstVisibleItem, final int visibleItemCount, int totalItemCount ) {
 
             int lastVisibleItem = firstVisibleItem + visibleItemCount;
 
@@ -559,7 +601,40 @@ public class CatalogFragment extends RoboSherlockFragment implements
                     loadURL(nextEntry, nextLink.getHref(), false, false, ResultType.APPEND);
                 }
             }
+
         }
+
+        private void loadThumbnails( final int firstVisibleItem, final int visibleItemCount, int totalItemCount ) {
+            if ( updater != null ) {
+                handler.removeCallbacks(updater);
+            }
+
+            updater = new Runnable() {
+                @Override
+                public void run() {
+
+                    for ( int i=0; i < visibleItemCount; i++ ) {
+                        Entry entry = adapter.getItem( firstVisibleItem + i );
+                        Link imageLink = Catalog.getImageLink(entry.getFeed(), entry);
+
+                        if ( imageLink != null && !thumbnailCache.containsKey(imageLink.getHref() ) ) {
+                            queueImageLoading( entry.getBaseURL(), imageLink );
+                        }
+                    }
+                }
+            };
+
+            long delay;
+
+            if ( firstVisibleItem + visibleItemCount == totalItemCount ) {
+                delay = 0; //All items on screen, no wait
+            } else {
+                delay = 500; //Default delay
+            }
+
+            handler.postDelayed( updater, delay );
+        }
+
 
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {

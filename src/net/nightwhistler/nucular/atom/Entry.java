@@ -30,9 +30,19 @@ public class Entry extends AtomElement {
 
     private Feed feed;
 
+    private String baseURL;
+
 	public String getUpdated() {
 		return updated;
 	}
+
+    public String getBaseURL() {
+        return baseURL;
+    }
+
+    public void setBaseURL( String baseURL ) {
+        this.baseURL = baseURL;
+    }
 
 	public void setUpdated(String updated) {
 		this.updated = updated;

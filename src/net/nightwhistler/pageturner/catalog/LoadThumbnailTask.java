@@ -18,10 +18,14 @@
  */
 package net.nightwhistler.pageturner.catalog;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import com.google.inject.Inject;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
+import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -37,8 +41,10 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
     private HttpClient httpClient;
     private LoadFeedCallback callBack;
 
-    private Map<String, byte[]> cache = new HashMap<String, byte[]>();
     private String baseUrl;
+
+    private Link imageLink;
+    private Drawable drawable;
 
     @Inject
     public LoadThumbnailTask(HttpClient httpClient ) {
@@ -47,10 +53,6 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
 
     public void setLoadFeedCallback( LoadFeedCallback callBack ) {
         this.callBack = callBack;
-    }
-
-    public void setCache( Map<String, byte[]> cache ) {
-        this.cache = cache;
     }
 
     public void setBaseUrl(String baseUrl) {
@@ -71,7 +73,7 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
     @Override
     protected Void doInBackground(Link... entries) {
 
-        Link imageLink = entries[0];
+        this.imageLink = entries[0];
 
         if ( imageLink == null ) {
             return null;
@@ -79,63 +81,29 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
 
         String href = imageLink.getHref();
 
-        if (cache != null && cache.containsKey(href)) {
-            imageLink.setBinData(cache.get(href));
-        } else {
 
-            try {
-                String target = new URL(new URL(baseUrl), href).toString();
+        try {
+            String target = new URL(new URL(baseUrl), href).toString();
 
-                Log.i("LoadThumbnailTask", "Downloading image: " + target);
+            Log.i("LoadThumbnailTask", "Downloading image: " + target);
 
-                HttpGet currentRequest = new HttpGet(target);
-                HttpResponse resp = httpClient.execute(currentRequest);
+            HttpGet currentRequest = new HttpGet(target);
+            HttpResponse resp = httpClient.execute(currentRequest);
 
-                int lengthOfFile = (int) resp.getEntity().getContentLength();
+            Bitmap bitmap = BitmapFactory.decodeStream(resp.getEntity().getContent());
+            this.drawable = new FastBitmapDrawable( bitmap );
 
-                if ( lengthOfFile <= 0 ) {
-                    return  null;
-                }
+        } catch (Exception io) {
+            //Ignore and exit.
+        } catch ( OutOfMemoryError error ) {
 
-                ByteArrayOutputStream out = new ByteArrayOutputStream(lengthOfFile);
-
-                InputStream in = resp.getEntity().getContent();
-
-                // here's the download code
-                byte[] buffer = new byte[1024];
-                int len1 = 0;
-                long total = 0;
-
-                while ((len1 = in.read(buffer)) > 0 && ! isCancelled() ) {
-
-                    // Make sure the user can cancel the download.
-                    if (isCancelled()) {
-                        return null;
-                    }
-
-                    total += len1;
-
-                    out.write(buffer, 0, len1);
-                }
-
-                if ( ! isCancelled() ) {
-                    imageLink.setBinData(out.toByteArray());
-
-                    if ( cache != null ) {
-                        cache.put(href, imageLink.getBinData());
-                    }
-                }
-
-            } catch (Exception io) {
-                //Ignore and exit.
-            }
         }
 
         return null;
     }
 
     @Override
-    protected void doOnPostExecute(Void aVoid) {
-        callBack.notifyLinkUpdated();
+    protected void doOnPostExecute(Void nothing) {
+        callBack.notifyLinkUpdated(imageLink, drawable);
     }
 }

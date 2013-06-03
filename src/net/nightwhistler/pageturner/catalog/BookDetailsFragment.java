@@ -55,7 +55,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
 
     @Inject
-    private Provider<LoadFakeFeedTask> loadFakeFeedTaskProvider;
+    private Provider<LoadThumbnailTask> loadThumbnailTaskProvider;
 
     @Inject
     private Provider<DownloadFileTask> downloadFileTaskProvider;
@@ -92,10 +92,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     private ProgressDialog downloadDialog;
 
-    private LinkListener linkListener;
-
     private Feed feed;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -214,22 +211,11 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         final Link imgLink = Catalog.getImageLink(feed, entry);
 
         Catalog.loadBookDetails(mainLayout, entry, false);
+        icon.setImageDrawable( getActivity().getResources().getDrawable(R.drawable.unknown_cover));
 
-        linkListener = new LinkListener() {
-
-            @Override
-            public void linkUpdated() {
-                if ( imgLink != null ) {
-                    Drawable drawable = Catalog.loadImageLink(getActivity(), imgLink );
-                    imgLink.setBinData(null); //Clear data, we no longer need it
-                    icon.setImageDrawable(drawable);
-                }
-            }
-        };
-
-        LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
-        task.setCallback(this);
-        task.setBaseURL(feed.getURL());
+        LoadThumbnailTask task = this.loadThumbnailTaskProvider.get();
+        task.setLoadFeedCallback(this);
+        task.setBaseUrl(feed.getURL());
 
         task.execute(imgLink);
     }
@@ -267,11 +253,13 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         }
     }
 
-    public void notifyLinkUpdated() {
-        if ( linkListener != null ) {
-            linkListener.linkUpdated();
-            linkListener = null;
+    public void notifyLinkUpdated( Link link, Drawable drawable ) {
+
+        if ( drawable != null ) {
+            icon.setImageDrawable(drawable);
         }
+
+       onLoadingDone();
     }
 
     @Override

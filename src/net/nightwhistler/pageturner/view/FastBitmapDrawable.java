@@ -30,8 +30,11 @@ public class FastBitmapDrawable extends Drawable {
 
     public FastBitmapDrawable(Bitmap b) {
         mBitmap = b;
-        this.width = b.getWidth();
-        this.height = b.getHeight();
+
+        if ( b != null ) {
+            this.width = b.getWidth();
+            this.height = b.getHeight();
+        }
     }
 
     @Override

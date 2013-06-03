@@ -459,6 +459,16 @@ public class CatalogFragment extends RoboSherlockFragment implements
         }
     }
 
+    @Override
+    public void onDestroy() {
+        destroyThumbnails();
+    }
+
+    @Override
+    public void onLowMemory() {
+        destroyThumbnails();
+    }
+
     public void setNewFeed(Feed result, ResultType resultType) {
 
         if (result != null && isAdded() ) {

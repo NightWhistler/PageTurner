@@ -159,6 +159,10 @@
 
     <string name="no_search_results">Your search yielded no results.</string>
 
+    <string name="dead_link">Sorry, it looks like you clicked a dead link.\nEven books have 404s these days.</string>
+    <string name="could_not_load">Could not load text: %s</string>
+    <string name="out_of_memory">PageTurner could not free enough memory to load this file.</string>
+
 
     <!-- Preferences -->
 

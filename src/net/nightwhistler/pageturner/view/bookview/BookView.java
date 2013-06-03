@@ -1265,8 +1265,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			}
 
 			if (resource == null) {
-				return new SpannedString(
-						"Sorry, it looks like you clicked a dead link.\nEven books have 404s these days.");
+				return new SpannedString( getContext().getString(R.string.dead_link) );
 			}
 
 			publishProgress(BookReadPhase.PARSE_TEXT);
@@ -1299,9 +1298,11 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 				return result;
 			} catch (Exception io) {
-				return new SpannableString("Could not load text: "
-						+ io.getMessage());
-			}
+				return new SpannableString( String.format( getContext().getString(R.string.could_not_load),
+                        io.getMessage()) );
+			} catch (OutOfMemoryError io) {
+                return new SpannableString(getContext().getString(R.string.out_of_memory) );
+            }
 
 		}
 
@@ -1391,7 +1392,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 			} catch (IOException io) {
 				LOG.error("Could not read pagenumers", io);
-			}
+			} catch ( OutOfMemoryError mem ) {
+                LOG.error("Could not read pagenumers", mem);
+            }
 
 			return null;
 		}

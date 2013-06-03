@@ -127,30 +127,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         // read epub file
         EpubReader epubReader = new EpubReader();
 
-        /*
-        MediaType[] lazyTypes = {
-                MediatypeService.CSS, // We don't support CSS yet
-
-                MediatypeService.GIF, MediatypeService.JPG,
-                MediatypeService.PNG,
-                MediatypeService.SVG, // Handled by the ResourceLoader
-
-                MediatypeService.OPENTYPE,
-                MediatypeService.TTF, // We don't support custom fonts
-                // either
-                MediatypeService.XPGT,
-
-                MediatypeService.MP3,
-                MediatypeService.MP4, // And no audio either
-                MediatypeService.OGG,
-                MediatypeService.SMIL, MediatypeService.XPGT,
-                MediatypeService.PLS };
-        */
-
-        MediaType[] lazyTypes = MediatypeService.mediatypes;
-
-        Book newBook = epubReader.readEpubLazy(fileName, "UTF-8",
-                Arrays.asList(lazyTypes));
+        Book newBook = epubReader.readEpubLazy(fileName, "UTF-8");
 
         this.currentBook = newBook;
         this.currentFile = fileName;

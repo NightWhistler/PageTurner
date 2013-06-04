@@ -461,6 +461,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         destroyThumbnails();
     }
 

@@ -85,7 +85,7 @@ public class PageTurnerSpine {
         if ( pageOffsets != null ) {
 		    this.pageOffsets = pageOffsets;
         } else {
-            pageOffsets = new ArrayList<List<Integer>>();
+            this.pageOffsets = new ArrayList<List<Integer>>();
         }
 	}
 	

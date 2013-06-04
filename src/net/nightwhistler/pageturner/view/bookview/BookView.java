@@ -59,21 +59,16 @@ import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Resource;
 import nl.siegmann.epublib.domain.TOCReference;
+import nl.siegmann.epublib.util.IOUtil;
 import nl.siegmann.epublib.util.StringUtil;
 import org.htmlcleaner.TagNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import roboguice.RoboGuice;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static net.nightwhistler.pageturner.PlatformUtil.executeTask;
 
@@ -808,15 +803,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 				// may be as per http://code.google.com/p/android/issues/detail?id=6066
 				// workaround is to stream the whole image out of the Zip to a ByteArray, then pass that on to the bitmap decoder
 				try {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					while(true) {
-						byte[] buffer  = new byte[4096];
-						int read = input.read(buffer);
-						if(read <= 0)
-							break;
-						baos.write(buffer, 0, read);
-					}
-					input = new ByteArrayInputStream(baos.toByteArray());
+					input = new ByteArrayInputStream(IOUtil.toByteArray(input));
 				} catch(IOException ex) {
 					LOG.error("Failed to extract full image from epub stream: " + ex.toString());
 				}
@@ -1126,30 +1113,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		}
 	}
 
-    private List<Integer> getOffsetsForResource(int spineIndex )
-            throws IOException {
 
-        HtmlSpanner mySpanner = new HtmlSpanner();
-        final ResourceLoader privateLoader = new ResourceLoader(fileName);
-
-        ImageTagHandler tagHandler = new ImageTagHandler(true) {
-            protected void registerCallback(String resolvedHref, ImageCallback callback) {
-                privateLoader.registerCallback(resolvedHref, callback);
-            }
-        };
-
-        mySpanner.registerHandler("table", tableHandler );
-        mySpanner.registerHandler("img", tagHandler);
-        mySpanner.registerHandler("image", tagHandler);
-
-        Resource res = spine.getResourceForIndex(spineIndex);
-        CharSequence text = textLoader.getText(res,  false);
-
-        privateLoader.load();
-
-        return new FixedPagesStrategy(this, configuration, new StaticLayoutFactory()).getPageOffsets(text, true);
-    }
-	
 	
 
 	public static class InnerView extends TextView {
@@ -1268,7 +1232,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                 publishProgress(BookReadPhase.PARSE_TEXT);
 
 
-                Spannable result = textLoader.getText(resource, true);
+                Spannable result = textLoader.getText(resource);
                 loader.load(); // Load all image resources.
 
                 //Clear any old highlighting spans
@@ -1376,15 +1340,14 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		protected List<List<Integer>> doInBackground(Object... params) {
 
 			try {
-				List<List<Integer>> offsets = new ArrayList<List<Integer>>();
+				List<List<Integer>> offsets = getOffsets();
 
-				for (int i = 0; i < spine.size(); i++) {
-					offsets.add(getOffsetsForResource(i));
-				}
+                if ( offsets != null ) {
+				    String file = StringUtil.substringAfterLast(fileName, '/');
+				    configuration.setPageOffsets(file, offsets);
+                }
 
-				String file = StringUtil.substringAfterLast(fileName, '/');
-				configuration.setPageOffsets(file, offsets);
-
+                LOG.debug("Calculated offsets: " + offsets );
 				return offsets;
 
 			} catch (IOException io) {
@@ -1396,7 +1359,98 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			return null;
 		}
 
-		@Override
+        /**
+         * Loads the text offsets for the whole book,
+         * with minimal use of resources.
+         *
+         * @return
+         * @throws IOException
+         */
+        private List<List<Integer>> getOffsets()
+                throws IOException {
+
+            List<List<Integer>> result = new ArrayList<List<Integer>>();
+            final ResourceLoader imageLoader = new ResourceLoader(fileName);
+            final ResourceLoader textResourceLoader = new ResourceLoader(fileName);
+
+
+            //Image loader which only loads image dimensions
+            ImageTagHandler tagHandler = new ImageTagHandler(true) {
+                protected void registerCallback(String resolvedHref, ImageCallback callback) {
+                    imageLoader.registerCallback(resolvedHref, callback);
+                }
+            };
+
+            //Private spanner
+            final HtmlSpanner mySpanner = new HtmlSpanner();
+
+            mySpanner.registerHandler("table", tableHandler );
+            mySpanner.registerHandler("img", tagHandler);
+            mySpanner.registerHandler("image", tagHandler);
+
+            final Map<String, Spannable> renderedText = new HashMap<String, Spannable>();
+
+            //We use the ResourceLoader here to load all the text in the book in 1 pass,
+            //but without loading it into a byte[] first
+            ResourceCallback callback = new ResourceCallback() {
+                @Override
+                public void onLoadResource(String href, InputStream stream) {
+                    try {
+                        LOG.debug("CalculatePageNumbersTask: loading text for: " + href );
+                        InputStream input = new ByteArrayInputStream(IOUtil.toByteArray(stream));
+                        renderedText.put(href, mySpanner.fromHtml(input));
+                    } catch ( IOException io ) {
+                        LOG.error( "CalculatePageNumbersTask: failed to load text for " + href, io );
+                    }
+                }
+            };
+
+            //Do first pass: grab either cached text, or schedule a callback
+            for (int i = 0; i < spine.size(); i++) {
+
+                Resource res = spine.getResourceForIndex(i);
+
+                if ( textLoader.hasCachedText( res ) ) {
+                    LOG.debug("CalculatePageNumbersTask: Got cached text for href: " + res.getHref() );
+                    renderedText.put( res.getHref(), textLoader.getText(res) );
+                } else {
+                    LOG.debug("CalculatePageNumbersTask: Registering callback for href: " + res.getHref() );
+                    textResourceLoader.registerCallback( spine.getResourceForIndex(i).getHref(), callback );
+                }
+            }
+
+            //Load callbacks, this will fill renderedText
+            textResourceLoader.load();
+            imageLoader.load();
+
+            //Do a second pass and calculate the offsets for each text
+            for (int i = 0; i < spine.size(); i++) {
+
+                Resource res = spine.getResourceForIndex(i);
+
+                Spannable text = null;
+
+                //Scan for the full href
+                for ( String href: renderedText.keySet() ) {
+                    if ( href.endsWith( res.getHref() )) {
+                        text = renderedText.get(href);
+                        break;
+                    }
+                }
+
+                if ( text == null ) {
+                    LOG.error( "CalculatePageNumbersTask: Missing text for href " + res.getHref() );
+                    return null;
+                }
+
+                result.add(new FixedPagesStrategy(BookView.this, configuration, new StaticLayoutFactory()).getPageOffsets(text, true));
+            }
+
+            return result;
+        }
+
+
+        @Override
 		protected void onPostExecute(List<List<Integer>> result) {
 
             LOG.debug("Pagenumber calculation completed.");

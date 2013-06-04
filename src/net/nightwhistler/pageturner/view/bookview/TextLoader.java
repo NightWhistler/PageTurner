@@ -181,9 +181,13 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         anchors.get(href).put(anchor, position);
     }
 
-    public Spannable getText( final Resource resource, boolean allowCaching ) throws IOException {
+    public boolean hasCachedText( Resource resource ) {
+        return renderedText.containsKey(resource.getHref());
+    }
 
-        if ( renderedText.containsKey(resource.getHref()) ) {
+    public Spannable getText( final Resource resource ) throws IOException {
+
+        if ( hasCachedText(resource) ) {
             LOG.debug("Returning cached text for href " + resource.getHref() );
             return renderedText.get(resource.getHref());
         }
@@ -211,14 +215,28 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
             closeLazyLoadedResources();
         }
 
-        Spannable result = htmlSpanner.fromHtml(resource.getReader());
+        boolean shouldClose = false;
+        Resource res = resource;
 
-        //We have the rendered version, so it's safe to close the resource
-        resource.close();
-
-        if ( allowCaching ) {
-            renderedText.put(resource.getHref(), result);
+        //If it's already in memory, use that. If not, create a copy
+        //that we can safely close after using it
+        if ( ! resource.isInitialized() ) {
+            res = new Resource( this.currentFile, res.getSize(), res.getHref() );
+            shouldClose = true;
         }
+
+        Spannable result = null;
+
+        try {
+            result = htmlSpanner.fromHtml(res.getReader());
+        } finally {
+            if ( shouldClose ) {
+                //We have the rendered version, so it's safe to close the resource
+                resource.close();
+            }
+        }
+
+        renderedText.put(res.getHref(), result);
 
         return result;
     }

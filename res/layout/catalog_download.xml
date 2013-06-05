@@ -50,14 +50,19 @@
 
     </RelativeLayout>
 
-        <View style="@style/Divider"/>
+        <View style="@style/Divider"
+              android:layout_marginLeft="4dip"
+              android:layout_marginRight="4dip"/>
 
         <TextView
                 android:id="@+id/itemDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/small_text"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:layout_marginLeft="4dip"
+                android:layout_marginRight="4dip"
+                />
 
         <!--
         <View style="@style/Divider"/>

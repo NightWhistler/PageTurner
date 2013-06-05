@@ -113,6 +113,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public static final String EXTRA_MARGIN_BOTTOM = "EXTRA_MARGIN_BOTTOM";
 	public static final String EXTRA_MARGIN_RIGHT = "EXTRA_MARGIN_RIGHT";
 
+    private static final int BOOK_OPEN_STAGES = 5;
+
 	private static final Logger LOG = LoggerFactory
 			.getLogger("ReadingFragment");
 
@@ -198,7 +200,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private ProgressDialog waitDialog;
 	private AlertDialog tocDialog;
-	private TextToSpeech textToSpeech;
+
+    private TextToSpeech textToSpeech;
 	
 	private boolean ttsAvailable = false;
 		
@@ -266,16 +269,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		super.onViewCreated(view, savedInstanceState);
 		setHasOptionsMenu(true);
 		this.bookView.init();
-		this.waitDialog = new ProgressDialog(getActivity());
-		this.waitDialog.setOwnerActivity(getActivity());
-		this.waitDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-			@Override
-			public boolean onKey(DialogInterface dialog, int keyCode,
-					KeyEvent event) {
-				// This just consumes all key events and does nothing.
-				return true;
-			}
-		});
 
 		this.progressBar.setFocusable(true);
 		this.progressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -622,8 +615,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
         this.ttsPlaybackItemQueue.activate();
 		this.mediaLayout.setVisibility(View.VISIBLE);
 		
-		this.waitDialog.setTitle(R.string.init_tts);
-		this.waitDialog.show();
+		this.getWaitDialog().setMessage(getActivity().getString(R.string.init_tts));
+		this.getWaitDialog().show();
 
         streamTTSToDisk();
 	}
@@ -678,7 +671,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             @Override
             public void run() {
                 stopTextToSpeech(true);
-                waitDialog.hide();
+                closeWaitDialog();
 
                 if ( isAdded() ) {
                     playBeep(true);
@@ -756,7 +749,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			
 			@Override
 			public void run() {					
-				waitDialog.hide();
+				closeWaitDialog();
 			}
 		});		
 		
@@ -1310,12 +1303,44 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	@Override
 	public void errorOnBookOpening(String errorMessage) {
-		this.waitDialog.hide();
+		closeWaitDialog();
 		launchActivity(LibraryActivity.class);
 	}
 
+    private ProgressDialog getWaitDialog() {
+
+        if ( this.waitDialog == null ) {
+
+            this.waitDialog = new ProgressDialog(getActivity());
+            this.waitDialog.setOwnerActivity(getActivity());
+            this.waitDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                @Override
+                public boolean onKey(DialogInterface dialog, int keyCode,
+                                     KeyEvent event) {
+                    // This just consumes all key events and does nothing.
+                    return true;
+
+                }
+            });
+            this.waitDialog.setCancelable(false);
+        }
+
+        return this.waitDialog;
+    }
+
+    private void closeWaitDialog() {
+
+        if ( waitDialog != null ) {
+            this.waitDialog.dismiss();
+            this.waitDialog = null;
+        }
+
+    }
+
 	@Override
 	public void parseEntryComplete(int entry, String name) {
+
+        getWaitDialog().setProgress(5);
 		
 		if ( ! isAdded() || getActivity() == null ) {
 			return;
@@ -1333,7 +1358,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			streamTTSToDisk();
 		}
 
-		this.waitDialog.hide();	
+		closeWaitDialog();
 	}
 
 	@Override
@@ -1347,23 +1372,22 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.viewSwitcher.setBackgroundDrawable(null);
 		restoreColorProfile();
 		displayPageNumber(-1); //Clear page number
-		
-		this.waitDialog.setTitle(getString(R.string.loading_wait));
-		this.waitDialog.setMessage(null);
-		this.waitDialog.show();
+
+        ProgressDialog progressDialog = getWaitDialog();
+        progressDialog.setMessage(getActivity().getString( R.string.loading_wait));
+
+
+        progressDialog.show();
 	}	
 
 	@Override
 	public void readingFile() {
-		this.waitDialog.setTitle(R.string.opening_file);
-		this.waitDialog.setMessage(null);
+		this.getWaitDialog().setMessage(getActivity().getString( R.string.opening_file) );
 	}
 
 	@Override
 	public void renderingText() {
-		this.waitDialog.setTitle(R.string.loading_text);
-		this.waitDialog.setMessage(null);
-
+        this.getWaitDialog().setMessage(getActivity().getString( R.string.loading_text) );
 	}
 
 	@TargetApi(Build.VERSION_CODES.FROYO)
@@ -1979,7 +2003,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         LOG.debug("onStop() called.");
 		printScreenAndCallState("onStop()");
 
-		this.waitDialog.dismiss();			
+		closeWaitDialog();
         libraryService.close();
 	}
 
@@ -2412,7 +2436,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             protected void onPreExecute() {
                 super.onPreExecute();
 
-                searchProgress.setTitle(R.string.search_wait);
+                searchProgress.setMessage(getActivity().getString(R.string.search_wait));
                 searchProgress.show();
 
                 // Hide on-screen keyboard if it is showing
@@ -2439,7 +2463,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     i++;
                     String update = String.format(
                             getString(R.string.search_hits), i);
-                    searchProgress.setTitle(update);
+                    searchProgress.setMessage(update);
                 }
 
                 searchProgress.setProgress(res.getPercentage());
@@ -2548,8 +2572,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		@Override
 		protected void onPreExecute() {
-			waitDialog.setTitle(R.string.syncing);
-			waitDialog.show();
+			getWaitDialog().setMessage(getActivity().getString(R.string.syncing));
+			getWaitDialog().show();
 		}
 
 		@Override
@@ -2564,7 +2588,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		@Override
 		protected void onPostExecute(List<BookProgress> progress) {
-			waitDialog.hide();
+			closeWaitDialog();
 
 			if (progress == null) {
 
@@ -2602,8 +2626,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		@Override
 		protected void onPreExecute() {
-			waitDialog.setTitle(R.string.syncing);
-			waitDialog.show();
+			ProgressDialog progressDialog = getWaitDialog();
+            progressDialog.setTitle(R.string.loading_wait);
+            progressDialog.setMessage(getActivity().getString( R.string.syncing));
+
+			progressDialog.show();
 		}
 
 		@Override
@@ -2623,7 +2650,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		@Override
 		protected void onPostExecute(BookProgress progress) {
-			waitDialog.hide();
+			closeWaitDialog();
 
 			int index = bookView.getIndex();
 			int pos = bookView.getProgressPosition();

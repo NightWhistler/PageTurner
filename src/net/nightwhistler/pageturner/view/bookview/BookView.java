@@ -1391,7 +1391,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             final Map<String, List<Integer>> offsetsPerSection = new HashMap<String, List<Integer>>();
 
             //We use the ResourceLoader here to load all the text in the book in 1 pass,
-            //but without loading it into a byte[] first
+            //but we only keep a single section in memory at each moment
             ResourceCallback callback = new ResourceCallback() {
                 @Override
                 public void onLoadResource(String href, InputStream stream) {
@@ -1428,7 +1428,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
                 } else {
                     LOG.debug("CalculatePageNumbersTask: Registering callback for href: " + res.getHref() );
-                    textResourceLoader.registerCallback( spine.getResourceForIndex(i).getHref(), callback );
+                    textResourceLoader.registerCallback( res.getHref(), callback );
                 }
             }
 

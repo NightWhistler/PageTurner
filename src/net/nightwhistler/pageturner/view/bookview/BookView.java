@@ -1388,7 +1388,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             mySpanner.registerHandler("img", tagHandler);
             mySpanner.registerHandler("image", tagHandler);
 
-            final Map<String, Spannable> renderedText = new HashMap<String, Spannable>();
+            final Map<String, List<Integer>> offsetsPerSection = new HashMap<String, List<Integer>>();
 
             //We use the ResourceLoader here to load all the text in the book in 1 pass,
             //but without loading it into a byte[] first
@@ -1398,7 +1398,15 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                     try {
                         LOG.debug("CalculatePageNumbersTask: loading text for: " + href );
                         InputStream input = new ByteArrayInputStream(IOUtil.toByteArray(stream));
-                        renderedText.put(href, mySpanner.fromHtml(input));
+
+                        Spannable text = mySpanner.fromHtml(input);
+                        imageLoader.load();
+
+                        offsetsPerSection.put(href,
+                                new FixedPagesStrategy(BookView.this, configuration,
+                                        new StaticLayoutFactory()).getPageOffsets(text, true));
+
+
                     } catch ( IOException io ) {
                         LOG.error( "CalculatePageNumbersTask: failed to load text for " + href, io );
                     }
@@ -1412,7 +1420,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
                 if ( textLoader.hasCachedText( res ) ) {
                     LOG.debug("CalculatePageNumbersTask: Got cached text for href: " + res.getHref() );
-                    renderedText.put( res.getHref(), textLoader.getText(res) );
+                    Spannable text = textLoader.getText(res);
+
+                    offsetsPerSection.put(res.getHref(),
+                            new FixedPagesStrategy(BookView.this, configuration,
+                                    new StaticLayoutFactory()).getPageOffsets(text, true));
+
                 } else {
                     LOG.debug("CalculatePageNumbersTask: Registering callback for href: " + res.getHref() );
                     textResourceLoader.registerCallback( spine.getResourceForIndex(i).getHref(), callback );
@@ -1423,27 +1436,27 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             textResourceLoader.load();
             imageLoader.load();
 
-            //Do a second pass and calculate the offsets for each text
+            //Do a second pass and order the offsets correctly
             for (int i = 0; i < spine.size(); i++) {
 
                 Resource res = spine.getResourceForIndex(i);
 
-                Spannable text = null;
+                List<Integer> offsets = null;
 
                 //Scan for the full href
-                for ( String href: renderedText.keySet() ) {
+                for ( String href: offsetsPerSection.keySet() ) {
                     if ( href.endsWith( res.getHref() )) {
-                        text = renderedText.get(href);
+                        offsets = offsetsPerSection.get(href);
                         break;
                     }
                 }
 
-                if ( text == null ) {
+                if ( offsets == null ) {
                     LOG.error( "CalculatePageNumbersTask: Missing text for href " + res.getHref() );
                     return null;
                 }
 
-                result.add(new FixedPagesStrategy(BookView.this, configuration, new StaticLayoutFactory()).getPageOffsets(text, true));
+                result.add(offsets);
             }
 
             return result;

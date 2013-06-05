@@ -146,10 +146,12 @@ public class DownloadFileTask extends AsyncTask<String, Long, String> {
 				} finally {
 					f.close();
 				}
-				
-				//FIXME: This doesn't belong here really...
-				Book book = new EpubReader().readEpubLazy( destFile.getAbsolutePath(), "UTF-8" );
-				libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.isCopyToLibrayEnabled() );
+
+                if ( ! isCancelled() ) {
+				    //FIXME: This doesn't belong here really...
+				    Book book = new EpubReader().readEpubLazy( destFile.getAbsolutePath(), "UTF-8" );
+				    libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.isCopyToLibrayEnabled() );
+                }
 				
 			} else {
 				this.failure = new RuntimeException(response

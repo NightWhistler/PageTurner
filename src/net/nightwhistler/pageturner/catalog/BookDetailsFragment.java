@@ -90,9 +90,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     private int displayDensity;
 
-    private ProgressDialog downloadDialog;
-
-    private Feed feed;
+       private Feed feed;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -111,11 +109,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.downloadDialog = new ProgressDialog(getActivity());
 
-        this.downloadDialog.setIndeterminate(false);
-        this.downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        this.downloadDialog.setCancelable(true);
 
         if ( this.feed != null ) {
             doSetFeed(feed);
@@ -229,14 +223,6 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     }
 
     @Override
-    public void onStop() {
-        downloadDialog.dismiss();
-
-        super.onStop();
-    }
-
-
-    @Override
     public void errorLoadingFeed(String error) {
         Toast.makeText(getActivity(), error, Toast.LENGTH_LONG ).show();
     }
@@ -274,6 +260,12 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     public void startDownload(final boolean openOnCompletion, final String url) {
 
+        final ProgressDialog downloadDialog = new ProgressDialog(getActivity());
+
+        downloadDialog.setIndeterminate(false);
+        downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        downloadDialog.setCancelable(true);
+
         DownloadFileTask.DownloadFileCallback callBack = new DownloadFileTask.DownloadFileCallback() {
 
             @Override
@@ -291,7 +283,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             @Override
             public void downloadSuccess(File destFile) {
 
-                downloadDialog.hide();
+                downloadDialog.dismiss();
 
                 if ( ! isAdded() ) {
                     return;
@@ -315,7 +307,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             @Override
             public void downloadFailed() {
 
-                downloadDialog.hide();
+                downloadDialog.dismiss();
+
                 if ( isAdded() ) {
                     Toast.makeText(getActivity(), R.string.book_failed,
                         Toast.LENGTH_LONG).show();

@@ -73,7 +73,7 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 	@Override
 	public void onCancel(DialogInterface dialog) {
 		LOG.debug("User aborted import.");	
-		this.cancel(true);
+		requestCancellation();
 	}
 
     @Override

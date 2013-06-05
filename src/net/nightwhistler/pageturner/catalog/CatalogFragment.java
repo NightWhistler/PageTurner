@@ -20,6 +20,7 @@ package net.nightwhistler.pageturner.catalog;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -240,7 +241,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		} else if ( entry.getAtomLink() != null ) {
 			String href = entry.getAtomLink().getHref();
 			loadURL(entry, href, false, false, ResultType.REPLACE);
-		} 
+		} else if ( entry.getWebsiteLink() != null ) {
+            String url = entry.getWebsiteLink().getHref();
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(url));
+            startActivity(i);
+        }
 	}
 
     private void loadFakeFeek( Entry entry ) {

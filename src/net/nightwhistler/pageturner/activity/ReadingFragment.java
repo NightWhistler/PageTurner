@@ -811,6 +811,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     } else if ( mediaPlayer != null && phoneState == TelephonyManager.CALL_STATE_IDLE
                             && pausedBecauseOfCall ) {
                         LOG.debug("Call over, resuming TTS.");
+
+                        //We reset to the start of the current section before resuming playback.
+                        mediaPlayer.seekTo(0);
+
                         mediaPlayer.start();
                         pausedBecauseOfCall = false;
                         delay = 100;
@@ -2627,7 +2631,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		@Override
 		protected void onPreExecute() {
 			ProgressDialog progressDialog = getWaitDialog();
-            progressDialog.setTitle(R.string.loading_wait);
             progressDialog.setMessage(getActivity().getString( R.string.syncing));
 
 			progressDialog.show();

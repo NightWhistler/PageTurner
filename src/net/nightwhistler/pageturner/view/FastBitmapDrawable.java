@@ -85,7 +85,10 @@ public class FastBitmapDrawable extends Drawable {
     }
     
     public void destroy() {
-    	this.mBitmap.recycle();
+        if ( this.mBitmap != null ) {
+    	    this.mBitmap.recycle();
+        }
+
     	this.mBitmap = null;
     	this.setCallback(null);
     }

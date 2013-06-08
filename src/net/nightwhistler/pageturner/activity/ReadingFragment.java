@@ -926,6 +926,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     public void onDestroy() {
         super.onDestroy();
         this.textToSpeech.shutdown();
+        this.closeWaitDialog();
     }
 
     @SuppressWarnings("deprecation")
@@ -1344,8 +1345,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void parseEntryComplete(int entry, String name) {
 
-        getWaitDialog().setProgress(5);
-		
 		if ( ! isAdded() || getActivity() == null ) {
 			return;
 		}
@@ -1386,12 +1385,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	@Override
 	public void readingFile() {
-		this.getWaitDialog().setMessage(getActivity().getString( R.string.opening_file) );
+        if ( isAdded() ) {
+		    this.getWaitDialog().setMessage(getActivity().getString( R.string.opening_file) );
+        }
 	}
 
 	@Override
 	public void renderingText() {
-        this.getWaitDialog().setMessage(getActivity().getString( R.string.loading_text) );
+        if ( isAdded() ) {
+            this.getWaitDialog().setMessage(getActivity().getString( R.string.loading_text) );
+        }
 	}
 
 	@TargetApi(Build.VERSION_CODES.FROYO)
@@ -2576,8 +2579,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		@Override
 		protected void onPreExecute() {
-			getWaitDialog().setMessage(getActivity().getString(R.string.syncing));
-			getWaitDialog().show();
+            if ( isAdded() ) {
+			    getWaitDialog().setMessage(getActivity().getString(R.string.syncing));
+			    getWaitDialog().show();
+            }
 		}
 
 		@Override
@@ -2630,10 +2635,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		@Override
 		protected void onPreExecute() {
-			ProgressDialog progressDialog = getWaitDialog();
-            progressDialog.setMessage(getActivity().getString( R.string.syncing));
+            if ( isAdded() ) {
+			    ProgressDialog progressDialog = getWaitDialog();
+                progressDialog.setMessage(getActivity().getString( R.string.syncing));
 
-			progressDialog.show();
+			    progressDialog.show();
+            }
 		}
 
 		@Override

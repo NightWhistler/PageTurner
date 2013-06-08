@@ -19,6 +19,7 @@
 package net.nightwhistler.pageturner.catalog;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,14 +37,22 @@ public class CatalogListAdapter extends BaseAdapter {
 	private Feed feed;	
 	private Context context;
 
-    private int displayDensity;
-
     private Entry loadingEntry = new Entry();
+
+    private CatalogImageLoader imageLoader;
+
+    public static interface CatalogImageLoader {
+        Drawable getThumbnailFor( String baseURL, Link link );
+    }
 
 	@Inject
 	public CatalogListAdapter(Context context) {
 		this.context = context;
 	}
+
+    void setImageLoader( CatalogImageLoader imageLoader ) {
+        this.imageLoader = imageLoader;
+    }
 
     public void setLoading(boolean loading) {
         if ( loading ) {
@@ -81,10 +90,6 @@ public class CatalogListAdapter extends BaseAdapter {
 	public Feed getFeed() {
 		return feed;
 	}
-
-    public void setDisplayDensity(int density) {
-        this.displayDensity = density;
-    }
 
 	@Override
 	public int getCount() {
@@ -127,12 +132,20 @@ public class CatalogListAdapter extends BaseAdapter {
 
         final Link imgLink = Catalog.getImageLink(getFeed(), entry);
 
-		Catalog.loadBookDetails(context, rowView, entry, imgLink, true, Catalog.getMaxThumbnailWidth(this.displayDensity) );
+		Catalog.loadBookDetails(rowView, entry, true );
 
         ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);
-        int maxWidth = Catalog.getMaxThumbnailWidth(displayDensity);
-        icon.setMinimumWidth(maxWidth);
 
+        Drawable drawableToSet = context.getResources().getDrawable(R.drawable.unknown_cover);;
+
+        if ( this.imageLoader != null && imgLink != null ) {
+            Drawable drawable = this.imageLoader.getThumbnailFor( entry.getBaseURL(), imgLink );
+            if ( drawable != null ) {
+                drawableToSet = drawable;
+            }
+        }
+
+        icon.setImageDrawable( drawableToSet );
 		return rowView;
 	}
 	

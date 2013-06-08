@@ -34,9 +34,7 @@ public class Link implements Serializable {
 		this.rel = rel;
         this.title = title;
 	}
-	
-	private byte[] binData;
-	
+
 	public String getHref() {
 		return href;
 	}
@@ -55,14 +53,6 @@ public class Link implements Serializable {
 	}
 	public void setRel(String rel) {
 		this.rel = rel;
-	}
-	
-	public byte[] getBinData() {
-		return binData;
-	}
-	
-	public void setBinData(byte[] binData) {
-		this.binData = binData;
 	}
 
     public String getTitle() {

@@ -30,9 +30,19 @@ public class Entry extends AtomElement {
 
     private Feed feed;
 
+    private String baseURL;
+
 	public String getUpdated() {
 		return updated;
 	}
+
+    public String getBaseURL() {
+        return baseURL;
+    }
+
+    public void setBaseURL( String baseURL ) {
+        this.baseURL = baseURL;
+    }
 
 	public void setUpdated(String updated) {
 		this.updated = updated;
@@ -45,7 +55,11 @@ public class Entry extends AtomElement {
     public Feed getFeed() {
         return feed;
     }
-	
+
+    public Link getWebsiteLink() {
+        return findByRel(AtomConstants.REL_WEBSITE);
+    }
+
 	public Link getAlternateLink() {
 		Link atomLink = getAtomLink();
 		if ( atomLink != null && atomLink.getRel() != null && atomLink.getRel().equalsIgnoreCase(REL_ALTERNATE)) {

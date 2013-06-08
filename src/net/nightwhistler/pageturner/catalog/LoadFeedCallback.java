@@ -19,7 +19,9 @@
 
 package net.nightwhistler.pageturner.catalog;
 
+import android.graphics.drawable.Drawable;
 import net.nightwhistler.nucular.atom.Feed;
+import net.nightwhistler.nucular.atom.Link;
 
 public interface LoadFeedCallback {
 
@@ -31,7 +33,7 @@ public interface LoadFeedCallback {
 
     void emptyFeedLoaded(Feed feed);
 		
-	void notifyLinkUpdated();
+	void notifyLinkUpdated(Link link, Drawable drawable);
 
     void onLoadingStart();
 

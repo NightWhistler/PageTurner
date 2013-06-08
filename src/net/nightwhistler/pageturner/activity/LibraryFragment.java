@@ -251,8 +251,22 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		return true;
 	}
 	
-	private Bitmap getCover( LibraryBook book ) {
-		return BitmapFactory.decodeByteArray(book.getCoverImage(), 0, book.getCoverImage().length );
+	private FastBitmapDrawable getCover( LibraryBook book ) {
+
+        try {
+
+            if ( !coverCache.containsKey(book.getFileName() ) ) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(book.getCoverImage(), 0, book.getCoverImage().length );
+                FastBitmapDrawable drawable = new FastBitmapDrawable(bitmap);
+                coverCache.put( book.getFileName(), drawable );
+            }
+
+            return coverCache.get( book.getFileName() );
+
+        } catch ( OutOfMemoryError outOfMemoryError ) {
+            clearCoverCache();
+            return null;
+        }
 	}
 	
 	private void showBookDetails( final LibraryBook libraryBook ) {
@@ -269,12 +283,17 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		builder.setView( layout );
 		
 		ImageView coverView = (ImageView) layout.findViewById(R.id.coverImage );
-		
-		if ( libraryBook.getCoverImage() != null ) {			
-			coverView.setImageBitmap( getCover(libraryBook) );
-		} else {			
-			coverView.setImageDrawable( getResources().getDrawable(R.drawable.unknown_cover));
-		}
+
+		if ( libraryBook.getCoverImage() != null ) {
+
+            Drawable coverDrawable = getCover(libraryBook);
+
+            if ( coverDrawable != null ) {
+                coverView.setImageDrawable(coverDrawable);
+            } else {
+                coverView.setImageDrawable(getResources().getDrawable(R.drawable.unknown_cover));
+            }
+        }
 
 		TextView titleView = (TextView) layout.findViewById(R.id.titleField);
 		TextView authorView = (TextView) layout.findViewById(R.id.authorField);
@@ -991,11 +1010,11 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		public void run() {			
 			try {
-				FastBitmapDrawable drawable = new FastBitmapDrawable(getCover(book));			
-				view.setImageDrawable(drawable);	
-				coverCache.put(book.getFileName(), drawable);
-			} catch (OutOfMemoryError err) {
-				clearCoverCache();
+                FastBitmapDrawable drawable = getCover(book);
+
+                if ( drawable != null ) {
+                    view.setImageDrawable(drawable);
+                }
 			} catch (IllegalStateException i) {
                 //Do nothing, happens when we're no longer attached.
             }

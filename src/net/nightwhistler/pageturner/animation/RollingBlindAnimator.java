@@ -46,7 +46,7 @@ public class RollingBlindAnimator implements Animator {
 	
 	@Override
 	public void draw(Canvas canvas) {
-		if ( backgroundBitmap != null ) {
+		if ( backgroundBitmap != null && foregroundBitmap != null ) {
 			
 			float percentage = (float) count / (float) MAX_STEPS;
 			

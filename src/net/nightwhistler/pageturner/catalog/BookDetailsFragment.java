@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner.catalog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -42,6 +43,7 @@ import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.activity.ReadingActivity;
 import roboguice.inject.InjectView;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -53,7 +55,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
 
     @Inject
-    private Provider<LoadFakeFeedTask> loadFakeFeedTaskProvider;
+    private Provider<LoadThumbnailTask> loadThumbnailTaskProvider;
 
     @Inject
     private Provider<DownloadFileTask> downloadFileTaskProvider;
@@ -73,23 +75,22 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     @InjectView(R.id.buyNowButton)
     private Button buyNowButton;
 
+    @InjectView(R.id.firstDivider)
+    @Nullable
+    private View divider;
+
     @InjectView(R.id.readNowButton)
     private Button downloadButton;
 
     @InjectView(R.id.addToLibraryButton)
     private Button addToLibraryButton;
 
-    @InjectView(R.id.relatedLinksContainer)
-    ViewGroup altLinkParent;
+   // @InjectView(R.id.relatedLinksContainer)
+   // ViewGroup altLinkParent;
 
     private int displayDensity;
 
-    private ProgressDialog downloadDialog;
-
-    private LinkListener linkListener;
-
-    private Feed feed;
-
+       private Feed feed;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -108,11 +109,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.downloadDialog = new ProgressDialog(getActivity());
 
-        this.downloadDialog.setIndeterminate(false);
-        this.downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        this.downloadDialog.setCancelable(true);
 
         if ( this.feed != null ) {
             doSetFeed(feed);
@@ -167,6 +164,11 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             });
         } else {
             buyNowButton.setVisibility(View.GONE);
+
+            if ( divider != null ) {
+                divider.setVisibility(View.GONE);
+            }
+
         }
 
 
@@ -202,22 +204,12 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
         final Link imgLink = Catalog.getImageLink(feed, entry);
 
-        Catalog.loadBookDetails(getActivity(), mainLayout, entry, imgLink, false, altLinkParent.getWidth() / 2);
+        Catalog.loadBookDetails(mainLayout, entry, false);
+        icon.setImageDrawable( getActivity().getResources().getDrawable(R.drawable.unknown_cover));
 
-        linkListener = new LinkListener() {
-
-            @Override
-            public void linkUpdated() {
-                if ( imgLink != null ) {
-                    Catalog.loadImageLink(getActivity(), icon, imgLink, altLinkParent.getWidth() / 2);
-                    imgLink.setBinData(null); //Clear data, we no longer need it
-                }
-            }
-        };
-
-        LoadFakeFeedTask task = this.loadFakeFeedTaskProvider.get();
-        task.setCallback(this);
-        task.setBaseURL(feed.getURL());
+        LoadThumbnailTask task = this.loadThumbnailTaskProvider.get();
+        task.setLoadFeedCallback(this);
+        task.setBaseUrl(feed.getURL());
 
         task.execute(imgLink);
     }
@@ -229,14 +221,6 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             doSetFeed(feed);
         }
     }
-
-    @Override
-    public void onStop() {
-        downloadDialog.dismiss();
-
-        super.onStop();
-    }
-
 
     @Override
     public void errorLoadingFeed(String error) {
@@ -255,11 +239,13 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         }
     }
 
-    public void notifyLinkUpdated() {
-        if ( linkListener != null ) {
-            linkListener.linkUpdated();
-            linkListener = null;
+    public void notifyLinkUpdated( Link link, Drawable drawable ) {
+
+        if ( drawable != null ) {
+            icon.setImageDrawable(drawable);
         }
+
+       onLoadingDone();
     }
 
     @Override
@@ -273,6 +259,12 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     }
 
     public void startDownload(final boolean openOnCompletion, final String url) {
+
+        final ProgressDialog downloadDialog = new ProgressDialog(getActivity());
+
+        downloadDialog.setIndeterminate(false);
+        downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        downloadDialog.setCancelable(true);
 
         DownloadFileTask.DownloadFileCallback callBack = new DownloadFileTask.DownloadFileCallback() {
 
@@ -291,7 +283,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             @Override
             public void downloadSuccess(File destFile) {
 
-                downloadDialog.hide();
+                downloadDialog.dismiss();
 
                 if ( ! isAdded() ) {
                     return;
@@ -315,10 +307,12 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             @Override
             public void downloadFailed() {
 
-                downloadDialog.hide();
+                downloadDialog.dismiss();
 
-                Toast.makeText(getActivity(), R.string.book_failed,
+                if ( isAdded() ) {
+                    Toast.makeText(getActivity(), R.string.book_failed,
                         Toast.LENGTH_LONG).show();
+                }
             }
         };
 

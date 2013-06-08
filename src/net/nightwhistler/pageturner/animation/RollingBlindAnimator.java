@@ -18,11 +18,7 @@
  */
 package net.nightwhistler.pageturner.animation;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.graphics.*;
 
 /**
  * Rolling-blind autoscroll Animator.
@@ -50,7 +46,7 @@ public class RollingBlindAnimator implements Animator {
 	
 	@Override
 	public void draw(Canvas canvas) {
-		if ( backgroundBitmap != null ) {
+		if ( backgroundBitmap != null && foregroundBitmap != null ) {
 			
 			float percentage = (float) count / (float) MAX_STEPS;
 			

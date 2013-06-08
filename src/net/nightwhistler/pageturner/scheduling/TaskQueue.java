@@ -1,13 +1,8 @@
 package net.nightwhistler.pageturner.scheduling;
 
-import android.os.AsyncTask;
-import android.os.Looper;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
 
 /**
  * Generic task scheduling queue.

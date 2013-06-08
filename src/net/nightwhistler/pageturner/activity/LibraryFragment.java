@@ -18,34 +18,10 @@
  */
 package net.nightwhistler.pageturner.activity;
 
-import java.io.File;
-import java.text.DateFormat;
-import java.util.*;
-
-import android.content.ActivityNotFoundException;
-import android.widget.*;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.widget.SearchView;
-import net.nightwhistler.htmlspanner.HtmlSpanner;
-import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.Configuration.ColourProfile;
-import net.nightwhistler.pageturner.Configuration.LibrarySelection;
-import net.nightwhistler.pageturner.Configuration.LibraryView;
-import net.nightwhistler.pageturner.PlatformUtil;
-import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.library.CleanFilesTask;
-import net.nightwhistler.pageturner.library.*;
-import net.nightwhistler.pageturner.scheduling.*;
-import net.nightwhistler.pageturner.view.BookCaseView;
-import net.nightwhistler.pageturner.view.FastBitmapDrawable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import roboguice.inject.InjectView;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -55,23 +31,43 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
+import com.actionbarsherlock.widget.SearchView;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
+import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.Configuration.ColourProfile;
+import net.nightwhistler.pageturner.Configuration.LibrarySelection;
+import net.nightwhistler.pageturner.Configuration.LibraryView;
+import net.nightwhistler.pageturner.PlatformUtil;
+import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.library.*;
+import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
+import net.nightwhistler.pageturner.scheduling.TaskQueue;
+import net.nightwhistler.pageturner.view.BookCaseView;
+import net.nightwhistler.pageturner.view.FastBitmapDrawable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import roboguice.inject.InjectView;
+
+import java.io.File;
+import java.text.DateFormat;
+import java.util.*;
 
 import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
 
@@ -255,11 +251,29 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		return true;
 	}
 	
-	private Bitmap getCover( LibraryBook book ) {
-		return BitmapFactory.decodeByteArray(book.getCoverImage(), 0, book.getCoverImage().length );
+	private FastBitmapDrawable getCover( LibraryBook book ) {
+
+        try {
+
+            if ( !coverCache.containsKey(book.getFileName() ) ) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(book.getCoverImage(), 0, book.getCoverImage().length );
+                FastBitmapDrawable drawable = new FastBitmapDrawable(bitmap);
+                coverCache.put( book.getFileName(), drawable );
+            }
+
+            return coverCache.get( book.getFileName() );
+
+        } catch ( OutOfMemoryError outOfMemoryError ) {
+            clearCoverCache();
+            return null;
+        }
 	}
 	
 	private void showBookDetails( final LibraryBook libraryBook ) {
+
+        if ( ! isAdded() ) {
+            return;
+        }
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.book_details);
@@ -269,12 +283,17 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		builder.setView( layout );
 		
 		ImageView coverView = (ImageView) layout.findViewById(R.id.coverImage );
-		
-		if ( libraryBook.getCoverImage() != null ) {			
-			coverView.setImageBitmap( getCover(libraryBook) );
-		} else {			
-			coverView.setImageDrawable( getResources().getDrawable(R.drawable.unknown_cover));
-		}
+
+		if ( libraryBook.getCoverImage() != null ) {
+
+            Drawable coverDrawable = getCover(libraryBook);
+
+            if ( coverDrawable != null ) {
+                coverView.setImageDrawable(coverDrawable);
+            } else {
+                coverView.setImageDrawable(getResources().getDrawable(R.drawable.unknown_cover));
+            }
+        }
 
 		TextView titleView = (TextView) layout.findViewById(R.id.titleField);
 		TextView authorView = (TextView) layout.findViewById(R.id.authorField);
@@ -991,11 +1010,11 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		public void run() {			
 			try {
-				FastBitmapDrawable drawable = new FastBitmapDrawable(getCover(book));			
-				view.setImageDrawable(drawable);	
-				coverCache.put(book.getFileName(), drawable);
-			} catch (OutOfMemoryError err) {
-				clearCoverCache();
+                FastBitmapDrawable drawable = getCover(book);
+
+                if ( drawable != null ) {
+                    view.setImageDrawable(drawable);
+                }
 			} catch (IllegalStateException i) {
                 //Do nothing, happens when we're no longer attached.
             }

@@ -176,7 +176,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="search_results_item">Suche…</string>
     <string name="lookup_wiktionary">Suche in Wiktionary</string>
 
-
+    <string name="no_search_results">Die Suche brachte keine Ergebnisse</string>
 
 
     <!-- Preferences -->    

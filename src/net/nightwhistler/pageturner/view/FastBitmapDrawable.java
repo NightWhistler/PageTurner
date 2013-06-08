@@ -16,12 +16,7 @@
 
 package net.nightwhistler.pageturner.view;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.PixelFormat;
+import android.graphics.*;
 import android.graphics.drawable.Drawable;
 
 public class FastBitmapDrawable extends Drawable {
@@ -35,8 +30,11 @@ public class FastBitmapDrawable extends Drawable {
 
     public FastBitmapDrawable(Bitmap b) {
         mBitmap = b;
-        this.width = b.getWidth();
-        this.height = b.getHeight();
+
+        if ( b != null ) {
+            this.width = b.getWidth();
+            this.height = b.getHeight();
+        }
     }
 
     @Override
@@ -87,7 +85,10 @@ public class FastBitmapDrawable extends Drawable {
     }
     
     public void destroy() {
-    	this.mBitmap.recycle();
+        if ( this.mBitmap != null ) {
+    	    this.mBitmap.recycle();
+        }
+
     	this.mBitmap = null;
     	this.setCallback(null);
     }

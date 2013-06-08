@@ -18,27 +18,25 @@
  */
 package net.nightwhistler.pageturner.catalog;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.net.URLDecoder;
-
+import android.content.Context;
+import android.os.AsyncTask;
+import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.library.LibraryService;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
-
+import nl.siegmann.epublib.service.MediatypeService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.content.Context;
-import android.os.AsyncTask;
-
-import com.google.inject.Inject;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URLDecoder;
 
 public class DownloadFileTask extends AsyncTask<String, Long, String> {
 
@@ -148,10 +146,12 @@ public class DownloadFileTask extends AsyncTask<String, Long, String> {
 				} finally {
 					f.close();
 				}
-				
-				//FIXME: This doesn't belong here really...
-				Book book = new EpubReader().readEpub( new FileInputStream(destFile) );					
-				libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.isCopyToLibrayEnabled() );
+
+                if ( ! isCancelled() ) {
+				    //FIXME: This doesn't belong here really...
+				    Book book = new EpubReader().readEpubLazy( destFile.getAbsolutePath(), "UTF-8" );
+				    libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.isCopyToLibrayEnabled() );
+                }
 				
 			} else {
 				this.failure = new RuntimeException(response

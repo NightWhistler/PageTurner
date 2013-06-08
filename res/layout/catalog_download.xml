@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    
-<LinearLayout 
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:id="@+id/mainLayout">
+
+<include layout="@layout/catalog_download_buttons" android:id="@+id/bottomButtonBar"
+        />
+
+<ScrollView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:id="@+id/mainLayout">
+    android:layout_above="@id/bottomButtonBar"
+    android:layout_alignParentTop="true">
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical">
 
     <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/topBlock">
 
-
-        <ImageView
-                android:id="@+id/itemIcon"
-                android:src="@drawable/book"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:layout_alignParentTop="true"
-                android:paddingRight="2dp"
-                android:paddingBottom="2dp"
-                />
+        <include layout="@layout/large_book_cover"
+                 android:id="@+id/itemIcon"/>
 
         <LinearLayout android:layout_height="wrap_content"
                       android:layout_width="wrap_content"
@@ -48,66 +48,40 @@
 
         </LinearLayout>
 
-
-
-
-
-
     </RelativeLayout>
 
+        <View style="@style/Divider"
+              android:layout_marginLeft="4dip"
+              android:layout_marginRight="4dip"/>
 
-    <View style="@style/Divider"/>
-
-
-    <TextView
-        android:id="@+id/itemDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/small_text"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <View style="@style/Divider"/>
-
-
-    <LinearLayout
-
-            android:id="@+id/relatedLinksContainer"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-
-    <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center_horizontal"
-            >
-
-        <Button
+        <TextView
+                android:id="@+id/itemDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/buyNowButton"
-                android:text="@string/buy_now"
+                android:text="@string/small_text"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:layout_marginLeft="4dip"
+                android:layout_marginRight="4dip"
                 />
 
-        <Button
-                android:layout_width="wrap_content"
+        <!--
+        <View style="@style/Divider"/>
+
+
+        <LinearLayout
+
+                android:id="@+id/relatedLinksContainer"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/readNowButton"
-                android:text="@string/read"
-                />
+                android:orientation="vertical" />
+        -->
 
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/addToLibraryButton"
-                android:text="@string/add_to_library"
-                />
+    </LinearLayout>
 
-
-
-        </LinearLayout>
-
-
-</LinearLayout>
 </ScrollView>
+
+
+
+
+</RelativeLayout>
+

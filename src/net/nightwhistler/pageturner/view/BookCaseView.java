@@ -19,12 +19,6 @@
 
 package net.nightwhistler.pageturner.view;
 
-import roboguice.RoboGuice;
-import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.Configuration.ColourProfile;
-import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.library.LibraryBook;
-import net.nightwhistler.pageturner.library.QueryResult;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,8 +27,12 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.GridView;
-
-import com.google.inject.Inject;
+import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.Configuration.ColourProfile;
+import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.library.LibraryBook;
+import net.nightwhistler.pageturner.library.QueryResult;
+import roboguice.RoboGuice;
 
 public class BookCaseView extends GridView {
 	

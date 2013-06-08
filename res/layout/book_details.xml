@@ -6,41 +6,41 @@
     android:id="@+id/bookInfoContainer"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"> 
-     
-    	<LinearLayout 
-        	android:layout_height="wrap_content"
-        	android:layout_width="fill_parent"
-        	android:gravity="center_horizontal" >
+    android:orientation="vertical">
 
-        	<ImageView
-        	    android:id="@+id/coverImage"
-            	android:src="@drawable/unknown_cover" 
-            	android:layout_width="250px"
-            	android:layout_height="250px"/>
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/topBlock">
+
+        <include layout="@layout/large_book_cover"
+                 android:id="@+id/coverImage"/>
+
+        <LinearLayout android:layout_height="wrap_content"
+                      android:layout_width="wrap_content"
+                      android:orientation="vertical"
+                      android:layout_centerInParent="true"
+                      android:layout_toRightOf="@id/coverImage">
+            <TextView
+                    android:id="@+id/titleField"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/large_text"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    />
+
+            <TextView
+                    android:id="@+id/authorField"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/no_author_byline"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
         </LinearLayout>
 
+    </RelativeLayout>
+
     <View style="@style/Divider"/>
-
-
-    <TextView
-        	android:id="@+id/titleField"
-        	android:layout_width="fill_parent"
-        	android:layout_height="wrap_content"
-        	android:text="@string/default_book_title"
-        	android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <TextView
-            android:id="@+id/authorField"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/no_author_byline"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-
-        <View style="@style/Divider"/>
-
-
 
     <TextView
             android:id="@+id/fileName"
@@ -50,8 +50,6 @@
 
 
         <View style="@style/Divider"/>
-
-
 
     <TextView
             android:id="@+id/lastRead"

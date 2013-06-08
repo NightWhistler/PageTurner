@@ -19,30 +19,23 @@
 
 package net.nightwhistler.pageturner;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import android.content.pm.PackageManager;
-import android.os.Debug;
-import net.nightwhistler.htmlspanner.FontFamily;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import roboguice.inject.ContextSingleton;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Debug;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-
 import com.google.inject.Inject;
+import net.nightwhistler.htmlspanner.FontFamily;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import roboguice.inject.ContextSingleton;
+
+import java.util.*;
 
 /**
  * Application configuration class which provides a friendly API to the various
@@ -657,7 +650,7 @@ public class Configuration {
 	}
 
 	public AnimationStyle getHorizontalAnim() {
-		String animH = settings.getString(KEY_H_ANIMATION, AnimationStyle.CURL
+		String animH = settings.getString(KEY_H_ANIMATION, AnimationStyle.SLIDE
 				.name().toLowerCase(Locale.US));
 		return AnimationStyle.valueOf(animH.toUpperCase(Locale.US));
 	}

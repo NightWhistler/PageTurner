@@ -11,41 +11,41 @@
     <string name="profile_night">Cambia a modo noche</string>
     <string name="manual_sync">Sincronize sus progresos</string>
     <string name="prefs">Preferencias</string>
-    
+
     <string name="show_toc">Muestra Índice</string>   
     <string name="rolling_blind">Auto-scroll</string>
     <string name="about">Acerca de PageTurner</string>
     <string name="about_gpl">PageTurner es software libre bajo la GPL v3.</string>
     <string name="error_open_bk">Error abriendo el libro: %s</string>
-    
+
     <string name="dictionary_lookup">Buscar en el diccionario</string>
     <string name="wikipedia_lookup">Buscar en la Wikipedia</string>
     <string name="google_lookup">Buscar en Google</string>    
     <string name="word_select">"Ha seleccionado '%s'</string>    
-        
+
     <string name="loading_wait">Cargando, por favor espere</string>
     <string name="install_oi">Por favor instale OI File Manager de Google Play Store</string>  
 
-    
+
     <string name="cloud_bm">Marcadores Sincronizados</string>
     <string name="toc_label">Tabla de Contenidos</string>
     <string name="syncing">"Progreso de la sincronización…"</string>
     <string name="sync_failed">Sincronización fallida</string>
     <string name="connection_fail">No se puede conectar con el servidor.</string>    
-    
+
     <string name="never_read">Nunca</string>
-        
+
     <string name="library">Biblioteca</string>
     <string name="book_details">Detalles del libro</string>
-    
+
     <string name="book_by">Por %s</string>
     <string name="last_read">Lo último leído: %s</string>
     <string name="added_to_lib">Añadido a la biblioteca: %s</string>
-    
+
     <string name="view_details">Ver detalles</string>
     <string name="delete">Borrar</string>
     <string name="scan_books">Busqueda de libros</string>    
-    
+
     <string name="importing_books">Importando libros…</string>
     <string name="scanning_epub">Buscando ficheros EPUB.</string>
     <string name="importing">Importando %1$d de %2$d</string>
@@ -56,18 +56,18 @@
     <string name="loading_library">Cargando biblioteca…</string>
     <string name="scan_bks_question">No hay libros en su biblioteca.\n¿Le gustaría encontrar los libros que pueda haber en su dispositivo?</string>    
     <string name="brightness">Brillo</string>    
-        
+
     <string-array name="v_animLabels">
         <item>Deslizamiento</item>
         <item>Ninguno</item>        
     </string-array>
-    
+
     <string-array name="h_animLabels">
         <item>Paso de página</item>
         <item>Deslizamiento</item>
         <item>Ninguno</item>
     </string-array>
-        
+
     <string-array name="orientationLabels">
         <item>No bloquear orientacion</item>
         <item>Vertical</item>
@@ -75,12 +75,12 @@
         <item>Otro Vertical</item>
         <item>Otro Horizontal</item>
     </string-array>  
-   
+
     <string-array name="autoscrollLabels">
         <item>Cortinilla</item>
         <item>Barra de tiempo para cambio</item>
     </string-array>    
-        
+
     <string-array name="libraryQueries">
         <item>Leidos recientemente</item>
         <item>Añadidos recientemente</item>
@@ -88,7 +88,7 @@
         <item>Ordenar por título</item>
         <item>Ordenar por autor</item> 
     </string-array>
-        
+
     <string name="access_denied">Su clave de acceso no es válida. Por favor visite pageturner-reader.org para obtener una clave válida.</string>
     <string name="import_books">Importar libros</string>
     <string name="import_desc">Puede escanear toda la tarjeta SD o especificar una carpeta concreta.</string>
@@ -97,14 +97,14 @@
     <string name="copy_to_library">Copiar los libros a la carpeta de mi biblioteca</string>
     <string name="no_such_folder">La carpeta %s no existe.</string>
     <string name="import_failed">Importación fallida</string>
-    
+
     <string name="list_view">Cambie a modo lista</string>    
 	<string name="shelves_view">Cambie a vista de estantería</string>
     <string name="read">Leer ahora</string>
-    
+
     <string name="download">Descargar libros</string>
     <string name="downloading">Descargando libro…</string>
-    
+
      <string name="feed_failed">No se ha podido contactar con el sitio. Por favor intentelo de nuevo.</string>
 
 
@@ -121,17 +121,17 @@
     <string name="enter_email">La sincronización en la nube está desactivada. Para activarla, por favor introduzca su e-mail en las preferencias.</string>
 
     <string name="add_to_library">Añadir a la biblioteca.</string>
-    
+
     <string name="search_wait">Buscando… por favor espere.</string>
     <string name="search_text">Busca de texto</string>
     <string name="search_hits">Buscando…\nEncontradas %d coincidencias.</string>
     <string name="search_cancelled">Busqueda cancelada.</string>
     <string name="search_no_matches">No se han encontrado coincidencias.</string>
     <string name="search_results">Resultado de la busqueda</string>
-    
+
     <string name="opening_file">Abriendo archivo…</string>
     <string name="loading_text">Cargando Texto…</string>
-    
+
     <string name="end_of_section">Final del capítulo.\nClick para continuar.</string>
 
     <!-- Not yet translated -->
@@ -183,7 +183,7 @@
 
 
     <!-- Preferences -->    
-        
+
     <string name="pref_sync_settings">Preferencias de sincronización</string>
     <string name="pref_email">Correo electrónico</string>
     <string name="pref_email_summary">Se usa para sincronizar sus progresos de lectura entre dispositivos. Déjelo en blanco para desactivar la sincronización</string>
@@ -261,7 +261,7 @@
     <string name="pref_h_animation_summary">Animaciones para cambio de página horizontal.</string>
     <string name="pref_v_animation">Animaciones verticales</string>
     <string name="pref_v_animation_summary">Animaciones para cambio de página vertical.</string>
-    
+
     <string name="pref_navigation_settings">Preferencias de navegación</string>
     <string name="pref_scrolling">Activar scrolling</string>
     <string name="pref_scrolling_summary">Activar scrolling tipo navegador.</string>
@@ -275,70 +275,76 @@
     <string name="pref_nav_tap_h_summary">Toque los márgenes derecho o izquierdo para pasar página.</string>
     <string name="pref_nav_tap_v">Activar pulsación superior/inferior</string>
     <string name="pref_nav_tap_v_summary">Toque los márgenes superior o inferior para pasar página.</string>
-    
+
     <string name="pref_show_pagenum">Mostrar número de página</string>
     <string name="pref_show_pagenum_summary">Mostrar número de página durante la lectura. La primera vez puede tardar algo en mostrar el número de página.</string>
 
     <!-- Not yet translated -->
 
-    <string name="pref_nook_touch">Nook Touch Preferences</string>
-    <string name="pref_nook_touch_button_nav">Button Navigation</string>
-    <string name="pref_nook_touch_button_nav_summary">How should the buttons on the side of the Nook turn the page?</string>
+        <string name="pref_nook_touch">Preferencias táctiles para Nook</string>
 
-    <string name="pref_reading_direction">Reading direction</string>
-    <string name="pref_reading_direction_summary">Read left to right or right to left (Hebrew and Arabic)</string>
+    <string name="pref_nook_touch_button_nav">Botón de navegación</string>
+    <string name="pref_nook_touch_button_nav_summary">¿Como deberían de volver la página los botones laterales del Nook?</string>
+    
 
+    <string name="pref_reading_direction">Dirección de lectura</string>
+    <string name="pref_reading_direction_summary">Leer de izquierda a derecha o de derecha a izquierda (hebreo y árabe)</string>
+    
     <string-array name="reading_directionsLabels">
-        <item>Left to right</item>
-        <item>Right to left</item>
+        <item>Izquierda a derecha</item>
+        <item>Derecha a izquierda</item>
     </string-array>
 
-    <string name="pref_manage_sites">Manage OPDS / Calibre Catalogs</string>
-    <string name="pref_manage_sites_summary">Add and remove custom online catalogs and Calibre servers.</string>
+    <string name="pref_manage_sites">Gestionar OPDS / Catálogo de Calibre</string>
+    <string name="pref_manage_sites_summary">Añade o borra catálogos personalizados y servidores de Calibre.</string>
+    <string name="pref_serif_font">Fuente con serifa</string>
+    <string name="pref_serif_summary">Fuente a utilizar si el libro pide una fuente con serifa.</string>
 
-    <string name="pref_serif_font">Serif font</string>
-    <string name="pref_serif_summary">Font to use if a book requests a Serif font.</string>
+    <string name="pref_sans_serif_font">Fuente sin serifa</string>
+    <string name="pref_sans_serif_summary">Fuente a utilizar si el libro pide una fuente sin serifa.</string>
 
-    <string name="pref_sans_serif_font">Sans-Serif font</string>
-    <string name="pref_sans_serif_summary">Font to use if a book requests a Sans-Serif font.</string>
+    <string name="pref_lang">Idioma de la interfaz</string>
+    <string name="pref_lang_summary">Le permite modificar las preferencias de idioma de PageTurner.</string>
+    
+    <string name="language_switch_message">La nueva preferencia de idioma se activará la próxima vez que abra un libro.</string>
 
-    <string name="pref_lang">UI Language</string>
-    <string name="pref_lang_summary">Allows you to switch PageTurner\'s language settings.</string>
-    <string name="language_switch_message">The new language setting will become active the next time you open a book.</string>
 
-    <string name="pref_accept_self_signed">Accept self-signed certificates</string>
-    <string name="pref_accept_self_signed_summary">Allows you to connect to OPDS sites which use self-signed certificates.</string>
+    <string name="pref_accept_self_signed">Acepta certificados auto-firmados</string>
+    <string name="pref_accept_self_signed_summary">Permitido conectarse a sitios OPDS que usen certificados auto-firmados.</string>
 
     <string-array name="supported_languagesLabels">
-        <item>Use device setting</item>
-        <item>English</item>
-        <item>Dutch</item>
-        <item>German</item>
-        <item>Spanish</item>
-        <item>Italian</item>
-        <item>Arabic</item>
-        <item>Hebrew</item>
-        <item>Farsi</item>
+        <item>Por defecto del sistema</item>
+        <item>Inglés</item>
+        <item>Holandés</item>
+        <item>Alemán</item>
+        <item>Español</item>
+        <item>Italiano</item>
+        <item>Árabe</item>
+        <item>Hebreo</item>
+        <item>Persa</item>
     </string-array>
 
 
-    <string name="pref_dim_system_ui">Dim System UI</string>
-    <string name="pref_dim_system_ui_summary">Dims the System UI buttons when reading in fullscreen mode.</string>
+    <string name="pref_dim_system_ui">Interfaz de brillo</string>
+    <string name="pref_dim_system_ui_summary">Controlar el brillo del dispositivo estando en pantalla completa.</string>
 
-    <string name="pref_long_short">Switch long press / short press</string>
-    <string name="pref_long_short_summary">How to open books in the library</string>
+    <string name="pref_long_short">Opción Pulsación larga / Pulsación corta</string>
+    <string name="pref_long_short_summary">Como abrir libros en la biblioteca</string>
 
     <string-array name="long_short_labels">
-        <item>Long press to open, short press for details</item>
-        <item>Short press to open, long press for details</item>
+        <item>Pulsación larga para abrir, pulsación corta para detalles</item>
+        
+        <item>Pulsación corta para abrir, pulsación larga para detalles</item>
     </string-array>
 
-    <string name="pref_dev_settings">Development settings</string>
+    <string name="pref_dev_settings">Opciones de desarrollo</string>
 
-    <string name="pref_acra">Send error reports</string>
-    <string name="pref_acra_summary">Allow PageTurner to send anonymous error reports when it crashes.</string>
+    <string name="pref_acra">Enviar reporte de errores</string>
+    <string name="pref_acra_summary">Permite a Pageturner enviar reportes de error anónimos cuando la aplicación falle.</string>
 
-    <string name="opds_settings">OPDS settings</string>
+    <string name="opds_settings">Opciones OPDS</string>
+    
+    <string name="no_search_results">Su búsqueda no ha dado ningún resultado.</string>
 
 </resources>
 

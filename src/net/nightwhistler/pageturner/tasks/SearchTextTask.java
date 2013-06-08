@@ -19,23 +19,21 @@
 
 package net.nightwhistler.pageturner.tasks;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import android.os.AsyncTask;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import nl.siegmann.epublib.domain.Book;
-
 import org.htmlcleaner.TagNode;
 
-import android.os.AsyncTask;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResult, List<SearchTextTask.SearchResult>> {
 	

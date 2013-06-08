@@ -19,9 +19,6 @@
 package net.nightwhistler.pageturner.catalog;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.util.Log;
 import com.google.inject.Inject;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
@@ -54,6 +51,7 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 	
 	private String errorMessage;
 	private boolean asDetailsFeed;
+    private boolean asSearchFeed;
 
     private LoadFeedCallback.ResultType resultType;
 
@@ -106,6 +104,11 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 			Feed feed = Nucular.readAtomFeedFromStream(stream);
             feed.setURL(baseUrl);
 			feed.setDetailFeed(asDetailsFeed);
+            feed.setSearchFeed(asSearchFeed);
+
+            for ( Entry entry: feed.getEntries() ) {
+                entry.setBaseURL( baseUrl );
+            }
 
             if (isBaseFeed) {
                 addCustomSitesEntry(feed);
@@ -161,12 +164,16 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 		this.asDetailsFeed = asDetailsFeed;
 	}
 
+    public void setAsSearchFeed(boolean asSearchFeed) {
+        this.asSearchFeed = asSearchFeed;
+    }
+
     @Override
     protected void doOnPostExecute(Feed result) {
 		if (result == null) {
 			callBack.errorLoadingFeed(errorMessage);
 		}  else if ( result.getSize() == 0 ) {
-            callBack.errorLoadingFeed( context.getString(R.string.empty_opds_feed) );
+            callBack.emptyFeedLoaded(result);
         } else {
             callBack.setNewFeed(result, resultType);
         }
@@ -180,6 +187,7 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 		entry.setTitle(context.getString(R.string.custom_site));
 		entry.setSummary(context.getString(R.string.custom_site_desc));
 		entry.setId(Catalog.CUSTOM_SITES_ID);
+        entry.setBaseURL( feed.getURL() );
 
         if ( iconLink != null ) {
             Link thumbnailLink = new Link(iconLink.getHref(), iconLink.getType(), AtomConstants.REL_IMAGE, null);

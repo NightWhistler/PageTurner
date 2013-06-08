@@ -19,21 +19,18 @@
 package net.nightwhistler.pageturner.activity;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import com.actionbarsherlock.view.Window;
-import net.nightwhistler.nucular.atom.Entry;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 import net.nightwhistler.nucular.atom.Feed;
-import net.nightwhistler.pageturner.catalog.BookDetailsFragment;
-import net.nightwhistler.pageturner.catalog.CatalogParent;
-import roboguice.RoboGuice;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.catalog.BookDetailsFragment;
 import net.nightwhistler.pageturner.catalog.CatalogFragment;
-import android.os.Bundle;
-import android.view.KeyEvent;
-
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
+import net.nightwhistler.pageturner.catalog.CatalogParent;
+import roboguice.RoboGuice;
 import roboguice.inject.InjectFragment;
 
 import javax.annotation.Nullable;
@@ -65,7 +62,7 @@ public class CatalogActivity extends RoboSherlockFragmentActivity implements Cat
         if ( detailsFragment != null ) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.hide(detailsFragment);
-            ft.commit();
+            ft.commitAllowingStateLoss();
         }
     }
 
@@ -116,11 +113,6 @@ public class CatalogActivity extends RoboSherlockFragmentActivity implements Cat
     public void loadFeedFromUrl(String url) {
         catalogFragment.loadURL(url);
     }
-
-    @Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		return catalogFragment.dispatchKeyEvent(event);
-	}
 
 	// TODO Refactor this. Let the platform push/pop fragments from the fragment stack.
 	@Override

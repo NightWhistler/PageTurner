@@ -161,6 +161,12 @@
     <string name="select_text">Select text</string>
     <string name="select_text_msg">Long-press a word to start text selection</string>
 
+	<string name="no_search_results">Your search yielded no results.</string>
+
+    <string name="dead_link">Sorry, it looks like the link you clicked is broken.</string>
+    <string name="could_not_load">Could not load text: %s</string>
+    <string name="out_of_memory">Sorry, PageTurner could not free enough memory to load this file.</string>
+
     <!-- Preferences -->
 
     <string name="pref_sync_settings">Sync settings</string>

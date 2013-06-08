@@ -19,25 +19,20 @@
 
 package net.nightwhistler.pageturner.library;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 import nl.siegmann.epublib.service.MediatypeService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.os.AsyncTask;
+import java.io.File;
+import java.util.*;
 
 public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implements OnCancelListener {
 	
@@ -78,11 +73,20 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 	@Override
 	public void onCancel(DialogInterface dialog) {
 		LOG.debug("User aborted import.");	
-		this.cancel(true);
+		requestCancellation();
 	}
 
     @Override
 	protected Void doInBackground(File... params) {
+
+        /*
+        Hack: don't run automated import on an empty database, since we explicitly ask
+        the user to import.
+         */
+        if ( silent && libraryService.findAllByTitle(null).getSize() == 0 ) {
+            return null;
+        }
+
 		File parent = params[0];
 		
 		if ( ! parent.exists() ) {
@@ -121,40 +125,54 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 	
 	private void findEpubsInFolder( File folder, List<File> items) {
 		
-		if ( folder == null ) {
+		if ( folder == null  || ! folder.isDirectory() ) {
 			return;
-		}			
-		
-		if ( isCancelled() ) {
-			return;
-		}		
-		
-		if ( folder.isDirectory() && folder.listFiles() != null) {
-			
-			for (File child: folder.listFiles() ) {
-				findEpubsInFolder(child, items); 
-			}
-			
-			foldersScanned++;
-			publishProgress(UPDATE_FOLDER, foldersScanned);
-			
-		} else {
-			
-			String fileName = folder.getAbsolutePath();
-			
-			//Scan items 
-			if ( fileName.endsWith(".epub") ) {
-				items.add(folder);
-			} else if ( fileName.startsWith(config.getLibraryFolder()) 
-					|| fileName.startsWith(config.getDownloadsFolder() )) {
-					
-				if ( folder.getName().indexOf(".") == -1 ) {				
-					//Older versions downloaded files without an extension				
-					items.add(folder);
-				}
-			}
 		}
+
+        Queue<File> dirs = new LinkedList<File>();
+        dirs.add(folder);
+
+        while ( !isCancelled() && !dirs.isEmpty() ) {
+
+            File[] fileList = dirs.poll().listFiles();
+
+            if ( fileList != null ) {
+                for (File f : fileList ) {
+                    if (f.isDirectory()) {
+                        foldersScanned++;
+                        publishProgress(UPDATE_FOLDER, foldersScanned);
+
+                        //Check if a recursive structure with symlinks
+                        if ( ! dirs.contains(f) ) {
+                            dirs.add(f);
+                        }
+
+                    } else if (f.isFile()) {
+                        processFile( f, items );
+                    }
+                }
+            }
+        }
+
 	}
+
+    private void processFile( File file, List<File> items ) {
+
+        String fileName = file.getAbsolutePath();
+
+        //Scan items
+        if ( fileName.endsWith(".epub") ) {
+            items.add(file);
+        } else if ( fileName.startsWith(config.getLibraryFolder())
+                || fileName.startsWith(config.getDownloadsFolder() )) {
+
+            if ( file.getName().indexOf(".") == -1 ) {
+                //Older versions downloaded files without an extension
+                items.add(file);
+            }
+        }
+
+    }
 
     private boolean importBook(File file) {
 

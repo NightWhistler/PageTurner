@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.nightwhistler.pageturner"
-      android:versionName="2.1-dev"
-      android:versionCode="28"      
+      android:versionName="2.2-dev"
+      android:versionCode="38"
       android:installLocation="auto">
     
     <uses-sdk
@@ -78,7 +78,7 @@
             android:label="@string/pref_manage_sites" >
                    
         	<intent-filter>
-           		<action android:name="net.nightwhistler.pageturner.activitiy.ManageSitesActivity" />
+           		<action android:name="net.nightwhistler.pageturner.activity.ManageSitesActivity" />
            		<category android:name="android.intent.category.DEFAULT" />
        		</intent-filter>
         </activity>        

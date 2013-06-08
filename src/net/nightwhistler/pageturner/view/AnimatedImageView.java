@@ -19,11 +19,11 @@
 
 package net.nightwhistler.pageturner.view;
 
-import net.nightwhistler.pageturner.animation.Animator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+import net.nightwhistler.pageturner.animation.Animator;
 
 public class AnimatedImageView extends ImageView {
 

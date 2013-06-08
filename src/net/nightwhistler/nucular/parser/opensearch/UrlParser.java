@@ -19,10 +19,10 @@
 
 package net.nightwhistler.nucular.parser.opensearch;
 
-import java.util.Map;
-
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.nucular.parser.ElementParser;
+
+import java.util.Map;
 
 public class UrlParser extends ElementParser {
 

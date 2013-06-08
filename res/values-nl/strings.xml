@@ -162,9 +162,15 @@
     <string name="next_page">Volgende pagina…</string>
     <string name="prev_page">Vorige pagina…</string>
 
-    <string name="empty_opds_feed">De feed was lees. Controleer a.u.b. of de URL correct is.</string>
+    <string name="empty_opds_feed">De feed was leeg. Controleer a.u.b. of de URL correct is.</string>
     <string name="search_results_item">Zoekresultaten…</string>
     <string name="lookup_wiktionary">Zoeken op Wiktionary</string>
+
+    <string name="no_search_results">Je zoekopdracht heeft geen resultaten opgeleverd.</string>
+
+    <string name="dead_link">Sorry, de link waar je op geklikt hebt lijkt niet te werken.</string>
+    <string name="could_not_load">Er is een fout opgetreden tijdens het laden van de tekst: %s</string>
+    <string name="out_of_memory">Sorry, PageTurner kon niet genoeg geheugen vrij maken om dit bestand te openen.</string>
 
 
     <!-- Preferences -->

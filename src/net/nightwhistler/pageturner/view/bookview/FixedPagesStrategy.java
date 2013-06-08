@@ -22,19 +22,28 @@ package net.nightwhistler.pageturner.view.bookview;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.StaticLayout;
-import android.text.TextPaint;
+import android.graphics.Color;
+import android.text.*;
+import android.text.style.BackgroundColorSpan;
+import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import android.graphics.Canvas;
 import android.widget.TextView;
+import net.nightwhistler.pageturner.view.HighlightManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 public class FixedPagesStrategy implements PageChangeStrategy {
+
+    private Configuration config;
+
+    private StaticLayoutFactory layoutFactory;
+
+    private HighlightManager highlightManager;
+
+    private static final Logger LOG = LoggerFactory.getLogger("FixedPagesStrategy");
 
 	private Spanned text;
 	
@@ -44,23 +53,31 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	
 	private BookView bookView;
 	private TextView childView;
-	
-	private Configuration config;
-	
+
 	private int storedPosition = -1;
 
-    private static final Logger LOG = LoggerFactory.getLogger("FixedPagesStrategy");
+    @Override
+    public void setBookView(BookView bookView) {
+        this.bookView = bookView;
+        this.childView = bookView.getInnerView();
+    }
 
-	private StaticLayoutFactory layoutFactory;
-		
-	public FixedPagesStrategy(BookView bookView, Configuration config, StaticLayoutFactory layoutFactory) {
-		this.bookView = bookView;
-		this.childView = bookView.getInnerView();
-		this.config = config;
-		this.layoutFactory = layoutFactory;
-	}
-	
-	@Override
+    @Inject
+    public void setHighlightManager( HighlightManager highlightManager ) {
+        this.highlightManager = highlightManager;
+    }
+
+    @Inject
+    public void setLayoutFactory(StaticLayoutFactory layoutFactory) {
+        this.layoutFactory = layoutFactory;
+    }
+
+    @Inject
+    public void setConfig( Configuration config ) {
+        this.config = config;
+    }
+
+    @Override
 	public void clearStoredPosition() {
 		this.pageNum = 0;
 		this.storedPosition = 0;
@@ -188,16 +205,37 @@ public class FixedPagesStrategy implements PageChangeStrategy {
             int startOffset = pageOffsets.get(pageOffsets.size() -1);
 
             if ( startOffset >= 0 && startOffset <= text.length() -1 ) {
-			    return this.text.subSequence(startOffset, text.length() );
+			    return applySpans( this.text.subSequence(startOffset, text.length() ), startOffset );
             } else {
-                return text;
+                return applySpans(text, 0);
             }
 		} else {
 			int start = this.pageOffsets.get(page);
 			int end = this.pageOffsets.get(page +1 );
-			return this.text.subSequence(start, end);
+			return applySpans( this.text.subSequence(start, end), start );
 		}	
 	}
+
+    private CharSequence applySpans(CharSequence text, int offset) {
+        List<HighlightManager.HighLight> highLights = highlightManager.getHighLights( bookView.getFileName() );
+        int end = offset + text.length() -1;
+
+        for ( HighlightManager.HighLight highLight: highLights ) {
+            if ( highLight.getIndex() == bookView.getIndex() &&
+                    highLight.getStart() >= offset && highLight.getStart() < end ) {
+
+                LOG.debug("Got highlight from " + highLight.getStart() + " to " + highLight.getEnd() + " with offset " + offset );
+
+                int highLightEnd = Math.min(end, highLight.getEnd() );
+
+                ( (Spannable) text).setSpan(new BackgroundColorSpan(Color.YELLOW),
+                        highLight.getStart() - offset, highLightEnd - offset,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+
+        return text;
+    }
 	
 	@Override
 	public void setPosition(int pos) {

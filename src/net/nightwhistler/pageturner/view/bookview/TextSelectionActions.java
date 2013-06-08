@@ -100,7 +100,7 @@ public class TextSelectionActions implements ActionMode.Callback {
 
 	@Override
 	public void onDestroyActionMode(ActionMode mode) {
-		bookView.setTextSelectionEnabled(false);
+
 	}
 
 	@Override

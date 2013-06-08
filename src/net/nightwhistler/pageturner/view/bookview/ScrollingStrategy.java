@@ -30,12 +30,16 @@ import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.view.View;
 import android.widget.TextView;
+import com.google.inject.Inject;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 
 
 public class ScrollingStrategy implements PageChangeStrategy {
-	
+
+    @Inject
+    private Context context;
+
 	private BookView bookView;
 	
 	private TextView childView;
@@ -43,13 +47,11 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	private double storedPercentage = -1;
 	
 	private Spanned text;
-	
-	private Context context;
-	
-	public ScrollingStrategy(BookView bookView, Context context) {
+
+    @Override
+    public void setBookView(BookView bookView) {
 		this.bookView = bookView;
-		this.childView = bookView.getInnerView();		
-		this.context = context;
+		this.childView = bookView.getInnerView();
 	}
 	
 	@Override

@@ -71,10 +71,7 @@ import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.tts.SpeechCompletedCallback;
 import net.nightwhistler.pageturner.tts.TTSPlaybackItem;
 import net.nightwhistler.pageturner.tts.TTSPlaybackQueue;
-import net.nightwhistler.pageturner.view.AnimatedImageView;
-import net.nightwhistler.pageturner.view.NavGestureDetector;
-import net.nightwhistler.pageturner.view.ProgressListAdapter;
-import net.nightwhistler.pageturner.view.SearchResultAdapter;
+import net.nightwhistler.pageturner.view.*;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import net.nightwhistler.pageturner.view.bookview.BookViewListener;
 import net.nightwhistler.pageturner.view.bookview.TextLoader;
@@ -192,6 +189,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     @Inject
     private TextLoader textLoader;
+
+    @Inject
+    private HighlightManager highlightManager;
 
     private MenuItem searchMenuItem;
 
@@ -1226,8 +1226,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	@Override
 	public void highLight(int from, int to) {
-		bookView.highLight(from, to);
-	}
+
+        int pageStart = bookView.getStartOfCurrentPage();
+
+        this.highlightManager.registerHighlight(fileName, bookView.getIndex(),
+                pageStart + from, pageStart + to);
+
+        bookView.update();
+    }
+
+
+
 
 	@Override
 	public boolean isDictionaryAvailable() {
@@ -1940,13 +1949,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		MenuItem tts = menu.findItem( R.id.text_to_speech );
 		tts.setEnabled(ttsAvailable);
 
-		MenuItem textSelect = menu.findItem(R.id.enable_text_selection);
-		
-		//Only enable text-selection on newer systems
-		textSelect.setVisible( Build.VERSION.SDK_INT >= 11);
-
         MenuItem searchResultsItem = menu.findItem(R.id.show_search_results);
-
 		
 		getSherlockActivity().getSupportActionBar().show();
 
@@ -2150,11 +2153,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		case R.id.about:
 			dialogFactory.buildAboutDialog().show();
 			return true;	
-			
+
+        /*
 		case R.id.enable_text_selection:
 			this.bookView.setTextSelectionEnabled(true);
 			Toast.makeText(getActivity(), R.string.select_text_msg, Toast.LENGTH_SHORT).show();
 			return true;
+			*/
 
 		default:
 			return super.onOptionsItemSelected(item);

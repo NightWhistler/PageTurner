@@ -44,6 +44,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.view.ActionMode;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
@@ -56,6 +57,7 @@ import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
+import net.nightwhistler.pageturner.view.HighlightManager;
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Resource;
@@ -108,7 +110,13 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
     @Inject
     private TextLoader textLoader;
-	
+
+    @Inject
+    private Provider<FixedPagesStrategy> fixedPagesStrategyProvider;
+
+    @Inject
+    private Provider<ScrollingStrategy> scrollingStrategyProvider;
+
 	private OnTouchListener onTouchListener;
 
 	public BookView(Context context, AttributeSet attributes) {
@@ -128,12 +136,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		this.setVerticalFadingEdgeEnabled(false);
 		childView.setFocusable(true);
 		childView.setLinksClickable(true);
-/*
-		FIXME: disabled text selection for now.
+
 		if (Build.VERSION.SDK_INT >= 11) {
 			childView.setTextIsSelectable(true);
 		}
-*/
 		
 		this.setSmoothScrollingEnabled(false);
 		this.tableHandler = new TableHandler();
@@ -171,7 +177,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			}
 		}
 	}
-	
+
+    public String getFileName() {
+        return fileName;
+    }
 
 	public void setConfiguration(Configuration configuration) {
 		this.configuration = configuration;
@@ -399,13 +408,11 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
     }
 
 	public void pageDown() {
-		setTextSelectionEnabled(false);
 		strategy.pageDown();
 		progressUpdate();
 	}
 
 	public void pageUp() {
-		setTextSelectionEnabled(false);
 		strategy.pageUp();
 		progressUpdate();
 	}
@@ -624,8 +631,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 	private void doNavigation(int index) {
 
-		setTextSelectionEnabled(false);
-		
 		// Check if we're already in the right part of the book
 		if (index == this.getIndex()) {
 			restorePosition();
@@ -713,6 +718,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	public void setPosition(int pos) {
 		this.strategy.setPosition(pos);
 	}
+
+    public void update() {
+        strategy.updatePosition();
+    }
 
 	/**
 	 * Scrolls to a previously stored point.
@@ -1121,11 +1130,13 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 				wasNull = false;
 			}
 
-			if (enableScrolling) {
-				this.strategy = new ScrollingStrategy(this, this.getContext());
-			} else {
-				this.strategy = new FixedPagesStrategy(this, configuration, new StaticLayoutFactory());
-			}
+            if (enableScrolling) {
+                this.strategy = scrollingStrategyProvider.get();
+            } else {
+                this.strategy = fixedPagesStrategyProvider.get();
+            }
+
+            strategy.setBookView(this);
 
 			if (!wasNull) {
 				this.strategy.setPosition(pos);
@@ -1136,13 +1147,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			}
 		}
 	}
-
-    public void highLight(int from, int to) {
-        ( (Spannable) childView.getText() ).setSpan(new BackgroundColorSpan(Color.YELLOW),
-                from, to, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-
-	
 
 	public static class InnerView extends TextView {
 
@@ -1288,6 +1292,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                     }
                 }
 
+
                 //If the view isn't ready yet, wait a bit.
                 while ( getInnerView().getWidth() == 0 ) {
                     Thread.sleep(100);
@@ -1304,6 +1309,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             }
 
         }
+
+
 
 		@Override
 		protected void onProgressUpdate(BookReadPhase... values) {
@@ -1440,9 +1447,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                         Spannable text = mySpanner.fromHtml(input);
                         imageLoader.load();
 
-                        offsetsPerSection.put(href,
-                                new FixedPagesStrategy(BookView.this, configuration,
-                                        new StaticLayoutFactory()).getPageOffsets(text, true));
+                        FixedPagesStrategy fixedPagesStrategy = fixedPagesStrategyProvider.get();
+                        fixedPagesStrategy.setBookView(BookView.this);
+
+                        offsetsPerSection.put(href, fixedPagesStrategy.getPageOffsets(text, true));
 
 
                     } catch ( IOException io ) {
@@ -1460,9 +1468,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                     LOG.debug("CalculatePageNumbersTask: Got cached text for href: " + res.getHref() );
                     Spannable text = textLoader.getText(res);
 
-                    offsetsPerSection.put(res.getHref(),
-                            new FixedPagesStrategy(BookView.this, configuration,
-                                    new StaticLayoutFactory()).getPageOffsets(text, true));
+                    FixedPagesStrategy fixedPagesStrategy = fixedPagesStrategyProvider.get();
+                    fixedPagesStrategy.setBookView(BookView.this);
+
+                    offsetsPerSection.put(res.getHref(), fixedPagesStrategy.getPageOffsets(text, true));
 
                 } else {
                     LOG.debug("CalculatePageNumbersTask: Registering callback for href: " + res.getHref() );

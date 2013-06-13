@@ -1188,6 +1188,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         }
     }
 
+
 	private static enum BookReadPhase {
 		START, OPEN_FILE, PARSE_TEXT, DONE
 	};
@@ -1447,7 +1448,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                         Spannable text = mySpanner.fromHtml(input);
                         imageLoader.load();
 
-                        FixedPagesStrategy fixedPagesStrategy = fixedPagesStrategyProvider.get();
+                        FixedPagesStrategy fixedPagesStrategy = getFixedPagesStrategy();
                         fixedPagesStrategy.setBookView(BookView.this);
 
                         offsetsPerSection.put(href, fixedPagesStrategy.getPageOffsets(text, true));
@@ -1468,7 +1469,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                     LOG.debug("CalculatePageNumbersTask: Got cached text for href: " + res.getHref() );
                     Spannable text = textLoader.getText(res);
 
-                    FixedPagesStrategy fixedPagesStrategy = fixedPagesStrategyProvider.get();
+                    FixedPagesStrategy fixedPagesStrategy = getFixedPagesStrategy();
                     fixedPagesStrategy.setBookView(BookView.this);
 
                     offsetsPerSection.put(res.getHref(), fixedPagesStrategy.getPageOffsets(text, true));
@@ -1508,6 +1509,16 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
             return result;
         }
+
+        //Injection doesn't work from inner classes, so we construct it ourselves.
+        private FixedPagesStrategy getFixedPagesStrategy() {
+            FixedPagesStrategy fixedPagesStrategy =  new FixedPagesStrategy();
+            fixedPagesStrategy.setConfig( configuration );
+            fixedPagesStrategy.setLayoutFactory( new StaticLayoutFactory() );
+
+            return fixedPagesStrategy;
+        }
+
 
 
         @Override

@@ -65,6 +65,16 @@ public class TextSelectionActions implements ActionMode.Callback {
 			});
 		}
 
+        menu.add(R.string.lookup_wiktionary)
+                .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(android.view.MenuItem item) {
+                        callBack.lookupWiktionary(bookView.getSelectedText());
+                        mode.finish();
+                        return true;
+                    }
+                });
+
 		menu.add(R.string.wikipedia_lookup)
 			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			@Override

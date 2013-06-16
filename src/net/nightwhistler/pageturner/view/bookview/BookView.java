@@ -1223,14 +1223,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			BookView.this.book = book;
 			BookView.this.spine = new PageTurnerSpine(book);
 
-			String file = StringUtil.substringAfterLast(fileName, '/');
-
 			BookView.this.spine.navigateByIndex(BookView.this.storedIndex);
 
 			if (configuration.isShowPageNumbers()) {
 
 				List<List<Integer>> offsets = configuration
-						.getPageOffsets(file);
+						.getPageOffsets(fileName);
 
 				if (offsets != null && offsets.size() > 0) {
 					spine.setPageOffsets(offsets);
@@ -1389,8 +1387,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 				List<List<Integer>> offsets = getOffsets();
 
                 if ( offsets != null ) {
-				    String file = StringUtil.substringAfterLast(fileName, '/');
-				    configuration.setPageOffsets(file, offsets);
+				    configuration.setPageOffsets(fileName, offsets);
                 }
 
                 LOG.debug("Calculated offsets: " + offsets );

@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.Debug;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.FontFamily;
 import org.json.JSONArray;
@@ -273,29 +274,47 @@ public class Configuration {
 
 	public int getLastPosition(String fileName) {
 
+        SharedPreferences bookPrefs = getPrefsForBook(fileName);
+
+        int pos = bookPrefs.getInt(KEY_POS, -1);
+
+        if ( pos != -1 ) {
+            return pos;
+        }
+
+        //Fall-back to older settings
 		String bookHash = Integer.toHexString(fileName.hashCode());
 
-		int pos = settings.getInt(KEY_POS + bookHash, -1);
+		pos = settings.getInt(KEY_POS + bookHash, -1);
 
 		if (pos != -1) {
 			return pos;
 		}
 
-		// Fall-back for older settings.
+		// Fall-back for even older settings.
 		return settings.getInt(KEY_POS + fileName, -1);
 	}
 
+    private SharedPreferences getPrefsForBook( String fileName ) {
+
+        String bookHash = Integer.toHexString(fileName.hashCode());
+        return context.getSharedPreferences(bookHash, 0);
+    }
+
 	public void setPageOffsets(String fileName, List<List<Integer>> offsets) {
-		String bookHash = Integer.toHexString(fileName.hashCode());
+
+        SharedPreferences bookPrefs = getPrefsForBook(fileName);
 
 		PageOffsets offsetsObject = PageOffsets.fromValues(this, offsets);
 		String json = offsetsObject.toJSON();
-		updateValue(KEY_OFFSETS + bookHash, json);
+		updateValue(bookPrefs, KEY_OFFSETS, json);
 	}
 
 	public List<List<Integer>> getPageOffsets(String fileName) {
-		String bookHash = Integer.toHexString(fileName.hashCode());
-		String data = settings.getString(KEY_OFFSETS + bookHash, "");
+
+        SharedPreferences bookPrefs = getPrefsForBook(fileName);
+
+		String data = bookPrefs.getString(KEY_OFFSETS, "");
 
 		PageOffsets offsets = PageOffsets.fromJSON(data);
 
@@ -319,20 +338,32 @@ public class Configuration {
 	}
 
 	public void setLastPosition(String fileName, int position) {
-		String bookHash = Integer.toHexString(fileName.hashCode());
-		updateValue(KEY_POS + bookHash, position);
+
+        SharedPreferences bookPrefs = getPrefsForBook(fileName);
+
+		updateValue(bookPrefs, KEY_POS, position);
 	}
 
 	public int getLastIndex(String fileName) {
+
+        SharedPreferences bookPrefs = getPrefsForBook(fileName);
+
+        int pos = bookPrefs.getInt( KEY_IDX, -1 );
+
+        if ( pos != -1 ) {
+            return pos;
+        }
+
+        //Fall-backs to older setting in central file
 		String bookHash = Integer.toHexString(fileName.hashCode());
 
-		int pos = settings.getInt(KEY_IDX + bookHash, -1);
+		pos = settings.getInt(KEY_IDX + bookHash, -1);
 
 		if (pos != -1) {
 			return pos;
 		}
 
-		// Fall-back for older settings.
+		// Fall-back for even older settings.
 		return settings.getInt(KEY_IDX + fileName, -1);
 	}
 
@@ -388,8 +419,9 @@ public class Configuration {
 	}
 
 	public void setLastIndex(String fileName, int index) {
-		String bookHash = Integer.toHexString(fileName.hashCode());
-		updateValue(KEY_IDX + bookHash, index);
+
+        SharedPreferences bookPrefs = getPrefsForBook(fileName);
+		updateValue(bookPrefs, KEY_IDX, index);
 	}
 
 	public boolean isVolumeKeyNavEnabled() {
@@ -512,24 +544,27 @@ public class Configuration {
 		return OrientationLock.valueOf(orientation.toUpperCase(Locale.US));
 	}
 
+    private void updateValue( SharedPreferences prefs, String key, Object value ) {
+        SharedPreferences.Editor editor = prefs.edit();
+
+        if (value == null) {
+            editor.remove(key);
+        } else if (value instanceof String) {
+            editor.putString(key, (String) value);
+        } else if (value instanceof Integer) {
+            editor.putInt(key, (Integer) value);
+        } else if (value instanceof Boolean) {
+            editor.putBoolean(key, (Boolean) value);
+        } else {
+            throw new IllegalArgumentException("Unsupported type: "
+                    + value.getClass().getSimpleName());
+        }
+
+        editor.commit();
+    }
+
 	private void updateValue(String key, Object value) {
-
-		SharedPreferences.Editor editor = settings.edit();
-
-		if (value == null) {
-			editor.remove(key);
-		} else if (value instanceof String) {
-			editor.putString(key, (String) value);
-		} else if (value instanceof Integer) {
-			editor.putInt(key, (Integer) value);
-		} else if (value instanceof Boolean) {
-			editor.putBoolean(key, (Boolean) value);
-		} else {
-			throw new IllegalArgumentException("Unsupported type: "
-					+ value.getClass().getSimpleName());
-		}
-
-		editor.commit();
+        updateValue(settings, key, value);
 	}
 
 	private FontFamily loadFamilyFromAssets(String key, String baseName) {

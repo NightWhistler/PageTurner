@@ -25,6 +25,8 @@ import java.util.List;
 import android.graphics.Color;
 import android.text.*;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.ClickableSpan;
+import android.view.View;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
@@ -220,7 +222,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
         List<HighlightManager.HighLight> highLights = highlightManager.getHighLights( bookView.getFileName() );
         int end = offset + text.length() -1;
 
-        for ( HighlightManager.HighLight highLight: highLights ) {
+        for ( final HighlightManager.HighLight highLight: highLights ) {
             if ( highLight.getIndex() == bookView.getIndex() &&
                     highLight.getStart() >= offset && highLight.getStart() < end ) {
 
@@ -228,9 +230,10 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 
                 int highLightEnd = Math.min(end, highLight.getEnd() );
 
-                ( (Spannable) text).setSpan(new BackgroundColorSpan(Color.YELLOW),
+                ( (Spannable) text).setSpan(new HighlightSpan(highLight),
                         highLight.getStart() - offset, highLightEnd - offset,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
             }
         }
 

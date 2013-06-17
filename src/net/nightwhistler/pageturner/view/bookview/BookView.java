@@ -236,21 +236,39 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		this.childView.setOnTouchListener(l);
 	}
 
+
+    public HighlightSpan[] getHighlightsAt( float x, float y ) {
+        return getSpansAt(x, y, HighlightSpan.class );
+    }
+
 	public ClickableSpan[] getLinkAt(float x, float y) {
-		Integer offset = findOffsetForPosition(x, y);
-
-		CharSequence text = childView.getText();
-		
-		if (offset == null || ! (text instanceof Spanned)) {
-			return null;
-		} 
-
-		Spanned spannedText = (Spanned) text;
-		ClickableSpan[] spans = spannedText.getSpans(offset, offset,
-				ClickableSpan.class);
-
-		return spans;
+        return getSpansAt(x, y, ClickableSpan.class );
 	}
+
+    private <A> A[] getSpansAt( float x, float y, Class<A> spanClass) {
+        Integer offset = findOffsetForPosition(x, y);
+
+        CharSequence text = childView.getText();
+
+        if (offset == null || ! (text instanceof Spanned)) {
+            return null;
+        }
+
+        Spanned spannedText = (Spanned) text;
+        A[] spans = spannedText.getSpans(offset, offset,
+                spanClass);
+
+        return spans;
+    }
+
+    /**
+     * Blocks the inner-view from creating action-modes for a given amount of time.
+     *
+     * @param time
+     */
+    public void blockFor( long time ) {
+        this.childView.setBlockUntil( System.currentTimeMillis() + time );
+    }
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
@@ -720,7 +738,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	}
 
     public void update() {
-        strategy.updatePosition();
+        strategy.updateGUI();
     }
 
 	/**
@@ -971,6 +989,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		}
 	}
 
+    public void highlightClicked( HighlightManager.HighLight highLight ) {
+        for ( BookViewListener listener: listeners ) {
+            listener.onHighLightClick(highLight);
+        }
+    }
+
 	public void setTextColor(int color) {
 		if (this.childView != null) {
 			this.childView.setTextColor(color);
@@ -1053,8 +1077,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			listener.renderingText();
 		}
 	}
-
-
 
 	private void progressUpdate() {
 
@@ -1154,6 +1176,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
         private Paint paint = new Paint();
 
+        private long blockUntil = 0l;
+
 		public InnerView(Context context, AttributeSet attributes) {
 			super(context, attributes);
 		}
@@ -1176,14 +1200,23 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			this.bookView = bookView;
 		}
 
+        public void setBlockUntil( long blockUntil ) {
+            this.blockUntil = blockUntil;
+        }
+
         @Override
         public ActionMode startActionMode(ActionMode.Callback callback) {
 
-            ActionMode mode = super.startActionMode(callback);
+            if ( System.currentTimeMillis() > blockUntil ) {
+                ActionMode mode = super.startActionMode(callback);
 
-            LOG.debug("InnerView starting action-mode");
+                LOG.debug("InnerView starting action-mode");
 
-            return new WrappingActionMode(mode);
+                return new WrappingActionMode(mode);
+            } else {
+                LOG.debug("Not starting action-mode yet, since block time hasn't expired.");
+                return null;
+            }
 
         }
     }

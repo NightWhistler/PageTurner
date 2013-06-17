@@ -1235,10 +1235,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
         bookView.update();
     }
 
+    @Override
+    public void onHighLightClick(HighlightManager.HighLight highLight) {
+        highLight.setColor(Color.RED);
+        bookView.update();
+    }
 
-
-
-	@Override
+    @Override
 	public boolean isDictionaryAvailable() {
 		return isIntentAvailable(getActivity(), getDictionaryIntent());
 	}

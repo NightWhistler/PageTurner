@@ -1,5 +1,7 @@
 package net.nightwhistler.pageturner.view;
 
+import android.graphics.Color;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,10 +22,13 @@ public class HighlightManager {
         private int start;
         private int end;
 
-        public HighLight( int index, int start, int end ) {
+        private int color;
+
+        public HighLight( int index, int start, int end, int color ) {
             this.start = start;
             this.end =  end;
             this.index = index;
+            this.color = color;
         }
 
         public int getIndex() {
@@ -38,7 +43,13 @@ public class HighlightManager {
             return  end;
         }
 
+        public int getColor() {
+            return color;
+        }
 
+        public void setColor( int color ) {
+            this.color = color;
+        }
     }
 
     private Map<String, List<HighLight>> highLights = new HashMap<String, List<HighLight>>();
@@ -48,7 +59,7 @@ public class HighlightManager {
             highLights.put( bookFile, new ArrayList<HighLight>() );
         }
 
-        highLights.get(bookFile).add( new HighLight(index, start, end));
+        highLights.get(bookFile).add( new HighLight(index, start, end, Color.YELLOW));
     }
 
     public List<HighLight> getHighLights(String bookFile) {

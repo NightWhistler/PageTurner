@@ -18,6 +18,8 @@
  */
 package net.nightwhistler.pageturner;
 
+import android.text.Spannable;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,5 +52,7 @@ public class TextUtil {
         return result.toString();
 
     }
+
+
 
 }

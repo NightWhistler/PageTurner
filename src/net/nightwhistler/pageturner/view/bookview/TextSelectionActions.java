@@ -52,6 +52,17 @@ public class TextSelectionActions implements ActionMode.Callback {
 	public boolean onCreateActionMode(final ActionMode mode, Menu menu) {
 
 		menu.removeItem(android.R.id.selectAll);
+        menu.removeItem(android.R.id.copy);
+
+        menu.add(R.string.highlight)
+                .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(android.view.MenuItem item) {
+                        callBack.highLight(bookView.getSelectionStart(), bookView.getSelectionEnd());
+                        mode.finish();
+                        return true;
+                    }
+                });
 
 		if (callBack.isDictionaryAvailable()) {
 			menu.add(R.string.dictionary_lookup)
@@ -95,15 +106,7 @@ public class TextSelectionActions implements ActionMode.Callback {
 			}
 		});
 
-        menu.add("Highlight")
-            .setOnMenuItemClickListener(new OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(android.view.MenuItem item) {
-                callBack.highLight(bookView.getSelectionStart(), bookView.getSelectionEnd());
-                mode.finish();
-                return true;
-            }
-        });
+
 
         return true;
     }

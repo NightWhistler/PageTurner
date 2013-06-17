@@ -167,6 +167,7 @@
     <string name="could_not_load">Could not load text: %s</string>
     <string name="out_of_memory">Sorry, PageTurner could not free enough memory to load this file.</string>
 
+    <string name="highlight">Highlight</string>
     <string name="highlight_options">Highlight options</string>
     <string name="text_note">Text note</string>
     <string name="clear_note">Clear note</string>

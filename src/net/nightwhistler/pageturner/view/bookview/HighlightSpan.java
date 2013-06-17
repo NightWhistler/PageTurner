@@ -1,5 +1,6 @@
 package net.nightwhistler.pageturner.view.bookview;
 
+import android.text.TextPaint;
 import android.text.style.BackgroundColorSpan;
 import net.nightwhistler.pageturner.view.HighlightManager;
 
@@ -23,5 +24,10 @@ public class HighlightSpan extends BackgroundColorSpan {
         return this.highLight;
     }
 
+    @Override
+    public void updateDrawState(TextPaint ds) {
+        super.updateDrawState(ds);
 
+        ds.setUnderlineText(this.highLight.getTextNote() != null && this.highLight.getTextNote().trim().length() > 0 );
+    }
 }

@@ -1265,13 +1265,26 @@ public class ReadingFragment extends RoboSherlockFragment implements
         editalert.setView(input);
         input.setText( highLight.getTextNote() );
 
-        editalert.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+        editalert.setPositiveButton(R.string.save_note, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 highLight.setTextNote( input.getText().toString() );
+                bookView.update();
                 highlightManager.saveHighLights();
             }
         });
+        editalert.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
 
+            }
+        });
+
+        editalert.setNeutralButton(R.string.clear_note, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                highLight.setTextNote( null );
+                bookView.update();
+                highlightManager.saveHighLights();
+            }
+        });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.highlight_options)

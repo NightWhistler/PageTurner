@@ -21,10 +21,7 @@ package net.nightwhistler.pageturner.view.bookview;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -158,23 +155,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		if ( this.tableHandler != null ) {
 			int tableWidth = (int) (childView.getWidth() * 0.9);
 			tableHandler.setTableWidth(tableWidth);
-		}
-	}
-	
-	/**
-	 * Enables or disables text selection.
-	 * 
-	 * Text selection is automatically disabled when
-	 * a page is turned.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public void setTextSelectionEnabled(boolean value) {
-		if (Build.VERSION.SDK_INT >= 11) {
-			childView.setTextIsSelectable(value);
-			
-			if ( ! value ) {
-				childView.setOnTouchListener(onTouchListener);
-			}
 		}
 	}
 
@@ -320,10 +300,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			}
 		}
 	}
-	
-	public CharSequence peekAhead() {
-		return this.strategy.getNextPageText();
-	}
 
 	public void releaseResources() {
 		this.strategy.clearText();
@@ -454,20 +430,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 		return layout.getOffsetForHorizontal(line, x);
 	}
-
-    private int[] findPositionForOffset(int offset) {
-        Layout layout = this.childView.getLayout();
-        int line = layout.getLineForOffset(offset);
-        int y = layout.getLineBottom(line);
-
-        int x = (int) layout.getPrimaryHorizontal(offset);
-
-        LOG.debug("Coordinates for offset " + offset + " x:" + x + " y:" + y );
-
-        int[] result = { x, y };
-
-        return  result;
-    }
 
 	/**
 	 * Returns the full word containing the character at the selected location.
@@ -1025,14 +987,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		return book;
 	}
 
-	public float getTextSize() {
-		return childView.getTextSize();
-	}
-	
-	public CharSequence getDisplayedText() {
-		return this.childView.getText();
-	}
-
 	public void setTextSize(float textSize) {
 		this.childView.setTextSize(textSize);
 		this.tableHandler.setTextSize(textSize);
@@ -1174,18 +1128,11 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 		private BookView bookView;
 
-        private Paint paint = new Paint();
-
         private long blockUntil = 0l;
 
 		public InnerView(Context context, AttributeSet attributes) {
 			super(context, attributes);
 		}
-
-        public void setTextColor(int color) {
-            super.setTextColor(color);
-            this.paint.setColor(color);
-        }
 
 		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 			super.onSizeChanged(w, h, oldw, oldh);
@@ -1202,6 +1149,11 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
         public void setBlockUntil( long blockUntil ) {
             this.blockUntil = blockUntil;
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
         }
 
         @Override

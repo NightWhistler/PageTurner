@@ -32,6 +32,7 @@ import android.view.View;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import android.graphics.Canvas;
 import android.widget.TextView;
@@ -222,10 +223,10 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	}
 
     private CharSequence applySpans(CharSequence text, int offset) {
-        List<HighlightManager.HighLight> highLights = highlightManager.getHighLights( bookView.getFileName() );
+        List<HighLight> highLights = highlightManager.getHighLights( bookView.getFileName() );
         int end = offset + text.length() -1;
 
-        for ( final HighlightManager.HighLight highLight: highLights ) {
+        for ( final HighLight highLight: highLights ) {
             if ( highLight.getIndex() == bookView.getIndex() &&
                     highLight.getStart() >= offset && highLight.getStart() < end ) {
 

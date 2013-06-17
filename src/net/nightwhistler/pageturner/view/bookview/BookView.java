@@ -49,6 +49,7 @@ import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
@@ -951,7 +952,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		}
 	}
 
-    public void highlightClicked( HighlightManager.HighLight highLight ) {
+    public void highlightClicked( HighLight highLight ) {
         for ( BookViewListener listener: listeners ) {
             listener.onHighLightClick(highLight);
         }

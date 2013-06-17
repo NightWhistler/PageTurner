@@ -6,6 +6,7 @@ import android.text.TextPaint;
 import android.widget.TextView;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.view.HighlightManager;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,7 +43,7 @@ public class FixedPagesStrategyTest {
 		this.mockTextView = mock(TextView.class);
 
         HighlightManager mockManager = mock(HighlightManager.class);
-        when(mockManager.getHighLights(anyString())).thenReturn( new ArrayList<HighlightManager.HighLight>() );
+        when(mockManager.getHighLights(anyString())).thenReturn( new ArrayList<HighLight>() );
 
 		when(mockBookView.getInnerView()).thenReturn(mockTextView);
 

@@ -28,9 +28,10 @@ import android.os.Build;
 import android.os.Debug;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.FontFamily;
+import net.nightwhistler.pageturner.dto.HighLight;
+import net.nightwhistler.pageturner.dto.PageOffsets;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -162,6 +163,8 @@ public class Configuration {
     public static final String KEY_LONG_SHORT = "long_short";
 
 	public static final String KEY_NOOK_TOP_BUTTONS_DIRECTION = "nook_touch_top_buttons_direction";
+
+    public static final String KEY_HIGHLIGHTS = "highlights";
 
 	// Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink
 	// based Android device
@@ -324,6 +327,21 @@ public class Configuration {
 
 		return offsets.getOffsets();
 	}
+
+    public List<HighLight> getHightLights( String fileName ) {
+        SharedPreferences prefs = getPrefsForBook(fileName);
+
+        if ( prefs.contains(KEY_HIGHLIGHTS) ) {
+            return HighLight.fromJSON(fileName,  prefs.getString(KEY_HIGHLIGHTS, "[]"));
+        }
+
+        return new ArrayList<HighLight>();
+    }
+
+    public void storeHighlights( String fileName, List<HighLight> highLights ) {
+        SharedPreferences pref = getPrefsForBook(fileName);
+        updateValue(pref, KEY_HIGHLIGHTS, HighLight.toJSON(highLights));
+    }
 
     public LongShortPressBehaviour getLongShortPressBehaviour() {
         String value = settings.getString(KEY_LONG_SHORT,

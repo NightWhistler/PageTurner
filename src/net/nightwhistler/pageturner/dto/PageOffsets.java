@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
-package net.nightwhistler.pageturner;
+package net.nightwhistler.pageturner.dto;
 
+import net.nightwhistler.pageturner.Configuration;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

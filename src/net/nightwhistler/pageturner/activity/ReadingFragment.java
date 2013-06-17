@@ -63,6 +63,7 @@ import net.nightwhistler.pageturner.Configuration.ScrollStyle;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.TextUtil;
 import net.nightwhistler.pageturner.animation.*;
+import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
@@ -1237,7 +1238,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     }
 
     @Override
-    public void onHighLightClick(final HighlightManager.HighLight highLight) {
+    public void onHighLightClick(final HighLight highLight) {
 
         final AmbilWarnaDialog ambilWarnaDialog = new AmbilWarnaDialog(
                 getActivity(), highLight.getColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
@@ -1267,7 +1268,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         editalert.setPositiveButton(R.string.save_note, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                highLight.setTextNote( input.getText().toString() );
+                highLight.setTextNote(input.getText().toString());
                 bookView.update();
                 highlightManager.saveHighLights();
             }
@@ -1280,7 +1281,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         editalert.setNeutralButton(R.string.clear_note, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                highLight.setTextNote( null );
+                highLight.setTextNote(null);
                 bookView.update();
                 highlightManager.saveHighLights();
             }

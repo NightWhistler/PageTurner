@@ -2,6 +2,7 @@ package net.nightwhistler.pageturner.view.bookview;
 
 import android.text.TextPaint;
 import android.text.style.BackgroundColorSpan;
+import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.view.HighlightManager;
 
 /**
@@ -13,14 +14,14 @@ import net.nightwhistler.pageturner.view.HighlightManager;
  */
 public class HighlightSpan extends BackgroundColorSpan {
 
-    private HighlightManager.HighLight highLight;
+    private HighLight highLight;
 
-    public HighlightSpan( HighlightManager.HighLight highLight ) {
+    public HighlightSpan( HighLight highLight ) {
         super( highLight.getColor() );
         this.highLight = highLight;
     }
 
-    public HighlightManager.HighLight getHighLight() {
+    public HighLight getHighLight() {
         return this.highLight;
     }
 

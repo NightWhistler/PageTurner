@@ -34,6 +34,7 @@ import android.view.View;
 import android.widget.TextView;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.view.HighlightManager;
 
@@ -156,9 +157,9 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	}
 
     private void addHighlights( Spannable builder ) {
-        List<HighlightManager.HighLight> highLights = highlightManager.getHighLights( bookView.getFileName() );
+        List<HighLight> highLights = highlightManager.getHighLights( bookView.getFileName() );
 
-        for ( final HighlightManager.HighLight highLight: highLights ) {
+        for ( final HighLight highLight: highLights ) {
             if ( highLight.getIndex() == bookView.getIndex() ) {
 
 //                LOG.debug("Got highlight from " + highLight.getStart() + " to " + highLight.getEnd() + " with offset " + offset );
@@ -166,6 +167,8 @@ public class ScrollingStrategy implements PageChangeStrategy {
                 builder.setSpan(new HighlightSpan(highLight),
                         highLight.getStart(), highLight.getEnd(),
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
             }
         }
     }

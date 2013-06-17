@@ -19,6 +19,7 @@
 
 package net.nightwhistler.pageturner.view.bookview;
 
+import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.view.HighlightManager;
 import nl.siegmann.epublib.domain.Book;
 
@@ -85,7 +86,7 @@ public interface BookViewListener {
      *
      * @param highLight
      */
-    void onHighLightClick( HighlightManager.HighLight highLight );
+    void onHighLightClick( HighLight highLight );
 	
 	/**
 	 * Generated when the user swipes upward.

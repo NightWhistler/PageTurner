@@ -1250,6 +1250,25 @@ public class ReadingFragment extends RoboSherlockFragment implements
             public void onOk(AmbilWarnaDialog dialog, int color) {
                 highLight.setColor( color );
                 bookView.update();
+                highlightManager.saveHighLights();
+            }
+        });
+
+        final AlertDialog.Builder editalert = new AlertDialog.Builder(getActivity());
+
+        editalert.setTitle(R.string.text_note);
+        final EditText input = new EditText(getActivity());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        input.setLayoutParams(lp);
+        editalert.setView(input);
+        input.setText( highLight.getTextNote() );
+
+        editalert.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                highLight.setTextNote( input.getText().toString() );
+                highlightManager.saveHighLights();
             }
         });
 
@@ -1266,6 +1285,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
                         return;
                     case 1:
                         ambilWarnaDialog.getDialog().show();
+                        return;
+                    case 2:
+                        editalert.show();
                         return;
                 }
 

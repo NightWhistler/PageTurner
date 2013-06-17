@@ -19,6 +19,7 @@ public class HighlightManager {
     public static class HighLight {
 
         private String fileName;
+        private String textNote;
 
         private int index;
         private int start;
@@ -53,6 +54,14 @@ public class HighlightManager {
         public void setColor( int color ) {
             this.color = color;
         }
+
+        public void setTextNote(String note) {
+            this.textNote = note;
+        }
+
+        public String getTextNote() {
+            return textNote;
+        }
     }
 
     private Map<String, List<HighLight>> highLights = new HashMap<String, List<HighLight>>();
@@ -79,6 +88,9 @@ public class HighlightManager {
         return highLights.get( bookFile );
     }
 
+    public void saveHighLights() {
+
+    }
 
 
 }

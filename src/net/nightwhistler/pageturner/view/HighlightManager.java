@@ -18,13 +18,16 @@ public class HighlightManager {
 
     public static class HighLight {
 
+        private String fileName;
+
         private int index;
         private int start;
         private int end;
 
         private int color;
 
-        public HighLight( int index, int start, int end, int color ) {
+        private HighLight( String fileName, int index, int start, int end, int color ) {
+            this.fileName = fileName;
             this.start = start;
             this.end =  end;
             this.index = index;
@@ -59,7 +62,13 @@ public class HighlightManager {
             highLights.put( bookFile, new ArrayList<HighLight>() );
         }
 
-        highLights.get(bookFile).add( new HighLight(index, start, end, Color.YELLOW));
+        highLights.get(bookFile).add( new HighLight(bookFile, index, start, end, Color.YELLOW));
+    }
+
+    public void removeHighLight( HighLight highLight ) {
+        if ( highLights.containsKey(highLight.fileName) ) {
+            highLights.get( highLight.fileName ).remove( highLight );
+        }
     }
 
     public List<HighLight> getHighLights(String bookFile) {

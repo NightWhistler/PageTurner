@@ -167,6 +167,13 @@
     <string name="could_not_load">Could not load text: %s</string>
     <string name="out_of_memory">Sorry, PageTurner could not free enough memory to load this file.</string>
 
+    <string name="highlight_options">Highlight options</string>
+
+    <string-array name="highlightOptionsLabels">
+        <item>Remove highlight</item>
+        <item>Change highlight colour</item>
+    </string-array>
+
     <!-- Preferences -->
 
     <string name="pref_sync_settings">Sync settings</string>

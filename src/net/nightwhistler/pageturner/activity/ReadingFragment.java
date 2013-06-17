@@ -81,6 +81,7 @@ import nl.siegmann.epublib.domain.Book;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import roboguice.inject.InjectView;
+import yuku.ambilwarna.AmbilWarnaDialog;
 
 import java.io.File;
 import java.io.IOException;
@@ -1236,9 +1237,43 @@ public class ReadingFragment extends RoboSherlockFragment implements
     }
 
     @Override
-    public void onHighLightClick(HighlightManager.HighLight highLight) {
-        highLight.setColor(Color.RED);
-        bookView.update();
+    public void onHighLightClick(final HighlightManager.HighLight highLight) {
+
+        final AmbilWarnaDialog ambilWarnaDialog = new AmbilWarnaDialog(
+                getActivity(), highLight.getColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+                //do nothing.
+            }
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                highLight.setColor( color );
+                bookView.update();
+            }
+        });
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.highlight_options)
+        .setItems(R.array.highlightOptionsLabels, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+
+                switch ( which) {
+                    case 0:
+                        highlightManager.removeHighLight(highLight);
+                        bookView.update();
+                        return;
+                    case 1:
+                        ambilWarnaDialog.getDialog().show();
+                        return;
+                }
+
+            }
+        });
+
+        builder.show();
+
     }
 
     @Override

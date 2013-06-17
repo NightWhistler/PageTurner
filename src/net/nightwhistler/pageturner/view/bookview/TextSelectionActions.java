@@ -54,6 +54,16 @@ public class TextSelectionActions implements ActionMode.Callback {
 		menu.removeItem(android.R.id.selectAll);
         menu.removeItem(android.R.id.copy);
 
+        menu.add( R.string.abs__share_action_provider_share_with )
+                .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(android.view.MenuItem item) {
+                        callBack.share(bookView.getSelectionStart(), bookView.getSelectionEnd(), bookView.getSelectedText());
+                        mode.finish();
+                        return true;
+                    }
+                }).setIcon( R.drawable.abs__ic_menu_share_holo_dark );
+
         menu.add(R.string.highlight)
                 .setOnMenuItemClickListener(new OnMenuItemClickListener() {
                     @Override

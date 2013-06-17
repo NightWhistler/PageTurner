@@ -2121,6 +2121,40 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	}
 
+    public void share(int from, int to, String selectedText) {
+
+        int pageStart = bookView.getStartOfCurrentPage();
+
+        String text = bookTitle + ", " + authorField.getText() + "\n";
+
+        int offset = pageStart + from;
+
+        int pageNumber = bookView.getPageNumberFor( bookView.getIndex(), offset );
+        int totalPages = bookView.getTotalNumberOfPages();
+
+        int percentage = bookView.getPercentageFor( bookView.getIndex(), offset );
+
+        if ( pageNumber != -1 ) {
+            text = text + String.format( getString(R.string.page_number_of),
+                    pageNumber, totalPages ) + " (" + progressPercentage + "%)\n\n";
+
+        } else {
+            text += "" + progressPercentage + "%\n\n";
+        }
+
+        text += selectedText;
+
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+
+
+        sendIntent.putExtra(Intent.EXTRA_TEXT, text );
+        sendIntent.setType("text/plain");
+
+        startActivity(Intent.createChooser(sendIntent, getText(R.string.abs__share_action_provider_share_with)));
+
+    }
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.reading_menu, menu);

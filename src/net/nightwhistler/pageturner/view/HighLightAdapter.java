@@ -30,6 +30,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 
@@ -41,22 +42,23 @@ import java.util.List;
  * @author Alex Kuiper
  *
  */
-public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResult> implements 
+public class HighLightAdapter extends ArrayAdapter<HighLight> implements
 	DialogInterface.OnClickListener {
 
-	private List<SearchTextTask.SearchResult> results;
+	private List<HighLight> highLights;
 	private BookView bookView;
-	
-	public SearchResultAdapter(Context context, BookView bookView, 
-			List<SearchTextTask.SearchResult> books) {
-		super(context, R.id.deviceName, books);
-		this.results = books;
+
+	public HighLightAdapter(Context context, BookView bookView,
+                            List<HighLight> highLights) {
+		super(context, R.id.deviceName, highLights);
+		this.highLights = highLights;
 		this.bookView = bookView;	
 	}
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-		bookView.navigateBySearchResult(this.results, which);    		
+		HighLight highLight = this.highLights.get(which);
+        bookView.navigateTo( highLight.getIndex(), highLight.getStart() );
 	}
 
 	@Override
@@ -80,12 +82,12 @@ public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResul
 			percentageView.setTextColor( Color.BLACK );			
 		}
 			
-		SearchTextTask.SearchResult progress = results.get(position);
+		HighLight highLight = highLights.get(position);
 
-		deviceView.setText( progress.getDisplay() );
+		deviceView.setText( highLight.getDisplayText() );
 
-        int progressPercentage = bookView.getPercentageFor(progress.getIndex(), progress.getStart() );
-        int pageNumber = bookView.getPageNumberFor(progress.getIndex(), progress.getStart() );
+        int progressPercentage = bookView.getPercentageFor(highLight.getIndex(), highLight.getStart() );
+        int pageNumber = bookView.getPageNumberFor(highLight.getIndex(), highLight.getStart() );
         int totalPages = bookView.getTotalNumberOfPages();
 
         String text = progressPercentage + "%";
@@ -93,6 +95,10 @@ public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResul
         if ( pageNumber != -1 ) {
             text = String.format( getContext().getString(R.string.page_number_of),
                     pageNumber, totalPages ) + " (" + progressPercentage + "%)";
+        }
+
+        if ( highLight.getTextNote() != null && highLight.getTextNote().trim().length() > 0 ) {
+            text += ": " + highLight.getTextNote();
         }
 
         percentageView.setText( text );

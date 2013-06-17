@@ -1227,11 +1227,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
 	@Override
-	public void highLight(int from, int to) {
+	public void highLight(int from, int to, String selectedText) {
 
         int pageStart = bookView.getStartOfCurrentPage();
 
-        this.highlightManager.registerHighlight(fileName, bookView.getIndex(),
+        String text = selectedText;
+
+        if ( text.length() > 40 ) {
+            text = text.substring(0, 40) + "…";
+        }
+
+        this.highlightManager.registerHighlight(fileName, text, bookView.getIndex(),
                 pageStart + from, pageStart + to);
 
         bookView.update();
@@ -2024,6 +2030,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		tts.setEnabled(ttsAvailable);
 
         MenuItem searchResultsItem = menu.findItem(R.id.show_search_results);
+        MenuItem highLightsItem = menu.findItem(R.id.show_highlights);
 		
 		getSherlockActivity().getSupportActionBar().show();
 
@@ -2045,6 +2052,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 
         searchResultsItem.setVisible( searchResults != null && searchResults.size() > 0 );
+        highLightsItem.setVisible( highlightManager.getHighLights( bookView.getFileName() ).size() > 0 );
 
 		getActivity().getWindow().addFlags(
 				WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -2171,6 +2179,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
         case R.id.show_search_results:
             showSearchResultDialog(searchResults);
             return true;
+
+        case R.id.show_highlights:
+            showHighLightDialog();
+            return true;
+
 		case R.id.profile_night:
 			config.setColourProfile(ColourProfile.NIGHT);
 			this.restartActivity();
@@ -2228,12 +2241,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			dialogFactory.buildAboutDialog().show();
 			return true;	
 
-        /*
-		case R.id.enable_text_selection:
-			this.bookView.setTextSelectionEnabled(true);
-			Toast.makeText(getActivity(), R.string.select_text_msg, Toast.LENGTH_SHORT).show();
-			return true;
-			*/
+
 
 		default:
 			return super.onOptionsItemSelected(item);
@@ -2563,7 +2571,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     searchProgress.setMessage(update);
                 }
 
-                searchProgress.setProgress(res.getPercentage());
+                searchProgress.setProgress( bookView.getPercentageFor(res.getIndex(), res.getStart() ));
             }
 
             @Override
@@ -2661,6 +2669,21 @@ public class ReadingFragment extends RoboSherlockFragment implements
         });
 		dialog.show();
 	}
+
+    private void showHighLightDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.highlights);
+
+        HighLightAdapter adapter = new HighLightAdapter(getActivity(), bookView,
+                highlightManager.getHighLights( bookView.getFileName() ));
+
+        builder.setAdapter(adapter, adapter);
+
+        AlertDialog dialog = builder.create();
+        dialog.setOwnerActivity(getActivity());
+
+        dialog.show();
+    }
 
 	private class ManualProgressSync extends
 			AsyncTask<Void, Integer, List<BookProgress>> {

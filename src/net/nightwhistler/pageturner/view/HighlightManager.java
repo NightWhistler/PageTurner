@@ -23,18 +23,22 @@ public class HighlightManager {
     private Configuration config;
 
     private void updateBookFile( String fileName ) {
-        if ( ! fileName.equals(currentFileName) ) {
+
+        if ( fileName == null ) {
+            this.currentHighlights = new ArrayList<HighLight>();
+        } else if ( ! fileName.equals(currentFileName) ) {
             saveHighLights();
             this.currentFileName = fileName;
             this.currentHighlights = config.getHightLights(fileName);
         }
+
     }
 
-    public synchronized  void registerHighlight( String bookFile, int index, int start, int end ) {
+    public synchronized  void registerHighlight( String bookFile, String displayText, int index, int start, int end ) {
 
         updateBookFile(bookFile);
 
-        currentHighlights.add(new HighLight(bookFile, index, start, end, Color.YELLOW));
+        currentHighlights.add(new HighLight(displayText, index, start, end, Color.YELLOW));
         saveHighLights();
     }
 

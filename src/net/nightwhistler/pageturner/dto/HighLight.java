@@ -16,10 +16,11 @@ import java.util.List;
  */
 public class HighLight {
 
-    private static enum Fields { textNote, index, start, end, color };
+    private static enum Fields { displayText, textNote, index, start, end, color };
 
-    private String fileName;
     private String textNote;
+
+    private String displayText;
 
     private int index;
     private int start;
@@ -27,12 +28,12 @@ public class HighLight {
 
     private int color;
 
-    public HighLight( String fileName, int index, int start, int end, int color ) {
-        this.fileName = fileName;
+    public HighLight( String displayText, int index, int start, int end, int color ) {
         this.start = start;
         this.end =  end;
         this.index = index;
         this.color = color;
+        this.displayText = displayText;
     }
 
     public int getIndex() {
@@ -63,8 +64,8 @@ public class HighLight {
         return textNote;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getDisplayText() {
+        return this.displayText;
     }
 
     public static String toJSON( List<HighLight> highLights ) {
@@ -78,6 +79,7 @@ public class HighLight {
                 jsonObject.put( Fields.start.name(), highLight.getStart() );
                 jsonObject.put( Fields.end.name(), highLight.getEnd() );
                 jsonObject.put( Fields.color.name(), highLight.getColor() );
+                jsonObject.put( Fields.displayText.name(), highLight.getDisplayText() );
 
                 if ( highLight.getTextNote() != null ) {
                     jsonObject.put( Fields.textNote.name(), highLight.getTextNote() );
@@ -103,7 +105,8 @@ public class HighLight {
 
                 JSONObject json = jsonArray.getJSONObject(i);
 
-                HighLight highLight = new HighLight(fileName,
+                HighLight highLight = new HighLight(
+                        json.getString(Fields.displayText.name()),
                         json.getInt(Fields.index.name()),
                         json.getInt(Fields.start.name()),
                         json.getInt(Fields.end.name()),

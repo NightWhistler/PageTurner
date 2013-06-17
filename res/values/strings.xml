@@ -168,10 +168,14 @@
     <string name="out_of_memory">Sorry, PageTurner could not free enough memory to load this file.</string>
 
     <string name="highlight">Highlight</string>
+    <string name="highlights">Highlights</string>
+
     <string name="highlight_options">Highlight options</string>
     <string name="text_note">Text note</string>
     <string name="clear_note">Clear note</string>
     <string name="save_note">Save note</string>
+
+    <string name="page_number_of">Page %1$d of %2$d</string>
 
     <string-array name="highlightOptionsLabels">
         <item>Remove highlight</item>

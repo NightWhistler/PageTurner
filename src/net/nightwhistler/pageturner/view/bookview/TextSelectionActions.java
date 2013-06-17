@@ -58,7 +58,7 @@ public class TextSelectionActions implements ActionMode.Callback {
                 .setOnMenuItemClickListener(new OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(android.view.MenuItem item) {
-                        callBack.highLight(bookView.getSelectionStart(), bookView.getSelectionEnd());
+                        callBack.highLight(bookView.getSelectionStart(), bookView.getSelectionEnd(), bookView.getSelectedText());
                         mode.finish();
                         return true;
                     }

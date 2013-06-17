@@ -1033,6 +1033,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		}
 	}
 
+    public int getPercentageFor( int index, int offset ) {
+        return spine.getProgressPercentage(index, offset);
+    }
+
+
+
 	private void progressUpdate() {
 
 		if (this.spine != null && this.strategy.getText() != null
@@ -1059,7 +1065,13 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			}
 		}
 	}
-	
+
+
+    public int getTotalNumberOfPages() {
+        return spine.getTotalNumberOfPages();
+    }
+
+
 	public int getPageNumberFor( int index, int position ) {
 		
 		int pageNum = 0;

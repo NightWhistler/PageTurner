@@ -1071,7 +1071,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         return spine.getTotalNumberOfPages();
     }
 
-
 	public int getPageNumberFor( int index, int position ) {
 		
 		int pageNum = 0;
@@ -1152,7 +1151,18 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			bookView.onInnerViewResize();
 		}
 
-		public boolean dispatchKeyEvent(KeyEvent event) {
+        @Override
+        public void onWindowFocusChanged(boolean hasWindowFocus) {
+            /*
+            We override this method to do nothing, since the base
+            implementation closes the ActionMode.
+
+            This means that when the user clicks the overflow menu,
+            the ActionMode is stopped and text selection is ended.
+             */
+        }
+
+        public boolean dispatchKeyEvent(KeyEvent event) {
 			return bookView.dispatchKeyEvent(event);
 		}
 
@@ -1173,11 +1183,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         public ActionMode startActionMode(ActionMode.Callback callback) {
 
             if ( System.currentTimeMillis() > blockUntil ) {
-                ActionMode mode = super.startActionMode(callback);
 
                 LOG.debug("InnerView starting action-mode");
+                return super.startActionMode(callback);
 
-                return new WrappingActionMode(mode);
             } else {
                 LOG.debug("Not starting action-mode yet, since block time hasn't expired.");
                 return null;

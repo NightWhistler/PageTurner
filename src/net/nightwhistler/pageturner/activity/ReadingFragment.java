@@ -1226,7 +1226,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 	}
 
-	@Override
+    @Override
 	public void highLight(int from, int to, String selectedText) {
 
         int pageStart = bookView.getStartOfCurrentPage();
@@ -1643,11 +1643,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		case KeyEvent.KEYCODE_BACK:
 			if (action == KeyEvent.ACTION_DOWN) {
 
-				if (titleBarLayout.getVisibility() == View.VISIBLE) {
+                if (titleBarLayout.getVisibility() == View.VISIBLE) {
 					hideTitleBar();
+                    updateFromPrefs();
 				} else if (bookView.hasPrevPosition()) {
 					bookView.goBackInHistory();
-
 					return true;
 				} else {
 					getActivity().finish();

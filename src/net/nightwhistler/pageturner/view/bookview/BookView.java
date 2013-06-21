@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner.view.bookview;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.ClipboardManager;
 import android.graphics.*;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -100,11 +101,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	private int verticalMargin = 0;
 	private int lineSpacing = 0;
 
-	private Configuration configuration;
-	
 	private Handler scrollHandler;
 
 	private static final Logger LOG = LoggerFactory.getLogger("BookView");
+
+    @Inject
+    private Configuration configuration;
 
     @Inject
     private TextLoader textLoader;
@@ -114,6 +116,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
     @Inject
     private Provider<ScrollingStrategy> scrollingStrategyProvider;
+
+    @Inject
+    private ClipboardManager clipboardManager;
 
 	private OnTouchListener onTouchListener;
 
@@ -162,10 +167,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
     public String getFileName() {
         return fileName;
     }
-
-	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;
-	}
 
     @Override
     public void linkClicked(String href) {
@@ -282,7 +283,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		if (Build.VERSION.SDK_INT >= 11) {
 			this.childView
 					.setCustomSelectionActionModeCallback(new TextSelectionActions(
-							callback, this));
+							callback, this, clipboardManager));
 		}
 	}	
 

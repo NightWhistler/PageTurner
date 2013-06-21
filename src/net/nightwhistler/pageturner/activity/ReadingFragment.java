@@ -323,12 +323,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				onTextToSpeechInit(status);				
 			}
 		});
-				
-		this.bookView.setConfiguration(config);
+
 
 		this.bookView.addListener(this);
-
-		
 		this.bookView.setTextSelectionCallback(this);
 	}
 	

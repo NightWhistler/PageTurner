@@ -19,6 +19,8 @@
 
 package net.nightwhistler.pageturner.view.bookview;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.graphics.Color;
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -31,30 +33,42 @@ import net.nightwhistler.pageturner.R;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class TextSelectionActions implements ActionMode.Callback {
 
-	private TextSelectionCallback callBack;
-	private BookView bookView;
+    private TextSelectionCallback callBack;
+    private BookView bookView;
 
-	public TextSelectionActions(TextSelectionCallback callBack,
-			BookView bookView) {
-		this.callBack = callBack;
-		this.bookView = bookView;
-	}
+    private ClipboardManager clipboardManager;
 
-	@Override
-	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+    public TextSelectionActions(TextSelectionCallback callBack,
+                                BookView bookView, ClipboardManager clipboardManager) {
+        this.callBack = callBack;
+        this.bookView = bookView;
+        this.clipboardManager = clipboardManager;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 
         mode.finish();
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public boolean onCreateActionMode(final ActionMode mode, Menu menu) {
+    @Override
+    public boolean onCreateActionMode(final ActionMode mode, Menu menu) {
 
-		menu.removeItem(android.R.id.selectAll);
-        menu.removeItem(android.R.id.copy);
+        menu.removeItem(android.R.id.selectAll);
 
-        menu.add( R.string.abs__share_action_provider_share_with )
+        menu.findItem(android.R.id.copy).setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                clipboardManager.setPrimaryClip(ClipData.newPlainText(
+                        "PageTurner copied text", bookView.getSelectedText() ));
+                mode.finish();
+                return true;
+            }
+        });
+
+        menu.add(R.string.abs__share_action_provider_share_with)
                 .setOnMenuItemClickListener(new OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(android.view.MenuItem item) {
@@ -62,7 +76,7 @@ public class TextSelectionActions implements ActionMode.Callback {
                         mode.finish();
                         return true;
                     }
-                }).setIcon( R.drawable.abs__ic_menu_share_holo_dark );
+                }).setIcon(R.drawable.abs__ic_menu_share_holo_dark);
 
         menu.add(R.string.highlight)
                 .setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -74,17 +88,17 @@ public class TextSelectionActions implements ActionMode.Callback {
                     }
                 });
 
-		if (callBack.isDictionaryAvailable()) {
-			menu.add(R.string.dictionary_lookup)
-				.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-				@Override
-				public boolean onMenuItemClick(android.view.MenuItem item) {
-					callBack.lookupDictionary(bookView.getSelectedText());
-                    mode.finish();
-					return true;
-				}
-			});
-		}
+        if (callBack.isDictionaryAvailable()) {
+            menu.add(R.string.dictionary_lookup)
+                    .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(android.view.MenuItem item) {
+                            callBack.lookupDictionary(bookView.getSelectedText());
+                            mode.finish();
+                            return true;
+                        }
+                    });
+        }
 
         menu.add(R.string.lookup_wiktionary)
                 .setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -96,40 +110,40 @@ public class TextSelectionActions implements ActionMode.Callback {
                     }
                 });
 
-		menu.add(R.string.wikipedia_lookup)
-			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(android.view.MenuItem item) {
-				callBack.lookupWikipedia(bookView.getSelectedText());
-                mode.finish();
-				return true;
-			}
-		});
+        menu.add(R.string.wikipedia_lookup)
+                .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(android.view.MenuItem item) {
+                        callBack.lookupWikipedia(bookView.getSelectedText());
+                        mode.finish();
+                        return true;
+                    }
+                });
 
-		menu.add(R.string.google_lookup)
-			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(android.view.MenuItem item) {
-				callBack.lookupGoogle(bookView.getSelectedText());
-                mode.finish();
-				return true;
-			}
-		});
+        menu.add(R.string.google_lookup)
+                .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(android.view.MenuItem item) {
+                        callBack.lookupGoogle(bookView.getSelectedText());
+                        mode.finish();
+                        return true;
+                    }
+                });
 
 
 
         return true;
     }
 
-	@Override
-	public void onDestroyActionMode(ActionMode mode) {
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
 
-	}
+    }
 
-	@Override
-	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
 
-		return true;
-	}
+        return true;
+    }
 
 }

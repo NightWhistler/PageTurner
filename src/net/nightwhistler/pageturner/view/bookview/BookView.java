@@ -45,6 +45,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
@@ -56,7 +57,6 @@ import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
-import net.nightwhistler.pageturner.view.HighlightManager;
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Resource;
@@ -90,7 +90,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	private String fileName;
 	private Book book;
 
-
 	private int prevIndex = -1;
 	private int prevPos = -1;
 
@@ -110,6 +109,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
     @Inject
     private TextLoader textLoader;
+
+    @Inject
+    private EpubFontResolver fontResolver;
 
     @Inject
     private Provider<FixedPagesStrategy> fixedPagesStrategyProvider;
@@ -316,7 +318,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		if (verticalMargin != this.verticalMargin) {
 			this.verticalMargin = verticalMargin;
 			setPadding(this.horizontalMargin, this.verticalMargin,
-					this.horizontalMargin, this.verticalMargin);
+                    this.horizontalMargin, this.verticalMargin);
 			if (strategy != null) {
 				strategy.updatePosition();
 			}
@@ -890,7 +892,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		@TargetApi(Build.VERSION_CODES.FROYO)
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-				int start, int end) {
+				int start, int end, SpanStack span) {
 			String src = node.getAttributeByName("src");
 
 			if (src == null) {
@@ -1201,6 +1203,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		START, OPEN_FILE, PARSE_TEXT, DONE
 	};
 
+    private static class SearchResultSpan extends BackgroundColorSpan {
+        public SearchResultSpan() {
+            super( Color.YELLOW );
+        }
+    }
+
 	private class LoadTextTask extends
 			AsyncTask<String, BookReadPhase, Spanned> {
 
@@ -1285,15 +1293,17 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                 loader.load(); // Load all image resources.
 
                 //Clear any old highlighting spans
-                BackgroundColorSpan[] spans = result.getSpans(0, result.length(), BackgroundColorSpan.class);
+
+                SearchResultSpan[] spans = result.getSpans(0, result.length(), SearchResultSpan.class);
                 for ( BackgroundColorSpan span: spans ) {
                     result.removeSpan(span);
                 }
 
+
                 // Highlight search results (if any)
                 for (SearchTextTask.SearchResult searchResult : this.searchResults) {
                     if (searchResult.getIndex() == spine.getPosition()) {
-                        result.setSpan(new BackgroundColorSpan(Color.YELLOW),
+                        result.setSpan(new SearchResultSpan(),
                                 searchResult.getStart(), searchResult.getEnd(),
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
@@ -1434,10 +1444,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
             //Private spanner
             final HtmlSpanner mySpanner = new HtmlSpanner();
+            mySpanner.setFontResolver( fontResolver );
 
             mySpanner.registerHandler("table", tableHandler );
             mySpanner.registerHandler("img", tagHandler);
             mySpanner.registerHandler("image", tagHandler);
+            mySpanner.registerHandler("link", new CSSLinkHandler(textLoader));
 
             final Map<String, List<Integer>> offsetsPerSection = new HashMap<String, List<Integer>>();
 

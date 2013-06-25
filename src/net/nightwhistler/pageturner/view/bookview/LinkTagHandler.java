@@ -23,6 +23,7 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.view.View;
+import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import org.htmlcleaner.TagNode;
 
@@ -57,7 +58,7 @@ public class LinkTagHandler extends TagNodeHandler {
 
     @Override
     public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-                              int start, int end) {
+                              int start, int end, SpanStack spanStack) {
 
         String href = node.getAttributeByName("href");
 
@@ -85,8 +86,7 @@ public class LinkTagHandler extends TagNodeHandler {
             }
         };
 
-        builder.setSpan(span, start, end,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spanStack.pushSpan(span, start, end);
     }
 
     public static interface LinkCallBack {

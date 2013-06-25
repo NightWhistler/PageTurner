@@ -23,6 +23,7 @@ import android.os.AsyncTask;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
@@ -137,7 +138,7 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 	private static class DummyHandler extends TagNodeHandler {
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-				int start, int end) {
+				int start, int end, SpanStack stack) {
 
 			 builder.append("\uFFFC");
 		}

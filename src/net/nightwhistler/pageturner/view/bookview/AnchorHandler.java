@@ -26,8 +26,8 @@ public class AnchorHandler extends TagNodeHandler {
     }
 
     @Override
-    public void beforeChildren(TagNode node, SpannableStringBuilder builder) {
-        this.wrappedHandler.beforeChildren(node, builder);
+    public void beforeChildren(TagNode node, SpannableStringBuilder builder, SpanStack spanStack) {
+        this.wrappedHandler.beforeChildren(node, builder, spanStack);
     }
 
     @Override

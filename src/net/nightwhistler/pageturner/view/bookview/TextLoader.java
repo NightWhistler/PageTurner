@@ -116,10 +116,20 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         }
 
         List<CompiledRule> result = new ArrayList<CompiledRule>();
-        Resource res = currentBook.getResources().getByHref( href.substring( href.lastIndexOf('/') + 1) );
+
+        String strippedHref = href.substring( href.lastIndexOf('/') + 1);
+
+        Resource res = null;
+
+        for ( Resource resource: this.currentBook.getResources().getAll() ) {
+            if ( resource.getHref().endsWith(strippedHref) ) {
+                res = resource;
+                break;
+            }
+        }
 
         if ( res == null ) {
-            LOG.error("Could not find CSS resource " + href );
+            LOG.error("Could not find CSS resource " + strippedHref );
             return new ArrayList<CompiledRule>();
         }
 

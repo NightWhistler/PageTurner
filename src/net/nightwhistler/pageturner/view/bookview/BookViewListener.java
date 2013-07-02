@@ -19,6 +19,8 @@
 
 package net.nightwhistler.pageturner.view.bookview;
 
+import net.nightwhistler.pageturner.dto.HighLight;
+import net.nightwhistler.pageturner.view.HighlightManager;
 import nl.siegmann.epublib.domain.Book;
 
 /**
@@ -78,6 +80,13 @@ public interface BookViewListener {
 	 * @param word the selected word.
 	 */
 	void onWordLongPressed( CharSequence word );
+
+    /**
+     * Called when the user clicks a highlight
+     *
+     * @param highLight
+     */
+    void onHighLightClick( HighLight highLight );
 	
 	/**
 	 * Generated when the user swipes upward.
@@ -127,7 +136,7 @@ public interface BookViewListener {
 	 * @return true if the event was handled.
 	 */
 	boolean onTapTopEdge();
-	
+
 	/**
 	 * Generated when the user taps the bottom edge of the screen.
 	 * 

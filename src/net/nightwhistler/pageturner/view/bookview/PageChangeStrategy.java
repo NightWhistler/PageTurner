@@ -133,5 +133,7 @@ public interface PageChangeStrategy {
 	 * @return
 	 */
 	public CharSequence getPreviousPageText();
+
+    public void setBookView(BookView bookView);
 	
 }

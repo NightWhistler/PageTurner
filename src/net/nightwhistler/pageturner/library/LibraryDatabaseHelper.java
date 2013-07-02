@@ -18,18 +18,17 @@
  */
 package net.nightwhistler.pageturner.library;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import roboguice.inject.ContextSingleton;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import com.google.inject.Inject;
+import roboguice.inject.ContextSingleton;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @ContextSingleton
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
@@ -153,10 +152,6 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 		return result;
 	}
 
-    private static String getFilterClause(String filter) {
-        return getFilterClause(filter, null);
-    }
-
     private static String getFilterClause(String filter, String existingClause ) {
 
         if ( filter == null || filter.length() == 0 ) {
@@ -181,10 +176,16 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         
         String searchString =  "%" + filter + "%";
 
-        String[] newArgs = new String[existingArgs.length + 3];
-        
-        //Move original arguments 3 positions to the right
-        System.arraycopy(existingArgs, 0,newArgs, 3, existingArgs.length );
+        String[] newArgs;
+
+        if ( existingArgs != null ) {
+            newArgs = new String[existingArgs.length + 3];
+
+            //Move original arguments 3 positions to the right
+            System.arraycopy(existingArgs, 0,newArgs, 3, existingArgs.length );
+        } else  {
+            newArgs = new String[3];
+        }
 
         //And fill the first 3 with the filter-string.
         for ( int i=0; i < 3; i++ ) {
@@ -228,7 +229,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         String[] args = new String[0];
 
         if ( filter != null ) {
-            whereClause = getFilterClause(filter);
+            whereClause = getFilterClause(filter, whereClause);
             args = getFilterArgs(args, filter);
         }
 						

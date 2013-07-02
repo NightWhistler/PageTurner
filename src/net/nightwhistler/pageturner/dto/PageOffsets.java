@@ -16,14 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
-package net.nightwhistler.pageturner;
+package net.nightwhistler.pageturner.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import net.nightwhistler.pageturner.Configuration;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class allows page-offsets to be read from and stored as JSON.

@@ -18,34 +18,22 @@
  */
 package net.nightwhistler.pageturner.activity;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-
-import android.content.Context;
-import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.PlatformUtil;
-import net.nightwhistler.pageturner.R;
-import roboguice.RoboGuice;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
-
+import android.widget.*;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockListFragment;
 import com.google.inject.Inject;
+import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.R;
+
+import java.io.File;
+import java.util.*;
 
 public class FileBrowseFragment extends RoboSherlockListFragment {
 
@@ -62,7 +50,7 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 		
 		File file = null;
 		
-		if ( data != null ) {
+		if ( data != null && data.getPath() != null ) {
 			file = new File(data.getPath());
 		}
 		

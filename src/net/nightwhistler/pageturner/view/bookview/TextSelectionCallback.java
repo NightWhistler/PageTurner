@@ -33,6 +33,8 @@ public interface TextSelectionCallback {
 	
 	boolean isDictionaryAvailable();
 	
-	void highLight( int from, int to, Color color );
+	void highLight( int from, int to, String selectedText );
+
+    void share( int from, int to, String text );
 	
 }

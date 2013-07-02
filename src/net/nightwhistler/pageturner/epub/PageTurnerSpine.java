@@ -18,17 +18,15 @@
  */
 package net.nightwhistler.pageturner.epub;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-
+import android.util.Log;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Resource;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Special spine class which handles navigation
@@ -88,7 +86,7 @@ public class PageTurnerSpine {
         if ( pageOffsets != null ) {
 		    this.pageOffsets = pageOffsets;
         } else {
-            pageOffsets = new ArrayList<List<Integer>>();
+            this.pageOffsets = new ArrayList<List<Integer>>();
         }
 	}
 	
@@ -410,9 +408,13 @@ public class PageTurnerSpine {
 	private Resource createCoverResource(Book book) {	
 		
 		if ( book.getCoverPage() != null && book.getCoverPage().getSize() > 0 ) {
+
+            Log.d("PageTurnerSpine", "Using cover resource " + book.getCoverPage().getHref() );
+
 			return book.getCoverPage();
 		}
-				
+
+        Log.d("PageTurnerSpine", "Constructing a cover page" );
 		Resource res = new Resource(generateCoverPage(book).getBytes(), COVER_HREF);
 		res.setTitle("Cover");
 		

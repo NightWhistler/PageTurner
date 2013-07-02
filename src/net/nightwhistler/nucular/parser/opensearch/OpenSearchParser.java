@@ -19,9 +19,9 @@
 
 package net.nightwhistler.nucular.parser.opensearch;
 
-import java.util.Map;
-
 import net.nightwhistler.nucular.parser.ElementParser;
+
+import java.util.Map;
 
 public class OpenSearchParser extends ElementParser {
 	

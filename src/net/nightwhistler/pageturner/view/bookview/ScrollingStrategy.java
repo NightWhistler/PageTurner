@@ -18,9 +18,8 @@
  */
 package net.nightwhistler.pageturner.view.bookview;
 
-import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.Layout;
 import android.text.Layout.Alignment;
@@ -28,28 +27,40 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AlignmentSpan;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.view.View;
 import android.widget.TextView;
+import com.google.inject.Inject;
+import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.dto.HighLight;
+import net.nightwhistler.pageturner.epub.PageTurnerSpine;
+import net.nightwhistler.pageturner.view.HighlightManager;
+
+import java.util.List;
 
 
 public class ScrollingStrategy implements PageChangeStrategy {
-	
+
+    @Inject
+    private Context context;
+
+    @Inject
+    private HighlightManager highlightManager;
+
 	private BookView bookView;
 	
 	private TextView childView;
 	private int storedPosition = -1;
 	private double storedPercentage = -1;
 	
-	private Spanned text;
-	
-	private Context context;
-	
-	public ScrollingStrategy(BookView bookView, Context context) {
+	private Spannable text;
+
+    @Override
+    public void setBookView(BookView bookView) {
 		this.bookView = bookView;
-		this.childView = bookView.getInnerView();		
-		this.context = context;
+		this.childView = bookView.getInnerView();
 	}
 	
 	@Override
@@ -96,27 +107,27 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	}
 	
 	@Override
-	public void loadText(Spanned text) {	
-		
-		this.text = addEndTag(text);
+	public void loadText(Spanned newText) {
+        SpannableStringBuilder builder = new SpannableStringBuilder(newText);
+		this.text = addEndTag(builder);
+        addHighlights(builder);
 	}
 
     @Override
     public void updateGUI() {
+        addHighlights( this.text);
 		childView.setText(this.text);
 		updatePosition();
     }
-	
-	private Spanned addEndTag(Spanned text) {
+
+	private Spannable addEndTag(SpannableStringBuilder builder) {
 		
 		//Don't add the tag to the last section.
 		PageTurnerSpine spine = bookView.getSpine();
 		
 		if (spine == null || spine.getPosition() >= spine.size() -1 ) {
-			return text;
+			return builder;
 		}
-		
-		SpannableStringBuilder builder = new SpannableStringBuilder(text);
 		
 		int length = builder.length();
 		builder.append("\uFFFC");
@@ -141,9 +152,26 @@ public class ScrollingStrategy implements PageChangeStrategy {
 				return Alignment.ALIGN_CENTER;
 			}
 		}, length, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		
+
 		return builder;		
 	}
+
+    private void addHighlights( Spannable builder ) {
+        List<HighLight> highLights = highlightManager.getHighLights( bookView.getFileName() );
+
+        for ( final HighLight highLight: highLights ) {
+            if ( highLight.getIndex() == bookView.getIndex() ) {
+
+//                LOG.debug("Got highlight from " + highLight.getStart() + " to " + highLight.getEnd() + " with offset " + offset );
+
+                builder.setSpan(new HighlightSpan(highLight),
+                        highLight.getStart(), highLight.getEnd(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
+            }
+        }
+    }
 	
 	@Override
 	public void pageDown() {

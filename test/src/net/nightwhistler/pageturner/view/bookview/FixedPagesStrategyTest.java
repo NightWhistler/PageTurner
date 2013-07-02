@@ -6,6 +6,8 @@ import android.text.TextPaint;
 import android.widget.TextView;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.dto.HighLight;
+import net.nightwhistler.pageturner.view.HighlightManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static net.nightwhistler.pageturner.view.bookview.LayoutTextUtil.getSpanned;
@@ -38,7 +41,10 @@ public class FixedPagesStrategyTest {
 		Configuration mockConfig = mock(Configuration.class);
 		this.mockBookView = mock(BookView.class);
 		this.mockTextView = mock(TextView.class);
-		
+
+        HighlightManager mockManager = mock(HighlightManager.class);
+        when(mockManager.getHighLights(anyString())).thenReturn( new ArrayList<HighLight>() );
+
 		when(mockBookView.getInnerView()).thenReturn(mockTextView);
 
 		//Layout has lines of 10 characters, each 10px high
@@ -47,7 +53,11 @@ public class FixedPagesStrategyTest {
 
 		initMockLayout(LINE_WIDTH, LINE_HEIGHT);
 						
-		this.strategy = new FixedPagesStrategy(mockBookView, mockConfig, mockFactory);		
+		this.strategy = new FixedPagesStrategy();
+        this.strategy.setLayoutFactory(mockFactory);
+        this.strategy.setBookView(mockBookView);
+        this.strategy.setConfig(mockConfig);
+        this.strategy.setHighlightManager(mockManager);
 	}	
 	
 	private void initMockLayout( final int lineWidth, final int lineHeight ) {

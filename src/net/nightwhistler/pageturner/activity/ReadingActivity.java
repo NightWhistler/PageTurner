@@ -18,18 +18,17 @@
  */
 package net.nightwhistler.pageturner.activity;
 
-import com.actionbarsherlock.view.Window;
-import roboguice.RoboGuice;
-import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.Configuration.ColourProfile;
-import net.nightwhistler.pageturner.PageTurner;
-import net.nightwhistler.pageturner.R;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-
+import com.actionbarsherlock.view.Window;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
+import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.Configuration.ColourProfile;
+import net.nightwhistler.pageturner.PageTurner;
+import net.nightwhistler.pageturner.R;
+import roboguice.RoboGuice;
 
 public class ReadingActivity extends RoboSherlockFragmentActivity {
 	private ReadingFragment readingFragment;
@@ -58,6 +57,12 @@ public class ReadingActivity extends RoboSherlockFragmentActivity {
 
 		readingFragment = (ReadingFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_reading);
 	}
+
+    @Override
+    public boolean onSearchRequested() {
+        readingFragment.onSearchRequested();
+        return true;
+    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {

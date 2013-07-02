@@ -19,11 +19,10 @@
 
 package net.nightwhistler.pageturner;
 
-import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
-
 import android.app.Application;
 import android.content.Context;
+import org.acra.ACRA;
+import org.acra.annotation.ReportsCrashes;
 
 import static org.acra.ReportField.*;
 

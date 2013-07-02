@@ -18,9 +18,9 @@
  */
 package net.nightwhistler.nucular.parser;
 
-import java.util.Map;
-
 import net.nightwhistler.nucular.atom.AtomElement;
+
+import java.util.Map;
 
 public class TitleParser extends ElementParser {
 

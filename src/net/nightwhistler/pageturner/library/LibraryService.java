@@ -18,9 +18,9 @@
  */
 package net.nightwhistler.pageturner.library;
 
-import java.io.IOException;
-
 import nl.siegmann.epublib.domain.Book;
+
+import java.io.IOException;
 
 
 public interface LibraryService {

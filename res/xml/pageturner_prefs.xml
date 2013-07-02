@@ -99,7 +99,7 @@
         			android:title="@string/pref_manage_sites"
         			android:summary="@string/pref_manage_sites_summary">
         			
-        			<intent android:action="net.nightwhistler.pageturner.activitiy.ManageSitesActivity"/>
+        			<intent android:action="net.nightwhistler.pageturner.activity.ManageSitesActivity"/>
         			         
     			</PreferenceScreen>
 
@@ -312,7 +312,7 @@
      		android:key="h_animation"
             android:title="@string/pref_h_animation"
             android:summary="@string/pref_h_animation_summary"            
-        	android:defaultValue="curl"
+        	android:defaultValue="slide"
         	android:entries="@array/h_animLabels"
         	android:entryValues="@array/h_anim" />
                     

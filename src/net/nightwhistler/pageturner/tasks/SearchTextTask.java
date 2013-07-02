@@ -19,23 +19,22 @@
 
 package net.nightwhistler.pageturner.tasks;
 
+import android.os.AsyncTask;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.htmlspanner.SpanStack;
+import net.nightwhistler.htmlspanner.TagNodeHandler;
+import net.nightwhistler.htmlspanner.handlers.TableHandler;
+import net.nightwhistler.pageturner.epub.PageTurnerSpine;
+import nl.siegmann.epublib.domain.Book;
+import org.htmlcleaner.TagNode;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.nightwhistler.htmlspanner.HtmlSpanner;
-import net.nightwhistler.htmlspanner.TagNodeHandler;
-import net.nightwhistler.htmlspanner.handlers.TableHandler;
-import net.nightwhistler.pageturner.epub.PageTurnerSpine;
-import nl.siegmann.epublib.domain.Book;
-
-import org.htmlcleaner.TagNode;
-
-import android.os.AsyncTask;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 
 public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResult, List<SearchTextTask.SearchResult>> {
 	
@@ -74,10 +73,8 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 			for ( int index=0; index < spine.size(); index++ ) {
 				
 				spine.navigateByIndex(index);
-				
-				int progress = spine.getProgressPercentage(index, 0);
-								
-				publishProgress( new SearchResult(null, index, 0, 0, progress) );
+
+				publishProgress( new SearchResult(null, index, 0, 0) );
 				
 				Spanned spanned = spanner.fromHtml(spine.getCurrentResource().getReader());				
 				Matcher matcher = pattern.matcher(spanned);
@@ -91,8 +88,7 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 					}
 					
 					String text = "…" + spanned.subSequence(from, to).toString().trim() + "…";
-					SearchResult res = new SearchResult(text, index, matcher.start(), matcher.end(),
-							spine.getProgressPercentage(index, matcher.start()));
+					SearchResult res = new SearchResult(text, index, matcher.start(), matcher.end());
 					
 					this.publishProgress( res );
 					result.add(res);
@@ -112,15 +108,13 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 		private int index;
 		private int start;
 		private int end;
+
 		
-		private int percentage;
-		
-		public SearchResult(String display, int index, int offset, int end, int percentage ) {
+		public SearchResult(String display, int index, int offset, int end) {
 			this.display = display;
 			this.index = index;
 			this.start = offset;
 			this.end = end;
-			this.percentage = percentage;
 		}
 		
 		public String getDisplay() {
@@ -139,16 +133,12 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 			return end;
 		}
 		
-		public int getPercentage() {
-			return percentage;
-		}
-		
 	}
 	
 	private static class DummyHandler extends TagNodeHandler {
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-				int start, int end) {
+				int start, int end, SpanStack stack) {
 
 			 builder.append("\uFFFC");
 		}

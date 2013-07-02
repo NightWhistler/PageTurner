@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2013 Alex Kuiper
+ *
+ * This file is part of PageTurner
+ *
+ * PageTurner is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * PageTurner is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
+ */
 package net.nightwhistler.pageturner.view.bookview;
 
 import android.text.Spannable;
@@ -5,6 +23,7 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.view.View;
+import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import org.htmlcleaner.TagNode;
 
@@ -15,7 +34,7 @@ import java.util.Locale;
 /**
  * Creates clickable links.
  *
- * @author work
+ * @author Alex Kuiper
  *
  */
 public class LinkTagHandler extends TagNodeHandler {
@@ -39,7 +58,7 @@ public class LinkTagHandler extends TagNodeHandler {
 
     @Override
     public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-                              int start, int end) {
+                              int start, int end, SpanStack spanStack) {
 
         String href = node.getAttributeByName("href");
 
@@ -67,8 +86,7 @@ public class LinkTagHandler extends TagNodeHandler {
             }
         };
 
-        builder.setSpan(span, start, end,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spanStack.pushSpan(span, start, end);
     }
 
     public static interface LinkCallBack {

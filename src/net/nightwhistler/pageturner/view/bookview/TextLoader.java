@@ -20,22 +20,27 @@
 package net.nightwhistler.pageturner.view.bookview;
 
 import android.text.Spannable;
-import android.text.Spanned;
+import android.text.SpannableString;
 import com.google.inject.Inject;
+import com.osbcp.cssparser.CSSParser;
+import com.osbcp.cssparser.PropertyValue;
+import com.osbcp.cssparser.Rule;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
+import net.nightwhistler.htmlspanner.css.CSSCompiler;
+import net.nightwhistler.htmlspanner.css.CompiledRule;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.MediaType;
 import nl.siegmann.epublib.domain.Resource;
 import nl.siegmann.epublib.epub.EpubReader;
-import nl.siegmann.epublib.service.MediatypeService;
+import nl.siegmann.epublib.util.IOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.*;
 
 /**
@@ -48,11 +53,12 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
     /**
      * We start clearing the cache if memory usage exceeds 75%.
      */
-    private static final double CASH_CLEAR_THRESHOLD = 0.75;
+    private static final double CACHE_CLEAR_THRESHOLD = 0.75;
 
     private String currentFile;
     private Book currentBook;
     private Map<String, Spannable> renderedText = new HashMap<String, Spannable>();
+    private Map<String, List<CompiledRule>> cssRules = new HashMap<String, List<CompiledRule>>();
 
     private Map<String, FastBitmapDrawable> imageCache = new HashMap<String, FastBitmapDrawable>();
 
@@ -62,12 +68,14 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
     private static final Logger LOG = LoggerFactory.getLogger("TextLoader");
 
     private HtmlSpanner htmlSpanner;
+    private EpubFontResolver fontResolver;
 
     private LinkTagHandler.LinkCallBack linkCallBack;
 
     @Inject
     public void setHtmlSpanner(HtmlSpanner spanner) {
         this.htmlSpanner = spanner;
+        this.htmlSpanner.setFontResolver(fontResolver);
 
         spanner.registerHandler("a", registerAnchorHandler(new LinkTagHandler(this)));
 
@@ -86,6 +94,106 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
         spanner.registerHandler("p",
                 registerAnchorHandler(spanner.getHandlerFor("p")));
+
+
+        spanner.registerHandler("link", new CSSLinkHandler(this));
+
+    }
+
+    public void setFontResolver( EpubFontResolver resolver ) {
+        this.fontResolver = resolver;
+        this.htmlSpanner.setFontResolver( fontResolver );
+    }
+
+    public void registerCustomFont( String name, String href ) {
+        this.fontResolver.loadEmbeddedFont(name, href);
+    }
+
+    public List<CompiledRule> getCSSRules( String href ) {
+
+        if ( this.cssRules.containsKey(href) ) {
+            return Collections.unmodifiableList(cssRules.get(href));
+        }
+
+        List<CompiledRule> result = new ArrayList<CompiledRule>();
+
+        String strippedHref = href.substring( href.lastIndexOf('/') + 1);
+
+        Resource res = null;
+
+        for ( Resource resource: this.currentBook.getResources().getAll() ) {
+            if ( resource.getHref().endsWith(strippedHref) ) {
+                res = resource;
+                break;
+            }
+        }
+
+        if ( res == null ) {
+            LOG.error("Could not find CSS resource " + strippedHref );
+            return new ArrayList<CompiledRule>();
+        }
+
+        StringWriter writer = new StringWriter();
+        try {
+            IOUtil.copy(res.getReader(), writer);
+
+            List<Rule> rules = CSSParser.parse(writer.toString());
+            LOG.debug("Parsed " + rules.size() + " raw rules.");
+
+            for ( Rule rule: rules ) {
+
+                if ( rule.getSelectors().size() == 1 && rule.getSelectors().get(0).toString().equals("@font-face")) {
+                    handleFontLoadingRule(rule);
+                } else {
+                    result.add(CSSCompiler.compile(rule, htmlSpanner));
+                }
+            }
+
+        } catch (IOException io) {
+            LOG.error("Error while reading resource", io);
+            return new ArrayList<CompiledRule>();
+        } catch (Exception e) {
+            LOG.error("Error reading CSS file", e);
+        } finally {
+            res.close();
+        }
+
+        cssRules.put(href, result);
+
+        LOG.debug("Compiled " + result.size() + " CSS rules.");
+
+        return result;
+    }
+
+
+    private void handleFontLoadingRule(Rule rule) {
+
+        String href = null;
+        String fontName= null;
+
+        for (PropertyValue prop: rule.getPropertyValues() ) {
+            if ( prop.getProperty().equals("font-family") ) {
+                fontName = prop.getValue();
+            }
+
+            if ( prop.getProperty().equals("src") ) {
+                href = prop.getValue();
+            }
+        }
+
+        if ( fontName.startsWith("\"") && fontName.endsWith("\"")) {
+            fontName = fontName.substring(1, fontName.length() -1 );
+        }
+
+        if ( fontName.startsWith("\'") && fontName.endsWith("\'")) {
+            fontName = fontName.substring(1, fontName.length() -1 );
+        }
+
+        if ( href.startsWith("url(") ) {
+            href = href.substring( 4, href.length() -1 );
+        }
+
+        registerCustomFont(fontName, href);
 
     }
 
@@ -128,26 +236,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         // read epub file
         EpubReader epubReader = new EpubReader();
 
-        MediaType[] lazyTypes = {
-                MediatypeService.CSS, // We don't support CSS yet
-
-                MediatypeService.GIF, MediatypeService.JPG,
-                MediatypeService.PNG,
-                MediatypeService.SVG, // Handled by the ResourceLoader
-
-                MediatypeService.OPENTYPE,
-                MediatypeService.TTF, // We don't support custom fonts
-                // either
-                MediatypeService.XPGT,
-
-                MediatypeService.MP3,
-                MediatypeService.MP4, // And no audio either
-                MediatypeService.OGG,
-                MediatypeService.SMIL, MediatypeService.XPGT,
-                MediatypeService.PLS };
-
-        Book newBook = epubReader.readEpubLazy(fileName, "UTF-8",
-                Arrays.asList(lazyTypes));
+        Book newBook = epubReader.readEpubLazy(fileName, "UTF-8");
 
         this.currentBook = newBook;
         this.currentFile = fileName;
@@ -165,16 +254,20 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         return null;
     }
 
+    public Book getCurrentBook() {
+        return this.currentBook;
+    }
+
     public void setFontFamily(FontFamily family) {
-        this.htmlSpanner.setDefaultFont(family);
+        this.fontResolver.setDefaultFont(family);
     }
 
     public void setSerifFontFamily(FontFamily family) {
-        this.htmlSpanner.setSerifFont(family);
+        this.fontResolver.setSerifFont(family);
     }
 
     public void setSansSerifFontFamily(FontFamily family) {
-        this.htmlSpanner.setSansSerifFont(family);
+        this.fontResolver.setSansSerifFont(family);
     }
 
     public void setStripWhiteSpace(boolean stripWhiteSpace) {
@@ -201,9 +294,13 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         anchors.get(href).put(anchor, position);
     }
 
-    public Spannable getText( final Resource resource, boolean allowCaching ) throws IOException {
+    public boolean hasCachedText( Resource resource ) {
+        return renderedText.containsKey(resource.getHref());
+    }
 
-        if ( renderedText.containsKey(resource.getHref()) ) {
+    public Spannable getText( final Resource resource ) throws IOException {
+
+        if ( hasCachedText(resource) ) {
             LOG.debug("Returning cached text for href " + resource.getHref() );
             return renderedText.get(resource.getHref());
         }
@@ -226,17 +323,48 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         LOG.debug("Current bitmap memory usage is " +  (int) (bitmapUsage * 100) + "%" );
 
         //If memory usage gets over the threshold, try to free up memory
-        if ( memoryUsage > CASH_CLEAR_THRESHOLD || bitmapUsage > CASH_CLEAR_THRESHOLD ) {
+        if ( memoryUsage > CACHE_CLEAR_THRESHOLD || bitmapUsage > CACHE_CLEAR_THRESHOLD) {
             clearCachedText();
+            closeLazyLoadedResources();
         }
 
-        Spannable result = htmlSpanner.fromHtml(resource.getReader());
+        boolean shouldClose = false;
+        Resource res = resource;
 
-        if ( allowCaching ) {
-            renderedText.put(resource.getHref(), result);
+        //If it's already in memory, use that. If not, create a copy
+        //that we can safely close after using it
+        if ( ! resource.isInitialized() ) {
+            res = new Resource( this.currentFile, res.getSize(), res.getOriginalHref() );
+            shouldClose = true;
         }
+
+        Spannable result = new SpannableString("");
+
+        try {
+            result = htmlSpanner.fromHtml(res.getReader());
+            renderedText.put(res.getHref(), result);
+        } catch (Exception e) {
+            LOG.error("Caught exception while rendering text", e);
+            result = new SpannableString( e.getClass().getSimpleName() + ": " + e.getMessage() );
+        }
+        finally {
+            if ( shouldClose ) {
+                //We have the rendered version, so it's safe to close the resource
+                resource.close();
+            }
+        }
+
+
 
         return result;
+    }
+
+    private void closeLazyLoadedResources() {
+        if ( currentBook != null ) {
+            for ( Resource res: currentBook.getResources().getAll() ) {
+                res.close();
+            }
+        }
     }
 
     private void clearCachedText() {
@@ -244,6 +372,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         anchors.clear();
 
         renderedText.clear();
+        cssRules.clear();
     }
 
     public void closeCurrentBook() {

@@ -1,11 +1,9 @@
 package net.nightwhistler.pageturner.view.bookview;
 
 import android.text.SpannableStringBuilder;
+import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import org.htmlcleaner.TagNode;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Many books use
@@ -28,20 +26,20 @@ public class AnchorHandler extends TagNodeHandler {
     }
 
     @Override
-    public void beforeChildren(TagNode node, SpannableStringBuilder builder) {
-        this.wrappedHandler.beforeChildren(node, builder);
+    public void beforeChildren(TagNode node, SpannableStringBuilder builder, SpanStack spanStack) {
+        this.wrappedHandler.beforeChildren(node, builder, spanStack);
     }
 
     @Override
     public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-                              int start, int end) {
+                              int start, int end, SpanStack spanStack) {
 
         String id = node.getAttributeByName("id");
         if (id != null) {
             callback.registerAnchor(id, start);
         }
 
-        wrappedHandler.handleTagNode(node, builder, start, end);
+        wrappedHandler.handleTagNode(node, builder, start, end, spanStack);
     }
 
     public void setCallback( AnchorCallback callback ) {

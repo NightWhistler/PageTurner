@@ -13,6 +13,11 @@
         android:layout_width="0dp"
         android:layout_weight="1"/>
 
+    <View style="@style/Divider"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            />
+
      <fragment
               class="net.nightwhistler.pageturner.catalog.BookDetailsFragment"
               android:id="@+id/fragment_book_details"

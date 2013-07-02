@@ -6,9 +6,11 @@
  */
 package com.hlidskialf.android.hardware;
 
-import android.hardware.*;
 import android.content.Context;
-import java.lang.UnsupportedOperationException;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 
 public class ShakeListener implements SensorEventListener
 {

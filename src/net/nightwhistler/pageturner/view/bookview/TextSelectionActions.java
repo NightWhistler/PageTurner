@@ -19,78 +19,131 @@
 
 package net.nightwhistler.pageturner.view.bookview;
 
-import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.view.bookview.BookView;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.graphics.Color;
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
+import net.nightwhistler.pageturner.R;
 
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class TextSelectionActions implements ActionMode.Callback {
 
-	private TextSelectionCallback callBack;
-	private BookView bookView;
+    private TextSelectionCallback callBack;
+    private BookView bookView;
 
-	public TextSelectionActions(TextSelectionCallback callBack,
-			BookView bookView) {
-		this.callBack = callBack;
-		this.bookView = bookView;
-	}
+    private ClipboardManager clipboardManager;
 
-	@Override
-	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		// TODO Auto-generated method stub
+    public TextSelectionActions(TextSelectionCallback callBack,
+                                BookView bookView, ClipboardManager clipboardManager) {
+        this.callBack = callBack;
+        this.bookView = bookView;
+        this.clipboardManager = clipboardManager;
+    }
 
-		return true;
-	}
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 
-	@Override
-	public boolean onCreateActionMode(ActionMode mode, Menu menu) {		
+        mode.finish();
 
-		menu.removeItem(android.R.id.selectAll);
-		
-		if (callBack.isDictionaryAvailable()) {
-			menu.add(R.string.dictionary_lookup)
-				.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-				@Override
-				public boolean onMenuItemClick(android.view.MenuItem item) {
-					callBack.lookupDictionary(bookView.getSelectedText());
-					return true;
-				}
-			});
-		}
+        return true;
+    }
 
-		menu.add(R.string.wikipedia_lookup)
-			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(android.view.MenuItem item) {
-				callBack.lookupWikipedia(bookView.getSelectedText());
-				return true;
-			}
-		});
+    @Override
+    public boolean onCreateActionMode(final ActionMode mode, Menu menu) {
 
-		menu.add(R.string.google_lookup)
-			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(android.view.MenuItem item) {
-				callBack.lookupGoogle(bookView.getSelectedText());
-				return true;
-			}
-		});
+        menu.removeItem(android.R.id.selectAll);
 
-		return true;
-	}
+        menu.findItem(android.R.id.copy).setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                clipboardManager.setPrimaryClip(ClipData.newPlainText(
+                        "PageTurner copied text", bookView.getSelectedText() ));
+                mode.finish();
+                return true;
+            }
+        });
 
-	@Override
-	public void onDestroyActionMode(ActionMode mode) {
-		// TODO Auto-generated method stub
+        menu.add(R.string.abs__share_action_provider_share_with)
+                .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(android.view.MenuItem item) {
+                        callBack.share(bookView.getSelectionStart(), bookView.getSelectionEnd(), bookView.getSelectedText());
+                        mode.finish();
+                        return true;
+                    }
+                }).setIcon(R.drawable.abs__ic_menu_share_holo_dark);
 
-	}
+        menu.add(R.string.highlight)
+                .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(android.view.MenuItem item) {
+                        callBack.highLight(bookView.getSelectionStart(), bookView.getSelectionEnd(), bookView.getSelectedText());
+                        mode.finish();
+                        return true;
+                    }
+                });
 
-	@Override
-	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        if (callBack.isDictionaryAvailable()) {
+            menu.add(R.string.dictionary_lookup)
+                    .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(android.view.MenuItem item) {
+                            callBack.lookupDictionary(bookView.getSelectedText());
+                            mode.finish();
+                            return true;
+                        }
+                    });
+        }
 
-		return true;
-	}
+        menu.add(R.string.lookup_wiktionary)
+                .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(android.view.MenuItem item) {
+                        callBack.lookupWiktionary(bookView.getSelectedText());
+                        mode.finish();
+                        return true;
+                    }
+                });
+
+        menu.add(R.string.wikipedia_lookup)
+                .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(android.view.MenuItem item) {
+                        callBack.lookupWikipedia(bookView.getSelectedText());
+                        mode.finish();
+                        return true;
+                    }
+                });
+
+        menu.add(R.string.google_lookup)
+                .setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(android.view.MenuItem item) {
+                        callBack.lookupGoogle(bookView.getSelectedText());
+                        mode.finish();
+                        return true;
+                    }
+                });
+
+
+
+        return true;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+
+        return true;
+    }
 
 }

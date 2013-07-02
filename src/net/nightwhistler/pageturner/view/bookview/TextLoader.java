@@ -221,7 +221,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         //If it's already in memory, use that. If not, create a copy
         //that we can safely close after using it
         if ( ! resource.isInitialized() ) {
-            res = new Resource( this.currentFile, res.getSize(), res.getHref() );
+            res = new Resource( this.currentFile, res.getSize(), res.getOriginalHref() );
             shouldClose = true;
         }
 

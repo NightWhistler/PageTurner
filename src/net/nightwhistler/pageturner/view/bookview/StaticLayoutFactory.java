@@ -45,7 +45,7 @@ public class StaticLayoutFactory {
 	 * @return a StaticLayout object
 	 */
 	public StaticLayout create(CharSequence source, TextPaint paint, int width, float spacingadd) {		
-		return new StaticLayout(source, paint, width, Alignment.ALIGN_NORMAL, 1.0f, spacingadd, false);
+		return new StaticLayout(source, paint, width, Alignment.ALIGN_NORMAL, 1.0f, spacingadd, true);
 	}
 	
 }

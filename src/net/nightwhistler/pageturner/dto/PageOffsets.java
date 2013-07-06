@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class PageOffsets {
 
-    public static int ALGORITHM_VERSION = 2;
+    public static int ALGORITHM_VERSION = 3;
 
 	private int fontSize;
 	private String fontFamily;
@@ -50,11 +50,14 @@ public class PageOffsets {
 	
 	private boolean fullScreen;
 
+    private boolean allowStyling;
+
     private int algorithmVersion;
 
 	private List<List<Integer>> offsets;
 	
-	private static enum Fields { fontSize, fontFamily, vMargin, hMargin, lineSpacing, fullScreen, offsets, algorithmVersion };
+	private static enum Fields { fontSize, fontFamily, vMargin, hMargin, lineSpacing, fullScreen, offsets,
+        allowStyling, algorithmVersion };
 	
 	private PageOffsets() {}
 	
@@ -67,6 +70,7 @@ public class PageOffsets {
 				&& this.hMargin == config.getHorizontalMargin()
 				&& this.lineSpacing == config.getLineSpacing()
 				&& this.fullScreen == config.isFullScreenEnabled()
+                && this.allowStyling == config.isAllowStyling()
                 && this.algorithmVersion == ALGORITHM_VERSION;
 	}
 	
@@ -82,6 +86,8 @@ public class PageOffsets {
 		result.vMargin = config.getVerticalMargin();
 		result.lineSpacing = config.getLineSpacing();
 		result.fullScreen = config.isFullScreenEnabled();
+        result.allowStyling = config.isAllowStyling();
+
         result.algorithmVersion = ALGORITHM_VERSION;
 
 		result.offsets = offsets;
@@ -103,6 +109,7 @@ public class PageOffsets {
 			result.lineSpacing = offsetsObject.getInt(Fields.lineSpacing.name());
 			result.fullScreen = offsetsObject.getBoolean(Fields.fullScreen.name() );
             result.algorithmVersion = offsetsObject.optInt(Fields.algorithmVersion.name(), -1);
+            result.allowStyling = offsetsObject.optBoolean(Fields.allowStyling.name(), true);
 			
 			result.offsets = readOffsets(offsetsObject.getJSONArray(Fields.offsets.name()));
 
@@ -123,6 +130,7 @@ public class PageOffsets {
 			jsonObject.put(Fields.hMargin.name(), this.hMargin );
 			jsonObject.put(Fields.lineSpacing.name(), this.lineSpacing );
 			jsonObject.put(Fields.fullScreen.name(), this.fullScreen );
+            jsonObject.put(Fields.allowStyling.name(), this.allowStyling );
             jsonObject.put(Fields.algorithmVersion.name(), this.algorithmVersion );
 			
 			jsonObject.put(Fields.offsets.name(), new JSONArray( this.offsets ) );

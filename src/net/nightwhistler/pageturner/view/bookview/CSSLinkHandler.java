@@ -29,19 +29,21 @@ public class CSSLinkHandler extends TagNodeHandler {
 
     public void handleTagNode(TagNode node, SpannableStringBuilder builder, int start, int end, SpanStack spanStack) {
 
-        String type = node.getAttributeByName("type");
-        String href = node.getAttributeByName("href");
+        if ( getSpanner().isAllowStyling() ) {
+            String type = node.getAttributeByName("type");
+            String href = node.getAttributeByName("href");
 
-        LOG.debug("Found link tag: type=" + type + " and href=" + href );
+            LOG.debug("Found link tag: type=" + type + " and href=" + href );
 
-        if ( type == null || ! type.equals("text/css") ) {
-            LOG.debug("Ignoring link of type " + type );
-        }
+            if ( type == null || ! type.equals("text/css") ) {
+                LOG.debug("Ignoring link of type " + type );
+            }
 
-        List<CompiledRule> rules = this.textLoader.getCSSRules(href);
+            List<CompiledRule> rules = this.textLoader.getCSSRules(href);
 
-        for ( CompiledRule rule: rules ) {
-            spanStack.registerCompiledRule(rule);
+            for ( CompiledRule rule: rules ) {
+                spanStack.registerCompiledRule(rule);
+            }
         }
     }
 

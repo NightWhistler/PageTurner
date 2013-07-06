@@ -1444,6 +1444,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
             //Private spanner
             final HtmlSpanner mySpanner = new HtmlSpanner();
+
+            mySpanner.setAllowStyling( configuration.isAllowStyling() );
             mySpanner.setFontResolver( fontResolver );
 
             mySpanner.registerHandler("table", tableHandler );

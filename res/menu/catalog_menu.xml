@@ -15,7 +15,6 @@
       
        <item android:id="@+id/prefs"
         android:icon="@drawable/cog"
-        android:showAsAction="ifRoom"
 		android:title="@string/prefs" />      
     
     

@@ -17,7 +17,6 @@
         android:description="@string/app_desc"
         android:icon="@drawable/page_turner"
         android:label="@string/app_name"
-        android:uiOptions="splitActionBarWhenNarrow"
         android:theme="@style/AppTheme" >
         >
         

@@ -44,35 +44,40 @@
           android:actionViewClass="com.actionbarsherlock.widget.SearchView"
           android:showAsAction="always|collapseActionView" />
 
+   
+    <item android:id="@+id/show_toc"          
+          android:title="@string/show_toc"
+          android:icon="@drawable/list"
+          android:showAsAction="ifRoom"/>
+    
+
+	<item android:id="@+id/text_to_speech"          
+          android:title="@string/text_to_speech"
+          android:icon="@drawable/speech_balloon" 
+          android:enabled="false"
+          android:showAsAction="ifRoom"/>
+
+
+    <item android:id="@+id/rolling_blind"
+          android:title="@string/rolling_blind"
+          android:icon="@drawable/play" />
+
+
     <item android:id="@+id/show_search_results"
           android:title="@string/search_results"
           android:icon="@drawable/zoom"
-          />
+            />
 
     <item android:id="@+id/show_highlights"
           android:title="@string/highlights"
 
             />
 
-    
-    <item android:id="@+id/preferences"          
-          android:title="@string/prefs" 
+
+    <item android:id="@+id/preferences"
+          android:title="@string/prefs"
           android:icon="@drawable/cog"
-          android:showAsAction="always"/>
-   
-    <item android:id="@+id/show_toc"          
-          android:title="@string/show_toc"
-          android:icon="@drawable/list" />
-    
-	<item android:id="@+id/rolling_blind"          
-          android:title="@string/rolling_blind"
-          android:icon="@drawable/play" />
-          
-	<item android:id="@+id/text_to_speech"          
-          android:title="@string/text_to_speech"
-          android:icon="@drawable/speech_balloon" 
-          android:enabled="false"/>
-	
+            />
           
     <item android:id="@+id/about"          
           android:title="@string/about"

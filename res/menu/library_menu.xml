@@ -49,7 +49,6 @@
     <item
         android:id="@+id/preferences"
         android:icon="@drawable/cog"
-        android:showAsAction="ifRoom"
         android:title="@string/prefs"/>
     <item
         android:id="@+id/about"

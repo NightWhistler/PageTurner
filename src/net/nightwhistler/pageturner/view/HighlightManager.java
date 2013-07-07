@@ -1,6 +1,7 @@
 package net.nightwhistler.pageturner.view;
 
 import android.graphics.Color;
+import android.util.Log;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.dto.HighLight;
@@ -24,14 +25,17 @@ public class HighlightManager {
 
     private void updateBookFile( String fileName ) {
 
+        if ( currentFileName != null && !currentFileName.equals(fileName) ) {
+            saveHighLights();
+        }
+
         if ( fileName == null ) {
             this.currentHighlights = new ArrayList<HighLight>();
         } else if ( ! fileName.equals(currentFileName) ) {
-            saveHighLights();
-            this.currentFileName = fileName;
             this.currentHighlights = config.getHightLights(fileName);
         }
 
+        this.currentFileName = fileName;
     }
 
     public synchronized  void registerHighlight( String bookFile, String displayText, int index, int start, int end ) {
@@ -54,6 +58,8 @@ public class HighlightManager {
 
     public synchronized void saveHighLights() {
         if ( currentFileName != null && currentHighlights != null ) {
+            Log.d("HighlightManager", "Storing highlights for file " + currentFileName + ": "
+                    + currentHighlights.size() + " items.");
             config.storeHighlights(currentFileName, currentHighlights);
         }
     }

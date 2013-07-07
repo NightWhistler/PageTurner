@@ -98,6 +98,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
         spanner.registerHandler("link", new CSSLinkHandler(this));
 
+
     }
 
     public void setFontResolver( EpubFontResolver resolver ) {
@@ -165,6 +166,9 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         return result;
     }
 
+    public void invalidateCachedText() {
+        this.renderedText.clear();
+    }
 
     private void handleFontLoadingRule(Rule rule) {
 
@@ -272,6 +276,10 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
     public void setStripWhiteSpace(boolean stripWhiteSpace) {
         this.htmlSpanner.setStripExtraWhiteSpace(stripWhiteSpace);
+    }
+
+    public void setAllowStyling(boolean allowStyling) {
+        this.htmlSpanner.setAllowStyling(allowStyling);
     }
 
     public FastBitmapDrawable getCachedImage( String href ) {

@@ -233,6 +233,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		private int hMargin;
 		private int textSize;
 		private boolean scrolling;
+        private boolean allowStyling;
 	}
 
 	private SavedConfigState savedConfigState = new SavedConfigState();
@@ -511,6 +512,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		savedConfigState.sansSerifFontName = config.getSansSerifFontFamily().getName();
 		
 		savedConfigState.scrolling = config.isScrollingEnabled();
+        savedConfigState.allowStyling = config.isAllowStyling();
 		
 	}
 
@@ -591,7 +593,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
         fos.mkdirs();
 
         if ( ! (fos.exists() && fos.isDirectory() )  ) {
-            String message = "\"Failed to create folder \" + fos.getAbsolutePath() ";
             LOG.error("Failed to create folder " + fos.getAbsolutePath() );
             showTTSFailed("Failed to create folder " + fos.getAbsolutePath() );
             return;
@@ -1030,6 +1031,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 
 		textLoader.setStripWhiteSpace(config.isStripWhiteSpaceEnabled());
+        textLoader.setAllowStyling( config.isAllowStyling() );
 		bookView.setLineSpacing(config.getLineSpacing());
 
 		if (config.isFullScreenEnabled()) {
@@ -1070,7 +1072,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				|| config.getHorizontalMargin() != savedConfigState.hMargin
 				|| config.getVerticalMargin() != savedConfigState.vMargin
 				|| config.getTextSize() != savedConfigState.textSize 
-				|| config.isScrollingEnabled() != savedConfigState.scrolling ) {
+				|| config.isScrollingEnabled() != savedConfigState.scrolling
+                || config.isAllowStyling() != savedConfigState.allowStyling ) {
+
+            textLoader.invalidateCachedText();
 			restartActivity();
 		}
 

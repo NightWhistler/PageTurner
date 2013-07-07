@@ -166,6 +166,8 @@ public class Configuration {
 
     public static final String KEY_HIGHLIGHTS = "highlights";
 
+    public static final String KEY_ALLOW_STYLING = "allow_styling";
+
 	// Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink
 	// based Android device
 	
@@ -273,6 +275,10 @@ public class Configuration {
 
     public boolean isAcceptSelfSignedCertificates() {
         return settings.getBoolean(KEY_ACCEPT_SELF_SIGNED, false);
+    }
+
+    public boolean isAllowStyling() {
+        return settings.getBoolean(KEY_ALLOW_STYLING, true);
     }
 
 	public int getLastPosition(String fileName) {

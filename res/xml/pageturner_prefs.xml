@@ -191,8 +191,16 @@
 	
 	<PreferenceCategory
                 android:title="@string/pref_text_display_settings">
-                
-     <ListPreference
+
+
+        <CheckBoxPreference
+                android:key="allow_styling"
+                android:title="@string/pref_use_publisher_style"
+                android:summary="@string/pref_use_publisher_style_summary"
+                android:defaultValue="true"
+                />
+
+        <ListPreference
      		android:key="font_face"
             android:title="@string/pref_font_face"
             android:summary="@string/pref_font_face_summary"            

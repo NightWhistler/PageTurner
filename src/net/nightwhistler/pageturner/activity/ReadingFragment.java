@@ -1400,7 +1400,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void errorOnBookOpening(String errorMessage) {
 		closeWaitDialog();
-		launchActivity(LibraryActivity.class);
+
+        ( (ReadingActivity ) getActivity() ).launchActivity(LibraryActivity.class);
 	}
 
     private ProgressDialog getWaitDialog() {
@@ -2107,7 +2108,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
         libraryService.close();
 	}
 
-	private void saveReadingPosition() {
+    public BookView getBookView() {
+        return this.bookView;
+    }
+
+	public void saveReadingPosition() {
 		if (this.bookView != null) {
 
 			int index = this.bookView.getIndex();
@@ -2255,14 +2260,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		case R.id.open_file:
 			launchFileManager();
-			return true;
-
-		case R.id.open_library:
-			launchActivity(LibraryActivity.class);
-			return true;
-			
-		case R.id.download:
-			launchActivity(CatalogActivity.class);
 			return true;
 
 		case R.id.rolling_blind:
@@ -2476,15 +2473,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 	}
 	
-	private void launchActivity(Class<?> activityClass) {
-		Intent intent = new Intent(getActivity(), activityClass);
-		startActivity(intent);
-		
-		saveReadingPosition();
-		this.bookView.releaseResources();		
-		
-		getActivity().finish();		
-	}
+
 
 	private void showPickProgressDialog(final List<BookProgress> results) {
 

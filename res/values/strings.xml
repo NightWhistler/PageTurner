@@ -334,6 +334,10 @@
     <string name="pref_use_publisher_style">Use Publisher style (CSS)</string>
     <string name="pref_use_publisher_style_summary">Allow the book to change fonts, colours, etc.</string>
 
+    <string name="drawer_open">Drawer open</string>
+    <string name="drawer_close">Drawer closed</string>
+    <string name="drawer_layout">Drawer layout</string>
+
     
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>

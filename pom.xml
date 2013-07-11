@@ -134,6 +134,12 @@
 			<artifactId>actionbarsherlock</artifactId>
 			<version>4.2.0</version>
 			<type>apklib</type>
+            <exclusions>
+                <exclusion> <!-- declare the exclusion here -->
+                    <groupId>com.google.android</groupId>
+                    <artifactId>support-v4</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
  
 		<dependency>
@@ -142,7 +148,14 @@
 			<version>1.5</version>
 		</dependency>
 
-		<dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>support-v4</artifactId>
+            <version>r13</version>
+        </dependency>
+
+
+        <dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<version>1.8.4</version>
@@ -169,7 +182,8 @@
 			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
-		
+
+
 	</dependencies>
 
 	<build>

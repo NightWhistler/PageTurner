@@ -23,18 +23,6 @@
           android:title="@string/open_file"
           android:icon="@drawable/file"
           />
-          
-    <item android:id="@+id/open_library"          
-          android:title="@string/open_library"
-          android:icon="@drawable/book_star" 
-          />
-   
-    
-     <item
-        android:id="@+id/download"
-        android:icon="@drawable/download"
-        android:title="@string/download"
-        />
     
      <item android:id="@+id/search_text"          
           android:title="@string/search_text"

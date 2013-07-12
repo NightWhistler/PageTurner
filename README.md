@@ -1,3 +1,4 @@
+[![Stories in Ready](http://badge.waffle.io/NightWhistler/PageTurner.png)](http://waffle.io/NightWhistler/PageTurner)  
 PageTurner, the synchronizing ebook reader for Android
 ========================================================
 

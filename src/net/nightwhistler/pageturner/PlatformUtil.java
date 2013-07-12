@@ -20,6 +20,7 @@
 package net.nightwhistler.pageturner;
 
 import android.annotation.TargetApi;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -55,6 +56,15 @@ public class PlatformUtil {
         List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
                 PackageManager.MATCH_DEFAULT_ONLY);
         return list.size() > 0;
+    }
+
+    public static void copyTextToClipboard(Context context, String text) {
+
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES. HONEYCOMB) {
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = ClipData.newPlainText("PageTurner copied text", text);
+            clipboard.setPrimaryClip(clip);
+        }
     }
 
 

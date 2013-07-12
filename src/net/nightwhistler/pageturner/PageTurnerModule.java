@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner;
 
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.os.Build;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
@@ -104,11 +105,6 @@ public class PageTurnerModule extends AbstractModule {
 		
 		return client;
 	}
-
-    @Provides
-    public ClipboardManager getClipboardManager( Context context ) {
-        return (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-    }
 
     public class SSLHttpClient extends DefaultHttpClient {
 

@@ -68,6 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import roboguice.RoboGuice;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URLDecoder;
 import java.util.*;
@@ -118,9 +119,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
     @Inject
     private Provider<ScrollingStrategy> scrollingStrategyProvider;
-
-    @Inject
-    private ClipboardManager clipboardManager;
 
 	private OnTouchListener onTouchListener;
 
@@ -282,10 +280,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setTextSelectionCallback(TextSelectionCallback callback) {
-		if (Build.VERSION.SDK_INT >= 11) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			this.childView
 					.setCustomSelectionActionModeCallback(new TextSelectionActions(
-							callback, this, clipboardManager));
+                            getContext(), callback, this));
 		}
 	}	
 

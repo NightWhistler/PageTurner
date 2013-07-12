@@ -19,15 +19,14 @@
 
 package net.nightwhistler.pageturner.view.bookview;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.graphics.Color;
+import android.content.Context;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
+import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -36,13 +35,13 @@ public class TextSelectionActions implements ActionMode.Callback {
     private TextSelectionCallback callBack;
     private BookView bookView;
 
-    private ClipboardManager clipboardManager;
+    private Context context;
 
-    public TextSelectionActions(TextSelectionCallback callBack,
-                                BookView bookView, ClipboardManager clipboardManager) {
+    public TextSelectionActions(Context context, TextSelectionCallback callBack,
+                                BookView bookView) {
         this.callBack = callBack;
         this.bookView = bookView;
-        this.clipboardManager = clipboardManager;
+        this.context = context;
     }
 
     @Override
@@ -61,8 +60,7 @@ public class TextSelectionActions implements ActionMode.Callback {
         menu.findItem(android.R.id.copy).setOnMenuItemClickListener(new OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                clipboardManager.setPrimaryClip(ClipData.newPlainText(
-                        "PageTurner copied text", bookView.getSelectedText() ));
+                PlatformUtil.copyTextToClipboard(context, bookView.getSelectedText());
                 mode.finish();
                 return true;
             }

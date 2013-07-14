@@ -168,6 +168,8 @@ public class Configuration {
 
     public static final String KEY_ALLOW_STYLING = "allow_styling";
 
+    public static final String KEY_LAST_TITLE = "last_title";
+
 	// Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink
 	// based Android device
 	
@@ -495,6 +497,14 @@ public class Configuration {
 	public boolean isScrollingEnabled() {
 		return settings.getBoolean(KEY_SCROLLING, false);
 	}
+
+    public String getLastReadTitle() {
+        return settings.getString(KEY_LAST_TITLE, "");
+    }
+
+    public void setLastReadTitle(String title) {
+        updateValue(KEY_LAST_TITLE, title);
+    }
 
 	public String getLastOpenedFile() {
 		return settings.getString(KEY_LAST_FILE, "");

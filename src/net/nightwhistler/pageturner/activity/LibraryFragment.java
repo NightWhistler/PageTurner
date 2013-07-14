@@ -440,19 +440,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				return true;
 			}
 		});
-		
-		menu.findItem(R.id.download)
-			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				Intent intent = new Intent(getActivity(), CatalogActivity.class);    					
-    			getActivity().startActivityIfNeeded(intent, 99);
-    		
-				return true;
-			}
-		});
-		
+
 		menu.findItem(R.id.profile_day)
 			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			

@@ -52,9 +52,9 @@ public class ReadingActivity extends PageTurnerActivity {
 
     protected String[] getMenuItems( Configuration config ) {
         if ( config.isFullScreenEnabled() ) {
-            return array("", "Current book", getString(R.string.library), getString(R.string.download));
+            return array("", config.getLastReadTitle(), getString(R.string.library), getString(R.string.download));
         } else {
-            return array("Current book", getString(R.string.library), getString(R.string.download));
+            return array(config.getLastReadTitle(), getString(R.string.library), getString(R.string.download));
         }
     }
 

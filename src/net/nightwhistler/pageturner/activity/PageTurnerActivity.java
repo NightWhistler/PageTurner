@@ -8,9 +8,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
+import com.google.inject.Inject;
 import com.limecreativelabs.sherlocksupport.ActionBarDrawerToggleCompat;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
@@ -31,7 +33,12 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
     private ListView mDrawerOptions;
     private ActionBarDrawerToggleCompat mToggle;
 
+    private ArrayAdapter<String> adapter;
+
     private CharSequence originalTitle;
+
+    @Inject
+    private Configuration config;
 
     @Override
     protected final void onCreate(Bundle savedInstanceState) {
@@ -57,9 +64,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        String[] items = getMenuItems(config);
-
-        mDrawerOptions.setAdapter(new ArrayAdapter<String>( this, R.layout.drawer_list_item, items ));
+        initDrawerItems();
         mDrawerOptions.setOnItemClickListener(this);
 
         mToggle = new ActionBarDrawerToggleCompat(this, mDrawer, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
@@ -79,6 +84,12 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         onCreatePageTurnerActivity(savedInstanceState);
     }
 
+    private void initDrawerItems() {
+        if ( mDrawerOptions != null ) {
+            mDrawerOptions.setAdapter( new ArrayAdapter<String>( this, R.layout.drawer_list_item, getMenuItems(config) ));
+        }
+    }
+
     protected abstract int getMainLayoutResource();
 
     protected void onCreatePageTurnerActivity( Bundle savedInstanceState ) {
@@ -94,20 +105,26 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
     }
 
     protected String[] getMenuItems( Configuration config ) {
-        return array("Current book", getString(R.string.library), getString(R.string.download));
+        return array(config.getLastReadTitle(), getString(R.string.library), getString(R.string.download));
     }
 
     public void onDrawerClosed(View view) {
-        setTitle(originalTitle);
+        getSupportActionBar().setTitle(originalTitle);
         invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
     }
 
     public void onDrawerOpened(View drawerView) {
 
-        this.originalTitle = getTitle();
+        this.originalTitle = getSupportActionBar().getTitle();
 
         getSupportActionBar().setTitle(R.string.app_name);
         invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        initDrawerItems();
+        return super.onPrepareOptionsMenu(menu);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
     protected static String[] array( String... items ) {

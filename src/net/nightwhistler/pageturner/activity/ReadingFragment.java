@@ -1137,6 +1137,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
         LOG.debug("Got language for book: " + language );
 
 		this.bookTitle = book.getTitle();
+
+        this.config.setLastReadTitle(this.bookTitle);
+
 		this.titleBase = this.bookTitle;
 		getActivity().setTitle(titleBase);
 		this.titleBar.setText(titleBase);

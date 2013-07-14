@@ -33,12 +33,6 @@
         android:title="@string/scan_books"
         android:showAsAction="ifRoom"
         />
-    
-    <item
-        android:id="@+id/download"
-        android:icon="@drawable/download"
-        android:title="@string/download"
-        />
 
     <item android:id="@+id/menu_search"
           android:icon="@drawable/zoom"

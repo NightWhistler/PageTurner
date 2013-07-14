@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    
-    <item android:id="@+id/open_library"
-        android:icon="@drawable/book_star"
-        android:title="@string/open_library" />
-
      <item android:id="@+id/search"
           android:icon="@drawable/zoom"
           android:title="@string/search_books"

@@ -71,7 +71,7 @@
         
         <activity
             android:name="net.nightwhistler.pageturner.activity.CatalogActivity"
-            android:label="Catalog" />
+            android:label="@string/download" />
         
         <activity
             android:name="net.nightwhistler.pageturner.activity.ManageSitesActivity"

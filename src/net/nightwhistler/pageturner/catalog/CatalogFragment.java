@@ -411,12 +411,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			Intent prefsIntent = new Intent(getActivity(), PageTurnerPrefsActivity.class);
 			startActivity(prefsIntent);
 			break;
-		case R.id.open_library:
-			Intent libIntent = new Intent(getActivity(), LibraryActivity.class);
-			startActivity(libIntent);
-			getActivity().finish();
-			break;
-		}		
+        }
 		
 		return true;
 	}

@@ -261,7 +261,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if ( config.isFullScreenEnabled() ) {
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB &&  config.isFullScreenEnabled() ) {
             return inflater.inflate(R.layout.fragment_reading_fs, container, false);
         } else {
 		    return inflater.inflate(R.layout.fragment_reading, container, false);

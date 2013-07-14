@@ -19,6 +19,7 @@
 package net.nightwhistler.pageturner.activity;
 
 
+import android.os.Build;
 import android.os.Bundle;
 
 import android.view.KeyEvent;
@@ -51,7 +52,7 @@ public class ReadingActivity extends PageTurnerActivity {
     }
 
     protected String[] getMenuItems( Configuration config ) {
-        if ( config.isFullScreenEnabled() ) {
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
             return array("", config.getLastReadTitle(), getString(R.string.library), getString(R.string.download));
         } else {
             return array(config.getLastReadTitle(), getString(R.string.library), getString(R.string.download));
@@ -61,7 +62,7 @@ public class ReadingActivity extends PageTurnerActivity {
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-        if ( config.isFullScreenEnabled() ) {
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
             super.onItemClick(adapterView, view, i-1, l);
         } else {
             super.onItemClick(adapterView, view, i, l);

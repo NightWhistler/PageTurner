@@ -308,7 +308,20 @@
     			android:title="@string/pref_night_link"
     			android:summary="@string/pref_night_link_summary"
     			android:defaultValue="-23296" />  
-    		
+
+            <CheckBoxPreference
+                android:key="day_allow_style_colours"
+                android:title="@string/pref_allow_css_colours"
+                android:summary="@string/pref_css_colours_day_summary"
+                android:defaultValue="true"
+                android:dependency="allow_styling"/>
+
+            <CheckBoxPreference
+                android:key="night_allow_style_colours"
+                android:title="@string/pref_allow_css_colours"
+                android:summary="@string/pref_css_colours_night_summary"
+                android:defaultValue="false"
+                android:dependency="allow_styling"/>
     	
     					
     </PreferenceCategory>

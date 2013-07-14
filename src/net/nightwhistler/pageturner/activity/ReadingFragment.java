@@ -1167,6 +1167,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		updateFromPrefs();
 	}
 
+    public String getCurrentBookTitle() {
+        return this.bookTitle;
+    }
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenu.ContextMenuInfo menuInfo) {

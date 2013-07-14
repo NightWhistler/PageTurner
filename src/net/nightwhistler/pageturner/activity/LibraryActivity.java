@@ -25,27 +25,16 @@ import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
 import roboguice.RoboGuice;
+import roboguice.inject.InjectFragment;
 
-public class LibraryActivity extends RoboSherlockFragmentActivity {
-	private LibraryFragment libraryFragment;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class); 
-		PageTurner.changeLanguageSetting(this, config);
-		setTheme( config.getTheme() );
+public class LibraryActivity extends PageTurnerActivity {
 
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_library);
-		libraryFragment = (LibraryFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_library);
-	}
+    @InjectFragment(R.id.fragment_library)
+    private LibraryFragment libraryFragment;
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        setSupportProgressBarIndeterminate(true);
-        setSupportProgressBarIndeterminateVisibility(true);
+    protected int getMainLayoutResource() {
+        return R.layout.activity_library;
     }
 
 	@Override

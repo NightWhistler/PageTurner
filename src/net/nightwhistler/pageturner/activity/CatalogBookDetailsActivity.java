@@ -30,32 +30,26 @@ import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.catalog.BookDetailsFragment;
 import net.nightwhistler.pageturner.catalog.CatalogParent;
 import roboguice.RoboGuice;
+import roboguice.inject.InjectFragment;
 
 import java.io.Serializable;
 
-public class CatalogBookDetailsActivity extends RoboSherlockFragmentActivity implements CatalogParent {
+public class CatalogBookDetailsActivity extends PageTurnerActivity implements CatalogParent {
 
     private BookDetailsFragment detailsFragment;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class); 
-		PageTurner.changeLanguageSetting(this, config);
-		setTheme( config.getTheme() );
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
-		super.onCreate(savedInstanceState);
-
+    @Override
+    protected void onCreatePageTurnerActivity(Bundle savedInstanceState) {
         if (getResources().getConfiguration().orientation
                 == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-             // If the screen is now in landscape mode, we can show the
+            // If the screen is now in landscape mode, we can show the
             // dialog in-line with the list so we don't need this activity.
             finish();
             return;
         }
 
-        setContentView(R.layout.activity_catalog_details);
-		detailsFragment = (BookDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_bookdetails);
+
+        detailsFragment = (BookDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_bookdetails);
 
         Intent intent = getIntent();
         Uri uri = intent.getData();
@@ -71,8 +65,12 @@ public class CatalogBookDetailsActivity extends RoboSherlockFragmentActivity imp
                 detailsFragment.setNewFeed(fakeFeed, null);
             }
         }
+    }
 
-	}
+    @Override
+    protected int getMainLayoutResource() {
+        return R.layout.activity_catalog_details;
+    }
 
     @Override
     public void loadFakeFeed(Feed fakeFeed) {
@@ -88,13 +86,5 @@ public class CatalogBookDetailsActivity extends RoboSherlockFragmentActivity imp
     public void loadFeedFromUrl(String url) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        setSupportProgressBarIndeterminate(true);
-        setSupportProgressBarIndeterminateVisibility(true);
-    }
-
 
 }

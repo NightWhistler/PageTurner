@@ -24,4 +24,6 @@
     android:paddingRight="16dp"
     android:textColor="#fff"
     android:background="?android:attr/activatedBackgroundIndicator"
-    android:minHeight="?android:attr/listPreferredItemHeightSmall"/>
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
+    />
+

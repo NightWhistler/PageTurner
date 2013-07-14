@@ -35,7 +35,7 @@ import roboguice.inject.InjectFragment;
 
 import javax.annotation.Nullable;
 
-public class CatalogActivity extends RoboSherlockFragmentActivity implements CatalogParent {
+public class CatalogActivity extends PageTurnerActivity implements CatalogParent {
 
     @InjectFragment(R.id.fragment_catalog)
     private CatalogFragment catalogFragment;
@@ -43,19 +43,15 @@ public class CatalogActivity extends RoboSherlockFragmentActivity implements Cat
     @Nullable
     @InjectFragment(R.id.fragment_book_details)
     private BookDetailsFragment detailsFragment;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class); 
-		PageTurner.changeLanguageSetting(this, config);
-		setTheme( config.getTheme() );
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
-		super.onCreate(savedInstanceState);
-
-		setContentView(R.layout.activity_catalog);
-
+    @Override
+    protected void onCreatePageTurnerActivity(Bundle savedInstanceState) {
         hideDetailsView();
+    }
+
+    @Override
+    protected int getMainLayoutResource() {
+        return R.layout.activity_catalog;
     }
 
     private void hideDetailsView() {
@@ -81,13 +77,6 @@ public class CatalogActivity extends RoboSherlockFragmentActivity implements Cat
         } else {
             hideDetailsView();
         }
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        setSupportProgressBarIndeterminate(true);
-        setSupportProgressBarIndeterminateVisibility(true);
     }
 
     @Override

@@ -334,6 +334,10 @@
     <string name="pref_use_publisher_style">Use Publisher style (CSS)</string>
     <string name="pref_use_publisher_style_summary">Allow the book to change fonts, colours, etc.</string>
 
+    <string name="pref_allow_css_colours">Allow the book to set colours</string>
+    <string name="pref_css_colours_day_summary">For day mode</string>
+    <string name="pref_css_colours_night_summary">For night mode</string>
+
     
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>

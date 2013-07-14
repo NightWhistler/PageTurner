@@ -167,6 +167,7 @@ public class Configuration {
     public static final String KEY_HIGHLIGHTS = "highlights";
 
     public static final String KEY_ALLOW_STYLING = "allow_styling";
+    public static final String KEY_ALLOW_STYLE_COLOURS = "allow_style_colours";
 
 	// Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink
 	// based Android device
@@ -678,6 +679,20 @@ public class Configuration {
 	public int getLinkColor() {
 		return getProfileSetting(KEY_LINK, Color.BLUE, Color.rgb(255, 165, 0));
 	}
+
+    public boolean isUseColoursFromCSS() {
+
+        String setting = KEY_ALLOW_STYLE_COLOURS;
+        boolean nightDefault = false;
+        boolean dayDefault = true;
+
+        if (getColourProfile() == ColourProfile.NIGHT) {
+            return settings.getBoolean(PREFIX_NIGHT + "_" + setting, nightDefault);
+        } else {
+            return settings.getBoolean(PREFIX_DAY + "_" + setting, dayDefault);
+        }
+    }
+
 
 	private int getProfileSetting(String setting, int dayDefault,
 			int nightDefault) {

@@ -282,6 +282,10 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         this.htmlSpanner.setAllowStyling(allowStyling);
     }
 
+    public void setUseColoursFromCSS( boolean useColours ) {
+        this.htmlSpanner.setUseColoursFromStyle(useColours);
+    }
+
     public FastBitmapDrawable getCachedImage( String href ) {
         return imageCache.get( href );
     }

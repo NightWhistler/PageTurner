@@ -234,6 +234,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		private int textSize;
 		private boolean scrolling;
         private boolean allowStyling;
+        private boolean allowColoursFromCSS;
 	}
 
 	private SavedConfigState savedConfigState = new SavedConfigState();
@@ -513,6 +514,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		savedConfigState.scrolling = config.isScrollingEnabled();
         savedConfigState.allowStyling = config.isAllowStyling();
+        savedConfigState.allowColoursFromCSS = config.isUseColoursFromCSS();
 		
 	}
 
@@ -1032,6 +1034,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		textLoader.setStripWhiteSpace(config.isStripWhiteSpaceEnabled());
         textLoader.setAllowStyling( config.isAllowStyling() );
+        textLoader.setUseColoursFromCSS( config.isUseColoursFromCSS() );
+
 		bookView.setLineSpacing(config.getLineSpacing());
 
 		if (config.isFullScreenEnabled()) {
@@ -1073,7 +1077,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				|| config.getVerticalMargin() != savedConfigState.vMargin
 				|| config.getTextSize() != savedConfigState.textSize 
 				|| config.isScrollingEnabled() != savedConfigState.scrolling
-                || config.isAllowStyling() != savedConfigState.allowStyling ) {
+                || config.isAllowStyling() != savedConfigState.allowStyling
+                || config.isUseColoursFromCSS() != savedConfigState.allowColoursFromCSS ) {
 
             textLoader.invalidateCachedText();
 			restartActivity();

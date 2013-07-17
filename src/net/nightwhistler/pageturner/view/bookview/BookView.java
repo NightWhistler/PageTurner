@@ -1383,7 +1383,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 					}
 				}, 100);
 			}
-		}
+
+            childView.requestFocus();
+        }
 	}
 
 	private class CalculatePageNumbersTask extends

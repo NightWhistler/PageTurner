@@ -2343,13 +2343,18 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 	
 	private void launchActivity(Class<?> activityClass) {
-		Intent intent = new Intent(getActivity(), activityClass);
-		startActivity(intent);
-		
-		saveReadingPosition();
-		this.bookView.releaseResources();		
-		
-		getActivity().finish();		
+
+        Activity activity = getActivity();
+
+        if ( activity != null ) {
+            Intent intent = new Intent(activity, activityClass);
+            startActivity(intent);
+
+            saveReadingPosition();
+            this.bookView.releaseResources();
+
+            activity.finish();
+        }
 	}
 
 	private void showPickProgressDialog(final List<BookProgress> results) {

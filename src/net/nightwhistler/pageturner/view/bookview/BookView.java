@@ -876,7 +876,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		@Override
 		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
 				int start, int end) {
-			String src = node.getAttributeByName("src");
+
+            String src = node.getAttributeByName("src");
 
 			if (src == null) {
 				src = node.getAttributeByName("href");
@@ -885,6 +886,11 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			if (src == null) {
 				src = node.getAttributeByName("xlink:href");
 			}
+
+            if ( src == null ) {
+                return;
+            }
+
 			builder.append("\uFFFC");
 			
 			if (src.startsWith("data:image")) {

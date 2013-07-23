@@ -205,13 +205,17 @@ public class CatalogFragment extends RoboSherlockFragment implements
     public void performSearch(String searchTerm) {
     	if (searchTerm != null && searchTerm.length() > 0) {
 			String searchString = URLEncoder.encode(searchTerm);
-			String linkUrl = adapter.getFeed().getSearchLink()
+            Feed feed = adapter.getFeed();
+
+            if ( feed.getSearchLink() != null ) {
+			    String linkUrl = feed.getSearchLink()
 					.getHref();
 
-			linkUrl = linkUrl.replace("{searchTerms}",
-					searchString);
+			    linkUrl = linkUrl.replace("{searchTerms}",
+				    	searchString);
 
-            loadURL(null, linkUrl, false, true, ResultType.REPLACE);
+                loadURL(null, linkUrl, false, true, ResultType.REPLACE);
+            }
 		}
     }
     

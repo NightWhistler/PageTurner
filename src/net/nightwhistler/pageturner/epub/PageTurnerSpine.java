@@ -236,7 +236,9 @@ public class PageTurnerSpine {
 		} 
 		catch (URISyntaxException u) {
 			return href;
-		}	
+		} catch (IllegalArgumentException i) {
+            return href;
+        }
 	}
 	
 	private static String encode(String input) {

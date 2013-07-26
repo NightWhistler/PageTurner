@@ -141,10 +141,12 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         mToggle.syncState();
     }
 
-    public void launchActivity(Class<?> activityClass) {
+    public void launchActivity(Class<? extends  PageTurnerActivity> activityClass) {
         Intent intent = new Intent(this, activityClass);
 
         beforeLaunchActivity();
+
+        config.setLastActivity( activityClass );
 
         startActivity(intent);
         finish();

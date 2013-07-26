@@ -19,6 +19,7 @@
 package net.nightwhistler.pageturner.activity;
 
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -83,6 +84,20 @@ public class ReadingActivity extends PageTurnerActivity {
         }
 
         return theme;
+    }
+
+    @Override
+    protected void onCreatePageTurnerActivity(Bundle savedInstanceState) {
+
+        Class<? extends PageTurnerActivity> lastActivityClass = config.getLastActivity();
+
+        if ( lastActivityClass != null && lastActivityClass != ReadingActivity.class ) {
+            Intent intent = new Intent(this, lastActivityClass);
+
+            startActivity(intent);
+            finish();
+        }
+
     }
 
     @Override

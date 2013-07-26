@@ -30,6 +30,8 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.FontFamily;
+import net.nightwhistler.pageturner.activity.PageTurnerActivity;
+import net.nightwhistler.pageturner.activity.ReadingActivity;
 import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.dto.PageOffsets;
 import org.json.JSONArray;
@@ -171,6 +173,8 @@ public class Configuration {
 
     public static final String KEY_LAST_TITLE = "last_title";
 
+    public static final String KEY_LAST_ACTIVITY = "last_activity";
+
 	// Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink
 	// based Android device
 	
@@ -247,6 +251,22 @@ public class Configuration {
 		
 		return new Locale(languageSetting);
 	}
+
+    public Class<? extends PageTurnerActivity> getLastActivity() {
+        String lastActivityString = settings.getString( KEY_LAST_ACTIVITY,
+                "net.nightwhistler.pageturner.activity.ReadingActivity" );
+
+        try {
+            return (Class<? extends PageTurnerActivity>) Class.forName( lastActivityString );
+        } catch ( ClassNotFoundException n ) {
+            return ReadingActivity.class;
+        }
+
+    }
+
+    public void setLastActivity( Class<? extends PageTurnerActivity> activityClass ) {
+        updateValue( KEY_LAST_ACTIVITY, activityClass.getCanonicalName() );
+    }
 
 	public String getBaseOPDSFeed() {
 		return BASE_OPDS_FEED;

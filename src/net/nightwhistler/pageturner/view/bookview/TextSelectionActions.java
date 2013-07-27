@@ -57,14 +57,18 @@ public class TextSelectionActions implements ActionMode.Callback {
 
         menu.removeItem(android.R.id.selectAll);
 
-        menu.findItem(android.R.id.copy).setOnMenuItemClickListener(new OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                PlatformUtil.copyTextToClipboard(context, bookView.getSelectedText());
-                mode.finish();
-                return true;
-            }
-        });
+        MenuItem copyItem = menu.findItem(android.R.id.copy);
+
+        if ( copyItem != null ) {
+            copyItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    PlatformUtil.copyTextToClipboard(context, bookView.getSelectedText());
+                    mode.finish();
+                    return true;
+                }
+            });
+        }
 
         menu.add(R.string.abs__share_action_provider_share_with)
                 .setOnMenuItemClickListener(new OnMenuItemClickListener() {

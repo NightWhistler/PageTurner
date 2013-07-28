@@ -351,7 +351,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	private void openBook(LibraryBook libraryBook) {
 		Intent intent = new Intent(getActivity(), ReadingActivity.class);
-		
+        config.setLastActivity( ReadingActivity.class );
+
 		intent.setData( Uri.parse(libraryBook.getFileName()));
 		getActivity().setResult(Activity.RESULT_OK, intent);
 				

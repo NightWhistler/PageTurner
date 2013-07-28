@@ -39,6 +39,7 @@ import com.google.inject.Provider;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.activity.ReadingActivity;
 import roboguice.inject.InjectView;
@@ -84,6 +85,9 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     @InjectView(R.id.addToLibraryButton)
     private Button addToLibraryButton;
+
+    @Inject
+    private Configuration config;
 
    // @InjectView(R.id.relatedLinksContainer)
    // ViewGroup altLinkParent;
@@ -294,6 +298,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
                     intent = new Intent(getActivity().getBaseContext(),
                             ReadingActivity.class);
+                    config.setLastActivity( ReadingActivity.class );
+
                     intent.setData(Uri.parse(destFile.getAbsolutePath()));
 
                     startActivity(intent);

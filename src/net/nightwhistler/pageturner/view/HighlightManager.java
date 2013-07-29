@@ -6,19 +6,22 @@ import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.dto.HighLight;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: alex
- * Date: 6/8/13
- * Time: 8:33 PM
- * To change this template use File | Settings | File Templates.
+ * Manages highlights for a book.
+ *
+ * @author Alex Kuiper
  */
 public class HighlightManager {
 
     private List<HighLight> currentHighlights = new ArrayList<HighLight>();
     private String currentFileName;
+
+    private static final HighlightComparator COMP = new HighlightComparator();
 
     @Inject
     private Configuration config;
@@ -33,6 +36,7 @@ public class HighlightManager {
             this.currentHighlights = new ArrayList<HighLight>();
         } else if ( ! fileName.equals(currentFileName) ) {
             this.currentHighlights = config.getHightLights(fileName);
+            sort( this.currentHighlights );
         }
 
         this.currentFileName = fileName;
@@ -53,14 +57,40 @@ public class HighlightManager {
 
     public synchronized List<HighLight> getHighLights(String bookFile) {
         updateBookFile(bookFile);
-        return Collections.unmodifiableList( currentHighlights );
+
+        return Collections.unmodifiableList( this.currentHighlights );
     }
 
     public synchronized void saveHighLights() {
         if ( currentFileName != null && currentHighlights != null ) {
             Log.d("HighlightManager", "Storing highlights for file " + currentFileName + ": "
                     + currentHighlights.size() + " items.");
+
+            sort( this.currentHighlights );
             config.storeHighlights(currentFileName, currentHighlights);
+        }
+    }
+
+    private static void sort( List<HighLight> highLights ) {
+        Collections.sort(highLights, COMP);
+    }
+
+    private static class HighlightComparator implements Comparator<HighLight> {
+        @Override
+        public int compare(HighLight lhs, HighLight rhs) {
+
+            Integer left;
+            Integer right;
+
+            if ( lhs.getIndex() != rhs.getIndex() ) {
+                left = lhs.getIndex();
+                right = rhs.getIndex();
+            } else {
+                left = lhs.getStart();
+                right = rhs.getStart();
+            }
+
+            return left.compareTo( right );
         }
     }
 

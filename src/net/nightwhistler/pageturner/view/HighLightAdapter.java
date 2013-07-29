@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,6 +90,9 @@ public class HighLightAdapter extends ArrayAdapter<HighLight> implements
         int progressPercentage = bookView.getPercentageFor(highLight.getIndex(), highLight.getStart() );
         int pageNumber = bookView.getPageNumberFor(highLight.getIndex(), highLight.getStart() );
         int totalPages = bookView.getTotalNumberOfPages();
+
+        Log.d( "HighLightAdapter", "Highlight index=" + highLight.getIndex() + " start=" + highLight.getStart()
+                + " percentage=" + progressPercentage + " pageNumber=" + pageNumber);
 
         String text = progressPercentage + "%";
 

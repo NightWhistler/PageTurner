@@ -118,6 +118,10 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
         List<CompiledRule> result = new ArrayList<CompiledRule>();
 
+        if ( currentBook == null ) {
+            return result;
+        }
+
         String strippedHref = href.substring( href.lastIndexOf('/') + 1);
 
         Resource res = null;

@@ -18,12 +18,17 @@
  */
 package net.nightwhistler.pageturner.catalog;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,6 +53,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Random;
 
 /**
  * Fragment which shows the details of the book to be downloaded.
@@ -89,12 +95,15 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     @Inject
     private Configuration config;
 
+    @Inject
+    private NotificationManager notificationManager;
+
    // @InjectView(R.id.relatedLinksContainer)
    // ViewGroup altLinkParent;
 
     private int displayDensity;
 
-       private Feed feed;
+    private Feed feed;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -264,78 +273,201 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     public void startDownload(final boolean openOnCompletion, final String url) {
 
-        final ProgressDialog downloadDialog = new ProgressDialog(getActivity());
-
-        downloadDialog.setIndeterminate(false);
-        downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        downloadDialog.setCancelable(true);
-
-        DownloadFileTask.DownloadFileCallback callBack = new DownloadFileTask.DownloadFileCallback() {
-
-            @Override
-            public void onDownloadStart() {
-                downloadDialog.setMessage(getString(R.string.downloading));
-                downloadDialog.show();
-            }
-
-            @Override
-            public void progressUpdate(long progress, long total, int percentage) {
-                downloadDialog.setMax( Long.valueOf(total).intValue() );
-                downloadDialog.setProgress(Long.valueOf(progress).intValue());
-            }
-
-            @Override
-            public void downloadSuccess(File destFile) {
-
-                downloadDialog.dismiss();
-
-                if ( ! isAdded() ) {
-                    return;
-                }
-
-                if ( openOnCompletion ) {
-                    Intent intent;
-
-                    intent = new Intent(getActivity().getBaseContext(),
-                            ReadingActivity.class);
-                    config.setLastActivity( ReadingActivity.class );
-
-                    intent.setData(Uri.parse(destFile.getAbsolutePath()));
-
-                    startActivity(intent);
-                    getActivity().finish();
-                } else {
-                    Toast.makeText(getActivity(), R.string.download_complete,
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void downloadFailed() {
-
-                downloadDialog.dismiss();
-
-                if ( isAdded() ) {
-                    Toast.makeText(getActivity(), R.string.book_failed,
-                        Toast.LENGTH_LONG).show();
-                }
-            }
-        };
-
         final DownloadFileTask task = this.downloadFileTaskProvider.get();
 
-        DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
+        final Entry entry = feed.getEntries().get(0);
+        String title = entry.getTitle();
 
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                task.cancel(true);
-            }
-        };
+        if ( !openOnCompletion && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH ) {
+            task.setCallBack( new NotificationBarCallback(getActivity().getBaseContext(), title, openOnCompletion) );
+        } else {
+            task.setCallBack( new ProgressDialogCallback(getActivity().getBaseContext(), task, openOnCompletion) );
+        }
 
-        downloadDialog.setOnCancelListener(cancelListener);
-
-        task.setCallBack(callBack);
         task.execute(url);
+
+    }
+
+    private abstract class AbstractDownloadCallback implements DownloadFileTask.DownloadFileCallback {
+
+        private boolean openOnCompletion;
+        private Context context;
+
+        public AbstractDownloadCallback( Context context, boolean openOnCompletion ) {
+            this.openOnCompletion = openOnCompletion;
+            this.context = context;
+        }
+
+        @Override
+        public void downloadSuccess(File destFile) {
+
+            if ( ! isAdded() ) {
+                return;
+            }
+
+            if ( openOnCompletion ) {
+                Intent intent = getBookOpenIntent(destFile);
+                startActivity(intent);
+                getActivity().finish();
+            }
+        }
+
+        protected Intent getBookOpenIntent(File destFile) {
+            Intent intent;
+
+            intent = new Intent(context,
+                    ReadingActivity.class);
+            config.setLastActivity( ReadingActivity.class );
+
+            intent.setData(Uri.parse(destFile.getAbsolutePath()));
+
+            return intent;
+        }
+
+        public boolean isOpenOnCompletion() {
+            return openOnCompletion;
+        }
+
+    }
+
+    private class NotificationBarCallback extends AbstractDownloadCallback {
+
+        private NotificationCompat.Builder builder;
+
+        final private String title;
+
+        final private String downloadSubtitle;
+        final private String downloadSuccess;
+        final private String downloadFailed;
+
+        int notificationId;
+
+        private Context context;
+
+        public NotificationBarCallback(Context context, String title,
+                                       boolean openOnCompletion) {
+            super( context, openOnCompletion );
+            this.title = title;
+            this.downloadSubtitle = getString(R.string.downloading);
+            this.downloadSuccess = getString(R.string.download_complete);
+            this.downloadFailed = getString(R.string.book_failed);
+
+            this.notificationId = new Random().nextInt();
+
+            this.context = context;
+        }
+
+        @Override
+        public void onDownloadStart() {
+
+            builder = new NotificationCompat.Builder(context);
+            builder.setContentTitle(title)
+                    .setContentText(downloadSubtitle)
+                    .setSmallIcon(R.drawable.download);
+            builder.setTicker(downloadSubtitle);
+
+            builder.setProgress( 0, 0, true);
+
+            notificationManager.notify(notificationId, builder.build());
+
+        }
+
+        @Override
+        public void progressUpdate(long progress, long total, int percentage) {
+
+            builder.setProgress( 100, percentage, false);
+            // Displays the progress bar for the first time.
+            notificationManager.notify(notificationId, builder.build());
+
+        }
+
+        @Override
+        public void downloadSuccess(File destFile) {
+
+            builder.setContentText(downloadSuccess)
+                    // Removes the progress bar
+                    .setProgress(0, 0, false);
+
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+                    getBookOpenIntent(destFile), 0);
+            builder.setContentIntent( contentIntent );
+            builder.setTicker(downloadSuccess);
+            builder.setAutoCancel(true);
+
+            notificationManager.notify(notificationId, builder.build());
+
+            super.downloadSuccess(destFile);
+        }
+
+        @Override
+        public void downloadFailed() {
+
+            builder.setContentText(downloadFailed)
+                    // Removes the progress bar
+                    .setProgress(0, 0, false);
+            notificationManager.notify(notificationId, builder.build());
+
+        }
+    }
+
+    private class ProgressDialogCallback extends AbstractDownloadCallback implements
+        DialogInterface.OnCancelListener {
+
+        private ProgressDialog downloadDialog;
+        private DownloadFileTask task;
+
+        private ProgressDialogCallback(Context context, DownloadFileTask task, boolean openOnCompletion) {
+
+            super( context, openOnCompletion );
+
+            this.downloadDialog = new ProgressDialog(getActivity());
+            this.task = task;
+
+            downloadDialog.setIndeterminate(false);
+            downloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            downloadDialog.setCancelable(true);
+
+
+            downloadDialog.setOnCancelListener( this );
+        }
+
+        @Override
+        public void onCancel(DialogInterface dialog) {
+            task.cancel(true);
+        }
+
+        @Override
+        public void onDownloadStart() {
+            downloadDialog.setMessage(getString(R.string.downloading));
+            downloadDialog.show();
+        }
+
+        @Override
+        public void progressUpdate(long progress, long total, int percentage) {
+            downloadDialog.setMax( Long.valueOf(total).intValue() );
+            downloadDialog.setProgress(Long.valueOf(progress).intValue());
+        }
+
+        @Override
+        public void downloadSuccess(File destFile) {
+            downloadDialog.dismiss();
+
+            super.downloadSuccess(destFile);
+
+            if ( ! isOpenOnCompletion() ) {
+                Toast.makeText(getActivity(), R.string.download_complete,
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+
+        @Override
+        public void downloadFailed() {
+
+            if ( isAdded() ) {
+                Toast.makeText(getActivity(), R.string.book_failed,
+                        Toast.LENGTH_LONG).show();
+            }
+        }
 
     }
 

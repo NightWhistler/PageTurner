@@ -405,6 +405,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             builder.setContentText(downloadFailed)
                     // Removes the progress bar
                     .setProgress(0, 0, false);
+            builder.setAutoCancel(true);
+
             notificationManager.notify(notificationId, builder.build());
 
         }

@@ -1369,6 +1369,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			restorePosition();
 			strategy.updateGUI();
 			progressUpdate();
+            childView.requestFocus();
 			
 			onProgressUpdate(BookReadPhase.DONE);
 

@@ -174,6 +174,31 @@
     <string name="search_results_item">Search results…</string>
     <string name="lookup_wiktionary">Search on Wiktionary</string>
 
+    <string name="select_text">Select text</string>
+    <string name="select_text_msg">Long-press a word to start text selection</string>
+
+    <string name="no_search_results">Your search yielded no results.</string>
+
+    <string name="dead_link">Sorry, it looks like the link you clicked is broken.</string>
+    <string name="could_not_load">Could not load text: %s</string>
+    <string name="out_of_memory">Sorry, PageTurner could not free enough memory to load this file.</string>
+
+    <string name="highlight">Highlight</string>
+    <string name="highlights">Highlights</string>
+
+    <string name="highlight_options">Highlight options</string>
+    <string name="text_note">Text note</string>
+    <string name="clear_note">Clear note</string>
+    <string name="save_note">Save note</string>
+
+    <string name="page_number_of">Page %1$d of %2$d</string>
+
+    <string-array name="highlightOptionsLabels">
+        <item>Remove highlight</item>
+        <item>Highlight colour…</item>
+        <item>Text note…</item>
+    </string-array>
+
 
 
     <!-- Preferences -->     
@@ -334,6 +359,16 @@
 
     <string name="opds_settings">OPDS settings</string>
 
+    <string name="pref_use_publisher_style">Use Publisher style (CSS)</string>
+    <string name="pref_use_publisher_style_summary">Allow the book to change fonts, colours, etc.</string>
+
+    <string name="drawer_open">Drawer open</string>
+    <string name="drawer_close">Drawer closed</string>
+    <string name="drawer_layout">Drawer layout</string>
+
+    <string name="pref_allow_css_colours">Allow the book to set colours</string>
+    <string name="pref_css_colours_day_summary">For day mode</string>
+    <string name="pref_css_colours_night_summary">For night mode</string>
 
 
 

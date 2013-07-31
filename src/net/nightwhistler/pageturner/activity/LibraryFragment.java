@@ -1072,7 +1072,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	private void buildImportQuestionDialog() {
 		
-		if ( importQuestion != null ) {
+		if ( importQuestion != null || ! isAdded() ) {
 			return;
 		}
 		

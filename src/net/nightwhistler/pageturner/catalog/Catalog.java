@@ -84,6 +84,9 @@ public class Catalog {
 	public static void loadBookDetails(View layout, Entry entry, boolean abbreviateText ) {
 		
 		HtmlSpanner spanner = new HtmlSpanner();
+
+        //We don't want to load images here
+        spanner.unregisterHandler( "img" );
 		
 		TextView title = (TextView) layout.findViewById(R.id.itemTitle);
 		TextView desc = (TextView) layout

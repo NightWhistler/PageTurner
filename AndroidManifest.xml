@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.nightwhistler.pageturner"
-      android:versionName="2.2-dev"
-      android:versionCode="38"
+      android:versionName="2.2-beta_20130805"
+      android:versionCode="45"
       android:installLocation="auto">
     
     <uses-sdk

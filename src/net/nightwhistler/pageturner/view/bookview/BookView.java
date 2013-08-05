@@ -1079,6 +1079,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
     }
 
 	public int getPageNumberFor( int index, int position ) {
+
+        LOG.debug( "Looking for pageNumber for index=" + index + ", position=" + position );
 		
 		int pageNum = 0;
 		
@@ -1089,24 +1091,45 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		}
 		
 		for ( int i=0; i < index; i++ ) {
-			pageNum += pageOffsets.get(i).size();			
+
+            int pages = pageOffsets.get(i).size();
+
+			pageNum += pages;
+
+            LOG.debug("Index " + i + ": pages=" + pages);
 		}
-		
-		List<Integer> offsets;
-		
-		if ( this.strategy.isScrolling() ) {		
-			offsets = pageOffsets.get(index);
-		
-			for ( int i=0; i < offsets.size() && offsets.get(i) < position; i++ ) {
-				pageNum++;
-			}
-		
-		} else {
-			pageNum+= ((FixedPagesStrategy) strategy).getCurrentPage();
-		}		
-		
+
+        List<Integer> offsets = pageOffsets.get(index);
+
+        LOG.debug("Pages before this index: " + pageNum );
+
+        LOG.debug( "Offsets according to spine: " + asString(offsets) );
+
+        if ( this.strategy instanceof FixedPagesStrategy ) {
+            List<Integer> strategyOffsets = ( (FixedPagesStrategy) this.strategy ).getPageOffsets();
+            LOG.debug("Offsets according to strategy: " + asString(strategyOffsets) );
+        }
+
+		for ( int i=0; i < offsets.size() && offsets.get(i) <= position; i++ ) {
+			pageNum++;
+		}
+
+        LOG.debug( "Calculated pageNumber=" + pageNum );
 		return pageNum;
 	}
+
+    private static String asString( List<Integer> offsets ) {
+
+        StringBuilder stringBuilder = new StringBuilder("[ ");
+
+        for ( int i=0; i < offsets.size(); i++ ) {
+            stringBuilder.append( offsets.get( i ) + " " );
+        }
+
+        stringBuilder.append(" ]");
+
+        return stringBuilder.toString();
+    }
 
 	public void setEnableScrolling(boolean enableScrolling) {
 

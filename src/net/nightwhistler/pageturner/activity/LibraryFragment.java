@@ -271,7 +271,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	private void showBookDetails( final LibraryBook libraryBook ) {
 
-        if ( ! isAdded() ) {
+        if ( ! isAdded() || libraryBook == null ) {
             return;
         }
 		
@@ -1061,7 +1061,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	private void buildImportQuestionDialog() {
 		
-		if ( importQuestion != null ) {
+		if ( importQuestion != null || ! isAdded() ) {
 			return;
 		}
 		

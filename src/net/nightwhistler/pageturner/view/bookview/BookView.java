@@ -1219,6 +1219,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
             } else {
                 LOG.debug("Not starting action-mode yet, since block time hasn't expired.");
+                clearFocus();
                 return null;
             }
 
@@ -1392,8 +1393,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			restorePosition();
 			strategy.updateGUI();
 			progressUpdate();
-            childView.requestFocus();
-			
+
 			onProgressUpdate(BookReadPhase.DONE);
 
 			if (needToCalcPageNumbers) {

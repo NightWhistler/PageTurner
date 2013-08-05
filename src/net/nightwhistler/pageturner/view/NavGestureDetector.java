@@ -42,7 +42,7 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 	//Distance to scroll 1 unit on edge slide.
 	private static final int SCROLL_FACTOR = 50;
 
-    private static final int BOOKVIEW_BLOCK_TIME = 500;
+    private static final int BOOKVIEW_BLOCK_TIME = 1500;
 	
 	private BookViewListener bookViewListener;
 	private BookView bookView;
@@ -57,7 +57,9 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
-		
+
+        bookView.blockFor( BOOKVIEW_BLOCK_TIME );
+
 		//Links get preference
 		ClickableSpan[] spans = bookView.getLinkAt(e.getX(), e.getY() );
 		if ( spans != null && spans.length > 0 ) {
@@ -67,7 +69,6 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 				span.onClick(bookView);
 			}
 
-            bookView.blockFor( BOOKVIEW_BLOCK_TIME );
 			return true;
 		} else {
             Log.d("NavGestureDetector", "No ClickableSpans found.");
@@ -82,7 +83,6 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
                 bookView.highlightClicked( span.getHighLight() );
             }
 
-            bookView.blockFor( BOOKVIEW_BLOCK_TIME );
             return true;
         } else {
             Log.d("NavGestureDetector", "No HighLightSpans found.");

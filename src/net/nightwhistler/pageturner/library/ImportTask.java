@@ -125,9 +125,15 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 	
 	private void findEpubsInFolder( File folder, List<File> items) {
 		
-		if ( folder == null  || ! folder.isDirectory() ) {
+		if ( folder == null  || ! folder.exists() ) {
 			return;
 		}
+
+        //If we got a single file, just import that.
+        if ( ! folder.isDirectory() ) {
+            items.add( folder );
+            return;
+        }
 
         Queue<File> dirs = new LinkedList<File>();
         dirs.add(folder);

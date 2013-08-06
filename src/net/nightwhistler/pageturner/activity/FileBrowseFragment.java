@@ -78,36 +78,51 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		File f = this.adapter.getItem(position);
-		if ( f.exists() && f.isDirectory() ) {
-			this.adapter.setFolder(f);
-			getActivity().setTitle(adapter.getCurrentFolder());
-		}
-	}	
-	
+		File f = this.adapter.getItem(position).file;
+
+        if ( f.exists() ) {
+
+            if ( f.isDirectory() ) {
+			    this.adapter.setFolder(f);
+			    getActivity().setTitle(adapter.getCurrentFolder());
+		    } else {
+                returnFile( f );
+            }
+        }
+	}
+
+    private void returnFile( File file ) {
+        Intent intent = getActivity().getIntent();
+        intent.setData( Uri.fromFile(file) );
+        getActivity().setResult(Activity.RESULT_OK, intent);
+        getActivity().finish();
+    }
+
 	private class FileAdapter extends BaseAdapter {
 		
 		private File currentFolder;
-		private List<File> items = new ArrayList<File>();
+		private List<FileItem> items = new ArrayList<FileItem>();
 		
 		public void setFolder( File folder ) {
 			
 			this.currentFolder = folder;
-			items = new ArrayList<File>();
+			items = new ArrayList<FileItem>();
 			File[] listing = folder.listFiles();
 			
 			if ( listing != null ) {
 				for ( File childFile: listing ) {					
 					if ( childFile.isDirectory() || childFile.getName().toLowerCase(Locale.US).endsWith(".epub")) {
-						items.add(childFile);
+						items.add(new FileItem(childFile.getName(), childFile));
 					}
 				}
 			}
 			
 			Collections.sort(items, new FileSorter() );
-			
+
+            items.add( 0, new FileItem( "[" + getString(R.string.import_this) + "]", folder));
+
 			if ( folder.getParentFile() != null ) {
-				items.add(0, folder.getParentFile() );
+				items.add(0, new FileItem( "[..]", folder.getParentFile() ));
 			}
 			
 			notifyDataSetChanged();
@@ -123,7 +138,7 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 		}
 		
 		@Override
-		public File getItem(int position) {
+		public FileItem getItem(int position) {
 			return items.get(position);
 		}
 		
@@ -135,7 +150,7 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 		@Override
 		public View getView(final int position, View convertView, ViewGroup parent) {
 			View rowView;		
-			final File file = getItem(position);
+			final FileItem fileItem = getItem(position);
 
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 						
@@ -147,24 +162,21 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 			
 			ImageView img = (ImageView) rowView.findViewById(R.id.folderIcon);
 			CheckBox selectBox = (CheckBox) rowView.findViewById(R.id.selectBox);
-			
-			if ( file.isDirectory() ) {
-				img.setImageDrawable(getResources().getDrawable(R.drawable.folder));
-				selectBox.setVisibility(View.VISIBLE);
-			} else {
-				img.setImageDrawable(getResources().getDrawable(R.drawable.book));
-				selectBox.setVisibility(View.GONE);
-			}
-			
+
+            if ( fileItem.file.isDirectory() ) {
+			    img.setImageDrawable(getResources().getDrawable(R.drawable.folder));
+			    selectBox.setVisibility(View.VISIBLE);
+            } else {
+                img.setImageDrawable(getResources().getDrawable(R.drawable.file));
+                selectBox.setVisibility(View.GONE);
+            }
+
 			selectBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 				
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 					if ( isChecked ) {
-						Intent intent = getActivity().getIntent();
-						intent.setData( Uri.fromFile(file) );
-						getActivity().setResult(Activity.RESULT_OK, intent);
-						getActivity().finish();
+                        returnFile( fileItem.file );
 					}
 				}
 			});
@@ -172,28 +184,33 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 			
 			TextView label = (TextView) rowView.findViewById(R.id.folderName);
 
-			if ( position == 0 && currentFolder.getParentFile() != null ) {
-				label.setText("..");
-			} else {
-				label.setText(file.getName());
-			}
+			label.setText( fileItem.label );
 			
 			return rowView;
 		}
 		
-		
 	}
+
+    private static class FileItem {
+        private CharSequence label;
+        private File file;
+
+        public FileItem( CharSequence label, File file ) {
+            this.label = label;
+            this.file = file;
+        }
+    }
 	
-	private class FileSorter implements Comparator<File> {
+	private static class FileSorter implements Comparator<FileItem> {
 		@Override
-		public int compare(File lhs, File rhs) {			
+		public int compare(FileItem lhs, FileItem rhs) {
 			
-			if ( (lhs.isDirectory() && rhs.isDirectory()) ||
-					(!lhs.isDirectory() && !rhs.isDirectory())) {
-				return lhs.getName().compareTo(rhs.getName());
+			if ( (lhs.file.isDirectory() && rhs.file.isDirectory()) ||
+					(!lhs.file.isDirectory() && !rhs.file.isDirectory())) {
+				return lhs.file.getName().compareTo(rhs.file.getName());
 			}
 			
-			if ( lhs.isDirectory() ) {
+			if ( lhs.file.isDirectory() ) {
 				return -1;
 			} else {
 				return 1;

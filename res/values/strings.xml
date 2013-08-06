@@ -183,6 +183,8 @@
         <item>Text note…</item>
     </string-array>
 
+    <string name="import_this">Import this folder</string>
+
     <!-- Preferences -->
 
     <string name="pref_sync_settings">Sync settings</string>

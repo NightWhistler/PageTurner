@@ -131,6 +131,13 @@
             android:summary="@string/pref_full_screen_summary"
             android:defaultValue="false" />
 
+     <CheckBoxPreference
+            android:key="always_open_last_book"
+            android:title="@string/pref_always_open_book"
+            android:summary="@string/pref_always_open_book_summary"
+            android:defaultValue="false" />
+
+
     <CheckBoxPreference
         android:key="dim_system_ui"
         android:title="@string/pref_dim_system_ui"

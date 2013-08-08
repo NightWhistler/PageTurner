@@ -344,6 +344,9 @@
     <string name="pref_css_colours_day_summary">For day mode</string>
     <string name="pref_css_colours_night_summary">For night mode</string>
 
+    <string name="pref_always_open_book">Always open last book</string>
+    <string name="pref_always_open_book_summary">PageTurner will always start in the last read book instead of last open screen.</string>
+
     
     <!-- Translation is not needed for the strings below -->
     <string name="no_author_byline" translatable="false">by John Doe</string>

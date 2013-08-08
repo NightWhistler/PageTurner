@@ -91,7 +91,8 @@ public class ReadingActivity extends PageTurnerActivity {
 
         Class<? extends PageTurnerActivity> lastActivityClass = config.getLastActivity();
 
-        if ( lastActivityClass != null && lastActivityClass != ReadingActivity.class ) {
+        if ( !config.isAlwaysOpenLastBook() && lastActivityClass != null
+                && lastActivityClass != ReadingActivity.class ) {
             Intent intent = new Intent(this, lastActivityClass);
 
             startActivity(intent);

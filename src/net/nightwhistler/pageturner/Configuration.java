@@ -175,6 +175,8 @@ public class Configuration {
 
     public static final String KEY_LAST_ACTIVITY = "last_activity";
 
+    public static final String KEY_ALWAYS_OPEN_LAST_BOOK = "always_open_last_book";
+
 	// Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink
 	// based Android device
 	
@@ -275,6 +277,10 @@ public class Configuration {
 	public String getSyncServerURL() {
 		return BASE_SYNC_URL;
 	}
+
+    public boolean isAlwaysOpenLastBook() {
+        return settings.getBoolean(KEY_ALWAYS_OPEN_LAST_BOOK, false);
+    }
 
 	public boolean isVerticalTappingEnabled() {
 		return !isScrollingEnabled()

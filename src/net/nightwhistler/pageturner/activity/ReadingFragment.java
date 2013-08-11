@@ -839,7 +839,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			getActivity().registerReceiver(mediaReceiver, filter);
 
 			audioManager.registerMediaButtonEventReceiver(
-					new ComponentName(getActivity(), MediaButtonReceiver.class));
+                    new ComponentName(getActivity(), MediaButtonReceiver.class));
 		}
 	}
 	
@@ -1420,20 +1420,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
     private ProgressDialog getWaitDialog() {
 
         if ( this.waitDialog == null ) {
-
             this.waitDialog = new ProgressDialog(getActivity());
             this.waitDialog.setOwnerActivity(getActivity());
-            this.waitDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-                @Override
-                public boolean onKey(DialogInterface dialog, int keyCode,
-                                     KeyEvent event) {
-                    // This just consumes all key events and does nothing.
-                    return true;
-
-                }
-            });
-            this.waitDialog.setCancelable(false);
         }
+
+        this.waitDialog.setCancelable(false);
 
         return this.waitDialog;
     }
@@ -1498,7 +1489,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void renderingText() {
         if ( isAdded() ) {
-            this.getWaitDialog().setMessage(getActivity().getString( R.string.loading_text) );
+            this.getWaitDialog().setMessage(getActivity().getString(R.string.loading_text));
         }
 	}
 
@@ -2713,7 +2704,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         builder.setTitle(R.string.highlights);
 
         HighLightAdapter adapter = new HighLightAdapter(getActivity(), bookView,
-                highlightManager.getHighLights( bookView.getFileName() ));
+                highlightManager.getHighLights(bookView.getFileName()));
 
         builder.setAdapter(adapter, adapter);
 
@@ -2731,8 +2722,18 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		@Override
 		protected void onPreExecute() {
             if ( isAdded() ) {
-			    getWaitDialog().setMessage(getActivity().getString(R.string.syncing));
-			    getWaitDialog().show();
+
+                ProgressDialog progressDialog = getWaitDialog();
+                progressDialog.setMessage(getActivity().getString(R.string.syncing));
+                progressDialog.setCancelable(true);
+                progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        ManualProgressSync.this.cancel(true);
+                    }
+                });
+
+                progressDialog.show();
             }
 		}
 
@@ -2746,7 +2747,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			}
 		}
 
-		@Override
+        @Override
+        protected void onCancelled() {
+            closeWaitDialog();
+        }
+
+        @Override
 		protected void onPostExecute(List<BookProgress> progress) {
 			closeWaitDialog();
 
@@ -2788,13 +2794,26 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		protected void onPreExecute() {
             if ( isAdded() ) {
 			    ProgressDialog progressDialog = getWaitDialog();
-                progressDialog.setMessage(getActivity().getString( R.string.syncing));
+                progressDialog.setMessage(getActivity().getString(R.string.syncing));
+                progressDialog.setCancelable(true);
+                progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        DownloadProgressTask.this.cancel(true);
+                    }
+                });
 
-			    progressDialog.show();
+                progressDialog.show();
             }
 		}
 
-		@Override
+        @Override
+        protected void onCancelled() {
+            closeWaitDialog();
+            bookView.restore();
+        }
+
+        @Override
 		protected BookProgress doInBackground(Void... params) {
 			try {
 				List<BookProgress> updates = progressService
@@ -2804,7 +2823,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					return updates.get(0);
 				}
 			} catch (AccessException e) {
-			}
+			    //Ignore, since it's a background process
+            }
 
 			return null;
 		}

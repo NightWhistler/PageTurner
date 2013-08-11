@@ -1120,6 +1120,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	public void onWindowFocusChanged(boolean hasFocus) {
 		if (hasFocus) {
+            hideTitleBar();
 			updateFromPrefs();
 		} else {
 			getActivity().getWindow().clearFlags(

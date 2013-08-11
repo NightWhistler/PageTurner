@@ -129,6 +129,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
     @Inject
     private DialogFactory dialogFactory;
 
+    @Inject
+    private Context context;
+
 	@InjectView(R.id.mainContainer)
 	private ViewSwitcher viewSwitcher;
 
@@ -319,7 +322,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         });
 
 
-		this.textToSpeech = new TextToSpeech(getActivity().getApplicationContext(), new TextToSpeech.OnInitListener() {
+		this.textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
 			@Override
 			public void onInit(int status) {
 				onTextToSpeechInit(status);				
@@ -409,11 +412,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		super.onActivityCreated(savedInstanceState);
 
 		DisplayMetrics metrics = new DisplayMetrics();
-		getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        SherlockFragmentActivity activity = getSherlockActivity();
+
+		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
 		displayPageNumber(-1); // Initializes the pagenumber view properly
 
-		final GestureDetector gestureDetector = new GestureDetector(getActivity(),
+		final GestureDetector gestureDetector = new GestureDetector(context,
 				new NavGestureDetector(bookView, this, metrics));
 
 		View.OnTouchListener gestureListener = new View.OnTouchListener() {
@@ -433,11 +438,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		registerForContextMenu(bookView);
 		saveConfigState();
-		
-		String file = getActivity().getIntent().getStringExtra("file_name");
 
-		if (file == null && getActivity().getIntent().getData() != null) {
-			file = getActivity().getIntent().getData().getPath();
+        Intent intent = activity.getIntent();
+		String file = intent.getStringExtra("file_name");
+
+		if (file == null && intent.getData() != null) {
+			file = intent.getData().getPath();
 		}
 
 		if (file == null) {
@@ -449,9 +455,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		if ("".equals(fileName) || ! new File(fileName).exists() ) {
 
-			Intent intent = new Intent(getActivity(), LibraryActivity.class);
-			startActivity(intent);
-			getActivity().finish();
+			Intent newIntent = new Intent(context, LibraryActivity.class);
+			startActivity(newIntent);
+			activity.finish();
 			return;
 
 		} else {
@@ -469,7 +475,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             uiHandler.post( progressBarUpdater );
         }
 
-        this.getSherlockActivity().getSupportActionBar().addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
+        activity.getSupportActionBar().addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
             @Override
             public void onMenuVisibilityChanged(boolean isVisible) {
 
@@ -562,7 +568,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 file = "error.mp3";
             }
 
-            AssetFileDescriptor descriptor = getActivity().getAssets().openFd(file);
+            AssetFileDescriptor descriptor = context.getAssets().openFd(file);
             beepPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
             descriptor.close();
 
@@ -618,7 +624,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         this.ttsPlaybackItemQueue.activate();
 		this.mediaLayout.setVisibility(View.VISIBLE);
 		
-		this.getWaitDialog().setMessage(getActivity().getString(R.string.init_tts));
+		this.getWaitDialog().setMessage(getString(R.string.init_tts));
 		this.getWaitDialog().show();
 
         streamTTSToDisk();
@@ -679,12 +685,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 if ( isAdded() ) {
                     playBeep(true);
 
-                    StringBuilder textBuilder = new StringBuilder( getActivity().getString(R.string.tts_failed) );
+                    StringBuilder textBuilder = new StringBuilder( getString(R.string.tts_failed) );
                     textBuilder.append("\n").append(message);
 
-                    Toast.makeText(getActivity(), textBuilder.toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, textBuilder.toString(), Toast.LENGTH_SHORT).show();
                 }
-
             }
         } );
     }
@@ -836,21 +841,21 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if ( this.mediaReceiver == null ) {
 			this.mediaReceiver = new PageTurnerMediaReceiver();
 			IntentFilter filter = new IntentFilter(MediaButtonReceiver.INTENT_PAGETURNER_MEDIA);
-			getActivity().registerReceiver(mediaReceiver, filter);
+			context.registerReceiver(mediaReceiver, filter);
 
 			audioManager.registerMediaButtonEventReceiver(
-                    new ComponentName(getActivity(), MediaButtonReceiver.class));
+					new ComponentName(context, MediaButtonReceiver.class));
 		}
 	}
 	
 	@TargetApi(Build.VERSION_CODES.FROYO)
 	private void unsubscribeFromMediaButtons() {		
-		if ( this.mediaReceiver != null && getActivity() != null ) {
-			getActivity().unregisterReceiver(mediaReceiver);
+		if ( this.mediaReceiver != null  ) {
+			context.unregisterReceiver(mediaReceiver);
 			this.mediaReceiver = null;
 		
 			audioManager.unregisterMediaButtonEventReceiver(
-                    new ComponentName(getActivity(), MediaButtonReceiver.class));
+                    new ComponentName(context, MediaButtonReceiver.class));
 		}
 	}
 	
@@ -965,10 +970,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	public void progressUpdate(int progressPercentage, int pageNumber,
 			int totalPages) {
 
-		if ( ! isAdded() || getActivity() == null ) {
-			return;
-		}
-		
+        if ( ! isAdded() || getActivity() == null ) {
+            return;
+        }
+
 		this.currentPageNumber = pageNumber;
 		
 		// Work-around for calculation errors and weird values.
@@ -1015,6 +1020,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private void updateFromPrefs() {
 
+        SherlockFragmentActivity activity = getSherlockActivity();
+
+        if ( activity == null ) {
+            return;
+        }
+
 		bookView.setTextSize(config.getTextSize());
 
 		int marginH = config.getHorizontalMargin();
@@ -1039,27 +1050,26 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		bookView.setLineSpacing(config.getLineSpacing());
 
 		if (config.isFullScreenEnabled()) {
-			getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			getActivity().getWindow().clearFlags(
+			activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			activity.getWindow().clearFlags(
 					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-			getSherlockActivity().getSupportActionBar().hide();
+			activity.getSupportActionBar().hide();
 		} else {
-			getActivity().getWindow().addFlags(
+			activity.getWindow().addFlags(
 					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-			getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			getSherlockActivity().getSupportActionBar().show();
+			activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			activity.getSupportActionBar().show();
 		}
 
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isDimSystemUI() ) {
-            getSherlockActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+            activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
         }
 
-
 		if (config.isKeepScreenOn()) {
-			getActivity().getWindow()
+			activity.getWindow()
 					.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		} else {
-			getActivity().getWindow().clearFlags(
+			activity.getWindow().clearFlags(
 					WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
 
@@ -1111,11 +1121,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         //Clear any cached text.
         textLoader.closeCurrentBook();
-		Intent intent = new Intent(getActivity(), ReadingActivity.class);
+		Intent intent = new Intent(context, ReadingActivity.class);
 		intent.setData(Uri.parse(this.fileName));
 		startActivity(intent);
 		this.libraryService.close();
-		getActivity().finish();
+
+        Activity activity = getActivity();
+
+        if ( activity != null ) {
+            activity.finish();
+        }
 	}
 
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -1134,10 +1149,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	@Override
 	public void bookOpened(final Book book) {
-		
-		if ( ! isAdded() || getActivity() == null ) {
-			return;
-		}
+
+        SherlockFragmentActivity activity = getSherlockActivity();
+
+        if ( activity == null ) {
+            return;
+        }
 
         this.language = this.bookView.getBook().getMetadata().getLanguage();
         LOG.debug("Got language for book: " + language );
@@ -1147,10 +1164,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
         this.config.setLastReadTitle(this.bookTitle);
 
 		this.titleBase = this.bookTitle;
-		getActivity().setTitle(titleBase);
+		activity.setTitle(titleBase);
 		this.titleBar.setText(titleBase);
 		
-		getActivity().supportInvalidateOptionsMenu();
+		activity.supportInvalidateOptionsMenu();
 
 		if (book.getMetadata() != null
 				&& !book.getMetadata().getAuthors().isEmpty()) {
@@ -1175,10 +1192,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		
 		updateFromPrefs();
 	}
-
-    public String getCurrentBookTitle() {
-        return this.bookTitle;
-    }
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
@@ -1262,7 +1275,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     public void onHighLightClick(final HighLight highLight) {
 
         final AmbilWarnaDialog ambilWarnaDialog = new AmbilWarnaDialog(
-                getActivity(), highLight.getColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
+                context, highLight.getColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
             @Override
             public void onCancel(AmbilWarnaDialog dialog) {
                 //do nothing.
@@ -1276,10 +1289,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
             }
         });
 
-        final AlertDialog.Builder editalert = new AlertDialog.Builder(getActivity());
+        final AlertDialog.Builder editalert = new AlertDialog.Builder(context);
 
         editalert.setTitle(R.string.text_note);
-        final EditText input = new EditText(getActivity());
+        final EditText input = new EditText(context);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -1308,7 +1321,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             }
         });
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.highlight_options)
         .setItems(R.array.highlightOptionsLabels, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
@@ -1335,7 +1348,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     @Override
 	public boolean isDictionaryAvailable() {
-		return isIntentAvailable(getActivity(), getDictionaryIntent());
+		return isIntentAvailable(context, getDictionaryIntent());
 	}
 
 	@Override
@@ -1405,22 +1418,31 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
 	private void setScreenBrightnessLevel(int level) {
-		WindowManager.LayoutParams lp = getActivity().getWindow().getAttributes();
-		lp.screenBrightness = (float) level / 100f;
-		getActivity().getWindow().setAttributes(lp);
+
+        Activity activity = getActivity();
+
+        if ( activity != null ) {
+		    WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
+		    lp.screenBrightness = (float) level / 100f;
+		    activity.getWindow().setAttributes(lp);
+        }
 	}
 
 	@Override
 	public void errorOnBookOpening(String errorMessage) {
 		closeWaitDialog();
 
-        ( (ReadingActivity ) getActivity() ).launchActivity(LibraryActivity.class);
+        ReadingActivity readingActivity = (ReadingActivity) getActivity();
+
+        if ( readingActivity != null ) {
+            readingActivity.launchActivity(LibraryActivity.class);
+        }
 	}
 
     private ProgressDialog getWaitDialog() {
 
         if ( this.waitDialog == null ) {
-            this.waitDialog = new ProgressDialog(getActivity());
+            this.waitDialog = new ProgressDialog(context);
             this.waitDialog.setOwnerActivity(getActivity());
         }
 
@@ -1441,40 +1463,42 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void parseEntryComplete(int entry, String name) {
 
-		if ( ! isAdded() || getActivity() == null ) {
-			return;
-		}
-		
-		if (name != null && !name.equals(this.bookTitle)) {
+        if (name != null && !name.equals(this.bookTitle)) {
 			this.titleBase = this.bookTitle + " - " + name;
 		} else {
 			this.titleBase = this.bookTitle;
 		}
 		
-		getActivity().setTitle(this.titleBase);	
-		
-		if ( this.ttsPlaybackItemQueue.isActive() && this.ttsPlaybackItemQueue.isEmpty() ) {
-			streamTTSToDisk();
-		}
+		Activity activity = getActivity();
 
-		closeWaitDialog();
+        if ( activity != null ) {
+
+            activity.setTitle(this.titleBase);
+
+            if ( this.ttsPlaybackItemQueue.isActive() && this.ttsPlaybackItemQueue.isEmpty() ) {
+                streamTTSToDisk();
+            }
+
+            closeWaitDialog();
+        }
+
 	}
 
 	@Override
-	public void parseEntryStart(int entry) {	
-		
-		if ( ! isAdded() || getActivity() == null ) {
-			return;
-		}
-		
-		this.viewSwitcher.clearAnimation();
+	public void parseEntryStart(int entry) {
+
+        if ( ! isAdded() || getActivity() == null ) {
+            return;
+        }
+
+
+        this.viewSwitcher.clearAnimation();
 		this.viewSwitcher.setBackgroundDrawable(null);
 		restoreColorProfile();
 		displayPageNumber(-1); //Clear page number
 
         ProgressDialog progressDialog = getWaitDialog();
-        progressDialog.setMessage(getActivity().getString( R.string.loading_wait));
-
+        progressDialog.setMessage(getString( R.string.loading_wait));
 
         progressDialog.show();
 	}	
@@ -1482,14 +1506,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void readingFile() {
         if ( isAdded() ) {
-		    this.getWaitDialog().setMessage(getActivity().getString( R.string.opening_file) );
+            this.getWaitDialog().setMessage(getString( R.string.opening_file) );
         }
 	}
 
 	@Override
 	public void renderingText() {
         if ( isAdded() ) {
-            this.getWaitDialog().setMessage(getActivity().getString(R.string.loading_text));
+            this.getWaitDialog().setMessage(getString( R.string.loading_text) );
         }
 	}
 
@@ -1501,12 +1525,18 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return false;
 		}
 
+        Activity activity = getActivity();
+
+        if ( activity == null ) {
+            return false;
+        }
+
 		boolean invert = false;
 
 		int rotation = Surface.ROTATION_0;
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-			Display display = getActivity().getWindowManager().getDefaultDisplay();
+			Display display = activity.getWindowManager().getDefaultDisplay();
 			rotation = display.getRotation();
 		}
 
@@ -1657,7 +1687,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					bookView.goBackInHistory();
 					return true;
 				} else {
-					getActivity().finish();
+
+                    Activity activity = getActivity();
+
+                    if ( activity != null ) {
+					    activity.finish();
+                    }
 				}
 			}
 
@@ -2026,6 +2061,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			initTocDialog();
 		}
 
+        SherlockFragmentActivity activity = getSherlockActivity();
+
+        if ( activity == null ) {
+            return;
+        }
 
 		MenuItem nightMode = menu.findItem(R.id.profile_night);
 		MenuItem dayMode = menu.findItem(R.id.profile_day);
@@ -2039,7 +2079,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         MenuItem searchResultsItem = menu.findItem(R.id.show_search_results);
         MenuItem highLightsItem = menu.findItem(R.id.show_highlights);
 		
-		getSherlockActivity().getSupportActionBar().show();
+		activity.getSupportActionBar().show();
 
 		if (config.getColourProfile() == ColourProfile.DAY) {
 			dayMode.setVisible(false);
@@ -2054,16 +2094,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		intent.setType("file/*");
 		intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-		if (!isIntentAvailable(getActivity(), intent)) {
+		if (!isIntentAvailable(context, intent)) {
 			menu.findItem(R.id.open_file).setVisible(false);
 		}
 
         searchResultsItem.setVisible( searchResults != null && searchResults.size() > 0 );
         highLightsItem.setVisible( highlightManager.getHighLights( bookView.getFileName() ).size() > 0 );
 
-		getActivity().getWindow().addFlags(
+		activity.getWindow().addFlags(
 				WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-		getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	}
 
 	private void hideTitleBar() {
@@ -2090,15 +2130,21 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
 	private void loadNewBook(String fileName) {
-		getActivity().setTitle(R.string.app_name);
-		this.tocDialog = null;
-		this.bookTitle = null;
-		this.titleBase = null;
 
-		bookView.clear();
+        Activity activity = getActivity();
 
-		updateFileName(null, fileName);
-		new DownloadProgressTask().execute();
+        if ( activity != null ) {
+
+            activity.setTitle(R.string.app_name);
+            this.tocDialog = null;
+            this.bookTitle = null;
+            this.titleBase = null;
+
+            bookView.clear();
+
+            updateFileName(null, fileName);
+            new DownloadProgressTask().execute();
+        }
 	}
 
 	@Override
@@ -2173,7 +2219,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
         this.searchMenuItem = menu.findItem(R.id.search_text);
 
         if (this.searchMenuItem != null) {
-            final com.actionbarsherlock.widget.SearchView searchView = (com.actionbarsherlock.widget.SearchView) searchMenuItem.getActionView();
+            final com.actionbarsherlock.widget.SearchView searchView =
+                    (com.actionbarsherlock.widget.SearchView) searchMenuItem.getActionView();
 
             if (searchView != null) {
 
@@ -2243,7 +2290,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			if (config.isSyncEnabled()) {
 				new ManualProgressSync().execute();
 			} else {
-				Toast.makeText(getActivity(), R.string.enter_email, Toast.LENGTH_LONG)
+				Toast.makeText(context, R.string.enter_email, Toast.LENGTH_LONG)
 						.show();
 			}
 			return true;
@@ -2254,7 +2301,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		case R.id.preferences:
 			saveConfigState();
-			Intent i = new Intent(getActivity(), PageTurnerPrefsActivity.class);
+			Intent i = new Intent(context, PageTurnerPrefsActivity.class);
 			startActivity(i);
 			return true;
 
@@ -2307,24 +2354,30 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		return false;
 	}
 
-	@Override
-	public void onScreenTap() {
+    @Override
+    public void onScreenTap() {
 
-       stopAnimating();
+        SherlockFragmentActivity activity = getSherlockActivity();
 
-		if (this.titleBarLayout.getVisibility() == View.VISIBLE) {
-			titleBarLayout.setVisibility(View.GONE);
+        if ( activity == null ) {
+            return;
+        }
 
-			updateFromPrefs();
-		} else {
-			titleBarLayout.setVisibility(View.VISIBLE);
+        stopAnimating();
 
-			getSherlockActivity().getSupportActionBar().show();
-			getActivity().getWindow().addFlags(
-					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-			getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		}
-	}
+        if (this.titleBarLayout.getVisibility() == View.VISIBLE) {
+            titleBarLayout.setVisibility(View.GONE);
+
+            updateFromPrefs();
+        } else {
+            titleBarLayout.setVisibility(View.VISIBLE);
+
+            getSherlockActivity().getSupportActionBar().show();
+            activity.getWindow().addFlags(
+                    WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+    }
 	
 	@Override
 	public boolean onSwipeLeft() {
@@ -2427,7 +2480,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 			if (brightnessToast == null) {
 				brightnessToast = Toast
-						.makeText(getActivity(), brightness + ": "
+						.makeText(context, brightness + ": "
 								+ brightnessLevel, Toast.LENGTH_SHORT);
 			} else {
 				brightnessToast.setText(brightness + ": " + brightnessLevel);
@@ -2457,8 +2510,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void onWordLongPressed(CharSequence word) {
 		this.selectedWord = word;
-		if ( getActivity() != null ) {
-			getActivity().openContextMenu(bookView);
+
+        Activity activity = getActivity();
+
+        if ( activity != null ) {
+			activity.openContextMenu(bookView);
 		}
 	}
 
@@ -2472,7 +2528,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			startActivityForResult(intent, REQUEST_CODE_GET_CONTENT);
 		} catch (ActivityNotFoundException e) {
 			// No compatible file manager was found.
-			Toast.makeText(getActivity(), getString(R.string.install_oi),
+			Toast.makeText(context, getString(R.string.install_oi),
 					Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -2481,10 +2537,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private void showPickProgressDialog(final List<BookProgress> results) {
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setTitle(getString(R.string.cloud_bm));
 
-		ProgressListAdapter adapter = new ProgressListAdapter(getActivity(), bookView, results);
+		ProgressListAdapter adapter = new ProgressListAdapter(context, bookView, results);
 		builder.setAdapter(adapter, adapter);
 
 		AlertDialog dialog = builder.create();
@@ -2511,7 +2567,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			items[i] = tocList.get(i).getTitle();
 		}
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setTitle(R.string.toc_label);
 
 		builder.setItems(items, new DialogInterface.OnClickListener() {
@@ -2556,7 +2612,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         LOG.debug("Starting search for: " + query );
 
-        final ProgressDialog searchProgress = new ProgressDialog(getActivity());
+        final ProgressDialog searchProgress = new ProgressDialog(context);
         searchProgress.setOwnerActivity(getActivity());
         searchProgress.setCancelable(true);
         searchProgress.setMax(100);
@@ -2570,11 +2626,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
             protected void onPreExecute() {
                 super.onPreExecute();
 
-                searchProgress.setMessage(getActivity().getString(R.string.search_wait));
+                searchProgress.setMessage(getString(R.string.search_wait));
                 searchProgress.show();
 
                 // Hide on-screen keyboard if it is showing
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 
             }
@@ -2606,7 +2662,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             @Override
             protected void onCancelled() {
                 if ( isAdded() ) {
-                    Toast.makeText(getActivity(), R.string.search_cancelled,
+                    Toast.makeText(context, R.string.search_cancelled,
                         Toast.LENGTH_LONG).show();
                 }
             }
@@ -2620,7 +2676,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                         searchResults = result;
                         showSearchResultDialog(result);
                     } else {
-                        Toast.makeText(getActivity(),
+                        Toast.makeText(context,
                                 R.string.search_no_matches, Toast.LENGTH_LONG)
                                 .show();
                     }
@@ -2682,10 +2738,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         isSearchResultsDialogShowing = true;
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setTitle(R.string.search_results);
 
-		SearchResultAdapter adapter = new SearchResultAdapter(getActivity(), bookView, results);
+		SearchResultAdapter adapter = new SearchResultAdapter(context, bookView, results);
 		builder.setAdapter(adapter, adapter);
 
 		AlertDialog dialog = builder.create();
@@ -2700,7 +2756,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
     private void showHighLightDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.highlights);
 
         HighLightAdapter adapter = new HighLightAdapter(getActivity(), bookView,
@@ -2724,7 +2780,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             if ( isAdded() ) {
 
                 ProgressDialog progressDialog = getWaitDialog();
-                progressDialog.setMessage(getActivity().getString(R.string.syncing));
+                progressDialog.setMessage(getString(R.string.syncing));
                 progressDialog.setCancelable(true);
                 progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
@@ -2780,7 +2836,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				alertDialog.show();
 
 			} else if ( progress.isEmpty() ) {
-			    Toast.makeText(getActivity().getApplicationContext(), R.string.no_sync_points, Toast.LENGTH_LONG).show();
+			    Toast.makeText(context, R.string.no_sync_points, Toast.LENGTH_LONG).show();
 			} else {
                 showPickProgressDialog(progress);
             }
@@ -2794,7 +2850,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		protected void onPreExecute() {
             if ( isAdded() ) {
 			    ProgressDialog progressDialog = getWaitDialog();
-                progressDialog.setMessage(getActivity().getString(R.string.syncing));
+                progressDialog.setMessage(getString(R.string.syncing));
                 progressDialog.setCancelable(true);
                 progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override

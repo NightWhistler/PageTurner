@@ -31,13 +31,6 @@
           android:actionViewClass="com.actionbarsherlock.widget.SearchView"
           android:showAsAction="always|collapseActionView" />
 
-   
-    <item android:id="@+id/show_toc"          
-          android:title="@string/show_toc"
-          android:icon="@drawable/list"
-          android:showAsAction="ifRoom"/>
-    
-
 	<item android:id="@+id/text_to_speech"          
           android:title="@string/text_to_speech"
           android:icon="@drawable/speech_balloon" 

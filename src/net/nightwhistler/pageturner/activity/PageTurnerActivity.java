@@ -39,7 +39,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
 
     private ActionBarDrawerToggleCompat mToggle;
 
-    private ArrayAdapter<String> adapter;
+    private NavigationAdapter adapter;
 
     private CharSequence originalTitle;
 
@@ -87,12 +87,16 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         onCreatePageTurnerActivity(savedInstanceState);
     }
 
+    protected NavigationAdapter getAdapter() {
+        return this.adapter;
+    }
+
     protected void initDrawerItems() {
         if ( mDrawerOptions != null ) {
-            //mDrawerOptions.setAdapter( new ArrayAdapter<String>( this, R.layout.drawer_list_item, getMenuItems(config) ));
 
+            this.adapter = new NavigationAdapter( this, getMenuItems(config) );
 
-            mDrawerOptions.setAdapter( new NavigationAdapter( this, getMenuItems(config) ));
+            mDrawerOptions.setAdapter( this.adapter );
             mDrawerOptions.setOnGroupClickListener(this);
         }
     }
@@ -183,7 +187,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         }
 
         mDrawer.closeDrawers();
-        return false;
+        return true;
     }
 
 

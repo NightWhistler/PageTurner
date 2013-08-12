@@ -9,7 +9,9 @@ import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,23 +22,45 @@ import java.util.List;
  */
 public class NavigationAdapter extends BaseExpandableListAdapter {
 
-    private List<String> items;
+    private List<String> groups;
+    private Map<Integer, List<String>> children;
 
     private Context context;
 
     public NavigationAdapter( Context context, String... items ) {
         this.context = context;
-        this.items = Arrays.asList(items);
+        this.groups = Arrays.asList(items);
+        this.children = new HashMap<Integer, List<String>>();
+    }
+
+    public void setChildren( int groupId, List<String> childItems ) {
+        this.children.put( groupId, childItems );
     }
 
     @Override
-    public View getChildView(int i, int i2, boolean b, View view, ViewGroup viewGroup) {
-        return null;
+    public View getChildView(int groupPosition, int childPosition, boolean b, View view, ViewGroup viewGroup) {
+
+        TextView textView;
+
+        if ( view != null ) {
+            textView = (TextView) view;
+        } else {
+            textView = (TextView) PlatformUtil.getLayoutInflater(context).inflate(
+                    R.layout.drawer_list_subitem, null );
+        }
+
+        if ( children.containsKey( groupPosition ) ) {
+            List<String> childStrings = children.get( groupPosition );
+
+            textView.setText( childStrings.get( childPosition ) );
+        }
+
+        return textView;
     }
 
     @Override
     public int getGroupCount() {
-        return items.size();
+        return groups.size();
     }
 
     @Override
@@ -46,7 +70,7 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
 
     @Override
     public boolean isChildSelectable(int i, int i2) {
-        return false;
+        return true;
     }
 
     @Override
@@ -61,24 +85,33 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
                     R.layout.drawer_list_item, null );
         }
 
-        textView.setText( items.get( i ) );
+        textView.setText(groups.get(i));
 
         return textView;
     }
 
     @Override
     public int getChildrenCount(int i) {
+        if ( children.containsKey(i) ) {
+            return children.get(i).size();
+        }
+
         return 0;
     }
 
     @Override
     public Object getChild(int i, int i2) {
+
+        if ( children.containsKey(i) ) {
+            return children.get(i);
+        }
+
         return null;
     }
 
     @Override
     public Object getGroup(int i) {
-        return items.get( i );
+        return groups.get( i );
     }
 
     @Override
@@ -88,7 +121,7 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
 
     @Override
     public long getChildId(int i, int i2) {
-        return 0;
+        return i * 100 + i2;
     }
 
 

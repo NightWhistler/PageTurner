@@ -205,7 +205,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
     private List<SearchTextTask.SearchResult> searchResults = new ArrayList<SearchTextTask.SearchResult>();
 
 	private ProgressDialog waitDialog;
-	private AlertDialog tocDialog;
 
     private TextToSpeech textToSpeech;
 	
@@ -2058,10 +2057,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 
-		if (this.tocDialog == null) {
-			initTocDialog();
-		}
-
         SherlockFragmentActivity activity = getSherlockActivity();
 
         if ( activity == null ) {
@@ -2070,9 +2065,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		MenuItem nightMode = menu.findItem(R.id.profile_night);
 		MenuItem dayMode = menu.findItem(R.id.profile_day);
-
-		MenuItem showToc = menu.findItem(R.id.show_toc);
-		showToc.setEnabled(this.tocDialog != null);
 
 		MenuItem tts = menu.findItem( R.id.text_to_speech );
 		tts.setEnabled(ttsAvailable);
@@ -2137,7 +2129,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
         if ( activity != null ) {
 
             activity.setTitle(R.string.app_name);
-            this.tocDialog = null;
             this.bookTitle = null;
             this.titleBase = null;
 
@@ -2306,10 +2297,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			startActivity(i);
 			return true;
 
-		case R.id.show_toc:
-			this.tocDialog.show();
-			return true;
-
 		case R.id.open_file:
 			launchFileManager();
 			return true;
@@ -2324,9 +2311,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		case R.id.about:
 			dialogFactory.buildAboutDialog().show();
-			return true;	
-
-
+			return true;
 
 		default:
 			return super.onOptionsItemSelected(item);
@@ -2533,8 +2518,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					Toast.LENGTH_SHORT).show();
 		}
 	}
-	
-
 
 	private void showPickProgressDialog(final List<BookProgress> results) {
 
@@ -2549,37 +2532,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		dialog.show();
 	}
 
-	private void initTocDialog() {
-
-		if (this.tocDialog != null) {
-			return;
-		}
-
-		final List<TocEntry> tocList = this.bookView
-				.getTableOfContents();
-
-		if (tocList == null || tocList.isEmpty()) {
-			return;
-		}
-
-		final CharSequence[] items = new CharSequence[tocList.size()];
-
-		for (int i = 0; i < items.length; i++) {
-			items[i] = tocList.get(i).getTitle();
-		}
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(context);
-		builder.setTitle(R.string.toc_label);
-
-		builder.setItems(items, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int item) {
-				bookView.navigateTo(tocList.get(item).getHref());
-			}
-		});
-
-		this.tocDialog = builder.create();
-		this.tocDialog.setOwnerActivity(getActivity());
-	}
+    public List<TocEntry> getTableOfContents() {
+        return this.bookView.getTableOfContents();
+    }
 
 	@Override
 	public void onSaveInstanceState(final Bundle outState) {

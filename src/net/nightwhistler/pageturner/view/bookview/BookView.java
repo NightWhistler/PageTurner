@@ -662,7 +662,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			String title = "";
 
 			for (int i = 0; i < level; i++) {
-				title += "-";
+				title += "  ";
 			}
 
 			title += ref.getTitle();

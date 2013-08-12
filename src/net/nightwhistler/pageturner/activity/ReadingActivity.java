@@ -19,6 +19,8 @@
 package net.nightwhistler.pageturner.activity;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,9 +34,13 @@ import android.widget.ExpandableListView;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.dto.TocEntry;
 import roboguice.inject.InjectFragment;
 
-public class ReadingActivity extends PageTurnerActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+public class ReadingActivity extends PageTurnerActivity implements ExpandableListView.OnChildClickListener {
 
     @InjectFragment(R.id.fragment_reading)
     private ReadingFragment readingFragment;
@@ -53,6 +59,35 @@ public class ReadingActivity extends PageTurnerActivity {
         super.onDrawerClosed(view);
     }
 
+    @Override
+    protected void initDrawerItems() {
+        super.initDrawerItems();
+
+        if ( this.readingFragment != null ) {
+            List<TocEntry> tocList = this.readingFragment
+                    .getTableOfContents();
+
+            if (tocList != null && ! tocList.isEmpty()) {
+
+                int bookTitleIndex;
+
+                if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
+                    bookTitleIndex = 1;
+                } else {
+                    bookTitleIndex = 0;
+                }
+
+                List<String> tocNames = new ArrayList<String>();
+                for ( TocEntry entry: tocList ) {
+                    tocNames.add( entry.getTitle() );
+                }
+
+                getAdapter().setChildren(bookTitleIndex, tocNames );
+            }
+        }
+
+    }
+
     protected String[] getMenuItems( Configuration config ) {
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
             return array("", config.getLastReadTitle(), getString(R.string.library), getString(R.string.download));
@@ -64,12 +99,24 @@ public class ReadingActivity extends PageTurnerActivity {
     @Override
     public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
 
+        int correctedIndex;
+
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
-            return super.onGroupClick(expandableListView, view, i-1, l);
+            correctedIndex = i - 1;
         } else {
-            return super.onGroupClick(expandableListView, view, i, l);
+            correctedIndex = i;
         }
 
+        if ( correctedIndex == 0 ) {
+            return false;
+        }
+
+        return super.onGroupClick(expandableListView, view, correctedIndex, l);
+    }
+
+    @Override
+    public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

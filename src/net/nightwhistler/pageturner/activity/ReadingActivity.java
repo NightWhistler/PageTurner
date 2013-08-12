@@ -40,7 +40,7 @@ import roboguice.inject.InjectFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReadingActivity extends PageTurnerActivity implements ExpandableListView.OnChildClickListener {
+public class ReadingActivity extends PageTurnerActivity {
 
     @InjectFragment(R.id.fragment_reading)
     private ReadingFragment readingFragment;
@@ -83,12 +83,14 @@ public class ReadingActivity extends PageTurnerActivity implements ExpandableLis
                 }
 
                 getAdapter().setChildren(bookTitleIndex, tocNames );
+
             }
         }
 
     }
 
     protected String[] getMenuItems( Configuration config ) {
+
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
             return array("", config.getLastReadTitle(), getString(R.string.library), getString(R.string.download));
         } else {
@@ -99,13 +101,7 @@ public class ReadingActivity extends PageTurnerActivity implements ExpandableLis
     @Override
     public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
 
-        int correctedIndex;
-
-        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
-            correctedIndex = i - 1;
-        } else {
-            correctedIndex = i;
-        }
+        int correctedIndex = getCorrectIndex(i);
 
         if ( correctedIndex == 0 ) {
             return false;
@@ -114,9 +110,32 @@ public class ReadingActivity extends PageTurnerActivity implements ExpandableLis
         return super.onGroupClick(expandableListView, view, correctedIndex, l);
     }
 
+    private int getCorrectIndex( int i ) {
+
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
+            return i - 1;
+        } else {
+            return i;
+        }
+    }
+
     @Override
     public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+
+        super.onChildClick(expandableListView, view, i, i2, l );
+
+        int correctedIndex = getCorrectIndex(i);
+
+        if ( correctedIndex == 0 ) {
+            List<TocEntry> tocEntries = this.readingFragment.getTableOfContents();
+
+            if ( i2 > 0 && i2 < tocEntries.size() ) {
+                this.readingFragment.navigateTo( tocEntries.get(i2) );
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

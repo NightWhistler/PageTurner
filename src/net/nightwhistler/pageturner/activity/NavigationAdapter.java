@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
@@ -73,21 +74,46 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
         return true;
     }
 
-    @Override
-    public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
+    private void onGroupStateChange( int groupPosition ) {
 
-        TextView textView;
+
+    }
+
+    @Override
+    public void onGroupExpanded(int groupPosition) {
+        onGroupStateChange(groupPosition);
+    }
+
+    @Override
+    public void onGroupCollapsed(int groupPosition) {
+        onGroupStateChange(groupPosition);
+    }
+
+    @Override
+    public View getGroupView(int i, boolean isExpanded, View view, ViewGroup viewGroup) {
+
+        View layout;
 
         if ( view != null ) {
-            textView = (TextView) view;
+            layout = view;
         } else {
-            textView = (TextView) PlatformUtil.getLayoutInflater(context).inflate(
+            layout = PlatformUtil.getLayoutInflater(context).inflate(
                     R.layout.drawer_list_item, null );
+        }
+
+        TextView textView = (TextView) layout.findViewById(R.id.groupName);
+        ImageView indicator = (ImageView) layout.findViewById(R.id.explist_indicator);
+
+        if ( getChildrenCount( i ) == 0 ) {
+            indicator.setVisibility( View.INVISIBLE );
+        } else {
+            indicator.setVisibility( View.VISIBLE );
+            indicator.setImageResource( isExpanded ? R.drawable.arrowhead_up : R.drawable.arrowhead_down );
         }
 
         textView.setText(groups.get(i));
 
-        return textView;
+        return layout;
     }
 
     @Override

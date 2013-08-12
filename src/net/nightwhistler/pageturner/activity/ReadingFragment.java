@@ -2450,6 +2450,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		return false;
 	}
 
+    public void navigateTo( TocEntry entry ) {
+
+        titleBarLayout.setVisibility(View.GONE);
+        updateFromPrefs();
+
+        bookView.navigateTo( entry.getHref());
+    }
+
 	@Override
 	public boolean onLeftEdgeSlide(int value) {
 

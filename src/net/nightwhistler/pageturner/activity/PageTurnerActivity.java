@@ -29,7 +29,7 @@ import roboguice.inject.InjectView;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
-        implements ExpandableListView.OnGroupClickListener {
+        implements ExpandableListView.OnGroupClickListener, ExpandableListView.OnChildClickListener {
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout mDrawer;
@@ -98,6 +98,9 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
 
             mDrawerOptions.setAdapter( this.adapter );
             mDrawerOptions.setOnGroupClickListener(this);
+            mDrawerOptions.setOnChildClickListener(this);
+
+            mDrawerOptions.setGroupIndicator(null);
         }
     }
 
@@ -190,6 +193,9 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         return true;
     }
 
-
-
+    @Override
+    public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
+        mDrawer.closeDrawers();
+        return false;
+    }
 }

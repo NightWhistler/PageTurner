@@ -64,6 +64,7 @@ import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.TextUtil;
 import net.nightwhistler.pageturner.animation.*;
 import net.nightwhistler.pageturner.dto.HighLight;
+import net.nightwhistler.pageturner.dto.TocEntry;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
@@ -2554,7 +2555,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return;
 		}
 
-		final List<BookView.TocEntry> tocList = this.bookView
+		final List<TocEntry> tocList = this.bookView
 				.getTableOfContents();
 
 		if (tocList == null || tocList.isEmpty()) {

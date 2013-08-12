@@ -52,6 +52,7 @@ import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.dto.HighLight;
+import net.nightwhistler.pageturner.dto.TocEntry;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
@@ -642,7 +643,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			return null;
 		}
 
-		List<TocEntry> result = new ArrayList<BookView.TocEntry>();
+		List<TocEntry> result = new ArrayList<TocEntry>();
 
 		flatten(book.getTableOfContents().getTocReferences(), result, 0);
 
@@ -971,24 +972,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		}
 
 		this.tableHandler.setTextColor(color);
-	}
-
-	public static class TocEntry {
-		private String title;
-		private String href;
-
-		public TocEntry(String title, String href) {
-			this.title = title;
-			this.href = href;
-		}
-
-		public String getHref() {
-			return href;
-		}
-
-		public String getTitle() {
-			return title;
-		}
 	}
 	
 	public Book getBook() {

@@ -7,6 +7,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -18,6 +19,7 @@ import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
 import roboguice.RoboGuice;
+import roboguice.inject.InjectView;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,10 +29,14 @@ import roboguice.RoboGuice;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
-        implements AdapterView.OnItemClickListener {
+        implements ExpandableListView.OnGroupClickListener {
 
+    @InjectView(R.id.drawer_layout)
     private DrawerLayout mDrawer;
-    private ListView mDrawerOptions;
+
+    @InjectView(R.id.left_drawer)
+    private ExpandableListView mDrawerOptions;
+
     private ActionBarDrawerToggleCompat mToggle;
 
     private ArrayAdapter<String> adapter;
@@ -53,9 +59,6 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
 
         setContentView(getMainLayoutResource());
 
-        mDrawerOptions = (ListView) findViewById(R.id.left_drawer);
-        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         // set up the drawer's list view with items and click listener
@@ -65,7 +68,6 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         getSupportActionBar().setHomeButtonEnabled(true);
 
         initDrawerItems();
-        mDrawerOptions.setOnItemClickListener(this);
 
         mToggle = new ActionBarDrawerToggleCompat(this, mDrawer, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
             public void onDrawerClosed(View view) {
@@ -85,9 +87,13 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         onCreatePageTurnerActivity(savedInstanceState);
     }
 
-    private void initDrawerItems() {
+    protected void initDrawerItems() {
         if ( mDrawerOptions != null ) {
-            mDrawerOptions.setAdapter( new ArrayAdapter<String>( this, R.layout.drawer_list_item, getMenuItems(config) ));
+            //mDrawerOptions.setAdapter( new ArrayAdapter<String>( this, R.layout.drawer_list_item, getMenuItems(config) ));
+
+
+            mDrawerOptions.setAdapter( new NavigationAdapter( this, getMenuItems(config) ));
+            mDrawerOptions.setOnGroupClickListener(this);
         }
     }
 
@@ -166,7 +172,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+    public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
 
         if ( i == 0 ) {
             launchActivity( ReadingActivity.class );
@@ -177,6 +183,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         }
 
         mDrawer.closeDrawers();
+        return false;
     }
 
 

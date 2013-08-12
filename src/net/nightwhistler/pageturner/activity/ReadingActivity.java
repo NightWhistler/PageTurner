@@ -28,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import android.widget.AdapterView;
+import android.widget.ExpandableListView;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
@@ -61,12 +62,12 @@ public class ReadingActivity extends PageTurnerActivity {
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+    public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
 
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
-            super.onItemClick(adapterView, view, i-1, l);
+            return super.onGroupClick(expandableListView, view, i-1, l);
         } else {
-            super.onItemClick(adapterView, view, i, l);
+            return super.onGroupClick(expandableListView, view, i, l);
         }
 
     }

@@ -35,8 +35,7 @@
           android:title="@string/text_to_speech"
           android:icon="@drawable/speech_balloon" 
           android:enabled="false"
-          android:showAsAction="ifRoom"/>
-
+          />
 
     <item android:id="@+id/rolling_blind"
           android:title="@string/rolling_blind"

@@ -750,7 +750,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			this.ttsPlaybackItemQueue.add(item);
 			
 		} catch (Exception e) {
-			LOG.error("Could not play", e);			
+			LOG.error("Could not play", e);
+            showTTSFailed(e.getLocalizedMessage());
+            return;
 		} 
 		
 		this.uiHandler.post(new Runnable() {

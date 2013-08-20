@@ -367,6 +367,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		this.oldKeepScreenOn = listView.getKeepScreenOn();
 		listView.setKeepScreenOn(true);
 
+        this.taskQueue.clear();
         executeTask( importTask, startFolder );
 	}
 

@@ -57,6 +57,7 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
         }
 
         return textView;
+
     }
 
     @Override

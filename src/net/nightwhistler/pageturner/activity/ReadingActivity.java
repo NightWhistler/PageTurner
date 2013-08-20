@@ -48,6 +48,8 @@ public class ReadingActivity extends PageTurnerActivity {
     @Inject
     private Configuration config;
 
+    private int tocIndex = -1;
+
     @Override
     protected int getMainLayoutResource() {
         return R.layout.activity_reading;
@@ -69,20 +71,12 @@ public class ReadingActivity extends PageTurnerActivity {
 
             if (tocList != null && ! tocList.isEmpty()) {
 
-                int bookTitleIndex;
-
-                if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
-                    bookTitleIndex = 1;
-                } else {
-                    bookTitleIndex = 0;
-                }
-
                 List<String> tocNames = new ArrayList<String>();
                 for ( TocEntry entry: tocList ) {
                     tocNames.add( entry.getTitle() );
                 }
 
-                getAdapter().setChildren(bookTitleIndex, tocNames );
+                getAdapter().setChildren(this.tocIndex, tocNames );
 
             }
         }
@@ -91,11 +85,29 @@ public class ReadingActivity extends PageTurnerActivity {
 
     protected String[] getMenuItems( Configuration config ) {
 
+        List<String> menuItems = new ArrayList<String>();
+
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
-            return array("", config.getLastReadTitle(), getString(R.string.library), getString(R.string.download));
-        } else {
-            return array(config.getLastReadTitle(), getString(R.string.library), getString(R.string.download));
+            menuItems.add("");
         }
+
+        menuItems.add( config.getLastReadTitle() );
+        menuItems.add( getString(R.string.library));
+        menuItems.add( getString(R.string.download));
+
+        if ( this.readingFragment != null ) {
+
+            List<TocEntry> tocList = this.readingFragment
+                    .getTableOfContents();
+
+            if ( tocList != null && ! tocList.isEmpty() ) {
+                menuItems.add( getString(R.string.toc_label));
+                this.tocIndex = menuItems.size() - 1;
+            }
+
+        }
+
+        return menuItems.toArray( new String[ menuItems.size() ] );
     }
 
     @Override
@@ -103,7 +115,7 @@ public class ReadingActivity extends PageTurnerActivity {
 
         int correctedIndex = getCorrectIndex(i);
 
-        if ( correctedIndex == 0 ) {
+        if ( correctedIndex == 0 || i == tocIndex) {
             return false;
         }
 
@@ -124,9 +136,7 @@ public class ReadingActivity extends PageTurnerActivity {
 
         super.onChildClick(expandableListView, view, i, i2, l );
 
-        int correctedIndex = getCorrectIndex(i);
-
-        if ( correctedIndex == 0 ) {
+        if ( i == this.tocIndex ) {
             List<TocEntry> tocEntries = this.readingFragment.getTableOfContents();
 
             if ( i2 > 0 && i2 < tocEntries.size() ) {

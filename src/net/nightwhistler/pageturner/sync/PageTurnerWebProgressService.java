@@ -88,9 +88,9 @@ public class PageTurnerWebProgressService implements ProgressService {
 		
 		String key = computeKey(fileName);
 		
-		LOG.debug( "Doing progress query for key: " + key );		
+		LOG.debug( "Doing progress query for key: " + key );
 		
-		HttpGet get = new HttpGet( config.getSyncServerURL() + key + "?accessKey=" + URLEncoder.encode(accessKey) );
+		HttpGet get = new HttpGet( config.getSyncServerURL() + "/" + key + "?accessKey=" + URLEncoder.encode(accessKey) );
         get.setHeader("User-Agent", config.getUserAgent() );
 		
 		try {
@@ -156,7 +156,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 		
 		String key = computeKey(fileName);
 				
-		HttpPost post = new HttpPost( config.getSyncServerURL() + key );
+		HttpPost post = new HttpPost( config.getSyncServerURL() + "/" + key );
 		
 		String filePart = fileName;
 		

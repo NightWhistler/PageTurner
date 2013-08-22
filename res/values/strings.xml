@@ -197,6 +197,9 @@
     <string name="pref_access_key">Access Key</string>
     <string name="pref_access_key_summary">An access key is required to use the synchronization service. Visit the site to learn how to get a key.</string>
     <string name="pref_access_key_message">Please enter your access key.</string>
+    <string name="pref_sync_server">Sync Server</string>
+    <string name="pref_sync_server_summary">Select which server you would like to sync with.</string>
+    <string name="pref_sync_server_message">Please enter a sync server url.</string>
     <string name="pref_autoscroll_settings">Autoscroll settings</string>
     <string name="pref_scroll_style">Autoscroll style</string>
     <string name="pref_scroll_style_summary">Rolling blind or timer</string>

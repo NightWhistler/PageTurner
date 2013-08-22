@@ -207,7 +207,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			String searchString = URLEncoder.encode(searchTerm);
             Feed feed = adapter.getFeed();
 
-            if ( feed.getSearchLink() != null ) {
+            if ( feed != null && feed.getSearchLink() != null ) {
 			    String linkUrl = feed.getSearchLink()
 					.getHref();
 

@@ -94,6 +94,7 @@ public class Configuration {
 
 	public static final String BASE_OPDS_FEED = "http://www.pageturner-reader.org/opds/feeds.xml";
 	public static final String BASE_SYNC_URL = "http://api.pageturner-reader.org/progress/";
+	public static final String KEY_SYNC_SERVER = "sync_server";
 
 	public static final String KEY_POS = "offset:";
 	public static final String KEY_IDX = "index:";
@@ -275,7 +276,7 @@ public class Configuration {
 	}
 
 	public String getSyncServerURL() {
-		return BASE_SYNC_URL;
+		return settings.getString( KEY_SYNC_SERVER, BASE_SYNC_URL ).trim();
 	}
 
     public boolean isAlwaysOpenLastBook() {

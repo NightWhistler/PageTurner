@@ -45,5 +45,7 @@ public final class AtomConstants {
 	public static final String REL_SEARCH = "search";
 	public static final String REL_PREV = "previous";
 
+    public static final String SEARCH_TERMS = "{searchTerms}";
+
 
 }

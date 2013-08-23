@@ -211,7 +211,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			    String linkUrl = feed.getSearchLink()
 					.getHref();
 
-			    linkUrl = linkUrl.replace("{searchTerms}",
+			    linkUrl = linkUrl.replace( AtomConstants.SEARCH_TERMS,
 				    	searchString);
 
                 loadURL(null, linkUrl, false, true, ResultType.REPLACE);

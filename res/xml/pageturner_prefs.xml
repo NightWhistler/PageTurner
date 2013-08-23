@@ -39,6 +39,7 @@
 	            android:dialogTitle="@string/pref_sync_server"
 	            android:dialogMessage="@string/pref_sync_server_message"
                 android:dependency="email"
+                android:inputType="textUri"
 	            />
 	
 	</PreferenceCategory>

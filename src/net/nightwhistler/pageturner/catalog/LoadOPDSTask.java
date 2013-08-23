@@ -129,10 +129,16 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
                 LOG.debug("Got searchLink of type " + searchLink.getType() +
                         " with href=" + searchLink.getHref() );
 
-                //Opensearch should point to an XML file describing the search, but
-                //sometimes it just point to the direct search URL
-				if (AtomConstants.TYPE_OPENSEARCH.equals(searchLink.getType())
-                        && ! searchLink.getHref().contains(AtomConstants.SEARCH_TERMS)) {
+                /*
+                Some sites report the search as OpenSearch, but still have the
+                searchTerms in the URL. If the URL already contains searchTerms,
+                we ignore the reported type and treat it as Atom
+                 */
+                if ( searchLink.getHref().contains(AtomConstants.SEARCH_TERMS) ) {
+                    searchLink.setType(AtomConstants.TYPE_ATOM);
+                }
+
+				if (AtomConstants.TYPE_OPENSEARCH.equals( searchLink.getType() )) {
 
 					String searchURL = searchLink.getHref();
 

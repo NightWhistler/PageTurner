@@ -35,6 +35,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -125,21 +126,36 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 				URL mSearchUrl = new URL(mBaseUrl, searchLink.getHref());
 				searchLink.setHref(mSearchUrl.toString());
 
-				if (AtomConstants.TYPE_OPENSEARCH.equals(searchLink.getType())) {
+                LOG.debug("Got searchLink of type " + searchLink.getType() +
+                        " with href=" + searchLink.getHref() );
+
+                //Opensearch should point to an XML file describing the search, but
+                //sometimes it just point to the direct search URL
+				if (AtomConstants.TYPE_OPENSEARCH.equals(searchLink.getType())
+                        && ! searchLink.getHref().contains(AtomConstants.SEARCH_TERMS)) {
+
 					String searchURL = searchLink.getHref();
 
-                    currentRequest = new HttpGet(searchURL);
-					InputStream searchStream = httpClient.execute(currentRequest).getEntity().getContent();
+                    LOG.debug("Attempting to download OpenSearch description from " + searchURL );
+
+                    try {
+                        currentRequest = new HttpGet(searchURL);
+					    InputStream searchStream = httpClient.execute(currentRequest).getEntity().getContent();
 					
-					SearchDescription desc = Nucular
+					    SearchDescription desc = Nucular
 							.readOpenSearchFromStream(searchStream);
 
-					if (desc.getSearchLink() != null) {
-						searchLink.setType(AtomConstants.TYPE_ATOM);
-						searchLink.setHref(desc.getSearchLink().getHref());
-					}
-
+					    if (desc.getSearchLink() != null) {
+						    searchLink.setHref(desc.getSearchLink().getHref());
+                            searchLink.setType(AtomConstants.TYPE_ATOM);
+					    }
+                    } catch ( Exception searchIO ) {
+                        LOG.error("Could not get search info", searchIO );
+                    }
 				}
+
+                LOG.debug("Using searchURL " + searchLink.getHref() );
+
 			}
 
 			return feed;

@@ -10,7 +10,8 @@
 	            android:title="@string/pref_email"
 	            android:summary="@string/pref_email_summary"
 	            android:dialogTitle="@string/pref_email"
-	            android:dialogMessage="@string/pref_email_message"   
+	            android:dialogMessage="@string/pref_email_message"
+                android:inputType="textEmailAddress"
 	            />
 	
 	<EditTextPreference
@@ -19,6 +20,7 @@
 	            android:summary="@string/pref_device_name_summary"
 	            android:dialogTitle="@string/pref_device_name"
 	            android:dialogMessage="@string/pref_device_name_message"
+                android:inputType="textNoSuggestions"
 	            android:dependency="email"   
 	            />
 	
@@ -28,7 +30,7 @@
 	            android:summary="@string/pref_access_key_summary"
 	            android:dialogTitle="@string/pref_access_key"
 	            android:dialogMessage="@string/pref_access_key_message"
-	            android:password="true"
+                android:inputType="textPassword"
 	            android:dependency="email"   
 	            />
 	

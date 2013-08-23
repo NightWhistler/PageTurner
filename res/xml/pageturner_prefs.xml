@@ -31,6 +31,15 @@
 	            android:password="true"
 	            android:dependency="email"   
 	            />
+
+    <EditTextPreference
+	            android:key="sync_server"
+	            android:title="@string/pref_sync_server"
+	            android:summary="@string/pref_sync_server_summary"
+	            android:dialogTitle="@string/pref_sync_server"
+	            android:dialogMessage="@string/pref_sync_server_message"
+                android:dependency="email"
+	            />
 	
 	</PreferenceCategory>
 

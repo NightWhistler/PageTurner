@@ -42,7 +42,7 @@
 	            android:dialogMessage="@string/pref_sync_server_message"
                 android:dependency="email"
                 android:inputType="textNoSuggestions"
-                anroid:defaultValue="http://api.pageturner-reader.org/progress/"
+                android:defaultValue="http://api.pageturner-reader.org/progress/"
 	            />
 	
 	</PreferenceCategory>

@@ -1422,10 +1422,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                 LOG.debug("Calculated offsets: " + offsets );
 				return offsets;
 
-			} catch (IOException io) {
-				LOG.error("Could not read pagenumers", io);
 			} catch ( OutOfMemoryError mem ) {
                 LOG.error("Could not read pagenumers", mem);
+            } catch ( Exception e ) {
+                LOG.error("Could not read pagenumers", e);
             }
 
 			return null;

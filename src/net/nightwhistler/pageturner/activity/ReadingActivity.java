@@ -111,9 +111,9 @@ public class ReadingActivity extends PageTurnerActivity {
             menuItems.add("");
         }
 
-        menuItems.add( config.getLastReadTitle() );
         menuItems.add( getString(R.string.library));
         menuItems.add( getString(R.string.download));
+        menuItems.add( config.getLastReadTitle() );
 
         if ( this.readingFragment != null ) {
 
@@ -142,7 +142,7 @@ public class ReadingActivity extends PageTurnerActivity {
 
         int correctedIndex = getCorrectIndex(i);
 
-        if ( correctedIndex == 0 || i == tocIndex || i == highlightIndex ) {
+        if ( correctedIndex == 2 || i == tocIndex || i == highlightIndex ) {
             return false;
         }
 

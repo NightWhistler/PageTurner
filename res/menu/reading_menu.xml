@@ -42,11 +42,6 @@
           android:icon="@drawable/play" />
 
 
-    <item android:id="@+id/show_search_results"
-          android:title="@string/search_results"
-          android:icon="@drawable/zoom"
-            />
-
     <item android:id="@+id/preferences"
           android:title="@string/prefs"
           android:icon="@drawable/cog"

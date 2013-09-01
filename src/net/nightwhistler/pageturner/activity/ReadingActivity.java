@@ -19,8 +19,6 @@
 package net.nightwhistler.pageturner.activity;
 
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,15 +27,11 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
-import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.TextUtil;
-import net.nightwhistler.pageturner.dto.HighLight;
-import net.nightwhistler.pageturner.dto.TocEntry;
-import net.nightwhistler.pageturner.view.HighlightManager;
+import net.nightwhistler.pageturner.view.NavigationCallback;
 import roboguice.inject.InjectFragment;
 
 import java.util.ArrayList;
@@ -53,7 +47,7 @@ public class ReadingActivity extends PageTurnerActivity {
 
     private int tocIndex = -1;
     private int highlightIndex = -1;
-
+    private int searchIndex = -1;
 
     @Override
     protected int getMainLayoutResource() {
@@ -71,34 +65,28 @@ public class ReadingActivity extends PageTurnerActivity {
         super.initDrawerItems();
 
         if ( this.readingFragment != null ) {
-            List<TocEntry> tocList = this.readingFragment
-                    .getTableOfContents();
 
-            if (tocList != null && ! tocList.isEmpty()) {
+            List<NavigationCallback> tocCallbacks =
+                    this.readingFragment.getTableOfContents();
 
-                List<NavigationAdapter.NavigationChildItem> tocNames
-                        = new ArrayList<NavigationAdapter.NavigationChildItem>();
-
-                for ( TocEntry entry: tocList ) {
-                    tocNames.add( new TocChildItem( entry ) );
-                }
-
-                getAdapter().setChildren(this.tocIndex, tocNames );
+            if ( tocCallbacks != null && ! tocCallbacks.isEmpty() ) {
+                getAdapter().setChildren(this.tocIndex, tocCallbacks );
             }
 
-            List<HighLight> highlights = this.readingFragment.getHighlights();
+            List<NavigationCallback> highlightCallbacks =
+                    this.readingFragment.getHighlights();
 
-            if ( highlights != null && ! highlights.isEmpty() ) {
-                List<NavigationAdapter.NavigationChildItem> highlightItems =
-                        new ArrayList<NavigationAdapter.NavigationChildItem>();
-
-                for ( HighLight highLight: highlights ) {
-                    highlightItems.add( new HighlightChildItem(highLight) );
-                }
-
-                getAdapter().setChildren(this.highlightIndex, highlightItems );
-
+            if ( highlightCallbacks != null && ! highlightCallbacks.isEmpty() ) {
+                getAdapter().setChildren(this.highlightIndex, highlightCallbacks);
             }
+
+            List<NavigationCallback> searchCallbacks =
+                    this.readingFragment.getSearchResults();
+
+            if ( searchCallbacks != null && !searchCallbacks.isEmpty() ) {
+                getAdapter().setChildren(this.searchIndex, searchCallbacks);
+            }
+
         }
 
     }
@@ -117,19 +105,19 @@ public class ReadingActivity extends PageTurnerActivity {
 
         if ( this.readingFragment != null ) {
 
-            List<TocEntry> tocList = this.readingFragment
-                    .getTableOfContents();
-
-            if ( tocList != null && ! tocList.isEmpty() ) {
+            if ( this.readingFragment.hasTableOfContents() ) {
                 menuItems.add( getString(R.string.toc_label));
                 this.tocIndex = menuItems.size() - 1;
             }
 
-            List<HighLight> highLights = this.readingFragment.getHighlights();
-
-            if ( highLights != null && ! highLights.isEmpty() ) {
+            if ( this.readingFragment.hasHighlights() ) {
                 menuItems.add( getString(R.string.highlights));
                 this.highlightIndex = menuItems.size() - 1;
+            }
+
+            if ( this.readingFragment.hasSearchResults() ) {
+                menuItems.add( getString(R.string.search_results));
+                this.searchIndex = menuItems.size() - 1;
             }
 
         }
@@ -142,7 +130,7 @@ public class ReadingActivity extends PageTurnerActivity {
 
         int correctedIndex = getCorrectIndex(i);
 
-        if ( correctedIndex == 2 || i == tocIndex || i == highlightIndex ) {
+        if ( correctedIndex == 2 || i == tocIndex || i == highlightIndex  || i == searchIndex) {
             return false;
         }
 
@@ -163,13 +151,9 @@ public class ReadingActivity extends PageTurnerActivity {
 
         super.onChildClick(expandableListView, view, i, i2, l );
 
-        NavigationAdapter.NavigationChildItem childItem = getAdapter().getChild( i, i2 );
+        NavigationCallback childItem = getAdapter().getChild( i, i2 );
 
-        if ( childItem instanceof TocChildItem ) {
-            this.readingFragment.navigateTo( ( (TocChildItem) childItem ).getTocEntry() );
-        } else if ( childItem instanceof HighlightChildItem ) {
-            this.readingFragment.navigateTo( ( (HighlightChildItem) childItem ).getHighLight() );
-        }
+        childItem.onClick();
 
         return false;
     }
@@ -236,63 +220,4 @@ public class ReadingActivity extends PageTurnerActivity {
         readingFragment.getBookView().releaseResources();
     }
 
-    private class TocChildItem implements NavigationAdapter.NavigationChildItem {
-
-        private TocEntry tocEntry;
-
-        public TocChildItem( TocEntry tocEntry ) {
-            this.tocEntry = tocEntry;
-        }
-
-        @Override
-        public String getTitle() {
-            return this.tocEntry.getTitle();
-        }
-
-        @Override
-        public String getSubtitle() {
-            return "";
-        }
-
-        public TocEntry getTocEntry() {
-            return tocEntry;
-        }
-    }
-
-    private class HighlightChildItem implements NavigationAdapter.NavigationChildItem {
-
-        private HighLight highLight;
-
-        public HighlightChildItem( HighLight highLight ) {
-            this.highLight = highLight;
-        }
-
-        @Override
-        public String getSubtitle() {
-
-            String text = highLight.getPercentage() + "%";
-
-            if ( highLight.getPageNumber() != -1 ) {
-                text = String.format( getString(R.string.page_number_of),
-                        highLight.getPageNumber(), highLight.getTotalPages() )
-                        + " (" + highLight.getPercentage() + "%)";
-            }
-
-            if ( highLight.getTextNote() != null && highLight.getTextNote().trim().length() > 0 ) {
-                text += ": " + TextUtil.shortenText( highLight.getTextNote() );
-            }
-
-            return text;
-        }
-
-        @Override
-        public String getTitle() {
-            return highLight.getDisplayText();
-        }
-
-        public HighLight getHighLight() {
-            return highLight;
-        }
-
-    }
 }

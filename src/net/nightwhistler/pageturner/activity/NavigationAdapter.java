@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.view.NavigationCallback;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,22 +25,17 @@ import java.util.Map;
 public class NavigationAdapter extends BaseExpandableListAdapter {
 
     private List<String> groups;
-    private Map<Integer, List<NavigationChildItem>> children;
+    private Map<Integer, List<NavigationCallback>> children;
 
     private Context context;
-
-    public static interface NavigationChildItem {
-        public String getTitle();
-        public String getSubtitle();
-    }
 
     public NavigationAdapter( Context context, String... items ) {
         this.context = context;
         this.groups = Arrays.asList(items);
-        this.children = new HashMap<Integer, List<NavigationChildItem>>();
+        this.children = new HashMap<Integer, List<NavigationCallback>>();
     }
 
-    public void setChildren( int groupId, List<NavigationChildItem> childItems ) {
+    public void setChildren( int groupId, List<NavigationCallback> childItems ) {
         this.children.put( groupId, childItems );
     }
 
@@ -57,7 +53,7 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
         TextView subTitleView = (TextView) layout.findViewById( R.id.subtitleText );
 
         if ( children.containsKey( groupPosition ) ) {
-            List<NavigationChildItem> childItems = children.get( groupPosition );
+            List<NavigationCallback> childItems = children.get( groupPosition );
 
             titleTextView.setText( childItems.get(childPosition).getTitle() );
             subTitleView.setText( childItems.get(childPosition).getSubtitle() );
@@ -134,7 +130,7 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public NavigationChildItem getChild(int i, int i2) {
+    public NavigationCallback getChild(int i, int i2) {
 
         if ( children.containsKey(i) ) {
             if ( children.get(i).size() > i2 ) {

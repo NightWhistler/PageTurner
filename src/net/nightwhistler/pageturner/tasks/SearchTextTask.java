@@ -26,6 +26,7 @@ import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
+import net.nightwhistler.pageturner.dto.SearchResult;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import nl.siegmann.epublib.domain.Book;
 import org.htmlcleaner.TagNode;
@@ -36,7 +37,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResult, List<SearchTextTask.SearchResult>> {
+public class SearchTextTask extends AsyncTask<String, SearchResult, List<SearchResult>> {
 	
 	private Book book;
 	
@@ -57,12 +58,12 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 	
 
 	@Override
-	protected List<SearchTextTask.SearchResult> doInBackground(String... params) {
+	protected List<SearchResult> doInBackground(String... params) {
 		
 		String searchTerm = params[0];
 		Pattern pattern = Pattern.compile(Pattern.quote((searchTerm)),Pattern.CASE_INSENSITIVE);
 		
-		List<SearchTextTask.SearchResult> result = new ArrayList<SearchTextTask.SearchResult>();
+		List<SearchResult> result = new ArrayList<SearchResult>();
 		
 		try {
 
@@ -100,39 +101,6 @@ public class SearchTextTask extends AsyncTask<String, SearchTextTask.SearchResul
 		}
 
 		return result;		
-	}
-	
-	public static class SearchResult {
-		
-		private String display;
-		private int index;
-		private int start;
-		private int end;
-
-		
-		public SearchResult(String display, int index, int offset, int end) {
-			this.display = display;
-			this.index = index;
-			this.start = offset;
-			this.end = end;
-		}
-		
-		public String getDisplay() {
-			return display;
-		}
-		
-		public int getIndex() {
-			return index;
-		}
-		
-		public int getStart() {
-			return start;
-		}
-		
-		public int getEnd() {
-			return end;
-		}
-		
 	}
 	
 	private static class DummyHandler extends TagNodeHandler {

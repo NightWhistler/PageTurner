@@ -28,15 +28,6 @@ public class HighLight {
 
     private int color;
 
-    /**
-     * "Transient" fields.
-     *
-     * These may be filled as extra info, but are not persisted.
-     */
-    private int percentage = -1;
-    private int pageNumber = -1;
-    private int totalPages = -1;
-
     public HighLight( String displayText, int index, int start, int end, int color ) {
         this.start = start;
         this.end =  end;
@@ -75,30 +66,6 @@ public class HighLight {
 
     public String getDisplayText() {
         return this.displayText;
-    }
-
-    public int getPercentage() {
-        return percentage;
-    }
-
-    public void setPercentage(int percentage) {
-        this.percentage = percentage;
-    }
-
-    public int getPageNumber() {
-        return pageNumber;
-    }
-
-    public void setPageNumber(int pageNumber) {
-        this.pageNumber = pageNumber;
-    }
-
-    public int getTotalPages() {
-        return totalPages;
-    }
-
-    public void setTotalPages(int totalPages) {
-        this.totalPages = totalPages;
     }
 
     public static String toJSON( List<HighLight> highLights ) {

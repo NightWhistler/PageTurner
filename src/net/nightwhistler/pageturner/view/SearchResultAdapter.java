@@ -30,6 +30,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.dto.SearchResult;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 
@@ -41,14 +42,14 @@ import java.util.List;
  * @author Alex Kuiper
  *
  */
-public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResult> implements 
+public class SearchResultAdapter extends ArrayAdapter<SearchResult> implements
 	DialogInterface.OnClickListener {
 
-	private List<SearchTextTask.SearchResult> results;
+	private List<SearchResult> results;
 	private BookView bookView;
 	
 	public SearchResultAdapter(Context context, BookView bookView, 
-			List<SearchTextTask.SearchResult> books) {
+			List<SearchResult> books) {
 		super(context, R.id.deviceName, books);
 		this.results = books;
 		this.bookView = bookView;	
@@ -80,7 +81,7 @@ public class SearchResultAdapter extends ArrayAdapter<SearchTextTask.SearchResul
 			percentageView.setTextColor( Color.BLACK );			
 		}
 			
-		SearchTextTask.SearchResult progress = results.get(position);
+		SearchResult progress = results.get(position);
 
 		deviceView.setText( progress.getDisplay() );
 

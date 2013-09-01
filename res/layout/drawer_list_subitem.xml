@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2013 The Android Open Source Project
 
@@ -14,16 +15,33 @@
   limitations under the License.
   -->
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/text1"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textAppearance="?android:attr/textAppearanceSmall"
-    android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"
-    android:gravity="center_vertical"
-    android:paddingRight="16dp"
-    android:textColor="#fff"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical"
+              android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"
+              android:gravity="center_vertical"
+              android:paddingRight="16dp"
+              android:minHeight="48dip"
+        >
 
-    android:minHeight="48dip"
-    />
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/itemText"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:textAppearance="?android:attr/textAppearanceMedium"
+              android:textColor="#fff"
+            />
+
+    <TextView
+            android:id="@+id/subtitleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/default_timestamp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#555555"
+            />
+
+</LinearLayout>
+
 

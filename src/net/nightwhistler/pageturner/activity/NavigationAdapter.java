@@ -24,39 +24,46 @@ import java.util.Map;
 public class NavigationAdapter extends BaseExpandableListAdapter {
 
     private List<String> groups;
-    private Map<Integer, List<String>> children;
+    private Map<Integer, List<NavigationChildItem>> children;
 
     private Context context;
+
+    public static interface NavigationChildItem {
+        public String getTitle();
+        public String getSubtitle();
+    }
 
     public NavigationAdapter( Context context, String... items ) {
         this.context = context;
         this.groups = Arrays.asList(items);
-        this.children = new HashMap<Integer, List<String>>();
+        this.children = new HashMap<Integer, List<NavigationChildItem>>();
     }
 
-    public void setChildren( int groupId, List<String> childItems ) {
+    public void setChildren( int groupId, List<NavigationChildItem> childItems ) {
         this.children.put( groupId, childItems );
     }
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean b, View view, ViewGroup viewGroup) {
 
-        TextView textView;
+        View layout = view;
 
-        if ( view != null ) {
-            textView = (TextView) view;
-        } else {
-            textView = (TextView) PlatformUtil.getLayoutInflater(context).inflate(
+        if ( layout == null ) {
+            layout = PlatformUtil.getLayoutInflater(context).inflate(
                     R.layout.drawer_list_subitem, null );
         }
 
-        if ( children.containsKey( groupPosition ) ) {
-            List<String> childStrings = children.get( groupPosition );
+        TextView titleTextView = (TextView) layout.findViewById( R.id.itemText );
+        TextView subTitleView = (TextView) layout.findViewById( R.id.subtitleText );
 
-            textView.setText( childStrings.get( childPosition ) );
+        if ( children.containsKey( groupPosition ) ) {
+            List<NavigationChildItem> childItems = children.get( groupPosition );
+
+            titleTextView.setText( childItems.get(childPosition).getTitle() );
+            subTitleView.setText( childItems.get(childPosition).getSubtitle() );
         }
 
-        return textView;
+        return layout;
 
     }
 
@@ -127,10 +134,12 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public Object getChild(int i, int i2) {
+    public NavigationChildItem getChild(int i, int i2) {
 
         if ( children.containsKey(i) ) {
-            return children.get(i);
+            if ( children.get(i).size() > i2 ) {
+                return children.get(i).get(i2);
+            }
         }
 
         return null;

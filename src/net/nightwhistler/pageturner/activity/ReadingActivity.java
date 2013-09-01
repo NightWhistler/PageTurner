@@ -34,7 +34,10 @@ import android.widget.ExpandableListView;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.TextUtil;
+import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.dto.TocEntry;
+import net.nightwhistler.pageturner.view.HighlightManager;
 import roboguice.inject.InjectFragment;
 
 import java.util.ArrayList;
@@ -49,6 +52,8 @@ public class ReadingActivity extends PageTurnerActivity {
     private Configuration config;
 
     private int tocIndex = -1;
+    private int highlightIndex = -1;
+
 
     @Override
     protected int getMainLayoutResource() {
@@ -71,12 +76,27 @@ public class ReadingActivity extends PageTurnerActivity {
 
             if (tocList != null && ! tocList.isEmpty()) {
 
-                List<String> tocNames = new ArrayList<String>();
+                List<NavigationAdapter.NavigationChildItem> tocNames
+                        = new ArrayList<NavigationAdapter.NavigationChildItem>();
+
                 for ( TocEntry entry: tocList ) {
-                    tocNames.add( entry.getTitle() );
+                    tocNames.add( new TocChildItem( entry ) );
                 }
 
                 getAdapter().setChildren(this.tocIndex, tocNames );
+            }
+
+            List<HighLight> highlights = this.readingFragment.getHighlights();
+
+            if ( highlights != null && ! highlights.isEmpty() ) {
+                List<NavigationAdapter.NavigationChildItem> highlightItems =
+                        new ArrayList<NavigationAdapter.NavigationChildItem>();
+
+                for ( HighLight highLight: highlights ) {
+                    highlightItems.add( new HighlightChildItem(highLight) );
+                }
+
+                getAdapter().setChildren(this.highlightIndex, highlightItems );
 
             }
         }
@@ -105,9 +125,16 @@ public class ReadingActivity extends PageTurnerActivity {
                 this.tocIndex = menuItems.size() - 1;
             }
 
+            List<HighLight> highLights = this.readingFragment.getHighlights();
+
+            if ( highLights != null && ! highLights.isEmpty() ) {
+                menuItems.add( getString(R.string.highlights));
+                this.highlightIndex = menuItems.size() - 1;
+            }
+
         }
 
-        return menuItems.toArray( new String[ menuItems.size() ] );
+        return menuItems.toArray(new String[menuItems.size()]);
     }
 
     @Override
@@ -115,7 +142,7 @@ public class ReadingActivity extends PageTurnerActivity {
 
         int correctedIndex = getCorrectIndex(i);
 
-        if ( correctedIndex == 0 || i == tocIndex) {
+        if ( correctedIndex == 0 || i == tocIndex || i == highlightIndex ) {
             return false;
         }
 
@@ -136,13 +163,12 @@ public class ReadingActivity extends PageTurnerActivity {
 
         super.onChildClick(expandableListView, view, i, i2, l );
 
-        if ( i == this.tocIndex ) {
-            List<TocEntry> tocEntries = this.readingFragment.getTableOfContents();
+        NavigationAdapter.NavigationChildItem childItem = getAdapter().getChild( i, i2 );
 
-            if ( i2 > 0 && i2 < tocEntries.size() ) {
-                this.readingFragment.navigateTo( tocEntries.get(i2) );
-                return true;
-            }
+        if ( childItem instanceof TocChildItem ) {
+            this.readingFragment.navigateTo( ( (TocChildItem) childItem ).getTocEntry() );
+        } else if ( childItem instanceof HighlightChildItem ) {
+            this.readingFragment.navigateTo( ( (HighlightChildItem) childItem ).getHighLight() );
         }
 
         return false;
@@ -207,5 +233,65 @@ public class ReadingActivity extends PageTurnerActivity {
     protected void beforeLaunchActivity() {
         readingFragment.saveReadingPosition();
         readingFragment.getBookView().releaseResources();
+    }
+
+    private class TocChildItem implements NavigationAdapter.NavigationChildItem {
+
+        private TocEntry tocEntry;
+
+        public TocChildItem( TocEntry tocEntry ) {
+            this.tocEntry = tocEntry;
+        }
+
+        @Override
+        public String getTitle() {
+            return this.tocEntry.getTitle();
+        }
+
+        @Override
+        public String getSubtitle() {
+            return "";
+        }
+
+        public TocEntry getTocEntry() {
+            return tocEntry;
+        }
+    }
+
+    private class HighlightChildItem implements NavigationAdapter.NavigationChildItem {
+
+        private HighLight highLight;
+
+        public HighlightChildItem( HighLight highLight ) {
+            this.highLight = highLight;
+        }
+
+        @Override
+        public String getSubtitle() {
+
+            String text = highLight.getPercentage() + "%";
+
+            if ( highLight.getPageNumber() != -1 ) {
+                text = String.format( getString(R.string.page_number_of),
+                        highLight.getPageNumber(), highLight.getTotalPages() )
+                        + " (" + highLight.getPercentage() + "%)";
+            }
+
+            if ( highLight.getTextNote() != null && highLight.getTextNote().trim().length() > 0 ) {
+                text += ": " + TextUtil.shortenText( highLight.getTextNote() );
+            }
+
+            return text;
+        }
+
+        @Override
+        public String getTitle() {
+            return highLight.getDisplayText();
+        }
+
+        public HighLight getHighLight() {
+            return highLight;
+        }
+
     }
 }

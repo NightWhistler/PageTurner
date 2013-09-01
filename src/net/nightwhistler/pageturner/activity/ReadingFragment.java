@@ -1261,11 +1261,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         int pageStart = bookView.getStartOfCurrentPage();
 
-        String text = selectedText;
-
-        if ( text.length() > 40 ) {
-            text = text.substring(0, 40) + "…";
-        }
+        String text = TextUtil.shortenText( selectedText );
 
         this.highlightManager.registerHighlight(fileName, text, bookView.getIndex(),
                 pageStart + from, pageStart + to);
@@ -2460,6 +2456,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
         bookView.navigateTo( entry.getHref());
     }
 
+    public void navigateTo( HighLight highLight ) {
+        titleBarLayout.setVisibility(View.GONE);
+        updateFromPrefs();
+
+        bookView.navigateTo( highLight.getIndex(), highLight.getStart() );
+    }
+
 	@Override
 	public boolean onLeftEdgeSlide(int value) {
 
@@ -2721,12 +2724,28 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		dialog.show();
 	}
 
+    public List<HighLight> getHighlights() {
+
+        List<HighLight> highLights = new ArrayList<HighLight>(
+                this.highlightManager.getHighLights( bookView.getFileName() ) );
+
+        int totalNumberOfPages = bookView.getTotalNumberOfPages();
+
+        for ( HighLight highLight: highLights ) {
+            highLight.setPercentage(bookView.getPercentageFor(highLight.getIndex(), highLight.getStart()));
+            highLight.setPageNumber( bookView.getPageNumberFor(highLight.getIndex(), highLight.getStart()) );
+            highLight.setTotalPages( totalNumberOfPages );
+        }
+
+        return highLights;
+    }
+
     private void showHighLightDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.highlights);
 
         HighLightAdapter adapter = new HighLightAdapter(getActivity(), bookView,
-                highlightManager.getHighLights(bookView.getFileName()));
+                getHighlights() );
 
         builder.setAdapter(adapter, adapter);
 

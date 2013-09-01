@@ -1058,7 +1058,11 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 
     public int getTotalNumberOfPages() {
-        return spine.getTotalNumberOfPages();
+        if ( spine != null ) {
+            return spine.getTotalNumberOfPages();
+        }
+
+        return -1;
     }
 
 	public int getPageNumberFor( int index, int position ) {

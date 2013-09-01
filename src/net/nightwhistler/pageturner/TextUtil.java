@@ -53,6 +53,16 @@ public class TextUtil {
 
     }
 
+    public static String shortenText( String original ) {
+
+        String text = original;
+
+        if ( text.length() > 40 ) {
+            text = text.substring(0, 40) + "…";
+        }
+
+        return text;
+    }
 
 
 }

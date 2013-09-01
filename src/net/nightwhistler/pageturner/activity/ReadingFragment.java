@@ -440,9 +440,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		saveConfigState();
 
         Intent intent = activity.getIntent();
-		String file = intent.getStringExtra("file_name");
+		String file = null;
 
-		if (file == null && intent.getData() != null) {
+		if ( intent.getData() != null) {
 			file = intent.getData().getPath();
 		}
 
@@ -2068,8 +2068,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		tts.setEnabled(ttsAvailable);
 
         MenuItem searchResultsItem = menu.findItem(R.id.show_search_results);
-        MenuItem highLightsItem = menu.findItem(R.id.show_highlights);
-		
+
 		activity.getSupportActionBar().show();
 
 		if (config.getColourProfile() == ColourProfile.DAY) {
@@ -2090,7 +2089,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 
         searchResultsItem.setVisible( searchResults != null && searchResults.size() > 0 );
-        highLightsItem.setVisible( highlightManager.getHighLights( bookView.getFileName() ).size() > 0 );
 
 		activity.getWindow().addFlags(
 				WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -2260,10 +2258,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         case R.id.show_search_results:
             showSearchResultDialog(searchResults);
-            return true;
-
-        case R.id.show_highlights:
-            showHighLightDialog();
             return true;
 
 		case R.id.profile_night:
@@ -2738,21 +2732,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
         }
 
         return highLights;
-    }
-
-    private void showHighLightDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.highlights);
-
-        HighLightAdapter adapter = new HighLightAdapter(getActivity(), bookView,
-                getHighlights() );
-
-        builder.setAdapter(adapter, adapter);
-
-        AlertDialog dialog = builder.create();
-        dialog.setOwnerActivity(getActivity());
-
-        dialog.show();
     }
 
 	private class ManualProgressSync extends

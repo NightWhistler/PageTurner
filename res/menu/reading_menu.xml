@@ -47,12 +47,6 @@
           android:icon="@drawable/zoom"
             />
 
-    <item android:id="@+id/show_highlights"
-          android:title="@string/highlights"
-
-            />
-
-
     <item android:id="@+id/preferences"
           android:title="@string/prefs"
           android:icon="@drawable/cog"

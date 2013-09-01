@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -43,6 +44,8 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
 
     private CharSequence originalTitle;
 
+    private boolean drawerIsOpen;
+
     @Inject
     private Configuration config;
 
@@ -79,6 +82,21 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
             }
         };
 
+        //This closes the drawer when the user hits the back button.
+        mDrawer.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                int action = keyEvent.getAction();
+                int keyCode = keyEvent.getKeyCode();
+
+                if ( action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK && drawerIsOpen ) {
+                    mDrawer.closeDrawers();
+                    return true;
+                }
+
+                return false;
+            }
+        });
 
         mToggle.setDrawerIndicatorEnabled(true);
         mDrawer.setDrawerListener(mToggle);
@@ -123,12 +141,14 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
     }
 
     public void onDrawerClosed(View view) {
+        this.drawerIsOpen = false;
         getSupportActionBar().setTitle(originalTitle);
         invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
     }
 
     public void onDrawerOpened(View drawerView) {
 
+        this.drawerIsOpen = true;
         this.originalTitle = getSupportActionBar().getTitle();
 
         getSupportActionBar().setTitle(R.string.app_name);

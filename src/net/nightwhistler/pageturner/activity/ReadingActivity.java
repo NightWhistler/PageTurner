@@ -179,6 +179,11 @@ public class ReadingActivity extends PageTurnerActivity {
     }
 
     @Override
+    public void onBackPressed() {
+
+    }
+
+    @Override
     public boolean onSearchRequested() {
         readingFragment.onSearchRequested();
         return true;

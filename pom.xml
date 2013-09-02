@@ -261,6 +261,9 @@
 						<avd>Telefoon</avd>
 					</emulator>
 					<undeployBeforeDeploy>true</undeployBeforeDeploy>
+                    <zipalign>
+                        <skip>false</skip>
+                    </zipalign>
 				</configuration>
 			</plugin>
 		</plugins>

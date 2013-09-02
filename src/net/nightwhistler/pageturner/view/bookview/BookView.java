@@ -1180,10 +1180,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
              */
         }
 
-        public boolean dispatchKeyEvent(KeyEvent event) {
-			return bookView.dispatchKeyEvent(event);
-		}
-
 		public void setBookView(BookView bookView) {
 			this.bookView = bookView;
 		}

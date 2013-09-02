@@ -1653,7 +1653,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if ( ! ttsIsRunning() && dispatchMediaKeyEvent(event) ) {
 			return true;
 		}
-		
+
+        LOG.debug("Key event is NOT a media key event.");
 
 		switch (keyCode) {	
 		
@@ -1681,18 +1682,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 if (titleBarLayout.getVisibility() == View.VISIBLE) {
 					hideTitleBar();
                     updateFromPrefs();
+                    return true;
 				} else if (bookView.hasPrevPosition()) {
 					bookView.goBackInHistory();
 					return true;
-				} else {
-
-                    Activity activity = getActivity();
-
-                    if ( activity != null ) {
-					    activity.finish();
-                    }
 				}
 			}
+
+            return false;
 
 		case KEYCODE_NOOK_TOUCH_BUTTON_LEFT_TOP:
 		case KEYCODE_NOOK_TOUCH_BUTTON_RIGHT_TOP:
@@ -1707,6 +1704,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                         pageUp(Orientation.HORIZONTAL);
                     return true;
 		}
+
 
         LOG.debug("Not handling key event: returning false.");
 		return false;
@@ -2773,7 +2771,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                 @Override
                 public void onClick() {
-                    //bookView.navigateTo( searchResult.getIndex(), searchResult.getStart() );
                     bookView.navigateBySearchResult(searchResults, currentCount);
                 }
             });

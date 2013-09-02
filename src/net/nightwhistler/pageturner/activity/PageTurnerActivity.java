@@ -82,6 +82,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
             }
         };
 
+        /*
         //This closes the drawer when the user hits the back button.
         mDrawer.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -90,19 +91,38 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
                 int keyCode = keyEvent.getKeyCode();
 
                 if ( action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK && drawerIsOpen ) {
-                    mDrawer.closeDrawers();
+                    closeNavigationDrawer();
                     return true;
                 }
 
                 return false;
             }
         });
+        */
 
         mToggle.setDrawerIndicatorEnabled(true);
         mDrawer.setDrawerListener(mToggle);
         mDrawer.setDrawerLockMode( DrawerLayout.LOCK_MODE_LOCKED_CLOSED );
 
         onCreatePageTurnerActivity(savedInstanceState);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+
+        int action = event.getAction();
+        int keyCode = event.getKeyCode();
+
+        if ( action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK && drawerIsOpen ) {
+            closeNavigationDrawer();
+            return true;
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
+
+    protected void closeNavigationDrawer() {
+        mDrawer.closeDrawers();
     }
 
     protected NavigationAdapter getAdapter() {
@@ -209,13 +229,13 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
             launchActivity( ReadingActivity.class );
         }
 
-        mDrawer.closeDrawers();
+        closeNavigationDrawer();
         return true;
     }
 
     @Override
     public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
-        mDrawer.closeDrawers();
+        closeNavigationDrawer();
         return false;
     }
 }

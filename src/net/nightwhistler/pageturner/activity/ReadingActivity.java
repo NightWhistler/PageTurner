@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -190,11 +191,6 @@ public class ReadingActivity extends PageTurnerActivity {
     }
 
     @Override
-    public void onBackPressed() {
-
-    }
-
-    @Override
     public boolean onSearchRequested() {
         readingFragment.onSearchRequested();
         return true;
@@ -204,7 +200,7 @@ public class ReadingActivity extends PageTurnerActivity {
 	public void onWindowFocusChanged(boolean hasFocus) {
 		readingFragment.onWindowFocusChanged(hasFocus);
 	}
-	
+
 	public void onMediaButtonEvent(View view) {
 		this.readingFragment.onMediaButtonEvent(view.getId());
 	}
@@ -216,7 +212,12 @@ public class ReadingActivity extends PageTurnerActivity {
 
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
-		return readingFragment.dispatchKeyEvent(event);
+
+        if ( readingFragment.dispatchKeyEvent(event) ) {
+            return true;
+        }
+
+        return super.dispatchKeyEvent(event);
 	}
 
     @Override

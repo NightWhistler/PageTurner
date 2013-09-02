@@ -64,6 +64,7 @@ import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.TextUtil;
 import net.nightwhistler.pageturner.animation.*;
 import net.nightwhistler.pageturner.dto.HighLight;
+import net.nightwhistler.pageturner.dto.SearchResult;
 import net.nightwhistler.pageturner.dto.TocEntry;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.AccessException;
@@ -202,7 +203,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     private MenuItem searchMenuItem;
 
     private Map<String, TTSPlaybackItem> ttsItemPrep = new HashMap<String, TTSPlaybackItem>();
-    private List<SearchTextTask.SearchResult> searchResults = new ArrayList<SearchTextTask.SearchResult>();
+    private List<SearchResult> searchResults = new ArrayList<SearchResult>();
 
 	private ProgressDialog waitDialog;
 
@@ -404,7 +405,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         }
 
-
     }
 
 	@Override
@@ -440,9 +440,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		saveConfigState();
 
         Intent intent = activity.getIntent();
-		String file = intent.getStringExtra("file_name");
+		String file = null;
 
-		if (file == null && intent.getData() != null) {
+		if ( intent.getData() != null) {
 			file = intent.getData().getPath();
 		}
 
@@ -1261,11 +1261,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         int pageStart = bookView.getStartOfCurrentPage();
 
-        String text = selectedText;
-
-        if ( text.length() > 40 ) {
-            text = text.substring(0, 40) + "…";
-        }
+        String text = TextUtil.shortenText( selectedText );
 
         this.highlightManager.registerHighlight(fileName, text, bookView.getIndex(),
                 pageStart + from, pageStart + to);
@@ -2071,9 +2067,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		MenuItem tts = menu.findItem( R.id.text_to_speech );
 		tts.setEnabled(ttsAvailable);
 
-        MenuItem searchResultsItem = menu.findItem(R.id.show_search_results);
-        MenuItem highLightsItem = menu.findItem(R.id.show_highlights);
-		
 		activity.getSupportActionBar().show();
 
 		if (config.getColourProfile() == ColourProfile.DAY) {
@@ -2092,9 +2085,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		if (!isIntentAvailable(context, intent)) {
 			menu.findItem(R.id.open_file).setVisible(false);
 		}
-
-        searchResultsItem.setVisible( searchResults != null && searchResults.size() > 0 );
-        highLightsItem.setVisible( highlightManager.getHighLights( bookView.getFileName() ).size() > 0 );
 
 		activity.getWindow().addFlags(
 				WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -2261,14 +2251,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		// Handle item selection
 		switch (item.getItemId()) {
-
-        case R.id.show_search_results:
-            showSearchResultDialog(searchResults);
-            return true;
-
-        case R.id.show_highlights:
-            showHighLightDialog();
-            return true;
 
 		case R.id.profile_night:
 			config.setColourProfile(ColourProfile.NIGHT);
@@ -2452,14 +2434,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		return false;
 	}
 
-    public void navigateTo( TocEntry entry ) {
-
-        titleBarLayout.setVisibility(View.GONE);
-        updateFromPrefs();
-
-        bookView.navigateTo( entry.getHref());
-    }
-
 	@Override
 	public boolean onLeftEdgeSlide(int value) {
 
@@ -2542,8 +2516,41 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		dialog.show();
 	}
 
-    public List<TocEntry> getTableOfContents() {
-        return this.bookView.getTableOfContents();
+    public boolean hasTableOfContents() {
+        List<TocEntry> toc = this.bookView.getTableOfContents();
+        return toc != null && ! toc.isEmpty();
+    }
+
+    public List<NavigationCallback> getTableOfContents() {
+
+        List<NavigationCallback> result = new ArrayList<NavigationCallback>();
+        List<TocEntry> tocEntries = this.bookView.getTableOfContents();
+
+        if ( tocEntries != null ) {
+
+            for ( final TocEntry tocEntry: tocEntries ) {
+
+                result.add(new NavigationCallback() {
+                    @Override
+                    public String getTitle() {
+                        return tocEntry.getTitle();
+                    }
+
+                    @Override
+                    public String getSubtitle() {
+                        return "";
+                    }
+
+                    @Override
+                    public void onClick() {
+                        bookView.navigateTo( tocEntry.getHref() );
+                    }
+                });
+            }
+
+        }
+
+        return result;
     }
 
 	@Override
@@ -2696,7 +2703,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     private boolean isSearchResultsDialogShowing = false;
 
 	private void showSearchResultDialog(
-			final List<SearchTextTask.SearchResult> results) {
+			final List<SearchResult> results) {
 
         if ( isSearchResultsDialogShowing ) {
             return;
@@ -2721,19 +2728,117 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		dialog.show();
 	}
 
-    private void showHighLightDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.highlights);
+    public boolean hasSearchResults() {
+        return this.searchResults != null && !this.searchResults.isEmpty();
+    }
 
-        HighLightAdapter adapter = new HighLightAdapter(getActivity(), bookView,
-                highlightManager.getHighLights(bookView.getFileName()));
+    public List<NavigationCallback> getSearchResults() {
 
-        builder.setAdapter(adapter, adapter);
+        List<NavigationCallback> result = new ArrayList<NavigationCallback>();
 
-        AlertDialog dialog = builder.create();
-        dialog.setOwnerActivity(getActivity());
+        if ( searchResults == null ) {
+            return result;
+        }
 
-        dialog.show();
+        final int totalNumberOfPages = bookView.getTotalNumberOfPages();
+
+        int counter = 0;
+
+        for ( final SearchResult searchResult: this.searchResults ) {
+
+            int percentage = bookView.getPercentageFor(searchResult.getIndex(), searchResult.getStart());
+            int pageNumber = bookView.getPageNumberFor(searchResult.getIndex(), searchResult.getStart());
+
+            final String text;
+            final int currentCount = counter;
+
+            if ( pageNumber != -1 ) {
+                text = String.format( context.getString(R.string.page_number_of),
+                        pageNumber, totalNumberOfPages )
+                        + " (" + percentage + "%)";
+            } else {
+                text = percentage + "%";
+            }
+
+            result.add( new NavigationCallback() {
+                @Override
+                public String getTitle() {
+                    return searchResult.getDisplay();
+                }
+
+                @Override
+                public String getSubtitle() {
+                    return text;
+                }
+
+                @Override
+                public void onClick() {
+                    //bookView.navigateTo( searchResult.getIndex(), searchResult.getStart() );
+                    bookView.navigateBySearchResult(searchResults, currentCount);
+                }
+            });
+
+            counter++;
+        }
+
+        return result;
+    }
+
+
+    public boolean hasHighlights() {
+
+        List<HighLight> highLights = this.highlightManager.getHighLights( bookView.getFileName() );
+
+        return highLights != null && ! highLights.isEmpty();
+    }
+
+    public List<NavigationCallback> getHighlights() {
+
+        List<HighLight> highLights = this.highlightManager.getHighLights( bookView.getFileName() );
+
+        final int totalNumberOfPages = bookView.getTotalNumberOfPages();
+
+        List<NavigationCallback> result = new ArrayList<NavigationCallback>();
+
+        for ( final HighLight highLight: highLights ) {
+
+            int percentage = bookView.getPercentageFor(highLight.getIndex(), highLight.getStart());
+            int pageNumber = bookView.getPageNumberFor(highLight.getIndex(), highLight.getStart());
+
+            String text = percentage + "%";
+
+            if ( pageNumber != -1 ) {
+                text = String.format( context.getString(R.string.page_number_of),
+                        pageNumber, totalNumberOfPages )
+                        + " (" + percentage + "%)";
+            }
+
+            if ( highLight.getTextNote() != null && highLight.getTextNote().trim().length() > 0 ) {
+                text += ": " + TextUtil.shortenText( highLight.getTextNote() );
+            }
+
+            final String finalText = text;
+
+            result.add( new NavigationCallback() {
+                @Override
+                public String getTitle() {
+                    return highLight.getDisplayText();
+                }
+
+                @Override
+                public String getSubtitle() {
+                    return finalText;
+                }
+
+                @Override
+                public void onClick() {
+                    bookView.navigateTo( highLight.getIndex(), highLight.getStart() );
+                }
+            });
+
+        }
+
+        return result;
     }
 
 	private class ManualProgressSync extends

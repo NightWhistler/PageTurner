@@ -19,8 +19,6 @@
 package net.nightwhistler.pageturner.activity;
 
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,12 +27,11 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
-import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.dto.TocEntry;
+import net.nightwhistler.pageturner.view.NavigationCallback;
 import roboguice.inject.InjectFragment;
 
 import java.util.ArrayList;
@@ -49,6 +46,8 @@ public class ReadingActivity extends PageTurnerActivity {
     private Configuration config;
 
     private int tocIndex = -1;
+    private int highlightIndex = -1;
+    private int searchIndex = -1;
 
     @Override
     protected int getMainLayoutResource() {
@@ -66,19 +65,28 @@ public class ReadingActivity extends PageTurnerActivity {
         super.initDrawerItems();
 
         if ( this.readingFragment != null ) {
-            List<TocEntry> tocList = this.readingFragment
-                    .getTableOfContents();
 
-            if (tocList != null && ! tocList.isEmpty()) {
+            List<NavigationCallback> tocCallbacks =
+                    this.readingFragment.getTableOfContents();
 
-                List<String> tocNames = new ArrayList<String>();
-                for ( TocEntry entry: tocList ) {
-                    tocNames.add( entry.getTitle() );
-                }
-
-                getAdapter().setChildren(this.tocIndex, tocNames );
-
+            if ( tocCallbacks != null && ! tocCallbacks.isEmpty() ) {
+                getAdapter().setChildren(this.tocIndex, tocCallbacks );
             }
+
+            List<NavigationCallback> highlightCallbacks =
+                    this.readingFragment.getHighlights();
+
+            if ( highlightCallbacks != null && ! highlightCallbacks.isEmpty() ) {
+                getAdapter().setChildren(this.highlightIndex, highlightCallbacks);
+            }
+
+            List<NavigationCallback> searchCallbacks =
+                    this.readingFragment.getSearchResults();
+
+            if ( searchCallbacks != null && !searchCallbacks.isEmpty() ) {
+                getAdapter().setChildren(this.searchIndex, searchCallbacks);
+            }
+
         }
 
     }
@@ -91,23 +99,30 @@ public class ReadingActivity extends PageTurnerActivity {
             menuItems.add("");
         }
 
-        menuItems.add( config.getLastReadTitle() );
         menuItems.add( getString(R.string.library));
         menuItems.add( getString(R.string.download));
+        menuItems.add( config.getLastReadTitle() );
 
         if ( this.readingFragment != null ) {
 
-            List<TocEntry> tocList = this.readingFragment
-                    .getTableOfContents();
-
-            if ( tocList != null && ! tocList.isEmpty() ) {
+            if ( this.readingFragment.hasTableOfContents() ) {
                 menuItems.add( getString(R.string.toc_label));
                 this.tocIndex = menuItems.size() - 1;
             }
 
+            if ( this.readingFragment.hasHighlights() ) {
+                menuItems.add( getString(R.string.highlights));
+                this.highlightIndex = menuItems.size() - 1;
+            }
+
+            if ( this.readingFragment.hasSearchResults() ) {
+                menuItems.add( getString(R.string.search_results));
+                this.searchIndex = menuItems.size() - 1;
+            }
+
         }
 
-        return menuItems.toArray( new String[ menuItems.size() ] );
+        return menuItems.toArray(new String[menuItems.size()]);
     }
 
     @Override
@@ -115,7 +130,7 @@ public class ReadingActivity extends PageTurnerActivity {
 
         int correctedIndex = getCorrectIndex(i);
 
-        if ( correctedIndex == 0 || i == tocIndex) {
+        if ( correctedIndex == 2 || i == tocIndex || i == highlightIndex  || i == searchIndex) {
             return false;
         }
 
@@ -136,14 +151,9 @@ public class ReadingActivity extends PageTurnerActivity {
 
         super.onChildClick(expandableListView, view, i, i2, l );
 
-        if ( i == this.tocIndex ) {
-            List<TocEntry> tocEntries = this.readingFragment.getTableOfContents();
+        NavigationCallback childItem = getAdapter().getChild( i, i2 );
 
-            if ( i2 > 0 && i2 < tocEntries.size() ) {
-                this.readingFragment.navigateTo( tocEntries.get(i2) );
-                return true;
-            }
-        }
+        childItem.onClick();
 
         return false;
     }
@@ -169,7 +179,8 @@ public class ReadingActivity extends PageTurnerActivity {
         Class<? extends PageTurnerActivity> lastActivityClass = config.getLastActivity();
 
         if ( !config.isAlwaysOpenLastBook() && lastActivityClass != null
-                && lastActivityClass != ReadingActivity.class ) {
+                && lastActivityClass != ReadingActivity.class
+                && getIntent().getData() == null ) {
             Intent intent = new Intent(this, lastActivityClass);
 
             startActivity(intent);
@@ -213,4 +224,5 @@ public class ReadingActivity extends PageTurnerActivity {
         readingFragment.saveReadingPosition();
         readingFragment.getBookView().releaseResources();
     }
+
 }

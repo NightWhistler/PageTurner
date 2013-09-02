@@ -137,7 +137,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
     }
 
     protected String[] getMenuItems( Configuration config ) {
-        return array(config.getLastReadTitle(), getString(R.string.library), getString(R.string.download));
+        return array(getString(R.string.library), getString(R.string.download), config.getLastReadTitle());
     }
 
     public void onDrawerClosed(View view) {
@@ -202,11 +202,11 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
     public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
 
         if ( i == 0 ) {
-            launchActivity( ReadingActivity.class );
-        } else if ( i == 1 ) {
             launchActivity( LibraryActivity.class );
-        } else if ( i == 2 ) {
+        } else if ( i == 1 ) {
             launchActivity( CatalogActivity.class );
+        } else if ( i == 2 ) {
+            launchActivity( ReadingActivity.class );
         }
 
         mDrawer.closeDrawers();

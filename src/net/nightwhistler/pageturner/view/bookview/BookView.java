@@ -52,6 +52,7 @@ import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.dto.HighLight;
+import net.nightwhistler.pageturner.dto.SearchResult;
 import net.nightwhistler.pageturner.dto.TocEntry;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
@@ -395,7 +396,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		executeTask(new LoadTextTask());
 	}
 
-	private void loadText(List<SearchTextTask.SearchResult> hightListResults) {
+	private void loadText(List<SearchResult> hightListResults) {
 		executeTask(new LoadTextTask(hightListResults));
 	}
 
@@ -596,8 +597,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	}
 
 	public void navigateBySearchResult(
-			List<SearchTextTask.SearchResult> result, int selectedResultIndex) {
-		SearchTextTask.SearchResult searchResult = result
+			List<SearchResult> result, int selectedResultIndex) {
+		    SearchResult searchResult = result
 				.get(selectedResultIndex);
 		
 		this.prevPos = this.getProgressPosition();
@@ -1058,7 +1059,11 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 
     public int getTotalNumberOfPages() {
-        return spine.getTotalNumberOfPages();
+        if ( spine != null ) {
+            return spine.getTotalNumberOfPages();
+        }
+
+        return -1;
     }
 
 	public int getPageNumberFor( int index, int position ) {
@@ -1230,13 +1235,13 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		private String error;
 		private boolean needToCalcPageNumbers = false;
 
-		private List<SearchTextTask.SearchResult> searchResults = new ArrayList<SearchTextTask.SearchResult>();
+		private List<SearchResult> searchResults = new ArrayList<SearchResult>();
 
 		public LoadTextTask() {
 
 		}
 
-		LoadTextTask(List<SearchTextTask.SearchResult> searchResults) {
+		LoadTextTask(List<SearchResult> searchResults) {
 			this.searchResults = searchResults;
 		}
 
@@ -1312,7 +1317,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 
                 // Highlight search results (if any)
-                for (SearchTextTask.SearchResult searchResult : this.searchResults) {
+                for (SearchResult searchResult : this.searchResults) {
                     if (searchResult.getIndex() == spine.getPosition()) {
                         result.setSpan(new SearchResultSpan(),
                                 searchResult.getStart(), searchResult.getEnd(),

@@ -213,6 +213,14 @@ public class ReadingActivity extends PageTurnerActivity {
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
 
+        int action = event.getAction();
+        int keyCode = event.getKeyCode();
+
+        if ( action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK && isDrawerOpen() ) {
+            closeNavigationDrawer();
+            return true;
+        }
+
         if ( readingFragment.dispatchKeyEvent(event) ) {
             return true;
         }

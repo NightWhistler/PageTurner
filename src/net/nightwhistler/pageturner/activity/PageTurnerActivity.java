@@ -82,24 +82,6 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
             }
         };
 
-        /*
-        //This closes the drawer when the user hits the back button.
-        mDrawer.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                int action = keyEvent.getAction();
-                int keyCode = keyEvent.getKeyCode();
-
-                if ( action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK && drawerIsOpen ) {
-                    closeNavigationDrawer();
-                    return true;
-                }
-
-                return false;
-            }
-        });
-        */
-
         mToggle.setDrawerIndicatorEnabled(true);
         mDrawer.setDrawerListener(mToggle);
         mDrawer.setDrawerLockMode( DrawerLayout.LOCK_MODE_LOCKED_CLOSED );
@@ -113,7 +95,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         int action = event.getAction();
         int keyCode = event.getKeyCode();
 
-        if ( action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK && drawerIsOpen ) {
+        if ( action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK && isDrawerOpen() ) {
             closeNavigationDrawer();
             return true;
         }
@@ -173,6 +155,10 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
 
         getSupportActionBar().setTitle(R.string.app_name);
         invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+    }
+
+    protected boolean isDrawerOpen() {
+        return drawerIsOpen;
     }
 
     @Override

@@ -1025,10 +1025,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	}
 
     public int getPercentageFor( int index, int offset ) {
-        return spine.getProgressPercentage(index, offset);
+        if ( spine != null ) {
+            return spine.getProgressPercentage(index, offset);
+        }
+
+        return -1;
     }
-
-
 
 	private void progressUpdate() {
 

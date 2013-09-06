@@ -1070,6 +1070,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 	public int getPageNumberFor( int index, int position ) {
 
+        if ( spine == null ) {
+            return -1;
+        }
+
         LOG.debug( "Looking for pageNumber for index=" + index + ", position=" + position );
 		
 		int pageNum = 0;

@@ -79,5 +79,14 @@ public class TextUtilTest {
                 (TextUtil.splitOnPunctuation(input), is("“aabbcc.”\n"));
     }
 
+    @Test
+    public void testDotDotDot() {
+        String input = "“aabb. . . CC";
+
+        assertThat
+
+                (TextUtil.splitOnPunctuation(input), is("“aabb. . .\n CC"));
+    }
+
 
 }

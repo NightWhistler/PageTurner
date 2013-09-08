@@ -28,6 +28,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.library.SqlLiteLibraryService;
+import net.nightwhistler.pageturner.scheduling.TaskQueue;
 import net.nightwhistler.pageturner.ssl.EasySSLSocketFactory;
 import net.nightwhistler.pageturner.sync.PageTurnerWebProgressService;
 import net.nightwhistler.pageturner.sync.ProgressService;
@@ -45,6 +46,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
+import roboguice.inject.ContextSingleton;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -69,6 +71,8 @@ public class PageTurnerModule extends AbstractModule {
         bind(TTSPlaybackQueue.class).in(Singleton.class);
         bind(TextLoader.class).in(Singleton.class);
         bind(HighlightManager.class).in(Singleton.class);
+
+        bind(TaskQueue.class).in(ContextSingleton.class);
 	}
 	
 	/**

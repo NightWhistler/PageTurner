@@ -57,6 +57,7 @@ import net.nightwhistler.pageturner.dto.TocEntry;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
+import net.nightwhistler.pageturner.scheduling.*;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import nl.siegmann.epublib.Constants;
@@ -74,8 +75,6 @@ import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URLDecoder;
 import java.util.*;
-
-import static net.nightwhistler.pageturner.PlatformUtil.executeTask;
 
 public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack {
 
@@ -115,6 +114,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
     @Inject
     private EpubFontResolver fontResolver;
+
+    @Inject
+    private TaskQueue taskQueue;
 
     @Inject
     private Provider<FixedPagesStrategy> fixedPagesStrategyProvider;
@@ -393,11 +395,11 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	}
 
 	void loadText() {
-		executeTask(new LoadTextTask());
+		this.taskQueue.jumpQueueExecuteTask(new LoadTextTask());
 	}
 
 	private void loadText(List<SearchResult> hightListResults) {
-		executeTask(new LoadTextTask(hightListResults));
+        this.taskQueue.jumpQueueExecuteTask(new LoadTextTask(hightListResults));
 	}
 
     public void setFontFamily(FontFamily family) {
@@ -546,7 +548,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			if (this.spine.navigateByHref(href)) {
 				loadText();
 			} else {				
-				executeTask(new LoadTextTask(), href);					
+				taskQueue.jumpQueueExecuteTask(new LoadTextTask(), href);
 			}
 		}
 	}
@@ -1228,7 +1230,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
     }
 
 	private class LoadTextTask extends
-			AsyncTask<String, BookReadPhase, Spanned> {
+			QueueableAsyncTask<String, BookReadPhase, Spanned> {
 
 		private String name;
 
@@ -1368,8 +1370,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			}
 		}
 
-		@Override
-		protected void onPostExecute(final Spanned result) {
+        @Override
+        protected void doOnPostExecute(Spanned result) {
 
 			if (!wasBookLoaded) {
 				if (book != null) {
@@ -1387,7 +1389,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			onProgressUpdate(BookReadPhase.DONE);
 
 			if (needToCalcPageNumbers) {
-				executeTask( new CalculatePageNumbersTask() );
+				taskQueue.executeTask( new CalculatePageNumbersTask() );
 			}
 			
 			/**
@@ -1407,7 +1409,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	}
 
 	private class CalculatePageNumbersTask extends
-			AsyncTask<Object, Void, List<List<Integer>>> {
+			QueueableAsyncTask<Object, Void, List<List<Integer>>> {
 
         @Override
         protected void onPreExecute() {
@@ -1556,10 +1558,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             return fixedPagesStrategy;
         }
 
-
-
         @Override
-		protected void onPostExecute(List<List<Integer>> result) {
+        protected void doOnPostExecute(List<List<Integer>> result) {
 
             LOG.debug("Pagenumber calculation completed.");
 

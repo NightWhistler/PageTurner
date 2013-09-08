@@ -150,8 +150,10 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		int topLineNextPage = -1;
 		int pageStartOffset = 0;
 		
-		while ( topLineNextPage < totalLines -1 ) {	
-			
+		while ( topLineNextPage < totalLines -1 ) {
+
+            LOG.debug( "Processing line " + topLineNextPage + " / " + totalLines );
+
 			int topLine = layout.getLineForOffset(pageStartOffset);				
 			topLineNextPage = layout.getLineForVertical( layout.getLineTop( topLine ) + pageHeight);
 			

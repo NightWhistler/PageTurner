@@ -150,7 +150,7 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
 
         if ( ! this.taskQueue.isEmpty() ) {
             this.taskQueue.peek().execute();
-        } else {
+        } else if ( this.listener != null ) {
             Log.d("TaskQueue", "Notifying that the queue is empty.");
             this.listener.queueEmpty();
         }

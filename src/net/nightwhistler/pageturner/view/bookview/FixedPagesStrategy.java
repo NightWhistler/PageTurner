@@ -156,18 +156,23 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 
 			int topLine = layout.getLineForOffset(pageStartOffset);				
 			topLineNextPage = layout.getLineForVertical( layout.getLineTop( topLine ) + pageHeight);
-			
+
+            LOG.debug( "topLine " + topLine + " / " + topLineNextPage );
 			if ( topLineNextPage == topLine ) { //If lines are bigger than can fit on a page
 				topLineNextPage = topLine + 1;
 			}
 						
 			int pageEnd = layout.getLineEnd(topLineNextPage -1);
+
+            LOG.debug("pageStartOffset=" + pageStartOffset + ", pageEnd=" + pageEnd );
 			
-			if (pageEnd > pageStartOffset && text.subSequence(pageStartOffset, pageEnd).toString().trim().length() > 0 ) {
-                pageOffsets.add(pageStartOffset);
+			if (pageEnd > pageStartOffset ) {
+                if ( text.subSequence(pageStartOffset, pageEnd).toString().trim().length() > 0) {
+                    pageOffsets.add(pageStartOffset);
+                }
 				pageStartOffset = layout.getLineStart(topLineNextPage);
 			}
-		}	
+		}
 		
 		return pageOffsets;		
 	}
@@ -207,7 +212,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	
 	private CharSequence getTextForPage( int page ) {
 		
-		if ( pageOffsets.size() < 1 ) {
+		if ( pageOffsets.size() < 1 || page < 0 ) {
 			return null;
 		} else if ( page >= pageOffsets.size() -1 ) {
             int startOffset = pageOffsets.get(pageOffsets.size() -1);

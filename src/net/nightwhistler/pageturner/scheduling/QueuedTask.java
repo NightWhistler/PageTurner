@@ -22,6 +22,8 @@ package net.nightwhistler.pageturner.scheduling;
 import android.os.AsyncTask;
 import net.nightwhistler.pageturner.PlatformUtil;
 
+import static java.lang.Integer.toHexString;
+
 /**
  * Wraps a QueueableAsyncTask and its parameters, so that it can be executed later.
  *
@@ -51,6 +53,11 @@ public class QueuedTask<A, B, C> {
 
     public AsyncTask<A,B,C> getTask() {
         return task;
+    }
+
+    @Override
+    public String toString() {
+        return task.toString();
     }
 }
 

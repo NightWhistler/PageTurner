@@ -76,6 +76,14 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 		requestCancellation();
 	}
 
+    public boolean isSilent() {
+        return this.silent;
+    }
+
+    public void setCallBack( ImportCallback callBack ) {
+        this.callBack = callBack;
+    }
+
     @Override
 	protected Void doInBackground(File... params) {
 
@@ -198,8 +206,12 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
                 return true;
 
             } catch (Exception io ) {
-                errors.add( file + ": " + io.getMessage() );
-                LOG.error("Error while reading book: " + file, io);
+                if ( ! isCancelled() ) {
+                    errors.add( file + ": " + io.getMessage() );
+                    LOG.error("Error while reading book: " + file, io);
+                } else {
+                    LOG.info("Ignoring error since we were cancelled", io );
+                }
             }
         }
 
@@ -221,13 +233,18 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 	}
 
     @Override
+    public void doOnCancelled(Void aVoid) {
+        this.callBack.importCancelled( booksImported, errors, emptyLibrary, silent);
+    }
+
+    @Override
     protected void doOnPostExecute(Void aVoid) {
 
         LOG.debug("Import task completed, imported " + booksImported  + " books.");
 
 		if ( importFailed != null ) {
 			callBack.importFailed(importFailed, silent);
-		} else if ( ! isCancelled() ) {
+		} else {
 			this.callBack.importComplete(booksImported, errors, emptyLibrary, silent);
 		}
 	}

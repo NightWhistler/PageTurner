@@ -1,5 +1,6 @@
 package net.nightwhistler.pageturner.scheduling;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.LinkedList;
@@ -27,7 +28,7 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
 
         this.taskQueue.add(new QueuedTask<A, B, C>(task, parameters));
 
-        Log.d("TaskQueue", "Scheduled task of type " + task.getClass().getSimpleName()
+        Log.d("TaskQueue", "Scheduled task of type " + task
                 + " total tasks scheduled now: " + this.taskQueue.size() );
 
         if ( this.taskQueue.size() == 1 ) {
@@ -55,13 +56,14 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
         } else {
 
             QueuedTask top = taskQueue.remove();
-            Log.d("TaskQueue", "Cancelling task of type " + top.getTask().getClass().getSimpleName() );
+            Log.d("TaskQueue", "Cancelling task of type " + top.getTask() );
             top.cancel();
 
             task.setCallback(this);
+
             taskQueue.add( 0, new QueuedTask<A, B, C>(task, parameters));
 
-            Log.d("TaskQueue", "Starting task of type " + task.getClass().getSimpleName()
+            Log.d("TaskQueue", "Starting task of type " + taskQueue.peek()
                     + " with queue " + getQueueAsString() );
 
             taskQueue.peek().execute();
@@ -75,7 +77,7 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
 
         if ( ! this.taskQueue.isEmpty() ) {
             QueuedTask front = taskQueue.peek();
-            Log.d("TaskQueue", "Canceling task of type: " + front.getClass().getSimpleName() );
+            Log.d("TaskQueue", "Canceling task of type: " + front );
 
             front.cancel();
             this.taskQueue.clear();
@@ -92,7 +94,9 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
         StringBuilder builder = new StringBuilder("[");
 
         for ( int i=0; i < this.taskQueue.size(); i++ ) {
-            builder.append( this.taskQueue.get(i).getTask().getClass().getSimpleName() );
+
+            builder.append( this.taskQueue.get(i) );
+
             if ( i < this.taskQueue.size() -1 ) {
                 builder.append(", ");
             }
@@ -103,33 +107,51 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
         return builder.toString();
     }
 
+    private QueuedTask<?,?,?> findQueuedTaskFor( QueueableAsyncTask<?,?,?> task ) {
+        for ( QueuedTask<?,?,?> wrapper: this.taskQueue ) {
+            if ( wrapper.getTask() == task ) {
+                return wrapper;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public void taskCompleted(QueueableAsyncTask<?, ?, ?> task, boolean wasCancelled) {
 
         if ( ! wasCancelled ) {
+            Log.d( "TaskQueue", "Completion of task of type " + task );
+
             QueuedTask queuedTask = this.taskQueue.remove();
 
             if ( queuedTask.getTask() != task ) {
 
                 String errorMsg = "Tasks out of sync! Expected "+
-                        queuedTask.getTask() + " but got " + task.getClass().getSimpleName() +
+                        queuedTask.getTask() + " but got " + task +
                         " with queue: " + getQueueAsString();
                 Log.e("TaskQueue", errorMsg );
 
                 throw new RuntimeException(errorMsg);
             }
 
-            Log.d( "TaskQueue", "Completion of task of type " + task.getClass().getSimpleName()
-                    + " total tasks scheduled now: " + this.taskQueue.size() + " with queue: " + getQueueAsString() );
-
-            if ( ! this.taskQueue.isEmpty() ) {
-                this.taskQueue.peek().execute();
-            }
         } else {
-            Log.d("TaskQueue", "Got taskCompleted for task " + task.getClass().getSimpleName() + " which was cancelled.");
+            Log.d("TaskQueue", "Got taskCompleted for task " + task + " which was cancelled.");
+
+            QueuedTask<?,?,?> wrapper = findQueuedTaskFor( task );
+
+            if ( wrapper != null ) {
+                this.taskQueue.remove( wrapper );
+            }
         }
 
-        if ( this.taskQueue.isEmpty() ) {
+        Log.d("TaskQueue", "Total tasks scheduled now: " + this.taskQueue.size()
+                + " with queue: " + getQueueAsString() );
+
+        if ( ! this.taskQueue.isEmpty() ) {
+            this.taskQueue.peek().execute();
+        } else {
+            Log.d("TaskQueue", "Notifying that the queue is empty.");
             this.listener.queueEmpty();
         }
 

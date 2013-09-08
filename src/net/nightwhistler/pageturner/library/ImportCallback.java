@@ -31,5 +31,7 @@ public interface ImportCallback {
 		
 	void importFailed( String reason, boolean silent );
 
+    void importCancelled( int booksImported, List<String> failures, boolean emptyLibrary, boolean silent );
+
 
 }

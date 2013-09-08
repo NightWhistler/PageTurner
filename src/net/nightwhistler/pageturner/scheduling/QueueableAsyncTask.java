@@ -21,6 +21,8 @@ package net.nightwhistler.pageturner.scheduling;
 
 import android.os.AsyncTask;
 
+import static java.lang.Integer.toHexString;
+
 /**
  * Subclass of AsyncTask which notifies the scheduler when it's done.
  *
@@ -95,4 +97,8 @@ public abstract class QueueableAsyncTask<Params, Progress, Result> extends Async
      */
     protected void doOnPostExecute(Result result) { }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " (" + toHexString( hashCode() ) + ")";
+    }
 }

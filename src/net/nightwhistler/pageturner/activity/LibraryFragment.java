@@ -135,7 +135,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {			
-		super.onCreate(savedInstanceState);		
+		super.onCreate(savedInstanceState);
+
+        LOG.debug("onCreate()");
 		
 		Bitmap backupBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.unknown_cover );
 		this.backupCover = new FastBitmapDrawable(backupBitmap);
@@ -216,6 +218,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
     @Override
     public void queueEmpty() {
+        LOG.debug( "Got queueEmpty()" );
         setSupportProgressBarIndeterminateVisibility(false);
     }
 
@@ -691,13 +694,25 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             executeTask(new LoadBooksTask(lastSelection));
 		}
 	}
-	
-	@Override
+
+    @Override
+    public void importCancelled(int booksImported, List<String> failures, boolean emptyLibrary, boolean silent) {
+        LOG.debug("Got importCancelled() " );
+        afterImport( booksImported, failures, emptyLibrary, silent, true );
+    }
+
+    @Override
 	public void importComplete(int booksImported, List<String> errors, boolean emptyLibrary, boolean silent) {
-		
-		if ( !isAdded() || getActivity() == null ) {
-			return;
-		}
+        LOG.debug("Got importComplete() " );
+        afterImport( booksImported, errors, emptyLibrary, silent, false );
+	}
+
+    private void afterImport(int booksImported, List<String> errors, boolean emptyLibrary, boolean silent,
+                             boolean cancelledByUser ) {
+
+        if ( !isAdded() || getActivity() == null ) {
+            return;
+        }
 
         if ( silent ) {
             if ( booksImported > 0 ) {
@@ -706,42 +721,43 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             }
             return;
         }
-		
-		importDialog.hide();			
-		
-		OnClickListener dismiss = new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();						
-			}
-		};
-		
-		//If the user cancelled the import, don't bug him/her with alerts.
-		if ( (! errors.isEmpty()) ) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-			builder.setTitle(R.string.import_errors);
-			
-			builder.setItems( errors.toArray(new String[errors.size()]), null );				
-			
-			builder.setNeutralButton(android.R.string.ok, dismiss );
-			
-			builder.show();
-		}
-		
-		listView.setKeepScreenOn(oldKeepScreenOn);
-		
-		if ( booksImported > 0 ) {			
-			
-			//Switch to the "recently added" view.
-			if (getSherlockActivity().getSupportActionBar().getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
-				loadView(LibrarySelection.LAST_ADDED, "importComplete()");
-			} else {
-				getSherlockActivity().getSupportActionBar().setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
-			}
-		} else {
-			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-			builder.setTitle(R.string.no_books_found);
+
+        importDialog.hide();
+
+        OnClickListener dismiss = new OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        };
+
+        //If the user cancelled the import, don't bug him/her with alerts.
+        if ( (! errors.isEmpty()) ) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.import_errors);
+
+            builder.setItems( errors.toArray(new String[errors.size()]), null );
+
+            builder.setNeutralButton(android.R.string.ok, dismiss );
+
+            builder.show();
+        }
+
+        listView.setKeepScreenOn(oldKeepScreenOn);
+
+        if ( booksImported > 0 ) {
+
+            //Switch to the "recently added" view.
+            if (getSherlockActivity().getSupportActionBar().getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
+                loadView(LibrarySelection.LAST_ADDED, "importComplete()");
+            } else {
+                getSherlockActivity().getSupportActionBar().setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
+            }
+        } else if ( ! cancelledByUser ) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.no_books_found);
 
             if ( emptyLibrary ) {
                 builder.setMessage( getString(R.string.no_bks_fnd_text) );
@@ -750,14 +766,17 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             }
 
             builder.setNeutralButton(android.R.string.ok, dismiss);
-			
-			builder.show();
-		}
-	}	
+
+            builder.show();
+        }
+
+    }
 	
 	
 	@Override
 	public void importFailed(String reason, boolean silent) {
+
+        LOG.debug( "Got importFailed()" );
 		
 		if (silent || !isAdded() || getActivity() == null ) {
 			return;

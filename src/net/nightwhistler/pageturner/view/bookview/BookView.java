@@ -1237,7 +1237,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		private boolean wasBookLoaded;
 
 		private String error;
-		private boolean needToCalcPageNumbers = false;
 
 		private List<SearchResult> searchResults = new ArrayList<SearchResult>();
 
@@ -1268,11 +1267,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 				if (offsets != null && offsets.size() > 0) {
 					spine.setPageOffsets(offsets);
-					needToCalcPageNumbers = false;
-				} else {
-					needToCalcPageNumbers = true;
 				}
-
 			}
 
 		}
@@ -1388,9 +1383,18 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 			onProgressUpdate(BookReadPhase.DONE);
 
-			if (needToCalcPageNumbers) {
-				taskQueue.executeTask( new CalculatePageNumbersTask() );
-			}
+            if (configuration.isShowPageNumbers()) {
+
+                List<List<Integer>> offsets = configuration
+                        .getPageOffsets(fileName);
+
+                if (offsets != null && offsets.size() > 0 ) {
+                    LOG.debug("LoadTextTask: Pagenumbers present, no calculation needed.");
+                } else {
+                    LOG.debug("LoadTextTask: no cached pagenumbers, scheduling calculation task.");
+                    taskQueue.executeTask( new CalculatePageNumbersTask() );
+                }
+            }
 			
 			/**
 			 * This is a hack for scrolling not updating to the right position 
@@ -1440,6 +1444,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			return null;
 		}
 
+        private void checkForCancellation() {
+            if ( isCancelRequested() ) {
+                throw new IllegalStateException("Cancel requested");
+            }
+        }
+
         /**
          * Loads the text offsets for the whole book,
          * with minimal use of resources.
@@ -1478,30 +1488,39 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             //We use the ResourceLoader here to load all the text in the book in 1 pass,
             //but we only keep a single section in memory at each moment
             ResourceCallback callback = new ResourceCallback() {
+
                 @Override
                 public void onLoadResource(String href, InputStream stream) {
+
                     try {
+
+                        checkForCancellation();
                         LOG.debug("CalculatePageNumbersTask: loading text for: " + href );
                         InputStream input = new ByteArrayInputStream(IOUtil.toByteArray(stream));
 
+                        checkForCancellation();
                         Spannable text = mySpanner.fromHtml(input);
+
+                        checkForCancellation();
                         imageLoader.load();
 
+                        checkForCancellation();
                         FixedPagesStrategy fixedPagesStrategy = getFixedPagesStrategy();
                         fixedPagesStrategy.setBookView(BookView.this);
 
                         offsetsPerSection.put(href, fixedPagesStrategy.getPageOffsets(text, true));
 
-
                     } catch ( IOException io ) {
                         LOG.error( "CalculatePageNumbersTask: failed to load text for " + href, io );
                     }
                 }
+
             };
 
             //Do first pass: grab either cached text, or schedule a callback
             for (int i = 0; i < spine.size(); i++) {
 
+                checkForCancellation();
                 Resource res = spine.getResourceForIndex(i);
 
                 if ( textLoader.hasCachedText( res ) ) {
@@ -1525,6 +1544,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
             //Do a second pass and order the offsets correctly
             for (int i = 0; i < spine.size(); i++) {
+
+                checkForCancellation();
 
                 Resource res = spine.getResourceForIndex(i);
 
@@ -1559,6 +1580,13 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         }
 
         @Override
+        public void doOnCancelled(List<List<Integer>> lists) {
+            for ( BookViewListener listener: listeners ) {
+                listener.onCalculatePageNumbersComplete();
+            }
+        }
+
+        @Override
         protected void doOnPostExecute(List<List<Integer>> result) {
 
             LOG.debug("Pagenumber calculation completed.");
@@ -1567,8 +1595,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                 listener.onCalculatePageNumbersComplete();
             }
 
-			spine.setPageOffsets(result);
-			progressUpdate();
+            if ( result != null && result.size() > 0 ) {
+    			spine.setPageOffsets(result);
+	    		progressUpdate();
+            }
 		}
 	}
 

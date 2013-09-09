@@ -32,7 +32,7 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
                 + " total tasks scheduled now: " + this.taskQueue.size() );
 
         if ( this.taskQueue.size() == 1 ) {
-            Log.d("TaskQueue",  "Starting task, since task queue is 1.");
+            Log.d("TaskQueue",  "Starting task " + taskQueue.peek() + " since task queue is 1.");
             this.taskQueue.peek().execute();
         }
     }
@@ -56,7 +56,7 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
         } else {
 
             QueuedTask top = taskQueue.remove();
-            Log.d("TaskQueue", "Cancelling task of type " + top.getTask() );
+            Log.d("TaskQueue", "Cancelling task of type " + top );
             top.cancel();
 
             task.setCallback(this);
@@ -149,7 +149,14 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
                 + " with queue: " + getQueueAsString() );
 
         if ( ! this.taskQueue.isEmpty() ) {
-            this.taskQueue.peek().execute();
+
+            if ( ! this.taskQueue.peek().isExecuting() ) {
+                Log.d("TaskQueue", "Executing task " + this.taskQueue.peek() );
+                this.taskQueue.peek().execute();
+            } else {
+                Log.d("TaskQueue", "Task at the head of queue is already running.");
+            }
+
         } else if ( this.listener != null ) {
             Log.d("TaskQueue", "Notifying that the queue is empty.");
             this.listener.queueEmpty();

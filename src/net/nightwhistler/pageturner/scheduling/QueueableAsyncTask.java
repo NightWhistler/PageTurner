@@ -66,6 +66,10 @@ public abstract class QueueableAsyncTask<Params, Progress, Result> extends Async
         this.cancel(true);
     }
 
+    public boolean isCancelRequested() {
+        return cancelRequested;
+    }
+
     @Override
     protected final void onCancelled(Result result) {
         if ( callback != null ) {

@@ -38,13 +38,26 @@ public class QueuedTask<A, B, C> {
     private QueueableAsyncTask<A, B, C> task;
     private A[] parameters;
 
+    private boolean executing = false;
+
     public QueuedTask(QueueableAsyncTask<A,B,C> task, A[] params ) {
         this.task = task;
         this.parameters = params;
     }
 
     public void execute() {
+
+        if ( executing ) {
+            throw new IllegalStateException("Already executed, cannot execute twice.");
+        }
+
+        executing = true;
+
         PlatformUtil.executeTask(task, parameters);
+    }
+
+    public boolean isExecuting() {
+        return executing;
     }
 
     public void cancel() {

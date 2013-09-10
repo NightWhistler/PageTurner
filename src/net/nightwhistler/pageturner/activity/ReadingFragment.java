@@ -30,7 +30,6 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -2771,7 +2770,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                 @Override
                 public void onClick() {
-                    bookView.navigateBySearchResult(searchResults, currentCount);
+                    bookView.navigateBySearchResult( searchResult );
                 }
             });
 
@@ -2924,6 +2923,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     @Override
                     public void onCancel(DialogInterface dialogInterface) {
                         DownloadProgressTask.this.cancel(true);
+
+                        ProgressDialog progressDialog = getWaitDialog();
+                        progressDialog.setMessage( getString( R.string.cancelling) );
+                        progressDialog.show();
+
                     }
                 });
 
@@ -2933,7 +2937,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         @Override
         protected void onCancelled() {
-            closeWaitDialog();
+
+
             bookView.restore();
         }
 

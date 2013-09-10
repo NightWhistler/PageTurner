@@ -9,12 +9,14 @@ package net.nightwhistler.pageturner.dto;
  */
 public class SearchResult {
 
+    private String query;
     private String display;
     private int index;
     private int start;
     private int end;
 
-    public SearchResult(String display, int index, int offset, int end) {
+    public SearchResult(String query, String display, int index, int offset, int end) {
+        this.query = query;
         this.display = display;
         this.index = index;
         this.start = offset;
@@ -35,6 +37,10 @@ public class SearchResult {
 
     public int getEnd() {
         return end;
+    }
+
+    public String getQuery() {
+        return query;
     }
 
 }

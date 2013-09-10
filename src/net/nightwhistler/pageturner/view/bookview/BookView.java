@@ -75,6 +75,8 @@ import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URLDecoder;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack {
 
@@ -398,8 +400,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		this.taskQueue.jumpQueueExecuteTask(new LoadTextTask());
 	}
 
-	private void loadText(List<SearchResult> hightListResults) {
-        this.taskQueue.jumpQueueExecuteTask(new LoadTextTask(hightListResults));
+	private void loadText(String searchTerm) {
+        this.taskQueue.jumpQueueExecuteTask(new LoadTextTask(searchTerm));
 	}
 
     public void setFontFamily(FontFamily family) {
@@ -598,13 +600,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		doNavigation(index);
 	}
 
-	public void navigateBySearchResult(
-			List<SearchResult> result, int selectedResultIndex) {
-		    SearchResult searchResult = result
-				.get(selectedResultIndex);
-		
+	public void navigateBySearchResult( SearchResult searchResult ) {
+
 		this.prevPos = this.getProgressPosition();
-		this.strategy.setPosition(searchResult.getStart());
+		this.strategy.setPosition( searchResult.getStart() );
 
 		this.prevIndex = this.getIndex();
 
@@ -612,7 +611,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		this.strategy.clearText();
 		this.spine.navigateByIndex(searchResult.getIndex());
 
-		loadText(result);
+		loadText( searchResult.getQuery() );
 	}
 
 	private void doNavigation(int index) {
@@ -1229,6 +1228,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         }
     }
 
+
 	private class LoadTextTask extends
 			QueueableAsyncTask<String, BookReadPhase, Spanned> {
 
@@ -1238,14 +1238,14 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 		private String error;
 
-		private List<SearchResult> searchResults = new ArrayList<SearchResult>();
+		private String searchTerm = null;
 
 		public LoadTextTask() {
 
 		}
 
-		LoadTextTask(List<SearchResult> searchResults) {
-			this.searchResults = searchResults;
+		LoadTextTask(String searchTerm) {
+			this.searchTerm = searchTerm;
 		}
 
 		@Override
@@ -1314,16 +1314,17 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                     result.removeSpan(span);
                 }
 
-
                 // Highlight search results (if any)
-                for (SearchResult searchResult : this.searchResults) {
-                    if (searchResult.getIndex() == spine.getPosition()) {
+                if ( searchTerm != null ) {
+                    Pattern pattern = Pattern.compile(Pattern.quote((searchTerm)),Pattern.CASE_INSENSITIVE);
+                    Matcher matcher = pattern.matcher(result);
+
+                    while ( matcher.find() ) {
                         result.setSpan(new SearchResultSpan(),
-                                searchResult.getStart(), searchResult.getEnd(),
+                                matcher.start(), matcher.end(),
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                 }
-
 
                 //If the view isn't ready yet, wait a bit.
                 while ( getInnerView().getWidth() == 0 ) {

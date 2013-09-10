@@ -57,7 +57,7 @@ public class SearchResultAdapter extends ArrayAdapter<SearchResult> implements
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-		bookView.navigateBySearchResult(this.results, which);    		
+		bookView.navigateBySearchResult( this.results.get(which) );
 	}
 
 	@Override

@@ -75,7 +75,7 @@ public class SearchTextTask extends AsyncTask<String, SearchResult, List<SearchR
 				
 				spine.navigateByIndex(index);
 
-				publishProgress( new SearchResult(null, index, 0, 0) );
+				publishProgress( new SearchResult(null, null, index, 0, 0) );
 				
 				Spanned spanned = spanner.fromHtml(spine.getCurrentResource().getReader());				
 				Matcher matcher = pattern.matcher(spanned);
@@ -89,7 +89,7 @@ public class SearchTextTask extends AsyncTask<String, SearchResult, List<SearchR
 					}
 					
 					String text = "…" + spanned.subSequence(from, to).toString().trim() + "…";
-					SearchResult res = new SearchResult(text, index, matcher.start(), matcher.end());
+					SearchResult res = new SearchResult(searchTerm, text, index, matcher.start(), matcher.end());
 					
 					this.publishProgress( res );
 					result.add(res);

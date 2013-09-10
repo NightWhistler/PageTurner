@@ -54,7 +54,9 @@ Building PageTurner
         List of devices attached 
         015d18ad5c14000c        device
 
-# Install Maven 3
+# Install Maven 3.0.x
+
+NOTE: Currently PageTurner won't build using Maven 3.1, since the Android plugin isn't compatible.
 
 1. Download Maven 3 tarball http://maven.apache.org/download.html
 2. Puth maven/bin on your path

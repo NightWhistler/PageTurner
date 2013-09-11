@@ -25,6 +25,13 @@ There are also 2 versions of PageTurner available through the Google Play Market
  * [PageTurner Pro](https://play.google.com/store/apps/details?id=net.nightwhistler.pageturner.pro "PageTurner Pro paid removes ads"), a paid version, also available from the Google Play Store, removes ads.
 
 
+Contributing
+------------
+
+Since PageTurner is dual-licensed, we can only accept contributions under the Apache License or a similar Permissive license.
+
+Unless specifically stated to be otherwise, all contributions will be assumed to be licensed under the Apache 2.0 license.
+
 Building PageTurner
 -------------------
 

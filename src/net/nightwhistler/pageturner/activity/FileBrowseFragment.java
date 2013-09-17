@@ -78,17 +78,15 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		File f = this.adapter.getItem(position).file;
+		FileItem fileItem = this.adapter.getItem(position);
 
-        if ( f.exists() ) {
-
-            if ( f.isDirectory() ) {
-			    this.adapter.setFolder(f);
-			    getActivity().setTitle(adapter.getCurrentFolder());
-		    } else {
-                returnFile( f );
-            }
+        if ( fileItem.importOnClick ) {
+            returnFile(fileItem.file);
+        } else if ( fileItem.file.isDirectory() && fileItem.file.exists() ) {
+            this.adapter.setFolder(fileItem.file);
+            getActivity().setTitle(adapter.getCurrentFolder());
         }
+
 	}
 
     private void returnFile( File file ) {
@@ -112,17 +110,17 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 			if ( listing != null ) {
 				for ( File childFile: listing ) {					
 					if ( childFile.isDirectory() || childFile.getName().toLowerCase(Locale.US).endsWith(".epub")) {
-						items.add(new FileItem(childFile.getName(), childFile));
+						items.add(new FileItem(childFile.getName(), childFile, ! childFile.isDirectory() ));
 					}
 				}
 			}
 			
 			Collections.sort(items, new FileSorter() );
 
-            items.add( 0, new FileItem( "[" + getString(R.string.import_this) + "]", folder));
+            items.add( 0, new FileItem( "[" + getString(R.string.import_this) + "]", folder, true));
 
 			if ( folder.getParentFile() != null ) {
-				items.add(0, new FileItem( "[..]", folder.getParentFile() ));
+				items.add(0, new FileItem( "[..]", folder.getParentFile(), false ));
 			}
 			
 			notifyDataSetChanged();
@@ -192,12 +190,16 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 	}
 
     private static class FileItem {
+
         private CharSequence label;
         private File file;
 
-        public FileItem( CharSequence label, File file ) {
+        private boolean importOnClick;
+
+        public FileItem( CharSequence label, File file, boolean importOnClick ) {
             this.label = label;
             this.file = file;
+            this.importOnClick = importOnClick;
         }
     }
 	

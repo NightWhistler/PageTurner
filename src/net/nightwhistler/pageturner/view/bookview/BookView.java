@@ -927,6 +927,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 							start, builder.length());
                     } catch ( OutOfMemoryError outOfMemoryError ) {
                         //Simply don't load
+                    } catch ( IllegalArgumentException ia ) {
+                        //Invalid Base64, ignore
                     }
 					
 				}

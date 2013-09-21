@@ -1465,10 +1465,22 @@ public class ReadingFragment extends RoboSherlockFragment implements
             this.waitDialog.setOwnerActivity(getActivity());
         }
 
-        this.waitDialog.setCancelable(false);
+        this.waitDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode,
+                                 KeyEvent event) {
+                // This just consumes all key events and does nothing.
+                return true;
+
+            }
+        });
+
+        //this.waitDialog.setCancelable(false);
 
         return this.waitDialog;
     }
+
+
 
     private void closeWaitDialog() {
 

@@ -1276,24 +1276,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         bookView.update();
     }
 
-    @Override
-    public void onHighLightClick(final HighLight highLight) {
-
-        final AmbilWarnaDialog ambilWarnaDialog = new AmbilWarnaDialog(
-                context, highLight.getColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
-            @Override
-            public void onCancel(AmbilWarnaDialog dialog) {
-                //do nothing.
-            }
-
-            @Override
-            public void onOk(AmbilWarnaDialog dialog, int color) {
-                highLight.setColor( color );
-                bookView.update();
-                highlightManager.saveHighLights();
-            }
-        });
-
+    private void showHighlightEditDialog( final HighLight highLight ) {
         final AlertDialog.Builder editalert = new AlertDialog.Builder(context);
 
         editalert.setTitle(R.string.text_note);
@@ -1326,28 +1309,82 @@ public class ReadingFragment extends RoboSherlockFragment implements
             }
         });
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.highlight_options)
-        .setItems(R.array.highlightOptionsLabels, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
+        editalert.show();
+    }
 
-                switch ( which) {
-                    case 0:
-                        highlightManager.removeHighLight(highLight);
-                        bookView.update();
-                        return;
-                    case 1:
-                        ambilWarnaDialog.getDialog().show();
-                        return;
-                    case 2:
-                        editalert.show();
-                        return;
-                }
+    private void showHighlightColourDialog( final HighLight highLight ) {
 
+        AmbilWarnaDialog ambilWarnaDialog = new AmbilWarnaDialog(
+                context, highLight.getColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+                //do nothing.
+            }
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                highLight.setColor( color );
+                bookView.update();
+                highlightManager.saveHighLights();
             }
         });
 
-        builder.show();
+        ambilWarnaDialog.show();
+    }
+
+    @Override
+    public void onHighLightClick(final HighLight highLight) {
+
+
+        getSherlockActivity().startActionMode( new ActionMode.Callback() {
+
+            private android.view.MenuItem edit;
+            private android.view.MenuItem delete;
+            private android.view.MenuItem colour;
+
+            @Override
+            public boolean onCreateActionMode(ActionMode actionMode, android.view.Menu menu) {
+
+                this.edit = menu.add( R.string.edit );
+                this.edit.setIcon( R.drawable.edit );
+
+                this.colour = menu.add( R.string.set_colour );
+                this.colour.setIcon( R.drawable.color );
+
+                this.delete = menu.add( R.string.delete );
+                this.delete.setIcon( R.drawable.trash_can );
+
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode actionMode, android.view.Menu menu) {
+                actionMode.setTitle( R.string.highlight_options );
+                return true;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode actionMode, android.view.MenuItem menuItem) {
+                if ( menuItem == edit ) {
+                    showHighlightEditDialog( highLight );
+                    return true;
+                } else if ( menuItem == delete ) {
+                    highlightManager.removeHighLight(highLight);
+                    bookView.update();
+                    return true;
+                } else if ( menuItem == colour ) {
+                    showHighlightColourDialog( highLight );
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode actionMode) {
+
+            }
+        });
 
     }
 
@@ -1474,8 +1511,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             }
         });
-
-        //this.waitDialog.setCancelable(false);
 
         return this.waitDialog;
     }

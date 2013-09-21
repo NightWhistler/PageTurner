@@ -175,13 +175,10 @@
     <string name="clear_note">Clear note</string>
     <string name="save_note">Save note</string>
 
+    <string name="set_colour">Set colour</string>
+
     <string name="page_number_of">Page %1$d of %2$d</string>
 
-    <string-array name="highlightOptionsLabels">
-        <item>Remove highlight</item>
-        <item>Highlight colour…</item>
-        <item>Text note…</item>
-    </string-array>
 
     <string name="import_this">Import this folder</string>
     <string name="cancelling">Cancelling…</string>

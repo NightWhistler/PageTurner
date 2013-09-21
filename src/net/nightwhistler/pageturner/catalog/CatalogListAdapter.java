@@ -103,7 +103,11 @@ public class CatalogListAdapter extends BaseAdapter {
 	
 	@Override
 	public Entry getItem(int position) {
-		return feed.getEntries().get(position);
+        if ( position >= 0 && position < feed.getEntries().size() ) {
+		    return feed.getEntries().get(position);
+        }
+
+        return null;
 	}
 	
 	@Override

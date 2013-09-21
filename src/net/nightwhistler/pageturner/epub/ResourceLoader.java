@@ -18,13 +18,17 @@
  */
 package net.nightwhistler.pageturner.epub;
 
+import nl.siegmann.epublib.domain.Resources;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 
@@ -65,13 +69,17 @@ public class ResourceLoader  {
 	}
 	
 	public void load() throws IOException {
-		
-		ZipInputStream in = null;
-		
-		try {
-			in = new ZipInputStream(new FileInputStream(this.fileName));
 
-			for(ZipEntry zipEntry = in.getNextEntry(); zipEntry != null; zipEntry = in.getNextEntry()) {
+        ZipFile zipFile = null;
+
+		try {
+            zipFile = new ZipFile(this.fileName);
+
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
+            while( entries.hasMoreElements() ) {
+                ZipEntry zipEntry = entries.nextElement();
+
 				if(zipEntry.isDirectory()) {
 					continue;
 				}
@@ -83,13 +91,13 @@ public class ResourceLoader  {
 				if ( ! filteredCallbacks.isEmpty() ) {
 
 					for ( ResourceCallback callBack: filteredCallbacks ) {
-						callBack.onLoadResource(href, in);
+						callBack.onLoadResource(href, zipFile.getInputStream(zipEntry) );
 					}
 				}
 			}
 		} finally {
-			if ( in != null ) {
-				in.close();
+			if ( zipFile != null ) {
+				zipFile.close();
 			}
 			
 			this.callbacks.clear();

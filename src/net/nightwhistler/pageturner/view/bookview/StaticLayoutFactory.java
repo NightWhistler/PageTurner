@@ -19,9 +19,13 @@
 
 package net.nightwhistler.pageturner.view.bookview;
 
+import android.text.*;
 import android.text.Layout.Alignment;
-import android.text.StaticLayout;
-import android.text.TextPaint;
+import android.text.style.StyleSpan;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Simple factory to create StaticLayout objects.
@@ -44,8 +48,43 @@ public class StaticLayoutFactory {
 	 * @param spacingadd extra space to be added to each line
 	 * @return a StaticLayout object
 	 */
-	public StaticLayout create(CharSequence source, TextPaint paint, int width, float spacingadd) {		
-		return new StaticLayout(source, paint, width, Alignment.ALIGN_NORMAL, 1.0f, spacingadd, true);
+	public StaticLayout create(CharSequence source, TextPaint paint, int width, float spacingadd) {
+        try{
+            return doCreateLayout( source, paint, width, spacingadd );
+        } catch (IndexOutOfBoundsException e){
+            return attemptCorrection( source, paint, width, spacingadd );
+        }
 	}
+
+    /**
+     * This method tries to compensate for a Jelly-bean bug:
+     * http://code.google.com/p/android/issues/detail?id=35466
+     *
+     * It strips out spans one by one until it is able to return a text or has
+     * to give up, in which case it returns the plain-text version.
+     */
+    private StaticLayout attemptCorrection( CharSequence source, TextPaint paint, int width, float spacingadd ) {
+
+        SpannableStringBuilder ss = new SpannableStringBuilder(source);
+        StyleSpan[] spans = ss.getSpans(0, ss.length(), StyleSpan.class);
+
+        for ( int i=0; i < spans.length; i++ ) {
+            ss.removeSpan( spans[i] );
+
+            try {
+                return doCreateLayout( ss, paint, width, spacingadd );
+            } catch ( IndexOutOfBoundsException ie ) {
+                //Ignore and remove another span
+            }
+        }
+
+        return doCreateLayout( ss.toString(), paint, width, spacingadd );
+    }
+
+    private StaticLayout doCreateLayout( CharSequence source, TextPaint paint, int width, float spacingadd ) {
+        return new StaticLayout(source, paint, width, Alignment.ALIGN_NORMAL, 1.0f, spacingadd, true);
+    }
+
+
 	
 }

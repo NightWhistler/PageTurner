@@ -123,6 +123,11 @@ public class FixedPagesStrategy implements PageChangeStrategy {
         LOG.debug( "Page width: " + boundedWidth );
 
 		StaticLayout layout = layoutFactory.create(text, textPaint, boundedWidth, bookView.getLineSpacing() );
+
+        if ( layout == null ) {
+            return new ArrayList<Integer>();
+        }
+
         LOG.debug( "Layout height: " + layout.getHeight() );
 		
 		layout.draw(new Canvas());

@@ -484,6 +484,20 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
                         return true;
                     }
                 } );
+
+                searchMenuItem.setOnActionExpandListener( new MenuItem.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        performSearch(""); //reset the search
+                        return true;
+                    }
+                });
+
             } else {
                 searchMenuItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
                     @Override
@@ -557,7 +571,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
     @Override
     public void performSearch(String query) {
         if ( query != null ) {
-            executeTask(new LoadBooksTask(config.getLastLibraryQuery(), query.toString()));
+            setSupportProgressBarIndeterminateVisibility(true);
+            this.taskQueue.jumpQueueExecuteTask(new LoadBooksTask(config.getLastLibraryQuery(), query.toString()));
         }
     }
 	

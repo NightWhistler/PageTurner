@@ -22,6 +22,8 @@ import net.nightwhistler.pageturner.R;
 import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
 
+import java.io.File;
+
 /**
  * Created with IntelliJ IDEA.
  * User: alex
@@ -139,7 +141,12 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
     }
 
     protected String[] getMenuItems( Configuration config ) {
-        return array(getString(R.string.library), getString(R.string.download), config.getLastReadTitle());
+
+        if ( new File(config.getLastOpenedFile()).exists() ) {
+            return array(getString(R.string.library), getString(R.string.download), config.getLastReadTitle());
+        } else {
+            return array(getString(R.string.library), getString(R.string.download));
+        }
     }
 
     public void onDrawerClosed(View view) {

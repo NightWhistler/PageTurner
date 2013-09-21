@@ -22,6 +22,7 @@ package net.nightwhistler.pageturner.activity;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.*;
 import android.content.DialogInterface.OnClickListener;
@@ -37,6 +38,7 @@ import android.net.Uri;
 import android.os.*;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -129,6 +131,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     @Inject
     private DialogFactory dialogFactory;
+
+    @Inject
+    private NotificationManager notificationManager;
 
     @Inject
     private Context context;
@@ -453,6 +458,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		updateFileName(savedInstanceState, file);
 		
 		if ("".equals(fileName) || ! new File(fileName).exists() ) {
+
+            LOG.info( "Requested to open file " + fileName + ", which doesn't seem to exist. " +
+                    "Switching back to the library.");
 
 			Intent newIntent = new Intent(context, LibraryActivity.class);
 			startActivity(newIntent);
@@ -1427,11 +1435,25 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	@Override
 	public void errorOnBookOpening(String errorMessage) {
+
+        LOG.error( errorMessage );
+
 		closeWaitDialog();
 
         ReadingActivity readingActivity = (ReadingActivity) getActivity();
 
         if ( readingActivity != null ) {
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+            builder.setContentTitle(getString(R.string.app_name))
+                    .setContentText(errorMessage)
+                    .setSmallIcon(R.drawable.cross)
+                    .setAutoCancel( true );
+
+            builder.setTicker(errorMessage);
+
+            notificationManager.notify( errorMessage.hashCode(), builder.build() );
+
             readingActivity.launchActivity(LibraryActivity.class);
         }
 	}

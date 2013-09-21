@@ -312,6 +312,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	public void releaseResources() {
 		this.strategy.clearText();
 		this.textLoader.closeCurrentBook();
+        this.taskQueue.clear();
 	}
 
 	public void setLinkColor(int color) {
@@ -1337,12 +1338,18 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
                 return result;
             } catch (Exception io) {
-                return new SpannableString( String.format( getContext().getString(R.string.could_not_load),
-                        io.getMessage()) );
+                LOG.error( "Error loading text", io );
+                this.error = String.format( getContext().getString(R.string.could_not_load),
+                        io.getMessage());
+                this.wasBookLoaded = false;
+
             } catch (OutOfMemoryError io) {
-                return new SpannableString(getContext().getString(R.string.out_of_memory) );
+                LOG.error( "Error loading text", io );
+                this.error = getContext().getString(R.string.out_of_memory);
+                this.wasBookLoaded = false;
             }
 
+            return null;
         }
 
 

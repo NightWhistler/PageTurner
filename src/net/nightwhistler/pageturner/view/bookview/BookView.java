@@ -1591,8 +1591,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
         @Override
         public void doOnCancelled(List<List<Integer>> lists) {
-            for ( BookViewListener listener: listeners ) {
-                listener.onCalculatePageNumbersComplete();
+            if ( taskQueue.isEmpty() ) {
+                for ( BookViewListener listener: listeners ) {
+                    listener.onCalculatePageNumbersComplete();
+                }
             }
         }
 

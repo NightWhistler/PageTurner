@@ -36,8 +36,8 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
 	public enum Field {
 		file_name("TEXT NOT NULL"),
 		name("TEXT NOT NULL"),
-		index("INTEGER NOT NULL"),
-		position("INTEGER NOT NULL");
+		book_index("INTEGER NOT NULL"),
+		book_position("INTEGER NOT NULL");
 
 		public String fieldDef;
 
@@ -112,8 +112,8 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
 
 		int fileNameIndex = cursor.getColumnIndex(Field.file_name.name());
 		int nameIndex     = cursor.getColumnIndex(Field.name.name());
-		int indexIndex    = cursor.getColumnIndex(Field.index.name());
-		int positionIndex = cursor.getColumnIndex(Field.position.name());
+		int indexIndex    = cursor.getColumnIndex(Field.book_index.name());
+		int positionIndex = cursor.getColumnIndex(Field.book_position.name());
 
 		while ( cursor.moveToNext() ) {
 			bookmarks.add(new Bookmark(

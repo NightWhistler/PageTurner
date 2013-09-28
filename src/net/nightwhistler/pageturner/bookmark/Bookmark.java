@@ -38,7 +38,7 @@ public class Bookmark {
 	{
 		row.put("file_name", this.fileName );
 		row.put("name", this.name );
-		row.put("index", this.index );
-		row.put("position", this.position );
+		row.put("book_index", this.index );
+		row.put("book_position", this.position );
 	}
 }

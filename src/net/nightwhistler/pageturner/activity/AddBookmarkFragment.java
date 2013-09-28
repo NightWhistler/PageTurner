@@ -80,34 +80,35 @@ class AddBookmarkHandler
 
 public class AddBookmarkFragment extends RoboSherlockDialogFragment
 {
-    private int bookIndex;
-    private int bookPosition;
-    private static final Logger LOG = LoggerFactory
-		    .getLogger(AddBookmarkFragment.class);
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
-	Dialog dialog = getDialog();
-	dialog.setTitle(R.string.add_bookmark);
+	private int bookIndex;
+	private int bookPosition;
+	private static final Logger LOG = LoggerFactory
+		.getLogger(AddBookmarkFragment.class);
 
-	View v                     = inflater.inflate(R.layout.fragment_add_bookmark, container, false);
-	EditText text              = (EditText) v.findViewById(R.id.bookmark_name);
-	Button addButton           = (Button) v.findViewById(R.id.add_bookmark_button);
-	AddBookmarkHandler handler = new AddBookmarkHandler(dialog, bookIndex, bookPosition, text);
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+	{
+		Dialog dialog = getDialog();
+		dialog.setTitle(R.string.add_bookmark);
 
-	text.setOnEditorActionListener(handler);
-	addButton.setOnClickListener(handler);
+		View v                     = inflater.inflate(R.layout.fragment_add_bookmark, container, false);
+		EditText text              = (EditText) v.findViewById(R.id.bookmark_name);
+		Button addButton           = (Button) v.findViewById(R.id.add_bookmark_button);
+		AddBookmarkHandler handler = new AddBookmarkHandler(dialog, bookIndex, bookPosition, text);
 
-	return v;
-    }
+		text.setOnEditorActionListener(handler);
+		addButton.setOnClickListener(handler);
 
-    public void setBookPosition(int bookPosition)
-    {
-	this.bookPosition = bookPosition;
-    }
+		return v;
+	}
 
-    public void setBookIndex(int bookIndex)
-    {
-	this.bookIndex = bookIndex;
-    }
+	public void setBookPosition(int bookPosition)
+	{
+		this.bookPosition = bookPosition;
+	}
+
+	public void setBookIndex(int bookIndex)
+	{
+		this.bookIndex = bookIndex;
+	}
 }

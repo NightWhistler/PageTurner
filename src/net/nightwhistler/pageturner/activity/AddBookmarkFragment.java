@@ -31,6 +31,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockDialogFragment;
+import net.nightwhistler.bookmark.pageturner.Bookmark;
+import net.nightwhistler.bookmark.pageturner.BookmarkDatabaseHelper;
 import net.nightwhistler.pageturner.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +67,9 @@ class AddBookmarkHandler
 	    LOG.info("    >>> for file:    " + filename);
 	    LOG.info("    >>> at index:    " + bookIndex);
 	    LOG.info("    >>> at position: " + bookPosition);
+
+	    BookmarkDatabaseHelper helper = new BookmarkDatabaseHelper(context);
+	    helper.addBookmark(new Bookmark(filename, textView.getText().toString(), bookIndex, bookPosition));
 	}
 
 	@Override

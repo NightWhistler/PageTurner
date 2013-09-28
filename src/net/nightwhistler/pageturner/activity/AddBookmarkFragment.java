@@ -20,6 +20,7 @@
 package net.nightwhistler.pageturner.activity;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 class AddBookmarkHandler
 	implements TextView.OnEditorActionListener, View.OnClickListener {
 
+	private Context context;
 	private Dialog dialog;
 	private String filename;
 	private int bookIndex;
@@ -46,8 +48,9 @@ class AddBookmarkHandler
 	private static final Logger LOG = LoggerFactory
 		    .getLogger(AddBookmarkFragment.class);
 
-	AddBookmarkHandler(Dialog dialog, String filename, int bookIndex, int bookPosition, TextView textView)
+	AddBookmarkHandler(Context context, Dialog dialog, String filename, int bookIndex, int bookPosition, TextView textView)
 	{
+		this.context      = context;
 		this.dialog       = dialog;
 		this.filename     = filename;
 		this.bookIndex    = bookIndex;
@@ -103,7 +106,7 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment
 		View v                     = inflater.inflate(R.layout.fragment_add_bookmark, container, false);
 		EditText text              = (EditText) v.findViewById(R.id.bookmark_name);
 		Button addButton           = (Button) v.findViewById(R.id.add_bookmark_button);
-		AddBookmarkHandler handler = new AddBookmarkHandler(dialog, filename, bookIndex, bookPosition, text);
+		AddBookmarkHandler handler = new AddBookmarkHandler(getActivity(), dialog, filename, bookIndex, bookPosition, text);
 
 		text.setOnEditorActionListener(handler);
 		addButton.setOnClickListener(handler);

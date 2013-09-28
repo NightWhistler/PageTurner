@@ -38,6 +38,7 @@ class AddBookmarkHandler
 	implements TextView.OnEditorActionListener, View.OnClickListener {
 
 	private Dialog dialog;
+	private String filename;
 	private int bookIndex;
 	private int bookPosition;
 	private TextView textView;
@@ -45,9 +46,10 @@ class AddBookmarkHandler
 	private static final Logger LOG = LoggerFactory
 		    .getLogger(AddBookmarkFragment.class);
 
-	AddBookmarkHandler(Dialog dialog, int bookIndex, int bookPosition, TextView textView)
+	AddBookmarkHandler(Dialog dialog, String filename, int bookIndex, int bookPosition, TextView textView)
 	{
 		this.dialog       = dialog;
+		this.filename     = filename;
 		this.bookIndex    = bookIndex;
 		this.bookPosition = bookPosition;
 		this.textView     = textView;
@@ -57,6 +59,7 @@ class AddBookmarkHandler
 	{
 	    dialog.dismiss();
 	    LOG.info("    >>> Creating bookmark: " + textView.getText());
+	    LOG.info("    >>> for file:    " + filename);
 	    LOG.info("    >>> at index:    " + bookIndex);
 	    LOG.info("    >>> at position: " + bookPosition);
 	}
@@ -80,10 +83,16 @@ class AddBookmarkHandler
 
 public class AddBookmarkFragment extends RoboSherlockDialogFragment
 {
+	private String filename;
 	private int bookIndex;
 	private int bookPosition;
 	private static final Logger LOG = LoggerFactory
 		.getLogger(AddBookmarkFragment.class);
+
+	public AddBookmarkFragment(String filename)
+	{
+		this.filename = filename;
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -94,7 +103,7 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment
 		View v                     = inflater.inflate(R.layout.fragment_add_bookmark, container, false);
 		EditText text              = (EditText) v.findViewById(R.id.bookmark_name);
 		Button addButton           = (Button) v.findViewById(R.id.add_bookmark_button);
-		AddBookmarkHandler handler = new AddBookmarkHandler(dialog, bookIndex, bookPosition, text);
+		AddBookmarkHandler handler = new AddBookmarkHandler(dialog, filename, bookIndex, bookPosition, text);
 
 		text.setOnEditorActionListener(handler);
 		addButton.setOnClickListener(handler);

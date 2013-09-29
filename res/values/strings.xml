@@ -186,6 +186,7 @@
     <string name="cancelling">Cancelling…</string>
 
     <string name="no_bks_fnd_text2">No books were found on your device.\nWould you like to download some books?</string>
+    <string name="notes_attached">This highlight has an attached text note.\nAre you sure you to delete it?</string>
 
     <!-- Preferences -->
 

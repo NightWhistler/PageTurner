@@ -775,14 +775,27 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             builder.setTitle(R.string.no_books_found);
 
             if ( emptyLibrary ) {
-                builder.setMessage( getString(R.string.no_bks_fnd_text) );
+
+                builder.setMessage( getString(R.string.no_bks_fnd_text2) );
+
+                builder.setPositiveButton( android.R.string.yes, new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        ( (PageTurnerActivity) getSherlockActivity() )
+                                .launchActivity( CatalogActivity.class );
+                    }
+                });
+
+                builder.setNegativeButton( android.R.string.no, null );
+
             } else {
                 builder.setMessage( getString(R.string.no_new_books_found));
+
+                builder.setNeutralButton(android.R.string.ok, dismiss);
             }
 
-            builder.setNeutralButton(android.R.string.ok, dismiss);
-
             builder.show();
+
         }
 
     }

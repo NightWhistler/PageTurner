@@ -100,7 +100,7 @@ public class ReadingActivity extends PageTurnerActivity {
             menuItems.add("");
         }
 
-        menuItems.add( getString(R.string.library));
+        menuItems.add( getString(R.string.open_library));
         menuItems.add( getString(R.string.download));
         menuItems.add( config.getLastReadTitle() );
 

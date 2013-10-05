@@ -22,6 +22,10 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
     private LinkedList<QueuedTask<?,?,?>> taskQueue = new LinkedList<QueuedTask<?, ?, ?>>();
     private TaskQueueListener listener;
 
+    public boolean isEmpty() {
+        return taskQueue.isEmpty();
+    }
+
     public <A,B,C> void executeTask( QueueableAsyncTask<A,B,C> task, A... parameters ) {
 
         task.setCallback(this);

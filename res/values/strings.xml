@@ -44,7 +44,9 @@
     <string name="scan_folders">Scanning for EPUB files.\nFolders scanned: %d</string>
     <string name="import_errors">Some files had errors while importing:</string>
     <string name="no_books_found">No books found.</string>
+
     <string name="no_bks_fnd_text">No books were found on your device.\nYou can download books at gutenberg.org or feedbooks.com</string>
+
     <string name="loading_library">Loading library…</string>
     <string name="scan_bks_question">There are no books in your library.\nWould you like to scan your device for books?</string>
     <string name="brightness">Brightness</string>
@@ -182,6 +184,9 @@
 
     <string name="import_this">Import this folder</string>
     <string name="cancelling">Cancelling…</string>
+
+    <string name="no_bks_fnd_text2">No books were found on your device.\nWould you like to download some books?</string>
+    <string name="notes_attached">This highlight has an attached text note.\nAre you sure you to delete it?</string>
 
     <!-- Preferences -->
 

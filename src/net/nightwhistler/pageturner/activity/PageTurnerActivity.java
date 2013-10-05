@@ -143,9 +143,9 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
     protected String[] getMenuItems( Configuration config ) {
 
         if ( new File(config.getLastOpenedFile()).exists() ) {
-            return array(getString(R.string.library), getString(R.string.download), config.getLastReadTitle());
+            return array(getString(R.string.open_library), getString(R.string.download), config.getLastReadTitle());
         } else {
-            return array(getString(R.string.library), getString(R.string.download));
+            return array(getString(R.string.open_library), getString(R.string.download));
         }
     }
 

@@ -1366,19 +1366,45 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             @Override
             public boolean onActionItemClicked(ActionMode actionMode, android.view.MenuItem menuItem) {
+
+                boolean result = false;
+
                 if ( menuItem == edit ) {
                     showHighlightEditDialog( highLight );
-                    return true;
+                    result = true;
                 } else if ( menuItem == delete ) {
-                    highlightManager.removeHighLight(highLight);
-                    bookView.update();
-                    return true;
+
+                    final OnClickListener deleteHighlight = new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            highlightManager.removeHighLight(highLight);
+                            bookView.update();
+                        }
+                    };
+
+                    if ( highLight.getTextNote() != null && highLight.getTextNote().length() > 0 ) {
+                        new AlertDialog.Builder(context)
+                            .setMessage( R.string.notes_attached )
+                            .setNegativeButton( android.R.string.no, null )
+                            .setPositiveButton(android.R.string.yes, deleteHighlight )
+                            .show();
+                    } else {
+                        highlightManager.removeHighLight(highLight);
+                        bookView.update();
+                    }
+
+                    result = true;
+
                 } else if ( menuItem == colour ) {
                     showHighlightColourDialog( highLight );
-                    return true;
+                    result = true;
                 }
 
-                return false;
+                if ( result ) {
+                    actionMode.finish();
+                }
+
+                return result;
             }
 
             @Override

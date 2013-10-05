@@ -1080,7 +1080,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
         LOG.debug( "Looking for pageNumber for index=" + index + ", position=" + position );
 		
-		int pageNum = 0;
+		int pageNum = -1;
 		
 		List<List<Integer>> pageOffsets = spine.getPageOffsets();
 		
@@ -1591,8 +1591,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
         @Override
         public void doOnCancelled(List<List<Integer>> lists) {
-            for ( BookViewListener listener: listeners ) {
-                listener.onCalculatePageNumbersComplete();
+            if ( taskQueue.isEmpty() ) {
+                for ( BookViewListener listener: listeners ) {
+                    listener.onCalculatePageNumbersComplete();
+                }
             }
         }
 

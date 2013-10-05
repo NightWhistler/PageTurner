@@ -72,7 +72,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        initDrawerItems();
+        initDrawerItems( mDrawerOptions );
 
         mToggle = new ActionBarDrawerToggleCompat(this, mDrawer, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
             public void onDrawerClosed(View view) {
@@ -113,16 +113,16 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         return this.adapter;
     }
 
-    protected void initDrawerItems() {
-        if ( mDrawerOptions != null ) {
+    protected void initDrawerItems( ExpandableListView expandableListView ) {
+        if ( expandableListView != null ) {
 
             this.adapter = new NavigationAdapter( this, getMenuItems(config) );
 
-            mDrawerOptions.setAdapter( this.adapter );
-            mDrawerOptions.setOnGroupClickListener(this);
-            mDrawerOptions.setOnChildClickListener(this);
+            expandableListView.setAdapter( this.adapter );
+            expandableListView.setOnGroupClickListener(this);
+            expandableListView.setOnChildClickListener(this);
 
-            mDrawerOptions.setGroupIndicator(null);
+            expandableListView.setGroupIndicator(null);
         }
     }
 
@@ -170,7 +170,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        initDrawerItems();
+        initDrawerItems( mDrawerOptions );
         return super.onPrepareOptionsMenu(menu);    //To change body of overridden methods use File | Settings | File Templates.
     }
 

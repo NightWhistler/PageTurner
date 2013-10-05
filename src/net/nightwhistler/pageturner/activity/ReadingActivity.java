@@ -28,23 +28,31 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
+import com.actionbarsherlock.internal.widget.IcsAdapterView;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.view.NavigationCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import roboguice.inject.InjectFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReadingActivity extends PageTurnerActivity {
+public class ReadingActivity extends PageTurnerActivity implements AdapterView.OnItemLongClickListener {
 
     @InjectFragment(R.id.fragment_reading)
     private ReadingFragment readingFragment;
 
     @Inject
     private Configuration config;
+
+    private static final Logger LOG = LoggerFactory
+            .getLogger("ReadingActivity");
+
 
     private int tocIndex = -1;
     private int highlightIndex = -1;
@@ -63,8 +71,14 @@ public class ReadingActivity extends PageTurnerActivity {
     }
 
     @Override
-    protected void initDrawerItems() {
-        super.initDrawerItems();
+    protected void initDrawerItems( ExpandableListView expandableListView ) {
+        super.initDrawerItems( expandableListView );
+
+        if ( expandableListView == null ) {
+            return;
+        }
+
+        expandableListView.setOnItemLongClickListener( this );
 
         if ( this.readingFragment != null ) {
 
@@ -99,6 +113,33 @@ public class ReadingActivity extends PageTurnerActivity {
         }
 
     }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+        LOG.debug("Got long click");
+
+        if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+            int groupPosition = ExpandableListView.getPackedPositionGroup(id);
+            int childPosition = getAdapter().getIndexForChildId( groupPosition,
+                    ExpandableListView.getPackedPositionChild(id) );
+
+            NavigationCallback childItem = getAdapter().getChild( groupPosition, childPosition );
+
+            LOG.debug("Long-click on " + groupPosition + ", " + childPosition );
+            LOG.debug("Child-item: " + childItem );
+
+            if ( childItem != null ) {
+                childItem.onLongClick();
+            }
+
+            closeNavigationDrawer();
+            return true;
+        }
+
+        return false;
+    }
+
 
     protected String[] getMenuItems( Configuration config ) {
 
@@ -168,7 +209,9 @@ public class ReadingActivity extends PageTurnerActivity {
 
         NavigationCallback childItem = getAdapter().getChild( i, i2 );
 
-        childItem.onClick();
+        if ( childItem != null ) {
+            childItem.onClick();
+        }
 
         return false;
     }

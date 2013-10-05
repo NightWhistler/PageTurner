@@ -15,4 +15,6 @@ public interface NavigationCallback {
 
     void onClick();
 
+    void onLongClick();
+
 }

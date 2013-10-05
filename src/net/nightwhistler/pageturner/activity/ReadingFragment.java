@@ -1338,9 +1338,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
         ambilWarnaDialog.show();
     }
 
+
     @Override
     public void onHighLightClick(final HighLight highLight) {
 
+        LOG.debug( "onHighLightClick" );
 
         getSherlockActivity().startActionMode( new ActionMode.Callback() {
 
@@ -1378,28 +1380,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     showHighlightEditDialog( highLight );
                     result = true;
                 } else if ( menuItem == delete ) {
-
-                    final OnClickListener deleteHighlight = new OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            highlightManager.removeHighLight(highLight);
-                            bookView.update();
-                        }
-                    };
-
-                    if ( highLight.getTextNote() != null && highLight.getTextNote().length() > 0 ) {
-                        new AlertDialog.Builder(context)
-                            .setMessage( R.string.notes_attached )
-                            .setNegativeButton( android.R.string.no, null )
-                            .setPositiveButton(android.R.string.yes, deleteHighlight )
-                            .show();
-                    } else {
-                        highlightManager.removeHighLight(highLight);
-                        bookView.update();
-                    }
-
+                    deleteHightlight( highLight);
                     result = true;
-
                 } else if ( menuItem == colour ) {
                     showHighlightColourDialog( highLight );
                     result = true;
@@ -1418,6 +1400,28 @@ public class ReadingFragment extends RoboSherlockFragment implements
             }
         });
 
+    }
+
+    private void deleteHightlight( final HighLight highLight ) {
+
+        final OnClickListener deleteHighlight = new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                highlightManager.removeHighLight(highLight);
+                bookView.update();
+            }
+        };
+
+        if ( highLight.getTextNote() != null && highLight.getTextNote().length() > 0 ) {
+            new AlertDialog.Builder(context)
+                    .setMessage( R.string.notes_attached )
+                    .setNegativeButton( android.R.string.no, null )
+                    .setPositiveButton(android.R.string.yes, deleteHighlight )
+                    .show();
+        } else {
+            highlightManager.removeHighLight(highLight);
+            bookView.update();
+        }
     }
 
     @Override
@@ -2652,6 +2656,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     public void onClick() {
                         bookView.navigateTo( tocEntry.getHref() );
                     }
+
+                    @Override
+                    public void onLongClick() {
+                        //Do nothing
+                    }
                 });
             }
 
@@ -2882,6 +2891,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 public void onClick() {
                     bookView.navigateBySearchResult( searchResult );
                 }
+
+                @Override
+                public void onLongClick() {
+                    //Do nothing
+                }
             });
 
             counter++;
@@ -2953,6 +2967,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 public void onClick() {
                     bookView.navigateTo( bookmark.getIndex(), bookmark.getPosition() );
                 }
+
+                @Override
+                public void onLongClick() {
+
+                }
             });
 
         }
@@ -2987,6 +3006,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 @Override
                 public void onClick() {
                     bookView.navigateTo( highLight.getIndex(), highLight.getStart() );
+                }
+
+                @Override
+                public void onLongClick() {
+                    onHighLightClick( highLight );
                 }
             });
 

@@ -156,5 +156,8 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
         return i * 100 + i2;
     }
 
+    public int getIndexForChildId( int groupIndex, int childId ) {
+        return childId - groupIndex * 100;
+    }
 
 }

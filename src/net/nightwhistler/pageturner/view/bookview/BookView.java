@@ -709,6 +709,30 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         strategy.updateGUI();
     }
 
+    public String getFirstLine() {
+        int topLeft = strategy.getTopLeftPosition();
+
+        String plainText = "";
+
+        if ( getStrategy().getText() != null ) {
+            plainText = getStrategy().getText().toString();
+        }
+
+        if ( plainText.length() == 0 ) {
+            return plainText;
+        }
+
+        plainText = plainText.substring( topLeft, plainText.length() ).trim();
+
+        int firstNewLine = plainText.indexOf( '\n' );
+
+        if ( firstNewLine == -1 ) {
+            return plainText;
+        }
+
+        return plainText.substring(0, firstNewLine);
+    }
+
 	/**
 	 * Scrolls to a previously stored point.
 	 * 

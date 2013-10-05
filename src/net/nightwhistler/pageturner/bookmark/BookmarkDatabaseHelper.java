@@ -77,7 +77,8 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(getCreateTableString());
-        db.execSQL("CREATE UNIQUE INDEX fn_name_index ON " + TABLE_NAME + "(" + Field.file_name + ", " + Field.name + ");");
+        db.execSQL("CREATE UNIQUE INDEX fn_name_index ON " + TABLE_NAME + "(" + Field.file_name + ", "
+                + Field.book_index + ", " + Field.book_position + ");");
     }
 
     public void deleteBookmark( Bookmark bookmark ) {

@@ -43,6 +43,8 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
     private int bookIndex;
     private int bookPosition;
 
+    private String initialText;
+
     private BookmarkDatabaseHelper bookmarkDatabaseHelper;
 
     private static final Logger LOG = LoggerFactory
@@ -60,6 +62,8 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
 
         View v = inflater.inflate(R.layout.fragment_add_bookmark, container, false);
         EditText text = (EditText) v.findViewById(R.id.bookmark_name);
+        text.setText( this.initialText );
+
         Button addButton = (Button) v.findViewById(R.id.add_bookmark_button);
         AddBookmarkHandler handler = new AddBookmarkHandler(getActivity(), dialog,
                 filename, bookIndex, bookPosition, text);
@@ -76,6 +80,10 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
 
     public void setBookIndex(int bookIndex) {
         this.bookIndex = bookIndex;
+    }
+
+    public void setInitialText( String text ) {
+        this.initialText = text;
     }
 
     private class AddBookmarkHandler

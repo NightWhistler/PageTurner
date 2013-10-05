@@ -2455,6 +2455,15 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			AddBookmarkFragment fragment = new AddBookmarkFragment(this.fileName, bookmarkDatabaseHelper);
 			fragment.setBookIndex(this.bookView.getIndex());
             fragment.setBookPosition(this.bookView.getProgressPosition());
+
+            String firstLine = this.bookView.getFirstLine();
+
+            if ( firstLine.length() > 20 ) {
+                firstLine = firstLine.substring(0, 20) + "…";
+            }
+
+            fragment.setInitialText( firstLine );
+
 			fragment.show(ft, "dialog");
 			return true;
 

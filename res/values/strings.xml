@@ -181,12 +181,14 @@
 
     <string name="page_number_of">Page %1$d of %2$d</string>
 
-
     <string name="import_this">Import this folder</string>
     <string name="cancelling">Cancelling…</string>
 
     <string name="no_bks_fnd_text2">No books were found on your device.\nWould you like to download some books?</string>
     <string name="notes_attached">This highlight has an attached text note.\nAre you sure you to delete it?</string>
+
+    <string name="add_bookmark">Add Bookmark</string>
+    <string name="add">Add</string>
 
     <!-- Preferences -->
 
@@ -294,8 +296,7 @@
     
     <string name="pref_manage_sites">Manage OPDS / Calibre Catalogs</string>
     <string name="pref_manage_sites_summary">Add and remove custom online catalogs and Calibre servers.</string>
-    <string name="add_bookmark">Add Bookmark</string>
-    <string name="add">Add</string>
+
     
     <string name="pref_serif_font">Serif font</string>
     <string name="pref_serif_summary">Font to use if a book requests a Serif font.</string>

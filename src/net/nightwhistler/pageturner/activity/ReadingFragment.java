@@ -1338,6 +1338,54 @@ public class ReadingFragment extends RoboSherlockFragment implements
         ambilWarnaDialog.show();
     }
 
+    public void onBookmarkClick( final Bookmark bookmark ) {
+
+        getSherlockActivity().startActionMode( new ActionMode.Callback() {
+
+            private android.view.MenuItem delete;
+
+            @Override
+            public boolean onCreateActionMode(ActionMode actionMode, android.view.Menu menu) {
+
+                this.delete = menu.add( R.string.delete );
+                this.delete.setIcon( R.drawable.trash_can );
+
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode actionMode, android.view.Menu menu) {
+                actionMode.setTitle( R.string.bookmark_options );
+                return true;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode actionMode, android.view.MenuItem menuItem) {
+
+                boolean result = false;
+
+                if ( menuItem == delete ) {
+                    bookmarkDatabaseHelper.deleteBookmark( bookmark );
+                    Toast.makeText( context,R.string.bookmark_deleted, Toast.LENGTH_SHORT ).show();
+                    result = true;
+                }
+
+                if ( result ) {
+                    actionMode.finish();
+                }
+
+                return result;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode actionMode) {
+
+            }
+        });
+
+
+    }
+
 
     @Override
     public void onHighLightClick(final HighLight highLight) {
@@ -1408,6 +1456,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 highlightManager.removeHighLight(highLight);
+                Toast.makeText( context,R.string.highlight_deleted, Toast.LENGTH_SHORT ).show();
                 bookView.update();
             }
         };
@@ -1420,6 +1469,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     .show();
         } else {
             highlightManager.removeHighLight(highLight);
+            Toast.makeText( context,R.string.highlight_deleted, Toast.LENGTH_SHORT ).show();
             bookView.update();
         }
     }
@@ -2970,7 +3020,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
                 @Override
                 public void onLongClick() {
-
+                    onBookmarkClick( bookmark );
                 }
             });
 

@@ -80,6 +80,17 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE UNIQUE INDEX fn_name_index ON " + TABLE_NAME + "(" + Field.file_name + ", " + Field.name + ");");
     }
 
+    public void deleteBookmark( Bookmark bookmark ) {
+        getDataBase().delete( TABLE_NAME,
+                "file_name = ? and book_index = ? and book_position = ?",
+                array(
+                        bookmark.getFileName(),
+                        Integer.toString(bookmark.getIndex()),
+                        Integer.toString(bookmark.getPosition() )
+                )
+        );
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         throw new UnsupportedOperationException();
@@ -99,6 +110,10 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
         bm.populateContentValues(row);
 
         getDataBase().insert(TABLE_NAME, null, row);
+    }
+
+    private static String[] array( String... items ) {
+        return items;
     }
 
     public List<Bookmark> getBookmarksForFile(String fileName) {

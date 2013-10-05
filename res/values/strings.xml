@@ -186,10 +186,14 @@
 
     <string name="no_bks_fnd_text2">No books were found on your device.\nWould you like to download some books?</string>
     <string name="notes_attached">This highlight has an attached text note.\nAre you sure you to delete it?</string>
+    <string name="highlight_deleted">Highlight has been removed</string>
 
     <string name="add_bookmark">Add Bookmark</string>
     <string name="add">Add</string>
     <string name="bookmarks">Bookmarks</string>
+    <string name="bookmark_options">Bookmark options</string>
+    <string name="bookmark_deleted">Bookmark has been removed</string>
+
 
     <!-- Preferences -->
 

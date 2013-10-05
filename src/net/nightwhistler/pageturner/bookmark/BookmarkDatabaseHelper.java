@@ -22,10 +22,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.List;
 import java.util.ArrayList;
 
+@Singleton
 public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "PageTurnerBookmarks";
@@ -47,6 +50,7 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    @Inject
     public BookmarkDatabaseHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
     }
@@ -98,6 +102,11 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public List<Bookmark> getBookmarksForFile(String fileName) {
+
+        if ( fileName == null ) {
+            return new ArrayList<Bookmark>();
+        }
+
         List<Bookmark> bookmarks = new ArrayList<Bookmark>();
         Cursor cursor = getDataBase().query(false, TABLE_NAME, null,
                 "file_name = ?", new String[]{fileName}, null, null,

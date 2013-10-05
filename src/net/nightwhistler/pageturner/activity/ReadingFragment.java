@@ -65,6 +65,8 @@ import net.nightwhistler.pageturner.Configuration.ScrollStyle;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.TextUtil;
 import net.nightwhistler.pageturner.animation.*;
+import net.nightwhistler.pageturner.bookmark.Bookmark;
+import net.nightwhistler.pageturner.bookmark.BookmarkDatabaseHelper;
 import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.dto.SearchResult;
 import net.nightwhistler.pageturner.dto.TocEntry;
@@ -204,6 +206,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     @Inject
     private HighlightManager highlightManager;
+
+    @Inject
+    private BookmarkDatabaseHelper bookmarkDatabaseHelper;
 
     private MenuItem searchMenuItem;
 
@@ -2393,7 +2398,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		case R.id.add_bookmark:
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
 			ft.addToBackStack(null);
-			AddBookmarkFragment fragment = new AddBookmarkFragment(this.fileName);
+			AddBookmarkFragment fragment = new AddBookmarkFragment(this.fileName, bookmarkDatabaseHelper);
 			fragment.setBookIndex(this.bookView.getIndex());
             fragment.setBookPosition(this.bookView.getProgressPosition());
 			fragment.show(ft, "dialog");
@@ -2893,32 +2898,80 @@ public class ReadingFragment extends RoboSherlockFragment implements
         return highLights != null && ! highLights.isEmpty();
     }
 
+    public boolean hasBookmarks() {
+
+        List<Bookmark> bookmarks = this.bookmarkDatabaseHelper.getBookmarksForFile( bookView.getFileName() );
+
+        return bookmarks != null && ! bookmarks.isEmpty();
+    }
+
+    private String getHighlightLabel( int index, int position, String text ) {
+
+        final int totalNumberOfPages = bookView.getTotalNumberOfPages();
+
+        int percentage = bookView.getPercentageFor( index, position );
+        int pageNumber = bookView.getPageNumberFor( index, position );
+
+        String result = percentage + "%";
+
+        if ( pageNumber != -1 ) {
+            result = String.format( context.getString(R.string.page_number_of),
+                    pageNumber, totalNumberOfPages )
+                    + " (" + percentage + "%)";
+        }
+
+        if ( text != null && text.trim().length() > 0 ) {
+            result += ": " + TextUtil.shortenText( text );
+        }
+
+        return result;
+    }
+
+    public List<NavigationCallback> getBookmarks() {
+
+        List<Bookmark> bookmarks = this.bookmarkDatabaseHelper.getBookmarksForFile( bookView.getFileName() );
+
+        List<NavigationCallback> result = new ArrayList<NavigationCallback>();
+
+        for ( final Bookmark bookmark: bookmarks ) {
+
+            final String finalText = getHighlightLabel( bookmark.getIndex(),
+                    bookmark.getPosition(), null );
+
+            result.add( new NavigationCallback() {
+                @Override
+                public String getTitle() {
+                    return bookmark.getName();
+                }
+
+                @Override
+                public String getSubtitle() {
+                    return finalText;
+                }
+
+                @Override
+                public void onClick() {
+                    bookView.navigateTo( bookmark.getIndex(), bookmark.getPosition() );
+                }
+            });
+
+        }
+
+
+        return result;
+    }
+
+
     public List<NavigationCallback> getHighlights() {
 
         List<HighLight> highLights = this.highlightManager.getHighLights( bookView.getFileName() );
-
-        final int totalNumberOfPages = bookView.getTotalNumberOfPages();
 
         List<NavigationCallback> result = new ArrayList<NavigationCallback>();
 
         for ( final HighLight highLight: highLights ) {
 
-            int percentage = bookView.getPercentageFor(highLight.getIndex(), highLight.getStart());
-            int pageNumber = bookView.getPageNumberFor(highLight.getIndex(), highLight.getStart());
-
-            String text = percentage + "%";
-
-            if ( pageNumber != -1 ) {
-                text = String.format( context.getString(R.string.page_number_of),
-                        pageNumber, totalNumberOfPages )
-                        + " (" + percentage + "%)";
-            }
-
-            if ( highLight.getTextNote() != null && highLight.getTextNote().trim().length() > 0 ) {
-                text += ": " + TextUtil.shortenText( highLight.getTextNote() );
-            }
-
-            final String finalText = text;
+            final String finalText = getHighlightLabel( highLight.getIndex(), highLight.getStart(),
+                    highLight.getTextNote() );
 
             result.add( new NavigationCallback() {
                 @Override

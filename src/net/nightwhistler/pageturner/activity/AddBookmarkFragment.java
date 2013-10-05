@@ -43,11 +43,14 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
     private int bookIndex;
     private int bookPosition;
 
+    private BookmarkDatabaseHelper bookmarkDatabaseHelper;
+
     private static final Logger LOG = LoggerFactory
             .getLogger(AddBookmarkFragment.class);
 
-    public AddBookmarkFragment(String filename) {
+    public AddBookmarkFragment(String filename, BookmarkDatabaseHelper helper ) {
         this.filename = filename;
+        this.bookmarkDatabaseHelper = helper;
     }
 
     @Override
@@ -75,23 +78,21 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
         this.bookIndex = bookIndex;
     }
 
-    private static class AddBookmarkHandler
+    private class AddBookmarkHandler
             implements TextView.OnEditorActionListener, View.OnClickListener {
 
-        private Context context;
         private Dialog dialog;
         private String filename;
         private int bookIndex;
         private int bookPosition;
         private TextView textView;
 
-        private static final Logger LOG = LoggerFactory
+        private final Logger LOG = LoggerFactory
                 .getLogger(AddBookmarkFragment.class);
 
         AddBookmarkHandler(Context context, Dialog dialog, String filename,
                            int bookIndex, int bookPosition, TextView textView) {
 
-            this.context = context;
             this.dialog = dialog;
             this.filename = filename;
             this.bookIndex = bookIndex;
@@ -106,8 +107,9 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
             LOG.debug("    >>> at index:    " + bookIndex);
             LOG.debug("    >>> at position: " + bookPosition);
 
-            BookmarkDatabaseHelper helper = new BookmarkDatabaseHelper(context);
-            helper.addBookmark(new Bookmark(filename, textView.getText().toString(), bookIndex, bookPosition));
+            bookmarkDatabaseHelper.addBookmark(
+                    new Bookmark( filename, textView.getText().toString(),
+                            bookIndex, bookPosition));
         }
 
         @Override

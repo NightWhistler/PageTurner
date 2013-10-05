@@ -39,4 +39,20 @@ public class Bookmark {
         row.put("book_index", this.index);
         row.put("book_position", this.position);
     }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public int getPosition() {
+        return position;
+    }
 }

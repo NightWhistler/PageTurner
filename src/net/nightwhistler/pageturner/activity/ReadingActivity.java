@@ -49,6 +49,7 @@ public class ReadingActivity extends PageTurnerActivity {
     private int tocIndex = -1;
     private int highlightIndex = -1;
     private int searchIndex = -1;
+    private int bookmarksIndex = -1;
 
     @Override
     protected int getMainLayoutResource() {
@@ -88,6 +89,13 @@ public class ReadingActivity extends PageTurnerActivity {
                 getAdapter().setChildren(this.searchIndex, searchCallbacks);
             }
 
+
+            List<NavigationCallback> bookmarkCallbacks = this.readingFragment.getBookmarks();
+
+            if ( bookmarkCallbacks != null && !bookmarkCallbacks.isEmpty() ) {
+                getAdapter().setChildren( this.bookmarksIndex, bookmarkCallbacks );
+            }
+
         }
 
     }
@@ -121,6 +129,11 @@ public class ReadingActivity extends PageTurnerActivity {
                 this.searchIndex = menuItems.size() - 1;
             }
 
+            if ( this.readingFragment.hasBookmarks() ) {
+                menuItems.add( getString(R.string.bookmarks));
+                this.bookmarksIndex = menuItems.size() - 1;
+            }
+
         }
 
         return menuItems.toArray(new String[menuItems.size()]);
@@ -131,7 +144,8 @@ public class ReadingActivity extends PageTurnerActivity {
 
         int correctedIndex = getCorrectIndex(i);
 
-        if ( correctedIndex == 2 || i == tocIndex || i == highlightIndex  || i == searchIndex) {
+        //FIXME: this is nasty and hacky!
+        if ( correctedIndex == 2 || i == tocIndex || i == highlightIndex  || i == searchIndex || i == bookmarksIndex ) {
             return false;
         }
 

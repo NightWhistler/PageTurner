@@ -110,7 +110,7 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
         List<Bookmark> bookmarks = new ArrayList<Bookmark>();
         Cursor cursor = getDataBase().query(false, TABLE_NAME, null,
                 "file_name = ?", new String[]{fileName}, null, null,
-                "name ASC", null);
+                "book_index, book_position ASC", null);
 
         int fileNameIndex = cursor.getColumnIndex(Field.file_name.name());
         int nameIndex = cursor.getColumnIndex(Field.name.name());

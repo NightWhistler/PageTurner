@@ -13,10 +13,5 @@
         android:imeOptions="actionDone"
         android:imeActionLabel="@string/add" />
 
-    <Button
-	android:id="@+id/add_bookmark_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-	android:text="@string/add"/>
 
 </LinearLayout>

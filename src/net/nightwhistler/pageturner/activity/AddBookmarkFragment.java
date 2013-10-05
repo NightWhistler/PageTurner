@@ -3,18 +3,17 @@
  * 
  * This file is part of PageTurner
  *
- * PageTurner is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * PageTurner is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License
- * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package net.nightwhistler.pageturner.activity;
@@ -31,101 +30,99 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockDialogFragment;
-import net.nightwhistler.bookmark.pageturner.Bookmark;
-import net.nightwhistler.bookmark.pageturner.BookmarkDatabaseHelper;
+import net.nightwhistler.pageturner.bookmark.Bookmark;
+import net.nightwhistler.pageturner.bookmark.BookmarkDatabaseHelper;
 import net.nightwhistler.pageturner.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class AddBookmarkHandler
-	implements TextView.OnEditorActionListener, View.OnClickListener {
 
-	private Context context;
-	private Dialog dialog;
-	private String filename;
-	private int bookIndex;
-	private int bookPosition;
-	private TextView textView;
+public class AddBookmarkFragment extends RoboSherlockDialogFragment {
 
-	private static final Logger LOG = LoggerFactory
-		    .getLogger(AddBookmarkFragment.class);
+    private String filename;
+    private int bookIndex;
+    private int bookPosition;
 
-	AddBookmarkHandler(Context context, Dialog dialog, String filename, int bookIndex, int bookPosition, TextView textView)
-	{
-		this.context      = context;
-		this.dialog       = dialog;
-		this.filename     = filename;
-		this.bookIndex    = bookIndex;
-		this.bookPosition = bookPosition;
-		this.textView     = textView;
-	}
+    private static final Logger LOG = LoggerFactory
+            .getLogger(AddBookmarkFragment.class);
 
-	private void handleAction()
-	{
-	    dialog.dismiss();
-	    LOG.info("    >>> Creating bookmark: " + textView.getText());
-	    LOG.info("    >>> for file:    " + filename);
-	    LOG.info("    >>> at index:    " + bookIndex);
-	    LOG.info("    >>> at position: " + bookPosition);
+    public AddBookmarkFragment(String filename) {
+        this.filename = filename;
+    }
 
-	    BookmarkDatabaseHelper helper = new BookmarkDatabaseHelper(context);
-	    helper.addBookmark(new Bookmark(filename, textView.getText().toString(), bookIndex, bookPosition));
-	}
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Dialog dialog = getDialog();
+        dialog.setTitle(R.string.add_bookmark);
 
-	@Override
-	public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
-	{
-		if(actionId == EditorInfo.IME_ACTION_DONE) {
-			handleAction();
-			return true;
-		}
-		return false;
-	}
+        View v = inflater.inflate(R.layout.fragment_add_bookmark, container, false);
+        EditText text = (EditText) v.findViewById(R.id.bookmark_name);
+        Button addButton = (Button) v.findViewById(R.id.add_bookmark_button);
+        AddBookmarkHandler handler = new AddBookmarkHandler(getActivity(), dialog,
+                filename, bookIndex, bookPosition, text);
 
-	@Override
-	public void onClick(View v)
-	{
-		handleAction();
-	}
-}
+        text.setOnEditorActionListener(handler);
+        addButton.setOnClickListener(handler);
 
-public class AddBookmarkFragment extends RoboSherlockDialogFragment
-{
-	private String filename;
-	private int bookIndex;
-	private int bookPosition;
-	private static final Logger LOG = LoggerFactory
-		.getLogger(AddBookmarkFragment.class);
+        return v;
+    }
 
-	public AddBookmarkFragment(String filename)
-	{
-		this.filename = filename;
-	}
+    public void setBookPosition(int bookPosition) {
+        this.bookPosition = bookPosition;
+    }
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-	{
-		Dialog dialog = getDialog();
-		dialog.setTitle(R.string.add_bookmark);
+    public void setBookIndex(int bookIndex) {
+        this.bookIndex = bookIndex;
+    }
 
-		View v                     = inflater.inflate(R.layout.fragment_add_bookmark, container, false);
-		EditText text              = (EditText) v.findViewById(R.id.bookmark_name);
-		Button addButton           = (Button) v.findViewById(R.id.add_bookmark_button);
-		AddBookmarkHandler handler = new AddBookmarkHandler(getActivity(), dialog, filename, bookIndex, bookPosition, text);
+    private static class AddBookmarkHandler
+            implements TextView.OnEditorActionListener, View.OnClickListener {
 
-		text.setOnEditorActionListener(handler);
-		addButton.setOnClickListener(handler);
+        private Context context;
+        private Dialog dialog;
+        private String filename;
+        private int bookIndex;
+        private int bookPosition;
+        private TextView textView;
 
-		return v;
-	}
+        private static final Logger LOG = LoggerFactory
+                .getLogger(AddBookmarkFragment.class);
 
-	public void setBookPosition(int bookPosition)
-	{
-		this.bookPosition = bookPosition;
-	}
+        AddBookmarkHandler(Context context, Dialog dialog, String filename,
+                           int bookIndex, int bookPosition, TextView textView) {
 
-	public void setBookIndex(int bookIndex)
-	{
-		this.bookIndex = bookIndex;
-	}
+            this.context = context;
+            this.dialog = dialog;
+            this.filename = filename;
+            this.bookIndex = bookIndex;
+            this.bookPosition = bookPosition;
+            this.textView = textView;
+        }
+
+        private void handleAction() {
+            dialog.dismiss();
+            LOG.debug("    >>> Creating bookmark: " + textView.getText());
+            LOG.debug("    >>> for file:    " + filename);
+            LOG.debug("    >>> at index:    " + bookIndex);
+            LOG.debug("    >>> at position: " + bookPosition);
+
+            BookmarkDatabaseHelper helper = new BookmarkDatabaseHelper(context);
+            helper.addBookmark(new Bookmark(filename, textView.getText().toString(), bookIndex, bookPosition));
+        }
+
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                handleAction();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onClick(View v) {
+            handleAction();
+        }
+    }
+
 }

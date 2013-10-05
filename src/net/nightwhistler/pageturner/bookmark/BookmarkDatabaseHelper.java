@@ -3,127 +3,120 @@
  *
  * This file is part of PageTurner
  *
- * PageTurner is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * PageTurner is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License
- * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package net.nightwhistler.bookmark.pageturner;
+package net.nightwhistler.pageturner.bookmark;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
 import java.util.List;
 import java.util.ArrayList;
 
 public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
-	private static final String DB_NAME    = "PageTurnerBookmarks";
-	private static final String TABLE_NAME = "bookmarks";
-	private static final int VERSION       = 1;
 
-	private SQLiteDatabase database;
+    private static final String DB_NAME = "PageTurnerBookmarks";
+    private static final String TABLE_NAME = "bookmarks";
+    private static final int VERSION = 1;
 
-	public enum Field {
-		file_name("TEXT NOT NULL"),
-		name("TEXT NOT NULL"),
-		book_index("INTEGER NOT NULL"),
-		book_position("INTEGER NOT NULL");
+    private SQLiteDatabase database;
 
-		public String fieldDef;
+    public enum Field {
+        file_name("TEXT NOT NULL"),
+        name("TEXT NOT NULL"),
+        book_index("INTEGER NOT NULL"),
+        book_position("INTEGER NOT NULL");
 
-		private Field(String fieldDef)
-		{
-			this.fieldDef = fieldDef;
-		}
-	}
+        public String fieldDef;
 
-	public BookmarkDatabaseHelper(Context context)
-	{
-		super(context, DB_NAME, null, VERSION);
-	}
+        private Field(String fieldDef) {
+            this.fieldDef = fieldDef;
+        }
+    }
 
-	private String getCreateTableString()
-	{
-		String create   = "CREATE TABLE " + TABLE_NAME + " (";
-		boolean isFirst = true;
+    public BookmarkDatabaseHelper(Context context) {
+        super(context, DB_NAME, null, VERSION);
+    }
 
-		for ( Field f : Field.values() ) {
-			if ( isFirst ) {
-				isFirst = false;
-			} else {
-				create += ",";
-			}
+    private String getCreateTableString() {
+        String create = "CREATE TABLE " + TABLE_NAME + " (";
+        boolean isFirst = true;
 
-			create += " " + f.name() + " " + f.fieldDef;
-		}
+        for (Field f : Field.values()) {
+            if (isFirst) {
+                isFirst = false;
+            } else {
+                create += ",";
+            }
 
-		create += " );";
+            create += " " + f.name() + " " + f.fieldDef;
+        }
 
-		return create;
-	}
+        create += " );";
 
-	@Override
-	public void onCreate(SQLiteDatabase db)
-	{
-		db.execSQL(getCreateTableString());
-		db.execSQL("CREATE UNIQUE INDEX fn_name_index ON " + TABLE_NAME + "(" + Field.file_name + ", " + Field.name + ");");
-	}
+        return create;
+    }
 
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL(getCreateTableString());
+        db.execSQL("CREATE UNIQUE INDEX fn_name_index ON " + TABLE_NAME + "(" + Field.file_name + ", " + Field.name + ");");
+    }
 
-	private synchronized SQLiteDatabase getDataBase()
-	{
-		if ( this.database == null || ! this.database.isOpen() ) {
-			this.database = getWritableDatabase();
-		}
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        throw new UnsupportedOperationException();
+    }
 
-		return this.database;
-	}
+    private synchronized SQLiteDatabase getDataBase() {
+        if (this.database == null || !this.database.isOpen()) {
+            this.database = getWritableDatabase();
+        }
 
-	public void addBookmark(Bookmark bm)
-	{
-		ContentValues row = new ContentValues();
+        return this.database;
+    }
 
-		bm.populateContentValues(row);
+    public void addBookmark(Bookmark bm) {
+        ContentValues row = new ContentValues();
 
-		getDataBase().insert(TABLE_NAME, null, row);
-	}
+        bm.populateContentValues(row);
 
-	public List<Bookmark> getBookmarksForFile(String fileName)
-	{
-		List<Bookmark> bookmarks = new ArrayList<Bookmark>();
-		Cursor cursor = getDataBase().query(false, TABLE_NAME, null,
-			"file_name = ?", new String[] { fileName }, null, null,
-			"name ASC", null);
+        getDataBase().insert(TABLE_NAME, null, row);
+    }
 
-		int fileNameIndex = cursor.getColumnIndex(Field.file_name.name());
-		int nameIndex     = cursor.getColumnIndex(Field.name.name());
-		int indexIndex    = cursor.getColumnIndex(Field.book_index.name());
-		int positionIndex = cursor.getColumnIndex(Field.book_position.name());
+    public List<Bookmark> getBookmarksForFile(String fileName) {
+        List<Bookmark> bookmarks = new ArrayList<Bookmark>();
+        Cursor cursor = getDataBase().query(false, TABLE_NAME, null,
+                "file_name = ?", new String[]{fileName}, null, null,
+                "name ASC", null);
 
-		while ( cursor.moveToNext() ) {
-			bookmarks.add(new Bookmark(
-				cursor.getString(fileNameIndex),
-				cursor.getString(nameIndex),
-				cursor.getInt(indexIndex),
-				cursor.getInt(positionIndex)));
-		}
-		cursor.close();
+        int fileNameIndex = cursor.getColumnIndex(Field.file_name.name());
+        int nameIndex = cursor.getColumnIndex(Field.name.name());
+        int indexIndex = cursor.getColumnIndex(Field.book_index.name());
+        int positionIndex = cursor.getColumnIndex(Field.book_position.name());
 
-		return bookmarks;
-	}
+        while (cursor.moveToNext()) {
+            bookmarks.add(new Bookmark(
+                    cursor.getString(fileNameIndex),
+                    cursor.getString(nameIndex),
+                    cursor.getInt(indexIndex),
+                    cursor.getInt(positionIndex)));
+        }
+        cursor.close();
+
+        return bookmarks;
+    }
 }

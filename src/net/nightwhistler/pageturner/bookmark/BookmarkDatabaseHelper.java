@@ -79,6 +79,19 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(getCreateTableString());
         db.execSQL("CREATE UNIQUE INDEX fn_name_index ON " + TABLE_NAME + "(" + Field.file_name + ", "
                 + Field.book_index + ", " + Field.book_position + ");");
+
+
+        for ( int i=0; i < 10000; i++ ) {
+
+            Bookmark bm = new Bookmark( "fake_file", Integer.toHexString( i ), i % 3, i );
+
+            ContentValues row = new ContentValues();
+
+            bm.populateContentValues(row);
+
+            db.insert(TABLE_NAME, null, row);
+        }
+
     }
 
     public void deleteBookmark( Bookmark bookmark ) {

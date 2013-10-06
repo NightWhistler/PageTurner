@@ -44,6 +44,7 @@ import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
+import com.actionbarsherlock.view.ActionMode;
 import android.view.*;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.animation.Animation;
@@ -252,7 +253,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
 	private SavedConfigState savedConfigState = new SavedConfigState();
-	private CharSequence selectedWord = null;
+	private BookView.SelectedWord selectedWord = null;
 
 	private Handler uiHandler;
 	private Handler backgroundHandler;
@@ -1217,10 +1218,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		if (this.selectedWord != null) {
 
-			final CharSequence word = this.selectedWord;
+			final CharSequence word = this.selectedWord.getText();
+            final int startIndex = this.selectedWord.getStartOffset();
+            final int endIndex = this.selectedWord.getEndOffset();
 
 			String header = String.format(getString(R.string.word_select),
-					selectedWord);
+					selectedWord.getText() );
+
 			menu.setHeaderTitle(header);
 
 			if (isDictionaryAvailable()) {
@@ -1234,6 +1238,18 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					}
 				});
 			}
+
+            menu.add(R.string.highlight).setOnMenuItemClickListener(
+                    new OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(android.view.MenuItem menuItem) {
+
+                            highLight( startIndex, endIndex, word.toString() );
+
+                            return false;
+                        }
+                    });
+
 
 			android.view.MenuItem newItem = menu
 					.add(getString(R.string.wikipedia_lookup));
@@ -1342,10 +1358,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         getSherlockActivity().startActionMode( new ActionMode.Callback() {
 
-            private android.view.MenuItem delete;
+            private MenuItem delete;
 
             @Override
-            public boolean onCreateActionMode(ActionMode actionMode, android.view.Menu menu) {
+            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
 
                 this.delete = menu.add( R.string.delete );
                 this.delete.setIcon( R.drawable.trash_can );
@@ -1354,13 +1370,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
             }
 
             @Override
-            public boolean onPrepareActionMode(ActionMode actionMode, android.view.Menu menu) {
+            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
                 actionMode.setTitle( R.string.bookmark_options );
                 return true;
             }
 
             @Override
-            public boolean onActionItemClicked(ActionMode actionMode, android.view.MenuItem menuItem) {
+            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
 
                 boolean result = false;
 
@@ -1382,10 +1398,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             }
         });
-
-
     }
-
 
     @Override
     public void onHighLightClick(final HighLight highLight) {
@@ -1394,12 +1407,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         getSherlockActivity().startActionMode( new ActionMode.Callback() {
 
-            private android.view.MenuItem edit;
-            private android.view.MenuItem delete;
-            private android.view.MenuItem colour;
+            private MenuItem edit;
+            private MenuItem delete;
+            private MenuItem colour;
 
             @Override
-            public boolean onCreateActionMode(ActionMode actionMode, android.view.Menu menu) {
+            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
 
                 this.edit = menu.add( R.string.edit );
                 this.edit.setIcon( R.drawable.edit );
@@ -1414,13 +1427,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
             }
 
             @Override
-            public boolean onPrepareActionMode(ActionMode actionMode, android.view.Menu menu) {
+            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
                 actionMode.setTitle( R.string.highlight_options );
                 return true;
             }
 
             @Override
-            public boolean onActionItemClicked(ActionMode actionMode, android.view.MenuItem menuItem) {
+            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
 
                 boolean result = false;
 
@@ -2647,9 +2660,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		return false;
 	}
 
-	@Override
-	public void onWordLongPressed(CharSequence word) {
-		this.selectedWord = word;
+
+    @Override
+    public void onWordLongPressed(int startOffset, int endOffset, CharSequence word) {
+
+        this.selectedWord = new BookView.SelectedWord( startOffset, endOffset, word );
 
         Activity activity = getActivity();
 

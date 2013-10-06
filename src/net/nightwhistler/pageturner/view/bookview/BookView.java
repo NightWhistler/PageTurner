@@ -447,7 +447,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	 * @param y
 	 * @return
 	 */
-	public CharSequence getWordAt(float x, float y) {
+	public SelectedWord getWordAt(float x, float y) {
 
 		if (childView == null) {
 			return null;
@@ -497,14 +497,18 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 		if (isBoundaryCharacter(word.charAt(0))) {
 			start = 1;
+            left++;
 		}
 
 		if (isBoundaryCharacter(word.charAt(word.length() - 1))) {
 			end = word.length() - 1;
+            right--;
 		}
 
 		if (start > 0 && start < word.length() && end < word.length()) {
-			return word.subSequence(start, end);
+            word = word.subSequence(start, end);
+
+            return new SelectedWord( left, right, word );
 		}
 
 		return null;
@@ -1637,5 +1641,34 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             }
 		}
 	}
+
+    public static class SelectedWord {
+        private int startOffset;
+        private int endOffset;
+        private CharSequence text;
+
+        public SelectedWord( int startOffset, int endOffset, CharSequence text ) {
+            this.startOffset = startOffset;
+            this.endOffset = endOffset;
+            this.text = text;
+        }
+
+        public int getStartOffset() {
+            return startOffset;
+        }
+
+        public int getEndOffset() {
+            return endOffset;
+        }
+
+        public CharSequence getText() {
+
+            if ( text == null ) {
+                return "";
+            }
+
+            return text;
+        }
+    }
 
 }

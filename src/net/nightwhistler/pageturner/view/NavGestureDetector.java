@@ -167,10 +167,10 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 
 		//On older platforms we generate a popup-event.
 		if ( Build.VERSION.SDK_INT < 11 ) {
-			CharSequence word = bookView.getWordAt(e.getX(), e.getY() );
+			BookView.SelectedWord word = bookView.getWordAt(e.getX(), e.getY() );
 
 			if ( word != null ) {
-				bookViewListener.onWordLongPressed(word);
+				bookViewListener.onWordLongPressed( word.getStartOffset(), word.getEndOffset(), word.getText() );
 			}
 
 			super.onLongPress(e);

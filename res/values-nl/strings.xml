@@ -172,6 +172,30 @@
     <string name="could_not_load">Er is een fout opgetreden tijdens het laden van de tekst: %s</string>
     <string name="out_of_memory">Sorry, PageTurner kon niet genoeg geheugen vrij maken om dit bestand te openen.</string>
 
+    <string name="highlight">Markeren</string>
+    <string name="highlights">Markeringen</string>
+
+    <string name="highlight_options">Markerings opties</string>
+    <string name="text_note">Notitie toevoegen</string>
+    <string name="clear_note">Notitie verwijderen</string>
+    <string name="save_note">Notitie bewaren</string>
+
+    <string name="set_colour">Wijzig kleur</string>
+
+    <string name="page_number_of">Pagina %1$d van %2$d</string>
+
+    <string name="import_this">Importeer deze map</string>
+    <string name="cancelling">Wordt geannuleerd…</string>
+
+    <string name="no_bks_fnd_text2">Er zijn geen boeken gevonden op je apparaat.\nWil je boeken downloaden?</string>
+    <string name="notes_attached">Er is een notitie gekoppeld aan deze markering.\nWeet je zeker dat je hem wil verwijderen?</string>
+    <string name="highlight_deleted">Notitie verwijderd</string>
+
+    <string name="add_bookmark">Bladwijzer toevoegen</string>
+    <string name="add">Toevoegen</string>
+    <string name="bookmarks">Bladwijzers</string>
+    <string name="bookmark_options">Bladwijzer opties</string>
+    <string name="bookmark_deleted">Bladwijzer is verwijderd</string>
 
     <!-- Preferences -->
         
@@ -328,6 +352,26 @@
     <string name="pref_acra_summary">Staat PageTurner toe om anonieme rapporten te versturen bij crashes.</string>
 
     <string name="opds_settings">OPDS instellingen</string>
+
+    <!-- Not yet translated -->
+
+    <string name="pref_use_publisher_style">Gebruik uitgevers-stijl (CSS)</string>
+    <string name="pref_use_publisher_style_summary">Laat het boek kleuren, lettertypen, etc. bepalen.</string>
+
+    <string name="drawer_open">La geopend</string>
+    <string name="drawer_close">La gesloten</string>
+    <string name="drawer_layout">La layout</string>
+
+    <string name="pref_allow_css_colours">Laat het boek kleuren bepalen</string>
+    <string name="pref_css_colours_day_summary">Voor dag modus</string>
+    <string name="pref_css_colours_night_summary">Voor nacht modus</string>
+
+    <string name="pref_always_open_book">Open altijd het laatste boek</string>
+    <string name="pref_always_open_book_summary">PageTurner zal altijd in het meest recent gelezen boek starten, in plaats van in het laatst geopende scherm</string>
+
+    <string name="pref_sync_server">Sync Server</string>
+    <string name="pref_sync_server_summary">Bepaalt welke server gebruikt wordt voor synchronisatie.</string>
+    <string name="pref_sync_server_message">Voer een sync server url in.</string>
 
 
 

@@ -5,7 +5,12 @@
      <item android:id="@+id/manual_sync"          
           android:title="@string/manual_sync"
           android:icon="@drawable/cloud_refresh"
-          android:showAsAction="ifRoom" /> 
+          android:showAsAction="ifRoom" />
+
+    <item android:id="@+id/add_bookmark"
+          android:title="@string/add_bookmark"
+          android:icon="@drawable/bookmark_add"
+          android:showAsAction="ifRoom" />
     
     <item android:id="@+id/profile_day"          
           android:title="@string/profile_day"
@@ -31,10 +36,7 @@
           android:actionViewClass="com.actionbarsherlock.widget.SearchView"
           android:showAsAction="always|collapseActionView" />
 
-    <item android:id="@+id/add_bookmark"
-          android:title="@string/add_bookmark"
-          android:icon="@drawable/bookmark_add"
-          android:showAsAction="ifRoom" />
+
 
 	<item android:id="@+id/text_to_speech"          
           android:title="@string/text_to_speech"

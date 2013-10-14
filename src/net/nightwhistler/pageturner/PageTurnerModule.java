@@ -65,7 +65,8 @@ public class PageTurnerModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		
-		bind( LibraryService.class ).to( SqlLiteLibraryService.class ).in(Singleton.class);
+		bind( LibraryService.class ).to( SqlLiteLibraryService.class );
+
 		bind( ProgressService.class ).to( PageTurnerWebProgressService.class ).in( Singleton.class );
 
         bind(TTSPlaybackQueue.class).in(Singleton.class);

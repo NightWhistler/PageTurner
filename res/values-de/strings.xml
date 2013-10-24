@@ -2,11 +2,10 @@
 <resources>
     <string name="app_name">PageTurner</string>
     <string name="title">Titel</string>
-    <string name="app_desc">PageTurner ist ein synchronisiertes E-Buch Programm. Es ermöglicht
-die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</string>
+    <string name="app_desc">PageTurner ist ein E-Book Reader, welcher den Lesefortschritt zwischen Geräten synchronisieren kann.</string>
     <string name="browse">Durchsuchen…</string>
     <string name="open_file">EPUB Datei öffnen</string>
-    <string name="open_library">Meine Bücher</string>
+    <string name="open_library">Bücherregal öffnen</string>
 
     <string name="profile_day">Tagesmodus</string>  
     <string name="profile_night">Nachtmodus</string>
@@ -14,12 +13,12 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="prefs">Einstellungen</string>
     
     <string name="show_toc">Inhaltsverzeichnis anzeigen</string>   
-    <string name="rolling_blind">Automatisches Blättern</string>
-    <string name="about">über PageTurner</string>
+    <string name="rolling_blind">Automatischer Seitenwechsel</string>
+    <string name="about">Über PageTurner</string>
     <string name="about_gpl">PageTurner ist freie Software unter der GPL v3.</string>
     <string name="error_open_bk">Fehler beim Öffnen des Buchs: %s</string>
     
-    <string name="dictionary_lookup">Im Wörter nachschlagen</string>
+    <string name="dictionary_lookup">In Wörterbuch nachschlagen</string>
     <string name="wikipedia_lookup">Bei Wikipedia suchen</string>
     <string name="google_lookup">Bei Google suchen</string>    
     <string name="word_select">\'%s\' wurde ausgewählt</string>    
@@ -27,7 +26,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="loading_wait">Lädt, bitte warten</string>
     <string name="install_oi">Bitte installiere den OI File Manager aus dem Android Markt.</string>    
     
-    <string name="cloud_bm">Internet Lesezeichen</string>
+    <string name="cloud_bm">Cloud Lesezeichen</string>
     <string name="toc_label">Inhaltsverzeichnis</string>
     <string name="syncing">"Synchronisiere…"</string>
     <string name="sync_failed">Synchronisation fehlgeschlagen</string>
@@ -35,12 +34,12 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     
     <string name="never_read">Niemals</string>
         
-    <string name="library">Buchregal</string>
+    <string name="library">Bücherregal</string>
     <string name="book_details">Buchdetails</string>
     
     <string name="book_by">Von %s</string>
     <string name="last_read">Zuletzt gelesen: %s</string>
-    <string name="added_to_lib">Zu Buchregal hinzugefügt: %s</string>
+    <string name="added_to_lib">Zu Bücherregal hinzugefügt: %s</string>
     
     <string name="view_details">Details</string>
     <string name="delete">Löschen</string>
@@ -49,10 +48,10 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="importing_books">Bücher importieren…</string>
     <string name="scanning_epub">Nach EPUB Dateien suchen.</string>
     <string name="importing">Importiere %1$d von %2$d</string>
-    <string name="scan_folders">Nach EPUB Dateien suchen.\n%d Ordner durchsucht</string>
+    <string name="scan_folders">Suche nach EPUB Dateien.\n%d Ordner durchsucht</string>
     <string name="import_errors">Einige Dateien verursachten Fehler beim Importieren:</string>
     <string name="no_books_found">Keine Bücher gefunden.</string>
-    <string name="no_bks_fnd_text">Keine Bücher wurden auf Deinem Gerät gefunden.\nDu kannst Bücher bei gutenberg.org oder feedbooks.com herunterladen.</string>
+    <string name="no_bks_fnd_text">Es wurden keine Bücher auf Deinem Gerät gefunden.\nDu kannst Bücher bei gutenberg.org oder feedbooks.com herunterladen.</string>
     <string name="loading_library">Bücherregal wird geladen…</string>
     <string name="scan_bks_question">Es sind keine Bücher in Deinem Bücherregal.\nMöchtest Du Dein Gerät nach Büchern durchsuchen lassen?</string>    
     
@@ -78,8 +77,8 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     </string-array>  
    
     <string-array name="autoscrollLabels">
-        <item>Blindes Verschieben</item>
-        <item>Zeitgesteuertes Umblättern</item>
+        <item>Pixelweise Überblenden</item>
+        <item>Zeitgesteuert Umblättern</item>
     </string-array>    
         
     <string-array name="libraryQueries">
@@ -90,7 +89,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
         <item>Alle Bücher nach Author</item> 
     </string-array>
         
-    <string name="access_denied">Dein Zugangsschlüssel ist ungültig. Bitte gehe auf pageturner-reader.org um einen gültigen Schlüssel zu erhalten.</string>
+    <string name="access_denied">Diese Version von PageTurner wird nicht mehr durch den Synchronisations-Server unterstützt, bitte aktualisieren Sie auf eine neuere Version im Android Markt.</string>
      <string name="import_books">Bücher importieren</string>
 	<string name="import_desc">Du kannst entweder die ganze Speicherkarte durchsuchen oder einen Ordner zum Durchsuchen auswählen.</string>
 	<string name="scan_whole_card">Meine ganze Speicherkarte durchsuchen</string>
@@ -116,7 +115,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
      <string name="enter_query">Bitte Suchbegriff eingeben</string>
      <string name="buy_now">Jetzt kaufen</string>
 
-    <string name="enter_email">Synchronisation ist momentan nicht möglich. Bitte eine E-Mailadresse unter Einstellungen hinzufügen um die Synchronisation zu nutzen.</string>
+    <string name="enter_email">Synchronisation noch nicht eingerichtet, bitte ergänzen sie eine Email Adresse in den Einstellungen.</string>
     <string name="add_to_library">Zu Bücherregal hinzufügen</string>
     
     <string name="search_wait">Suche… bitte warten.</string>
@@ -178,62 +177,59 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
 
     <string name="no_search_results">Die Suche brachte keine Ergebnisse</string>
 
-    <!-- Not yet translated -->
+    <string name="dead_link">Fehler, der Link scheint nicht mehr zu funktionieren.</string>
+    <string name="could_not_load">Konnte Text nicht laden: %s</string>
+    <string name="out_of_memory">Fehler, nicht genug Speicher um die Datei zu laden.</string>
 
+    <string name="highlight">Markiere</string>
+    <string name="highlights">Markierungen</string>
 
-    <string name="dead_link">Sorry, it looks like the link you clicked is broken.</string>
-    <string name="could_not_load">Could not load text: %s</string>
-    <string name="out_of_memory">Sorry, PageTurner could not free enough memory to load this file.</string>
+    <string name="highlight_options">Markierungs Optionen</string>
+    <string name="text_note">Text Notiz</string>
+    <string name="clear_note">Lösche Notiz</string>
+    <string name="save_note">Speichere Notiz</string>
 
-    <string name="highlight">Highlight</string>
-    <string name="highlights">Highlights</string>
+    <string name="set_colour">Setze Farbe</string>
 
-    <string name="highlight_options">Highlight options</string>
-    <string name="text_note">Text note</string>
-    <string name="clear_note">Clear note</string>
-    <string name="save_note">Save note</string>
+    <string name="page_number_of">Seite %1$d von %2$d</string>
 
-    <string name="set_colour">Set colour</string>
+    <string name="import_this">Importiere diesen Ordner</string>
+    <string name="cancelling">Abbrechen...</string>
 
-    <string name="page_number_of">Page %1$d of %2$d</string>
+    <string name="no_bks_fnd_text2">Es wurden keine Bücher auf dem Gerät gefunden.\nMöchten Sie Bücher herunterladen?</string>
+    <string name="notes_attached">Diese Markierung enthält eine Notiz.\nWollen Sie sie wirklich löschen?</string>
+    <string name="highlight_deleted">Markierung wurde entfernt.</string>
 
-    <string name="import_this">Import this folder</string>
-    <string name="cancelling">Cancelling…</string>
-
-    <string name="no_bks_fnd_text2">No books were found on your device.\nWould you like to download some books?</string>
-    <string name="notes_attached">This highlight has an attached text note.\nAre you sure you to delete it?</string>
-    <string name="highlight_deleted">Highlight has been removed</string>
-
-    <string name="add_bookmark">Add Bookmark</string>
-    <string name="add">Add</string>
-    <string name="bookmarks">Bookmarks</string>
-    <string name="bookmark_options">Bookmark options</string>
-    <string name="bookmark_deleted">Bookmark has been removed</string>
+    <string name="add_bookmark">Lesezeichen setzen</string>
+    <string name="add">Setze</string>
+    <string name="bookmarks">Lesezeichen</string>
+    <string name="bookmark_options">Lesezeichen Optionen</string>
+    <string name="bookmark_deleted">Lesezeichen wurde entfernt.</string>
 
 
 
     <!-- Preferences -->    
         
     <string name="pref_sync_settings">Synchronisation</string>
-    <string name="pref_email">E-Mailadresse</string>
-    <string name="pref_email_summary">Wird zum Synchronisieren des Lesefortschritts verwendet. Leer lassen um diese Funktion nicht zu nutzen.</string>
-    <string name="pref_email_message">Bitte eine gültige E-Mailadresse eingeben.</string>
+    <string name="pref_email">Email Adresse</string>
+    <string name="pref_email_summary">Wird zur Synchronisation des Lesefortschritts verwendet. Leer lassen um diese Funktion nicht zu nutzen.</string>
+    <string name="pref_email_message">Bitte eine gültige Email Adresse eingeben.</string>
     <string name="pref_device_name">Gerätename</string>
     <string name="pref_device_name_summary">Eindeutiger Gerätename, um Synchronisationskonflikte zu beheben.</string>
     <string name="pref_device_name_message">Bitte einen eindeutigen Gerätenamen eingeben.</string>
     <string name="pref_access_key">Zugangsschlüssel</string>
     <string name="pref_access_key_summary">Ein Zugangsschlüssel ist für die Synchronisation notwendig. Gehe auf pageturner-reader.org um mehr Informationen zu erhalten.</string>
-    <string name="pref_access_key_message">Bitte Deinen Zugangsschlüssel eingeben.</string>
+    <string name="pref_access_key_message">Bitte den Zugangsschlüssel eingeben.</string>
 
-    <string name="pref_autoscroll_settings">Autorollen</string>
-    <string name="pref_scroll_style">Autorollen Stil</string>
-    <string name="pref_scroll_style_summary">Blindes Rollen oder zeitgesteuert</string>
-    <string name="pref_scroll_speed">Autorollen Geschwindigkeit</string>
-    <string name="pref_scroll_speed_summary">Wie lange wird eine Seite angezeigt.</string>
+    <string name="pref_autoscroll_settings">Automatischer Seitenwechsel</string>
+    <string name="pref_scroll_style">Seitenwechsel Modus</string>
+    <string name="pref_scroll_style_summary">pixelweise Überblenden oder zeitgesteuert Umblättern</string>
+    <string name="pref_scroll_speed">Anzeige Dauer</string>
+    <string name="pref_scroll_speed_summary">Wie lange eine Seite angezeigt wird.</string>
 
     <string name="pref_my_books_settings">Meine Bücher</string>
-    <string name="pref_copy_to_library">In Buchregal kopieren</string>
-    <string name="pref_copy_to_library_summary">Soll PageTurner die Buchdateien in seinen eigenen Buchregal Ordner kopieren?</string>
+    <string name="pref_copy_to_library">In Bücherregal kopieren</string>
+    <string name="pref_copy_to_library_summary">Soll PageTurner die Buchdateien in seinen eigenen Bücherregal Ordner kopieren?</string>
     <string name="pref_calibre_server">Calibre Server</string>
     <string name="pref_calibre_server_summary">Verbinde zu Deiner eigenen Calibre Bibliothek</string>
     <string name="pref_calibre_server_message">Calibre URL</string>
@@ -289,14 +285,14 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="pref_v_animation_summary">Animationen für den vertikalen Seitenwechsel</string>
     
     <string name="pref_navigation_settings">Navigation</string>
-    <string name="pref_scrolling">Rollen</string>
-    <string name="pref_scrolling_summary">Rollen wie im Browser aktivieren</string>
+    <string name="pref_scrolling">Bildlauf</string>
+    <string name="pref_scrolling_summary">Bildlauf wie im Browser aktivieren</string>
     <string name="pref_nav_vol">Lautstärketasten benutzen</string>
-    <string name="pref_nav_vol_summary">Benutze die Lautstärketasten zum Rollen.</string>
-    <string name="pref_nav_swipe_h">Horizontales Streichen aktivieren</string>
-    <string name="pref_nav_swipe_h_summary">Streiche nach Rechts oder Links über den Bildschirm um Seiten zu wechseln.</string>
-    <string name="pref_nav_swipe_v">Vertikales Streichen aktivieren</string>
-    <string name="pref_nav_swipe_v_summary">Streiche nach oben oder unten um die Seiten zu wechseln.</string>
+    <string name="pref_nav_vol_summary">Benutze die Lautstärketasten zum Blättern.</string>
+    <string name="pref_nav_swipe_h">Horizontales Wischen aktivieren</string>
+    <string name="pref_nav_swipe_h_summary">Wische nach Rechts oder Links über den Bildschirm um Seiten zu wechseln.</string>
+    <string name="pref_nav_swipe_v">Vertikales Wischen aktivieren</string>
+    <string name="pref_nav_swipe_v_summary">Wische nach oben oder unten um die Seiten zu wechseln.</string>
     <string name="pref_nav_tap_h">Antippen rechte/links aktivieren</string>
     <string name="pref_nav_tap_h_summary">Tippe auf den rechten oder linken Rand um die Seite zu wechseln.</string>
     <string name="pref_nav_tap_v">Antippen oben/unten aktivieren</string>
@@ -313,10 +309,11 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
 
     <string name="pref_nook_touch">Nook Touch Einstellungen</string>
     <string name="pref_nook_touch_button_nav">Tasten-Bedienung</string>
-    <string name="pref_nook_touch_button_nav_summary">Wie sollen die Tasten auf der Seite des Nook die Seiten umblättern?</string>
+    <string name="pref_nook_touch_button_nav_summary">Wie sollen die Tasten am Rand des Nook die Seiten umblättern?</string>
 
     <string name="pref_reading_direction">Leserichtung</string>
     <string name="pref_reading_direction_summary">Von links nach rechts oder rechts nach links?</string>
+
 
     <string-array name="reading_directionsLabels">
         <item>Links nach rechts</item>
@@ -324,7 +321,7 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     </string-array>
 
     <string name="pref_manage_sites">Verwalte OPDS / Calibre Bibliotheken</string>
-    <string name="pref_manage_sites_summary">Ergänze und entferne OPDS/Calibre Bibliotheken.</string>
+    <string name="pref_manage_sites_summary">Ergänze bzw. entferne OPDS/Calibre Bibliotheken.</string>
 
     <string name="pref_serif_font">Serif Schrift</string>
     <string name="pref_serif_summary">Schriftart zur Verwendung wenn ein Buch eine Serif-Schrift benötigt.</string>
@@ -337,7 +334,8 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="language_switch_message">Die neuen Spracheinstellungen werden aktiv wenn sie das nächste Buch öffnen.</string>
 
     <string name="pref_accept_self_signed">Akzeptiere selbst-signierte Zertifikate</string>
-    <string name="pref_accept_self_signed_summary">Erlaubt die Verbindung zu OPDS Blbiotheken die selbst-signierte Zertifikate verwenden.</string>
+    <string name="pref_accept_self_signed_summary">Erlaubt die Verbindung zu OPDS Blbiotheken, die selbst-signierte Zertifikate verwenden.</string>
+
 
     <string-array name="supported_languagesLabels">
         <item>Geräteeinstellung verwenden</item>
@@ -356,10 +354,10 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
     <string name="pref_dim_system_ui_summary">Verdunkelt die System-Oberfläche wenn im Vollbild gelesen wird.</string>
 
     <string name="pref_long_short">Wechsel zwischen langes Halten / kurzes Tippen</string>
-    <string name="pref_long_short_summary">Wie ein Buch geöffnet werden kann.</string>
+    <string name="pref_long_short_summary">Einstellung für 'Details anzeigen' und 'Buch öffnen'</string>
 
     <string-array name="long_short_labels">
-        <item>Langes halten zum Öffnen, kurzes Tippen für Details.</item>
+        <item>Langes Halten zum Öffnen, kurzes Tippen für Details.</item>
         <item>Kurzes Tippen zum Öffnen, langes Halten für Details.</item>
     </string-array>
 
@@ -370,27 +368,23 @@ die Synchronisation des Lesefortschritts über mehrere Lesegeräte hinweg.</stri
 
     <string name="opds_settings">OPDS Einstellungen</string>
 
+    <string name="pref_use_publisher_style">Verwende originale Buch-Darstellung (CSS)</string>
+    <string name="pref_use_publisher_style_summary">Erlaubt die Anpassung von Schrift, Farbe, ...</string>
 
+    <string name="drawer_open">Seitenmenü geöffnet</string>
+    <string name="drawer_close">Seitenmenü geschlossen</string>
+    <string name="drawer_layout">Seitenmenü Anordnung</string>
 
-    <!-- Not yet translated -->
+    <string name="pref_allow_css_colours">Verwendet die Farben aus dem Buch</string>
+    <string name="pref_css_colours_day_summary">Für den Tagmodus</string>
+    <string name="pref_css_colours_night_summary">Für den Nachtmodus</string>
 
-    <string name="pref_use_publisher_style">Use Publisher style (CSS)</string>
-    <string name="pref_use_publisher_style_summary">Allow the book to change fonts, colours, etc.</string>
-
-    <string name="drawer_open">Drawer open</string>
-    <string name="drawer_close">Drawer closed</string>
-    <string name="drawer_layout">Drawer layout</string>
-
-    <string name="pref_allow_css_colours">Allow the book to set colours</string>
-    <string name="pref_css_colours_day_summary">For day mode</string>
-    <string name="pref_css_colours_night_summary">For night mode</string>
-
-    <string name="pref_always_open_book">Always open last book</string>
-    <string name="pref_always_open_book_summary">PageTurner will always start in the last read book instead of last open screen.</string>
+    <string name="pref_always_open_book">Immer das letzte Buch beim Start öffnen</string>
+    <string name="pref_always_open_book_summary">PageTurner öffnet immer das zuletzt gelesene Buch.</string>
 
     <string name="pref_sync_server">Sync Server</string>
-    <string name="pref_sync_server_summary">Select which server you would like to sync with.</string>
-    <string name="pref_sync_server_message">Please enter a sync server url.</string>
+    <string name="pref_sync_server_summary">Wähle den Server mit dem Du synchronisieren möchtest.</string>
+    <string name="pref_sync_server_message">Bitte gib eine gültige Synchronisations-URL ein.</string>
 
 
 

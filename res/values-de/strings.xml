@@ -354,7 +354,7 @@
     <string name="pref_dim_system_ui_summary">Verdunkelt die System-Oberfläche wenn im Vollbild gelesen wird.</string>
 
     <string name="pref_long_short">Wechsel zwischen langes Halten / kurzes Tippen</string>
-    <string name="pref_long_short_summary">Einstellung für 'Details anzeigen' und 'Buch öffnen'</string>
+    <string name="pref_long_short_summary">Einstellung für \'Details anzeigen\' und \'Buch öffnen\'</string>
 
     <string-array name="long_short_labels">
         <item>Langes Halten zum Öffnen, kurzes Tippen für Details.</item>

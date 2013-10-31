@@ -52,9 +52,13 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
     private static final Logger LOG = LoggerFactory
             .getLogger(AddBookmarkFragment.class);
 
-    public AddBookmarkFragment(String filename, BookmarkDatabaseHelper helper ) {
+
+    public void setFilename(String filename) {
         this.filename = filename;
-        this.bookmarkDatabaseHelper = helper;
+    }
+
+    public void setBookmarkDatabaseHelper(BookmarkDatabaseHelper bookmarkDatabaseHelper) {
+        this.bookmarkDatabaseHelper = bookmarkDatabaseHelper;
     }
 
     @Override

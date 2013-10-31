@@ -2465,7 +2465,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		case R.id.add_bookmark:
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
 			ft.addToBackStack(null);
-			AddBookmarkFragment fragment = new AddBookmarkFragment(this.fileName, bookmarkDatabaseHelper);
+			AddBookmarkFragment fragment = new AddBookmarkFragment();
+
+            fragment.setFilename(this.fileName);
+            fragment.setBookmarkDatabaseHelper(bookmarkDatabaseHelper);
 			fragment.setBookIndex(this.bookView.getIndex());
             fragment.setBookPosition(this.bookView.getProgressPosition());
 

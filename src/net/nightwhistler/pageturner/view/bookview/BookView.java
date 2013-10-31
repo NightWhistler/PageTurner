@@ -146,7 +146,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		childView.setFocusable(true);
 		childView.setLinksClickable(true);
 
-		if (Build.VERSION.SDK_INT >= 11) {
+		if (Build.VERSION.SDK_INT >= Configuration.TEXT_SELECTION_PLATFORM_VERSION ) {
 			childView.setTextIsSelectable(true);
 		}
 		
@@ -286,7 +286,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void setTextSelectionCallback(TextSelectionCallback callback) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+		if (Build.VERSION.SDK_INT >= Configuration.TEXT_SELECTION_PLATFORM_VERSION) {
 			this.childView
 					.setCustomSelectionActionModeCallback(new TextSelectionActions(
                             getContext(), callback, this));

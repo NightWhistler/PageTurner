@@ -25,6 +25,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import net.nightwhistler.pageturner.view.bookview.BookViewListener;
 import net.nightwhistler.pageturner.view.bookview.HighlightSpan;
@@ -166,7 +167,7 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 	public void onLongPress(MotionEvent e) {
 
 		//On older platforms we generate a popup-event.
-		if ( Build.VERSION.SDK_INT < 11 ) {
+		if ( Build.VERSION.SDK_INT < Configuration.TEXT_SELECTION_PLATFORM_VERSION) {
 			BookView.SelectedWord word = bookView.getWordAt(e.getX(), e.getY() );
 
 			if ( word != null ) {

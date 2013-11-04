@@ -74,7 +74,6 @@ public class PageTurnerWebProgressService implements ProgressService {
 		dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
     }
 
-
 	@Override
 	public List<BookProgress> getProgress(String fileName) throws AccessException {
 		
@@ -90,7 +89,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 		
 		LOG.debug( "Doing progress query for key: " + key );
 		
-		HttpGet get = new HttpGet( config.getSyncServerURL() + "/" + key + "?accessKey=" + URLEncoder.encode(accessKey) );
+		HttpGet get = new HttpGet( getSyncServerURL() + key + "?accessKey=" + URLEncoder.encode(accessKey) );
         get.setHeader("User-Agent", config.getUserAgent() );
 		
 		try {
@@ -156,7 +155,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 		
 		String key = computeKey(fileName);
 				
-		HttpPost post = new HttpPost( config.getSyncServerURL() + "/" + key );
+		HttpPost post = new HttpPost( getSyncServerURL() + key );
 		
 		String filePart = fileName;
 		
@@ -192,7 +191,16 @@ public class PageTurnerWebProgressService implements ProgressService {
 			//fail silently
 		}	
 		
-	}	
+	}
+
+    private String getSyncServerURL() {
+        String url = config.getSyncServerURL();
+        if ( ! url.endsWith( "/" ) ) {
+            url = url + "/";
+        }
+
+        return url;
+    }
 	
 	private String computeKey( String fileName ) {		
 		

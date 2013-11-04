@@ -18,6 +18,7 @@
  */
 package net.nightwhistler.pageturner.catalog;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -511,11 +512,17 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
     private void queueImageLoading( String baseURL, Link imageLink ) {
 
+        Context context = getActivity();
+
+        if ( context == null ) {
+            return;
+        }
+
         //Make sure we only start a single background task for each url
         if ( this.thumbnailCache.containsKey(imageLink.getHref() ) ) {
             return;
         } else {
-            this.thumbnailCache.put( imageLink.getHref(), getActivity().getResources().getDrawable(R.drawable.unknown_cover));
+            this.thumbnailCache.put( imageLink.getHref(), context.getResources().getDrawable(R.drawable.unknown_cover));
         }
 
         String href = imageLink.getHref();

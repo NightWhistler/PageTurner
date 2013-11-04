@@ -92,7 +92,8 @@ public class Configuration {
         NORMAL, REVERSED
     }
 
-	public static final String BASE_OPDS_FEED = "http://www.pageturner-reader.org/opds/feeds.xml";
+
+    public static final String BASE_OPDS_FEED = "http://www.pageturner-reader.org/opds/feeds.xml";
 	public static final String BASE_SYNC_URL = "http://api.pageturner-reader.org/progress/";
 	public static final String KEY_SYNC_SERVER = "sync_server";
 
@@ -188,6 +189,10 @@ public class Configuration {
 	// Flag for any e-ink device. Currently only supports Nook Touch but could
 	// expand to other devices like the Sony PRS-T1
 	public static final Boolean IS_EINK_DEVICE = IS_NOOK_TOUCH;
+
+    //Which platform version to start text selection on.
+    public static final int TEXT_SELECTION_PLATFORM_VERSION = Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+
 
 
     private String defaultSerifFont;

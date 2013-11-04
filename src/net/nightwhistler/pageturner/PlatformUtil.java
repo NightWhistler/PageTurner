@@ -52,6 +52,11 @@ public class PlatformUtil {
     }
 
     public static boolean isIntentAvailable(Context context, Intent intent) {
+
+        if ( context == null ) {
+            return false;
+        }
+
         final PackageManager packageManager = context.getPackageManager();
         List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
                 PackageManager.MATCH_DEFAULT_ONLY);

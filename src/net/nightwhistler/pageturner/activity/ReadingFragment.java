@@ -20,11 +20,8 @@
 package net.nightwhistler.pageturner.activity;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.NotificationManager;
+import android.app.*;
 import android.support.v4.app.FragmentTransaction;
-import android.app.ProgressDialog;
 import android.content.*;
 import android.content.DialogInterface.OnClickListener;
 import android.content.pm.ActivityInfo;
@@ -1580,13 +1577,15 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         if ( readingActivity != null ) {
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(readingActivity);
             builder.setContentTitle(getString(R.string.app_name))
                     .setContentText(errorMessage)
                     .setSmallIcon(R.drawable.cross)
                     .setAutoCancel( true );
 
             builder.setTicker(errorMessage);
+            PendingIntent pendingIntent = PendingIntent.getActivity( readingActivity, 0, new Intent(), 0);
+            builder.setContentIntent( pendingIntent );
 
             notificationManager.notify( errorMessage.hashCode(), builder.build() );
 

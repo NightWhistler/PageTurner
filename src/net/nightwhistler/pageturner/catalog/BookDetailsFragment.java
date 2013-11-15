@@ -273,6 +273,10 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
     public void startDownload(final boolean openOnCompletion, final String url) {
 
+        if ( feed == null || feed.getEntries() == null || feed.getEntries().size() == 0 ) {
+            return;
+        }
+
         final DownloadFileTask task = this.downloadFileTaskProvider.get();
 
         final Entry entry = feed.getEntries().get(0);

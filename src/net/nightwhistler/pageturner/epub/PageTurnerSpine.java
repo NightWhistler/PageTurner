@@ -63,9 +63,7 @@ public class PageTurnerSpine {
 		
 		String href = null;
 	    
-	    if ( book.getCoverPage() != null && 
-	    		book.getCoverPage().getSize() <= COVER_PAGE_THRESHOLD ) {
-	    	
+	    if ( entries.size() > 0 && ! entries.get(0).href.equals( COVER_HREF ) ) {
 	    	href = book.getCoverPage().getHref();
 	    } 
 	    
@@ -409,7 +407,8 @@ public class PageTurnerSpine {
 	
 	private Resource createCoverResource(Book book) {	
 		
-		if ( book.getCoverPage() != null && book.getCoverPage().getSize() > 0 ) {
+		if ( book.getCoverPage() != null && book.getCoverPage().getSize() > 0
+                && book.getCoverPage().getSize() < COVER_PAGE_THRESHOLD ) {
 
             Log.d("PageTurnerSpine", "Using cover resource " + book.getCoverPage().getHref() );
 
@@ -429,7 +428,7 @@ public class PageTurnerSpine {
 		
 		//Else we construct a basic front page with title and author.
 		if ( book.getCoverImage() == null ) {												
-			centerpiece = "<h1>" + (book.getTitle() != null ? book.getTitle(): "Book without a title") + "</h1>";
+			centerpiece = "<center><h1>" + (book.getTitle() != null ? book.getTitle(): "Book without a title") + "</h1>";
 			
 			if ( ! book.getMetadata().getAuthors().isEmpty() ) {						
 				for ( Author author: book.getMetadata().getAuthors() ) {							
@@ -437,7 +436,10 @@ public class PageTurnerSpine {
 				}
 			} else {
 				centerpiece += "<h3>Unknown author</h3>";
-			}			
+			}
+
+            centerpiece += "</center>";
+
 		} else {
 			//If the book has a cover image, we display that
 			centerpiece = "<img src='" + book.getCoverImage().getHref() + "'>";

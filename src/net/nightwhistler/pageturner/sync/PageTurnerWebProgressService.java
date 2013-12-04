@@ -142,7 +142,10 @@ public class PageTurnerWebProgressService implements ProgressService {
 		} catch (ParseException p ) {
 			LOG.error( "Invalid date", p );
 			return null;
-		}
+		} catch ( IllegalStateException s ) {
+            LOG.error( "Tried query in illegal state", s );
+            return null;
+        }
 		
 	}
 	

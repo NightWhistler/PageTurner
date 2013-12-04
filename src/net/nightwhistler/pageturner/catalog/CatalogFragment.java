@@ -339,8 +339,15 @@ public class CatalogFragment extends RoboSherlockFragment implements
     }
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {		
-		getSherlockActivity().getSupportActionBar().setHomeButtonEnabled(true);		
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        SherlockFragmentActivity activity = getSherlockActivity();
+
+        if ( activity == null ) {
+            return;
+        }
+
+		activity.getSupportActionBar().setHomeButtonEnabled(true);
 		inflater.inflate(R.menu.catalog_menu, menu);
 
         this.searchMenuItem = menu.findItem(R.id.search);
@@ -628,10 +635,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
                     for ( int i=0; i < visibleItemCount; i++ ) {
                         Entry entry = adapter.getItem( firstVisibleItem + i );
-                        Link imageLink = Catalog.getImageLink(entry.getFeed(), entry);
+                        if ( entry != null ) {
+                            Link imageLink = Catalog.getImageLink(entry.getFeed(), entry);
 
-                        if ( imageLink != null && !thumbnailCache.containsKey(imageLink.getHref() ) ) {
-                            queueImageLoading( entry.getBaseURL(), imageLink );
+                            if ( imageLink != null && !thumbnailCache.containsKey(imageLink.getHref() ) ) {
+                                queueImageLoading( entry.getBaseURL(), imageLink );
+                            }
                         }
                     }
                 }

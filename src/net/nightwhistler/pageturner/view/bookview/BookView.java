@@ -429,15 +429,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
         LOG.debug( "Trying to load text for resource " + resource );
 
-        if ( textLoader.hasCachedText( resource ) && getInnerView().getWidth() > 0  ) {
+        Spannable cachedText = textLoader.getCachedTextForResource( resource );
+
+        if ( cachedText != null && getInnerView().getWidth() > 0  ) {
 
             LOG.debug( "Text is cached, loading on UI Thread.");
-
-            try {
-                loadText(textLoader.getText(resource));
-            } catch ( IOException io ) {
-                throw new RuntimeException( "Caught an I/O Exception while loading cached text.");
-            }
+            loadText(cachedText);
         } else {
 
             LOG.debug( "Text is NOT cached, loading in background.");
@@ -1394,7 +1391,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
             Resource resource = spine.getNextResource();
 
-            if (! textLoader.hasCachedText( resource ) ) {
+            Spannable cachedText = textLoader.getCachedTextForResource( resource );
+
+            if ( cachedText == null ) {
                 try {
                     textLoader.getText( resource );
                 } catch ( Exception e ) {
@@ -1669,14 +1668,15 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                 checkForCancellation();
                 Resource res = spine.getResourceForIndex(i);
 
-                if ( textLoader.hasCachedText( res ) ) {
+                Spannable cachedText = textLoader.getCachedTextForResource( res );
+
+                if ( cachedText != null ) {
                     LOG.debug("CalculatePageNumbersTask: Got cached text for href: " + res.getHref() );
-                    Spannable text = textLoader.getText(res);
 
                     FixedPagesStrategy fixedPagesStrategy = getFixedPagesStrategy();
                     fixedPagesStrategy.setBookView(BookView.this);
 
-                    offsetsPerSection.put(res.getHref(), fixedPagesStrategy.getPageOffsets(text, true));
+                    offsetsPerSection.put(res.getHref(), fixedPagesStrategy.getPageOffsets(cachedText, true));
 
                 } else {
                     LOG.debug("CalculatePageNumbersTask: Registering callback for href: " + res.getHref() );

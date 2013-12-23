@@ -329,22 +329,31 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         anchors.get(href).put(anchor, position);
     }
 
-    public boolean hasCachedText( Resource resource ) {
-        return renderedText.containsKey(resource.getHref())
-                && renderedText.get( resource.getHref() ).get() != null;
+    public Spannable getCachedTextForResource( Resource resource ) {
 
+        LOG.debug( "Checking for cached resource: " + resource );
+
+        boolean inCache = renderedText.containsKey( resource.getHref() );
+
+        Spannable result = null;
+
+        if ( inCache ) {
+            result = renderedText.get( resource.getHref() ).get();
+        }
+
+        boolean notCleared = result != null;
+
+        LOG.debug( "In cache: " + inCache + ", not cleared: " + notCleared );
+
+        return result;
     }
 
     public Spannable getText( final Resource resource ) throws IOException {
 
-        if ( hasCachedText(resource) ) {
+        Spannable cached = getCachedTextForResource( resource );
 
-            Spannable cached = renderedText.get( resource.getHref() ).get();
-
-            if ( cached != null ) {
-                LOG.debug("Returning cached text for href " + resource.getHref() );
-                return cached;
-            }
+        if ( cached != null ) {
+            return cached;
         }
 
         AnchorHandler.AnchorCallback callback = new AnchorHandler.AnchorCallback() {

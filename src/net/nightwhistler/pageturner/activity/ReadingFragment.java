@@ -1126,9 +1126,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		default:
 			getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 		}
-	}	
+	}
 
-	private void restartActivity() {
+    @Override
+    public void onLowMemory() {
+        this.textLoader.clearCachedText();
+    }
+
+    private void restartActivity() {
 
 		onStop();
 

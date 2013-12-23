@@ -41,9 +41,6 @@ public class FastBitmapDrawable extends Drawable {
     public void draw(Canvas canvas) {
     	if ( mBitmap != null ) {
     		canvas.drawBitmap(mBitmap, 0.0f, 0.0f, null);
-    	} else {
-    		paint.setColor(Color.GRAY);
-    		canvas.drawRect(0, 0, width, height, paint);
     	}
     }
 

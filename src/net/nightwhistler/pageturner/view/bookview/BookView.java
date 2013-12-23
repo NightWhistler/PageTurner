@@ -405,7 +405,20 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         } else {
 
             if ( spine == null ) {
-                initSpine();
+                try {
+                    Book book = initBookAndSpine();
+
+                    if ( book != null ) {
+                        bookOpened( book );
+                    }
+
+                } catch ( IOException io ) {
+                    errorOnBookOpening( io.getMessage() );
+                    return;
+                } catch ( OutOfMemoryError e ) {
+                    errorOnBookOpening( getContext().getString( R.string.out_of_memory ) );
+                    return;
+                }
             }
 
             loadText( spine.getCurrentResource() );
@@ -431,6 +444,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
             taskQueue.jumpQueueExecuteTask(new LoadTextTask(), resource );
         }
+
+        taskQueue.executeTask( new PreLoadTask() );
     }
 
     private void loadText( Spanned text ) {
@@ -440,38 +455,34 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         restorePosition();
         strategy.updateGUI();
         progressUpdate();
+        parseEntryComplete( spine.getPosition(), spine.getCurrentTitle() );
     }
 
 	private void loadText( String searchTerm ) {
         this.taskQueue.jumpQueueExecuteTask(new LoadTextTask(searchTerm), spine.getCurrentResource() );
 	}
 
-    private void initSpine() {
-        try {
-            Book book = textLoader.initBook(fileName);
+    private Book initBookAndSpine() throws IOException {
 
-            this.book = book;
-            this.spine = new PageTurnerSpine(book);
+        Book book = textLoader.initBook(fileName);
 
-            this.spine.navigateByIndex(BookView.this.storedIndex);
+        this.book = book;
+        this.spine = new PageTurnerSpine(book);
 
-            if (configuration.isShowPageNumbers()) {
+        this.spine.navigateByIndex(BookView.this.storedIndex);
 
-                List<List<Integer>> offsets = configuration
-                        .getPageOffsets(fileName);
+        if (configuration.isShowPageNumbers()) {
 
-                if (offsets != null && offsets.size() > 0) {
-                    spine.setPageOffsets(offsets);
-                }
+            List<List<Integer>> offsets = configuration
+                    .getPageOffsets(fileName);
+
+            if (offsets != null && offsets.size() > 0) {
+                spine.setPageOffsets(offsets);
             }
         }
 
-        catch (Exception io) {
-            LOG.error( "Error opening book file", io );
+        return book;
 
-        } catch (OutOfMemoryError io) {
-            LOG.error( "Error loading text", io );
-        }
     }
 
     public void setFontFamily(FontFamily family) {
@@ -1336,7 +1347,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
     }
 
     private class OpenFileTask extends
-            QueueableAsyncTask<Void, BookReadPhase, Void> {
+            QueueableAsyncTask<Void, BookReadPhase, Book> {
+
+        private String error;
 
         @Override
         protected void onPreExecute() {
@@ -1344,12 +1357,56 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         }
 
         @Override
-        protected Void doInBackground(Void... args) {
-
-            initSpine();
+        protected Book doInBackground(Void... args) {
+            try {
+                return initBookAndSpine();
+            } catch ( IOException io ) {
+                this.error = io.getLocalizedMessage();
+            } catch ( OutOfMemoryError e ) {
+                this.error = getContext().getString( R.string.out_of_memory );
+            }
 
             return null;
         }
+
+        @Override
+        protected void doOnPostExecute(Book book) {
+
+            if (book != null) {
+                bookOpened(book);
+            } else {
+                errorOnBookOpening(this.error);
+                return;
+            }
+
+        }
+    }
+
+    private class PreLoadTask extends
+            QueueableAsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            if ( spine == null ) {
+                return null;
+            }
+
+            Resource resource = spine.getNextResource();
+
+            if (! textLoader.hasCachedText( resource ) ) {
+                try {
+                    textLoader.getText( resource );
+                } catch ( Exception e ) {
+                    //Ignore
+                } catch ( OutOfMemoryError e ) {
+                    //Ignore as well
+                }
+            }
+
+            return null;
+        }
+
     }
 
 
@@ -1465,15 +1522,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
         @Override
         protected void doOnPostExecute(Spanned result) {
-
-			if (!wasBookLoaded) {
-				if (book != null) {
-					bookOpened(book);
-				} else {
-					errorOnBookOpening(this.error);
-					return;
-				}
-			}
 
 			restorePosition();
 			strategy.updateGUI();

@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner.view.bookview;
 
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.Spanned;
 import com.google.inject.Inject;
 import com.osbcp.cssparser.CSSParser;
 import com.osbcp.cssparser.PropertyValue;
@@ -41,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.ref.SoftReference;
 import java.util.*;
 
 /**
@@ -57,10 +59,13 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
     private String currentFile;
     private Book currentBook;
-    private Map<String, Spannable> renderedText = new HashMap<String, Spannable>();
-    private Map<String, List<CompiledRule>> cssRules = new HashMap<String, List<CompiledRule>>();
+    private Map<String, SoftReference<Spannable>> renderedText
+            = new HashMap<String, SoftReference<Spannable>>();
+    private Map<String, SoftReference<List<CompiledRule>>> cssRules
+            = new HashMap<String, SoftReference<List<CompiledRule>>>();
 
-    private Map<String, FastBitmapDrawable> imageCache = new HashMap<String, FastBitmapDrawable>();
+    private Map<String, SoftReference<FastBitmapDrawable>> imageCache
+            = new HashMap<String, SoftReference<FastBitmapDrawable>>();
 
     private Map<String, Map<String, Integer>> anchors = new HashMap<String, Map<String, Integer>>();
     private List<AnchorHandler> anchorHandlers = new ArrayList<AnchorHandler>();
@@ -113,7 +118,11 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
     public List<CompiledRule> getCSSRules( String href ) {
 
         if ( this.cssRules.containsKey(href) ) {
-            return Collections.unmodifiableList(cssRules.get(href));
+
+            List<CompiledRule> result = this.cssRules.get(href).get();
+            if ( result != null ) {
+                return Collections.unmodifiableList( result );
+            }
         }
 
         List<CompiledRule> result = new ArrayList<CompiledRule>();
@@ -163,7 +172,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
             res.close();
         }
 
-        cssRules.put(href, result);
+        cssRules.put(href, new SoftReference<List<CompiledRule>>( result ) );
 
         LOG.debug("Compiled " + result.size() + " CSS rules.");
 
@@ -296,15 +305,20 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
     }
 
     public FastBitmapDrawable getCachedImage( String href ) {
-        return imageCache.get( href );
+        if ( imageCache.containsKey( href ) ) {
+            return imageCache.get( href ).get();
+        }
+
+        return null;
     }
 
     public boolean hasCachedImage( String href ) {
-        return imageCache.containsKey(href);
+        return imageCache.containsKey(href) &&
+                imageCache.get( href ).get() != null;
     }
 
     public void storeImageInChache( String href, FastBitmapDrawable drawable ) {
-        this.imageCache.put(href, drawable);
+        this.imageCache.put(href, new SoftReference<FastBitmapDrawable>( drawable) );
     }
 
     private void registerNewAnchor(String href, String anchor, int position ) {
@@ -316,14 +330,21 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
     }
 
     public boolean hasCachedText( Resource resource ) {
-        return renderedText.containsKey(resource.getHref());
+        return renderedText.containsKey(resource.getHref())
+                && renderedText.get( resource.getHref() ).get() != null;
+
     }
 
     public Spannable getText( final Resource resource ) throws IOException {
 
         if ( hasCachedText(resource) ) {
-            LOG.debug("Returning cached text for href " + resource.getHref() );
-            return renderedText.get(resource.getHref());
+
+            Spannable cached = renderedText.get( resource.getHref() ).get();
+
+            if ( cached != null ) {
+                LOG.debug("Returning cached text for href " + resource.getHref() );
+                return cached;
+            }
         }
 
         AnchorHandler.AnchorCallback callback = new AnchorHandler.AnchorCallback() {
@@ -366,7 +387,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
         try {
             result = htmlSpanner.fromHtml(res.getReader());
-            renderedText.put(res.getHref(), result);
+            renderedText.put(res.getHref(), new SoftReference<Spannable>(result));
         } catch (Exception e) {
             LOG.error("Caught exception while rendering text", e);
             result = new SpannableString( e.getClass().getSimpleName() + ": " + e.getMessage() );
@@ -413,14 +434,16 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
     }
 
     public void clearImageCache() {
-        for (Map.Entry<String, FastBitmapDrawable> draw : imageCache.entrySet()) {
-            draw.getValue().destroy();
+        for (Map.Entry<String, SoftReference<FastBitmapDrawable>> draw : imageCache.entrySet()) {
+
+            FastBitmapDrawable drawable = draw.getValue().get();
+
+            if ( drawable != null ) {
+                drawable.destroy();
+            }
         }
 
         imageCache.clear();
     }
-
-
-
 
 }

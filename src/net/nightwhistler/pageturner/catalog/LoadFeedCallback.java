@@ -26,7 +26,7 @@ import net.nightwhistler.nucular.atom.Link;
 public interface LoadFeedCallback {
 
     public static enum ResultType { REPLACE, APPEND }
-	
+
 	void setNewFeed( Feed feed, ResultType resultType );
 
 	void errorLoadingFeed( String error );

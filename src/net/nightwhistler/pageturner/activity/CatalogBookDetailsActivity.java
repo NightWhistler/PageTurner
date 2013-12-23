@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import com.actionbarsherlock.view.Window;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
+import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
@@ -83,8 +84,7 @@ public class CatalogBookDetailsActivity extends PageTurnerActivity implements Ca
     }
 
     @Override
-    public void loadFeedFromUrl(String url) {
+    public void loadFeed(Entry entry, String href, String baseURL, boolean asDetailsFeed) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
-
 }

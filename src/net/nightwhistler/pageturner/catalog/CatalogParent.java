@@ -19,6 +19,7 @@
 
 package net.nightwhistler.pageturner.catalog;
 
+import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 
 /**
@@ -28,7 +29,7 @@ public interface CatalogParent {
 
     void loadFakeFeed( Feed fakeFeed );
 
-    void loadFeedFromUrl( String url );
+    void loadFeed( Entry entry, String href, String baseURL, boolean asDetailsFeed );
 
     void onFeedReplaced( Feed feed );
 

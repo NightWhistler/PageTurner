@@ -78,8 +78,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	private static final Logger LOG = LoggerFactory
 			.getLogger("CatalogFragment");
 
-	private Stack<String> navStack = new Stack<String>();
-
 	@InjectView(R.id.catalogList)
 	@Nullable
 	private ListView catalogList;
@@ -101,7 +99,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
     @Inject
     private DialogFactory dialogFactory;
-	
+
     @Inject
 	private CatalogListAdapter adapter;
 
@@ -116,21 +114,21 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
     private MenuItem searchMenuItem;
 
+    private String baseURL;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (savedInstanceState != null) {
-			List<String> navList = savedInstanceState.getStringArrayList(STATE_NAV_ARRAY_KEY);
-			if (navList != null && navList.size() > 0) {
-				navStack.addAll(navList);
-			}
-		}
 
         DisplayMetrics metrics = metricsProvider.get();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         this.taskQueue.setTaskQueueListener(this);
 	}
+
+    public void setBaseURL(  String baseURL ) {
+        this.baseURL = baseURL;
+    }
 
     @Override
     public void queueEmpty() {
@@ -158,11 +156,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
                 onEntryClicked(entry, position);
             }
         });
-	}	
-	
-	private void loadOPDSFeed(String url) {
-		loadOPDSFeed(null, url, false, false, ResultType.REPLACE);
 	}
+
+
 	
 	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed, boolean asSearchFeed, ResultType resultType ) {
 
@@ -183,26 +179,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
             this.adapter.setLoading(true);
         }
 
-	}	
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		if (!navStack.empty()) {			
-			loadOPDSFeed(navStack.peek());
-		} else {
-			loadOPDSFeed(config.getBaseOPDSFeed());
-		}
-	}
-
-    @Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (!navStack.empty()) {
-			ArrayList<String> navList = new ArrayList<String>(navStack);
-			outState.putStringArrayList(STATE_NAV_ARRAY_KEY, navList);
-		}
 	}
 
     public void performSearch(String searchTerm) {
@@ -221,7 +197,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
             }
 		}
     }
-    
+
+    public boolean supportsSearch() {
+        return searchMenuItem.isEnabled();
+    }
+
 	public void onSearchRequested() {
 
         if ( searchMenuItem == null || ! searchMenuItem.isEnabled() ) {
@@ -242,12 +222,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			loadCustomSiteFeed();
 		} else if ( entry.getAlternateLink() != null ) {
 			String href = entry.getAlternateLink().getHref();
-			loadURL(entry, href, true, false, ResultType.REPLACE);
+			replaceFeed(entry, href, true);
 		} else if ( entry.getEpubLink() != null ) {
             loadFakeFeek(entry);
 		} else if ( entry.getAtomLink() != null ) {
 			String href = entry.getAtomLink().getHref();
-			loadURL(entry, href, false, false, ResultType.REPLACE);
+			replaceFeed( entry, href, false);
 		} else if ( entry.getWebsiteLink() != null ) {
             String url = entry.getWebsiteLink().getHref();
             Intent i = new Intent(Intent.ACTION_VIEW);
@@ -255,6 +235,17 @@ public class CatalogFragment extends RoboSherlockFragment implements
             startActivity(i);
         }
 	}
+
+    private void replaceFeed( Entry entry, String href, boolean asDetailsFeed ) {
+
+        String baseURL = entry.getBaseURL();
+
+        if ( baseURL == null ) {
+            baseURL = this.baseURL;
+        }
+
+        ((CatalogParent) getActivity()).loadFeed( entry, href, baseURL, asDetailsFeed );
+    }
 
     private void loadFakeFeek( Entry entry ) {
 
@@ -275,8 +266,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			Toast.makeText(getActivity(), R.string.no_custom_sites, Toast.LENGTH_LONG).show();
 			return;
 		}
-
-        pushUrlToNavStack(Catalog.CUSTOM_SITES_ID);
 		
 		Feed customSites = new Feed();
         customSites.setURL(Catalog.CUSTOM_SITES_ID);
@@ -299,11 +288,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		setNewFeed(customSites, ResultType.REPLACE);
 	}
 
-	public void loadURL(String url) {
-		loadURL(null, url, false, false, ResultType.REPLACE);
-	}
-
-    private void loadURL(Entry entry, String url, boolean asDetailsFeed, boolean asSearchFeed, ResultType resultType) {
+    public void loadURL(Entry entry, String url, boolean asDetailsFeed, boolean asSearchFeed, ResultType resultType) {
 
         String base = null;
 
@@ -311,9 +296,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
             base = entry.getBaseURL();
         }
 
-		if (base == null && !navStack.isEmpty()) {
-			base = navStack.peek();
-		}
+        if ( base == null ) {
+            base = this.baseURL;
+        }
 
 		try {
 			String target = url;
@@ -324,21 +309,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 			LOG.info("Loading " + target);
 
-            if ( resultType == ResultType.REPLACE ) {
-			    pushUrlToNavStack(target);
-            }
-
 			loadOPDSFeed(entry, target, asDetailsFeed, asSearchFeed, resultType);
 		} catch (MalformedURLException u) {
 			LOG.error("Malformed URL:", u);
 		}
 	}
-
-    private void pushUrlToNavStack(String url) {
-        if ( navStack.isEmpty() || ! url.equals(navStack.peek()) ) {
-            navStack.push(url);
-        }
-    }
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -417,10 +392,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			navStack.clear();
-			loadOPDSFeed(config.getBaseOPDSFeed());
-			return true;
+
 		case R.id.prefs:
 			Intent prefsIntent = new Intent(getActivity(), PageTurnerPrefsActivity.class);
 			startActivity(prefsIntent);
@@ -428,24 +400,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
         }
 		
 		return true;
-	}
-
-	// TODO Refactor this. Let the platform push/pop fragments from the fragment stack.
-	public void onBackPressed() {
-		if (navStack.isEmpty()) {
-			getActivity().finish();
-			return;
-		} 	
-		
-		navStack.pop();
-		
-		if (navStack.isEmpty()) {
-			loadOPDSFeed(config.getBaseOPDSFeed());
-		} else if ( navStack.peek().equals(Catalog.CUSTOM_SITES_ID) ) {
-			loadCustomSiteFeed();
-		}else {
-			loadOPDSFeed(navStack.peek());
-		}
 	}
 
     @Override

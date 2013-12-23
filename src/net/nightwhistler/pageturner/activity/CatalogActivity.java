@@ -20,33 +20,55 @@ package net.nightwhistler.pageturner.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import com.actionbarsherlock.view.Window;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.catalog.BookDetailsFragment;
 import net.nightwhistler.pageturner.catalog.CatalogFragment;
 import net.nightwhistler.pageturner.catalog.CatalogParent;
-import roboguice.RoboGuice;
+import net.nightwhistler.pageturner.catalog.LoadFeedCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import roboguice.inject.InjectFragment;
 
 import javax.annotation.Nullable;
 
 public class CatalogActivity extends PageTurnerActivity implements CatalogParent {
 
-    @InjectFragment(R.id.fragment_catalog)
-    private CatalogFragment catalogFragment;
+    private static final Logger LOG = LoggerFactory
+            .getLogger("CatalogActivity");
 
     @Nullable
     @InjectFragment(R.id.fragment_book_details)
     private BookDetailsFragment detailsFragment;
 
+    @Inject
+    private Provider<CatalogFragment> fragmentProvider;
+
+    @Inject
+    private FragmentManager fragmentManager;
+
+    @Inject
+    private Configuration config;
+
+
+    private MenuItem searchMenuItem;
+
+    @Inject
+    private DialogFactory dialogFactory;
+
     @Override
     protected void onCreatePageTurnerActivity(Bundle savedInstanceState) {
         hideDetailsView();
+
+        loadFeed( null, config.getBaseOPDSFeed(), null, false );
     }
 
     @Override
@@ -56,7 +78,7 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
 
     private void hideDetailsView() {
         if ( detailsFragment != null ) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction ft = fragmentManager.beginTransaction();
             ft.hide(detailsFragment);
             ft.commitAllowingStateLoss();
         }
@@ -84,7 +106,7 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
 
         if ( isTwoPaneView() ) {
 
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction ft = fragmentManager.beginTransaction();
             ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
             ft.show(detailsFragment);
             ft.commit();
@@ -99,19 +121,53 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
     }
 
     @Override
-    public void loadFeedFromUrl(String url) {
-        catalogFragment.loadURL(url);
+    public void loadFeed(Entry entry, String href, String baseURL, boolean asDetailsFeed) {
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+
+        CatalogFragment newCatalogFragment = fragmentProvider.get();
+        newCatalogFragment.setBaseURL( baseURL );
+
+        fragmentTransaction.replace(R.id.fragment_catalog, newCatalogFragment, baseURL);
+
+        if ( ! href.equals( config.getBaseOPDSFeed() ) ) {
+            fragmentTransaction.addToBackStack( baseURL );
+        }
+
+        fragmentTransaction.commit();
+
+        newCatalogFragment.loadURL(entry, href, asDetailsFeed, false, LoadFeedCallback.ResultType.REPLACE);
     }
 
-	// TODO Refactor this. Let the platform push/pop fragments from the fragment stack.
-	@Override
-	public void onBackPressed() {
-		catalogFragment.onBackPressed();
-	}
+
 
     @Override
     public boolean onSearchRequested() {
-        catalogFragment.onSearchRequested();
-        return true;
+        FragmentManager.BackStackEntry entry = fragmentManager.getBackStackEntryAt(
+                fragmentManager.getBackStackEntryCount() - 1 );
+
+
+        Fragment fragment = fragmentManager.findFragmentByTag( entry.getName() );
+
+        LOG.debug("Got fragment " + fragment );
+
+        if ( fragment != null && fragment instanceof CatalogFragment ) {
+            CatalogFragment catalogFragment = (CatalogFragment) fragment;
+
+            catalogFragment.onSearchRequested();
+            return catalogFragment.supportsSearch();
+        }
+
+        LOG.debug("Could not find fragment with name " + entry.getName() );
+
+        return false;
     }
+
+    @Override
+    public void onBackPressed() {
+        hideDetailsView();
+        super.onBackPressed();
+    }
+
 }

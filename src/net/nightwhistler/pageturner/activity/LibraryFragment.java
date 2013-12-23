@@ -66,6 +66,7 @@ import org.slf4j.LoggerFactory;
 import roboguice.inject.InjectView;
 
 import java.io.File;
+import java.lang.ref.SoftReference;
 import java.text.DateFormat;
 import java.util.*;
 
@@ -125,7 +126,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	private IntentCallBack intentCallBack;
 	private List<CoverCallback> callbacks = new ArrayList<CoverCallback>();
-	private Map<String, FastBitmapDrawable> coverCache = new HashMap<String, FastBitmapDrawable>();
+	private Map<String, SoftReference<FastBitmapDrawable>> coverCache
+            = new HashMap<String, SoftReference<FastBitmapDrawable>>();
 
     private MenuItem searchMenuItem;
 
@@ -223,8 +225,13 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
     }
 
     private void clearCoverCache() {
-		for ( Map.Entry<String, FastBitmapDrawable> draw: coverCache.entrySet() ) {
-			draw.getValue().destroy();
+		for ( Map.Entry<String, SoftReference<FastBitmapDrawable>> draw: coverCache.entrySet() ) {
+
+            FastBitmapDrawable drawable = draw.getValue().get();
+
+            if ( drawable != null ) {
+                drawable.destroy();
+            }
 		}
 		
 		coverCache.clear();
@@ -253,24 +260,31 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
 		return true;
 	}
-	
-	private FastBitmapDrawable getCover( LibraryBook book ) {
+
+    private FastBitmapDrawable getCover( LibraryBook book ) {
 
         try {
 
-            if ( !coverCache.containsKey(book.getFileName() ) ) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(book.getCoverImage(), 0, book.getCoverImage().length );
-                FastBitmapDrawable drawable = new FastBitmapDrawable(bitmap);
-                coverCache.put( book.getFileName(), drawable );
+            if ( coverCache.containsKey( book.getFileName() ) ) {
+
+                FastBitmapDrawable drawable = coverCache.get( book.getFileName() ).get();
+
+                if ( drawable != null ) {
+                    return drawable;
+                }
             }
 
-            return coverCache.get( book.getFileName() );
+            Bitmap bitmap = BitmapFactory.decodeByteArray(book.getCoverImage(), 0, book.getCoverImage().length );
+            FastBitmapDrawable drawable = new FastBitmapDrawable(bitmap);
+            coverCache.put( book.getFileName(), new SoftReference<FastBitmapDrawable>(drawable));
+
+            return drawable;
 
         } catch ( OutOfMemoryError outOfMemoryError ) {
             clearCoverCache();
             return null;
         }
-	}
+    }
 	
 	private void showBookDetails( final LibraryBook libraryBook ) {
 
@@ -712,14 +726,14 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
     @Override
     public void importCancelled(int booksImported, List<String> failures, boolean emptyLibrary, boolean silent) {
-        LOG.debug("Got importCancelled() " );
+        LOG.debug("Got importCancelled() ");
         afterImport( booksImported, failures, emptyLibrary, silent, true );
     }
 
     @Override
 	public void importComplete(int booksImported, List<String> errors, boolean emptyLibrary, boolean silent) {
-        LOG.debug("Got importComplete() " );
-        afterImport( booksImported, errors, emptyLibrary, silent, false );
+        LOG.debug("Got importComplete() ");
+        afterImport(booksImported, errors, emptyLibrary, silent, false);
 	}
 
     private void afterImport(int booksImported, List<String> errors, boolean emptyLibrary, boolean silent,
@@ -804,7 +818,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	@Override
 	public void importFailed(String reason, boolean silent) {
 
-        LOG.debug( "Got importFailed()" );
+        LOG.debug("Got importFailed()");
 		
 		if (silent || !isAdded() || getActivity() == null ) {
 			return;
@@ -930,7 +944,12 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
     }
 
     private void loadCover( ImageView imageView, LibraryBook book, int index ) {
-		Drawable draw = coverCache.get(book.getFileName());			
+
+        Drawable draw = null;
+
+        if ( coverCache.containsKey( book.getFileName() ) ) {
+            draw = coverCache.get(book.getFileName()).get();
+        }
 		
 		if ( draw != null ) {
 			imageView.setImageDrawable(draw);

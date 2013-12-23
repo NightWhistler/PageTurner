@@ -60,7 +60,6 @@ import org.slf4j.LoggerFactory;
 import roboguice.inject.InjectView;
 
 import javax.annotation.Nullable;
-import java.lang.ref.SoftReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -109,8 +108,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
     @Inject
     private TaskQueue taskQueue;
 
-    private Map<String, SoftReference<Drawable>> thumbnailCache
-            = new ConcurrentHashMap<String, SoftReference<Drawable>>();
+    private Map<String, Drawable> thumbnailCache = new ConcurrentHashMap<String, Drawable>();
 
     private MenuItem searchMenuItem;
 
@@ -406,7 +404,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
     public void notifyLinkUpdated(Link link, Drawable drawable) {
 
         if ( drawable != null ) {
-            this.thumbnailCache.put( link.getHref(), new SoftReference<Drawable>(drawable) );
+            this.thumbnailCache.put( link.getHref(), drawable );
             adapter.notifyDataSetChanged();
         }
     }
@@ -431,6 +429,12 @@ public class CatalogFragment extends RoboSherlockFragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
+        destroyThumbnails();
+    }
+
+    @Override
+    public void onLowMemory() {
+        destroyThumbnails();
     }
 
     public void setNewFeed(Feed result, ResultType resultType) {
@@ -438,6 +442,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
         if (result != null && isAdded() ) {
 
             if ( resultType == null || resultType == ResultType.REPLACE ) {
+                destroyThumbnails();
+                thumbnailCache.clear();
                 adapter.setFeed(result);
                 ((CatalogParent) getActivity() ).onFeedReplaced(result);
             } else {
@@ -450,14 +456,19 @@ public class CatalogFragment extends RoboSherlockFragment implements
         }
     }
 
+    private void destroyThumbnails() {
+        for ( Map.Entry<String, Drawable> entry: thumbnailCache.entrySet() ) {
+            Drawable value = entry.getValue();
+
+            if ( value instanceof FastBitmapDrawable ) {
+                ((FastBitmapDrawable) value).destroy();
+            }
+        }
+    }
+
     @Override
     public Drawable getThumbnailFor( String baseURL, Link link ) {
-
-        if ( thumbnailCache.containsKey( link.getHref() ) ) {
-            return thumbnailCache.get( link.getHref() ).get();
-        }
-
-        return null;
+        return thumbnailCache.get( link.getHref() );
     }
 
     private void queueImageLoading( String baseURL, Link imageLink ) {
@@ -469,12 +480,10 @@ public class CatalogFragment extends RoboSherlockFragment implements
         }
 
         //Make sure we only start a single background task for each url
-        if ( this.thumbnailCache.containsKey(imageLink.getHref() )
-                && this.thumbnailCache.get( imageLink.getHref() ).get() != null ) {
+        if ( this.thumbnailCache.containsKey(imageLink.getHref() ) ) {
             return;
         } else {
-            this.thumbnailCache.put( imageLink.getHref(),
-                    new SoftReference<Drawable>(context.getResources().getDrawable(R.drawable.unknown_cover)));
+            this.thumbnailCache.put( imageLink.getHref(), context.getResources().getDrawable(R.drawable.unknown_cover));
         }
 
         String href = imageLink.getHref();
@@ -583,11 +592,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
                         if ( entry != null ) {
                             Link imageLink = Catalog.getImageLink(entry.getFeed(), entry);
 
-                            if ( imageLink != null ) {
-                                if ( !thumbnailCache.containsKey(imageLink.getHref())
-                                        || thumbnailCache.get(imageLink.getHref()).get() == null ) {
-                                    queueImageLoading( entry.getBaseURL(), imageLink );
-                                }
+                            if ( imageLink != null && !thumbnailCache.containsKey(imageLink.getHref() ) ) {
+                                queueImageLoading( entry.getBaseURL(), imageLink );
                             }
                         }
                     }

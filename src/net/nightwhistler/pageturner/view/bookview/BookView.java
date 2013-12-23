@@ -398,12 +398,81 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	}
 
 	void loadText() {
-		this.taskQueue.jumpQueueExecuteTask(new LoadTextTask());
+
+        if ( spine == null && ! textLoader.hasCachedBook( this.fileName ) ) {
+            taskQueue.executeTask( new OpenFileTask() );
+            taskQueue.executeTask( new LoadTextTask() );
+        } else {
+
+            if ( spine == null ) {
+                initSpine();
+            }
+
+            loadText( spine.getCurrentResource() );
+        }
 	}
 
-	private void loadText(String searchTerm) {
-        this.taskQueue.jumpQueueExecuteTask(new LoadTextTask(searchTerm));
+    private void loadText( Resource resource ) {
+
+        LOG.debug( "Trying to load text for resource " + resource );
+
+        if ( textLoader.hasCachedText( resource ) && getInnerView().getWidth() > 0  ) {
+
+            LOG.debug( "Text is cached, loading on UI Thread.");
+
+            try {
+                loadText(textLoader.getText(resource));
+            } catch ( IOException io ) {
+                throw new RuntimeException( "Caught an I/O Exception while loading cached text.");
+            }
+        } else {
+
+            LOG.debug( "Text is NOT cached, loading in background.");
+
+            taskQueue.jumpQueueExecuteTask(new LoadTextTask(), resource );
+        }
+    }
+
+    private void loadText( Spanned text ) {
+
+        strategy.loadText( text );
+
+        restorePosition();
+        strategy.updateGUI();
+        progressUpdate();
+    }
+
+	private void loadText( String searchTerm ) {
+        this.taskQueue.jumpQueueExecuteTask(new LoadTextTask(searchTerm), spine.getCurrentResource() );
 	}
+
+    private void initSpine() {
+        try {
+            Book book = textLoader.initBook(fileName);
+
+            this.book = book;
+            this.spine = new PageTurnerSpine(book);
+
+            this.spine.navigateByIndex(BookView.this.storedIndex);
+
+            if (configuration.isShowPageNumbers()) {
+
+                List<List<Integer>> offsets = configuration
+                        .getPageOffsets(fileName);
+
+                if (offsets != null && offsets.size() > 0) {
+                    spine.setPageOffsets(offsets);
+                }
+            }
+        }
+
+        catch (Exception io) {
+            LOG.error( "Error opening book file", io );
+
+        } catch (OutOfMemoryError io) {
+            LOG.error( "Error loading text", io );
+        }
+    }
 
     public void setFontFamily(FontFamily family) {
         this.childView.setTypeface(family.getDefaultTypeface());
@@ -554,8 +623,15 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 			if (this.spine.navigateByHref(href)) {
 				loadText();
-			} else {				
-				taskQueue.jumpQueueExecuteTask(new LoadTextTask(), href);
+			} else {
+
+                Resource resource = book.getResources().getByHref(href);
+
+                if ( resource != null ) {
+                    loadText( resource );
+                } else {
+                    loadText( new SpannedString( getContext().getString(R.string.dead_link ) ) );
+                }
 			}
 		}
 	}
@@ -1259,9 +1335,26 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         }
     }
 
+    private class OpenFileTask extends
+            QueueableAsyncTask<Void, BookReadPhase, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            fireOpenFile();
+        }
+
+        @Override
+        protected Void doInBackground(Void... args) {
+
+            initSpine();
+
+            return null;
+        }
+    }
+
 
 	private class LoadTextTask extends
-			QueueableAsyncTask<String, BookReadPhase, Spanned> {
+			QueueableAsyncTask<Resource, BookReadPhase, Spanned> {
 
 		private String name;
 
@@ -1270,6 +1363,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		private String error;
 
 		private String searchTerm = null;
+
 
 		public LoadTextTask() {
 
@@ -1284,26 +1378,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			this.wasBookLoaded = book != null;
 		}
 
-		private void setBook(Book book) {
-
-			BookView.this.book = book;
-			BookView.this.spine = new PageTurnerSpine(book);
-
-			BookView.this.spine.navigateByIndex(BookView.this.storedIndex);
-
-			if (configuration.isShowPageNumbers()) {
-
-				List<List<Integer>> offsets = configuration
-						.getPageOffsets(fileName);
-
-				if (offsets != null && offsets.size() > 0) {
-					spine.setPageOffsets(offsets);
-				}
-			}
-
-		}
-
-        protected Spanned doInBackground(String... hrefs) {
+        protected Spanned doInBackground(Resource... resources) {
 
             publishProgress(BookReadPhase.START);
 
@@ -1313,27 +1388,17 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
             try {
 
-                if (BookView.this.book == null) {
-                    publishProgress(BookReadPhase.OPEN_FILE);
-                    setBook(textLoader.initBook(fileName));
-                }
-
                 this.name = spine.getCurrentTitle();
 
                 Resource resource;
 
-                if (hrefs.length == 0) {
+                if ( resources == null || resources.length == 0 ) {
                     resource = spine.getCurrentResource();
                 } else {
-                    resource = book.getResources().getByHref(hrefs[0]);
-                }
-
-                if (resource == null) {
-                    return new SpannedString( getContext().getString(R.string.dead_link) );
+                    resource = resources[0];
                 }
 
                 publishProgress(BookReadPhase.PARSE_TEXT);
-
 
                 Spannable result = textLoader.getText(resource);
                 loader.load(); // Load all image resources.
@@ -1380,8 +1445,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             return null;
         }
 
-
-
 		@Override
 		protected void onProgressUpdate(BookReadPhase... values) {
 
@@ -1390,9 +1453,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			switch (phase) {
 			case START:
 				parseEntryStart(getIndex());
-				break;
-			case OPEN_FILE:
-				fireOpenFile();
 				break;
 			case PARSE_TEXT:
 				fireRenderingText();

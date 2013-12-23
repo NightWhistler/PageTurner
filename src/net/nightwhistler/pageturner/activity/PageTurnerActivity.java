@@ -86,7 +86,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
 
         mToggle.setDrawerIndicatorEnabled(true);
         mDrawer.setDrawerListener(mToggle);
-        mDrawer.setDrawerLockMode( DrawerLayout.LOCK_MODE_LOCKED_CLOSED );
+        //mDrawer.setDrawerLockMode( DrawerLayout.LOCK_MODE_LOCKED_CLOSED );
 
         onCreatePageTurnerActivity(savedInstanceState);
     }

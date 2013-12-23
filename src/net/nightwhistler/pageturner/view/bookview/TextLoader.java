@@ -226,13 +226,18 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         this.htmlSpanner.registerHandler(tag, handler);
     }
 
+    public boolean hasCachedBook( String fileName ) {
+        return fileName != null && fileName.equals( currentFile );
+    }
+
+
     public Book initBook(String fileName) throws IOException {
 
         if (fileName == null) {
             throw new IOException("No file-name specified.");
         }
 
-        if ( fileName.equals(currentFile) ) {
+        if ( hasCachedBook( fileName ) ) {
             LOG.debug("Returning cached Book for fileName " + currentFile );
             return currentBook;
         }
@@ -340,6 +345,9 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
         //If memory usage gets over the threshold, try to free up memory
         if ( memoryUsage > CACHE_CLEAR_THRESHOLD || bitmapUsage > CACHE_CLEAR_THRESHOLD) {
+
+            LOG.debug("Clearing cached resources.");
+
             clearCachedText();
             closeLazyLoadedResources();
         }
@@ -369,8 +377,6 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
                 resource.close();
             }
         }
-
-
 
         return result;
     }

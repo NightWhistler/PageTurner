@@ -396,7 +396,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         }
     }
 
-    private void clearCachedText() {
+    public void clearCachedText() {
         clearImageCache();
         anchors.clear();
 

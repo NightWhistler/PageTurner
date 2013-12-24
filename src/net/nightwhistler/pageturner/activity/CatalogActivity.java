@@ -23,22 +23,24 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.widget.Toast;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
+import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.Configuration;
+import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.catalog.BookDetailsFragment;
-import net.nightwhistler.pageturner.catalog.CatalogFragment;
-import net.nightwhistler.pageturner.catalog.CatalogParent;
-import net.nightwhistler.pageturner.catalog.LoadFeedCallback;
+import net.nightwhistler.pageturner.catalog.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import roboguice.inject.InjectFragment;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class CatalogActivity extends PageTurnerActivity implements CatalogParent {
 
@@ -90,6 +92,7 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
                 && detailsFragment != null;
     }
 
+
     @Override
     public void onFeedReplaced(Feed feed) {
 
@@ -118,6 +121,49 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
 
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void loadCustomSitesFeed() {
+
+        List<CustomOPDSSite> sites = config.getCustomOPDSSites();
+
+        if ( sites.isEmpty() ) {
+            Toast.makeText(this, R.string.no_custom_sites, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+
+        CatalogFragment newCatalogFragment = fragmentProvider.get();
+
+
+        Feed customSites = new Feed();
+        customSites.setURL(Catalog.CUSTOM_SITES_ID);
+        customSites.setTitle(getString(R.string.custom_site));
+
+        for ( CustomOPDSSite site: sites ) {
+            Entry entry = new Entry();
+            entry.setTitle(site.getName());
+            entry.setSummary(site.getDescription());
+
+            Link link = new Link(site.getUrl(), AtomConstants.TYPE_ATOM, AtomConstants.REL_BUY, null);
+            entry.addLink(link);
+            entry.setBaseURL(site.getUrl());
+
+            customSites.addEntry(entry);
+        }
+
+        customSites.setId(Catalog.CUSTOM_SITES_ID);
+
+        newCatalogFragment.setStaticFeed( customSites );
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+
+        fragmentTransaction.replace(R.id.fragment_catalog, newCatalogFragment, Catalog.CUSTOM_SITES_ID );
+        fragmentTransaction.addToBackStack( Catalog.CUSTOM_SITES_ID );
+
+        fragmentTransaction.commit();
     }
 
     @Override

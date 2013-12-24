@@ -33,4 +33,6 @@ public interface CatalogParent {
 
     void onFeedReplaced( Feed feed );
 
+    void loadCustomSitesFeed();
+
 }

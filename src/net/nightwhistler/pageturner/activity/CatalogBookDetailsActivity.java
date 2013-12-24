@@ -87,4 +87,9 @@ public class CatalogBookDetailsActivity extends PageTurnerActivity implements Ca
     public void loadFeed(Entry entry, String href, String baseURL, boolean asDetailsFeed) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    @Override
+    public void loadCustomSitesFeed() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

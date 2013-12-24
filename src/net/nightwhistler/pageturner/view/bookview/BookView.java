@@ -402,6 +402,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         if ( spine == null && ! textLoader.hasCachedBook( this.fileName ) ) {
             taskQueue.executeTask( new OpenFileTask() );
             taskQueue.executeTask( new LoadTextTask() );
+            taskQueue.executeTask( new PreLoadTask() );
+            taskQueue.executeTask( new CalculatePageNumbersTask() );
         } else {
 
             if ( spine == null ) {
@@ -431,6 +433,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
         Spannable cachedText = textLoader.getCachedTextForResource( resource );
 
+        //Start by clearing the queue
+        taskQueue.clear();
+
         if ( cachedText != null && getInnerView().getWidth() > 0  ) {
 
             LOG.debug( "Text is cached, loading on UI Thread.");
@@ -438,11 +443,14 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         } else {
 
             LOG.debug( "Text is NOT cached, loading in background.");
-
-            taskQueue.jumpQueueExecuteTask(new LoadTextTask(), resource );
+            taskQueue.executeTask(new LoadTextTask(), resource);
         }
 
         taskQueue.executeTask( new PreLoadTask() );
+
+        if ( needsPageNumberCalculation() ) {
+            taskQueue.executeTask( new CalculatePageNumbersTask() );
+        }
     }
 
     private void loadText( Spanned text ) {
@@ -1241,6 +1249,22 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         return stringBuilder.toString();
     }
 
+    private boolean needsPageNumberCalculation() {
+        if ( ! configuration.isShowPageNumbers() ) {
+            return false;
+        }
+
+        List<List<Integer>> offsets = configuration
+                .getPageOffsets(fileName);
+
+        //Check if we need to calculate at all, if not exit.
+        if (offsets != null && offsets.size() > 0 ) {
+            return false;
+        }
+
+        return true;
+    }
+
 	public void setEnableScrolling(boolean enableScrolling) {
 
 		if (this.strategy == null
@@ -1395,7 +1419,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
             if ( cachedText == null ) {
                 try {
-                    textLoader.getText( resource );
+                    textLoader.getText( resource, new QueueableAsyncTaskCancellationCallback(this) );
                 } catch ( Exception e ) {
                     //Ignore
                 } catch ( OutOfMemoryError e ) {
@@ -1456,7 +1480,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
                 publishProgress(BookReadPhase.PARSE_TEXT);
 
-                Spannable result = textLoader.getText(resource);
+                Spannable result = textLoader.getText(resource, new QueueableAsyncTaskCancellationCallback(this) );
                 loader.load(); // Load all image resources.
 
                 //Clear any old highlighting spans
@@ -1528,19 +1552,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 			onProgressUpdate(BookReadPhase.DONE);
 
-            if (configuration.isShowPageNumbers()) {
-
-                List<List<Integer>> offsets = configuration
-                        .getPageOffsets(fileName);
-
-                if (offsets != null && offsets.size() > 0 ) {
-                    LOG.debug("LoadTextTask: Pagenumbers present, no calculation needed.");
-                } else {
-                    LOG.debug("LoadTextTask: no cached pagenumbers, scheduling calculation task.");
-                    taskQueue.executeTask( new CalculatePageNumbersTask() );
-                }
-            }
-			
 			/**
 			 * This is a hack for scrolling not updating to the right position 
 			 * on Android 4+
@@ -1569,6 +1580,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
         @Override
 		protected List<List<Integer>> doInBackground(Object... params) {
+
+            if ( ! needsPageNumberCalculation() ) {
+                return null;
+            }
 
 			try {
 				List<List<Integer>> offsets = getOffsets();
@@ -1644,7 +1659,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                         InputStream input = new ByteArrayInputStream(IOUtil.toByteArray(stream));
 
                         checkForCancellation();
-                        Spannable text = mySpanner.fromHtml(input);
+                        Spannable text = mySpanner.fromHtml(input,
+                                new QueueableAsyncTaskCancellationCallback(CalculatePageNumbersTask.this));
 
                         checkForCancellation();
                         imageLoader.load();

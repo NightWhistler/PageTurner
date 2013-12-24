@@ -325,7 +325,8 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         return result;
     }
 
-    public Spannable getText( final Resource resource ) throws IOException {
+    public Spannable getText( final Resource resource,
+                              HtmlSpanner.CancellationCallback cancellationCallback ) throws IOException {
 
         Spannable cached = getCachedTextForResource( resource );
 
@@ -372,7 +373,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         Spannable result = new SpannableString("");
 
         try {
-            result = htmlSpanner.fromHtml(res.getReader());
+            result = htmlSpanner.fromHtml(res.getReader(), cancellationCallback);
             renderedText.put(res.getHref(), result);
         } catch (Exception e) {
             LOG.error("Caught exception while rendering text", e);

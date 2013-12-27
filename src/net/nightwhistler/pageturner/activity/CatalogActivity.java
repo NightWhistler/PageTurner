@@ -42,7 +42,8 @@ import roboguice.inject.InjectFragment;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class CatalogActivity extends PageTurnerActivity implements CatalogParent {
+public class CatalogActivity extends PageTurnerActivity implements CatalogParent,
+        FragmentManager.OnBackStackChangedListener {
 
     private static final Logger LOG = LoggerFactory
             .getLogger("CatalogActivity");
@@ -66,11 +67,14 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
     @Inject
     private DialogFactory dialogFactory;
 
+    private String baseFeedTitle;
+
     @Override
     protected void onCreatePageTurnerActivity(Bundle savedInstanceState) {
         hideDetailsView();
 
         loadFeed( null, config.getBaseOPDSFeed(), null, false );
+        fragmentManager.addOnBackStackChangedListener( this );
     }
 
     @Override
@@ -94,7 +98,7 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
 
 
     @Override
-    public void onFeedReplaced(Feed feed) {
+    public void onFeedLoaded(Feed feed) {
 
         if ( isTwoPaneView() && feed.getSize() == 1
                 && feed.getEntries().get(0).getEpubLink() != null ) {
@@ -102,6 +106,41 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
         } else {
             hideDetailsView();
         }
+
+        supportInvalidateOptionsMenu();
+        getSupportActionBar().setTitle(feed.getTitle());
+
+        LOG.debug( "Changed window title to " + feed.getTitle() );
+
+        /*
+         * Work-around, since the initial fragment isn't put on
+         * the back-stack. We do want to restore its title
+         * when the stack becomes empty, so we save it here.
+         */
+        if ( fragmentManager.getBackStackEntryCount() == 0 ) {
+            this.baseFeedTitle = feed.getTitle();
+        }
+    }
+
+    @Override
+    public void onBackStackChanged() {
+
+        LOG.debug( "Backstack change detected." );
+
+        if ( fragmentManager.getBackStackEntryCount() > 0 ) {
+
+            Fragment fragment = getCurrentVisibleFragment();
+
+            if ( fragment != null && fragment instanceof CatalogFragment ) {
+                LOG.debug( "Notifying fragment.");
+                ((CatalogFragment) fragment).onBecameVisible();
+            }
+
+        } else if ( baseFeedTitle != null ) {
+            supportInvalidateOptionsMenu();
+            getSupportActionBar().setTitle( baseFeedTitle);
+        }
+
     }
 
     @Override
@@ -132,7 +171,6 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
             Toast.makeText(this, R.string.no_custom_sites, Toast.LENGTH_LONG).show();
             return;
         }
-
 
         CatalogFragment newCatalogFragment = fragmentProvider.get();
 
@@ -186,15 +224,30 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
         newCatalogFragment.loadURL(entry, href, asDetailsFeed, false, LoadFeedCallback.ResultType.REPLACE);
     }
 
+    private Fragment getCurrentVisibleFragment() {
 
+        if ( fragmentManager.getBackStackEntryCount() < 1 ) {
+            return null;
+        }
 
-    @Override
-    public boolean onSearchRequested() {
         FragmentManager.BackStackEntry entry = fragmentManager.getBackStackEntryAt(
                 fragmentManager.getBackStackEntryCount() - 1 );
 
 
-        Fragment fragment = fragmentManager.findFragmentByTag( entry.getName() );
+        Fragment result = fragmentManager.findFragmentByTag( entry.getName() );
+
+        if ( result == null ) {
+            LOG.debug("Could not find fragment with name " + entry.getName() );
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public boolean onSearchRequested() {
+
+        Fragment fragment = getCurrentVisibleFragment();
 
         LOG.debug("Got fragment " + fragment );
 
@@ -204,8 +257,6 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
             catalogFragment.onSearchRequested();
             return catalogFragment.supportsSearch();
         }
-
-        LOG.debug("Could not find fragment with name " + entry.getName() );
 
         return false;
     }

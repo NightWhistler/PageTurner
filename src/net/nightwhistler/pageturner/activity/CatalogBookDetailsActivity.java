@@ -79,7 +79,7 @@ public class CatalogBookDetailsActivity extends PageTurnerActivity implements Ca
     }
 
     @Override
-    public void onFeedReplaced(Feed feed) {
+    public void onFeedLoaded(Feed feed) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 

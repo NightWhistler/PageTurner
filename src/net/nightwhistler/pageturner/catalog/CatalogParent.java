@@ -31,7 +31,7 @@ public interface CatalogParent {
 
     void loadFeed( Entry entry, String href, String baseURL, boolean asDetailsFeed );
 
-    void onFeedReplaced( Feed feed );
+    void onFeedLoaded(Feed feed);
 
     void loadCustomSitesFeed();
 

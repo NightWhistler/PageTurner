@@ -18,7 +18,6 @@
  */
 package net.nightwhistler.pageturner.catalog;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -48,10 +47,8 @@ import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.activity.DialogFactory;
-import net.nightwhistler.pageturner.activity.LibraryActivity;
 import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.scheduling.TaskQueue;
@@ -66,8 +63,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static net.nightwhistler.pageturner.catalog.Catalog.getImageLink;
 
 public class CatalogFragment extends RoboSherlockFragment implements
 		LoadFeedCallback, DialogFactory.SearchCallBack, TaskQueue.TaskQueueListener,
@@ -161,7 +156,15 @@ public class CatalogFragment extends RoboSherlockFragment implements
         if ( staticFeed != null ) {
             adapter.setFeed( staticFeed );
         }
+
 	}
+
+    public void onBecameVisible() {
+
+        if ( adapter.getFeed() != null ) {
+            ((CatalogParent) getActivity()).onFeedLoaded( adapter.getFeed() );
+        }
+    }
 	
 	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed, boolean asSearchFeed, ResultType resultType ) {
 
@@ -431,16 +434,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
                 thumbnailCache.clear();
                 adapter.setFeed(result);
                 if ( isAdded() ) {
-                    ((CatalogParent) getActivity() ).onFeedReplaced(result);
+                    ((CatalogParent) getActivity() ).onFeedLoaded(result);
                 }
             } else {
                 this.adapter.setLoading(false);
                 adapter.addEntriesFromFeed(result);
-            }
-
-            if ( isAdded() ) {
-                getSherlockActivity().supportInvalidateOptionsMenu();
-                getSherlockActivity().getSupportActionBar().setTitle(result.getTitle());
             }
         }
     }

@@ -198,7 +198,7 @@ public class PageTurnerSpine {
     }
 	
 	public Resource getResourceForIndex( int index ) {
-		if ( entries.isEmpty() || index < 0 || index > entries.size() ) {
+		if ( entries.isEmpty() || index < 0 || index >= entries.size() ) {
 			return null;
 		}
 		

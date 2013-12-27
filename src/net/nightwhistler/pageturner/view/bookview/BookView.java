@@ -1414,6 +1414,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             }
 
             Resource resource = spine.getNextResource();
+            if ( resource == null ) {
+                return null;
+            }
 
             Spannable cachedText = textLoader.getCachedTextForResource( resource );
 

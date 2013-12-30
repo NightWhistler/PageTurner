@@ -188,9 +188,17 @@ public class PageTurnerSpine {
 	public Resource getCurrentResource() {
 		return getResourceForIndex(position);
 	}
+
+    /**
+     * Returns the resource after the current one
+     * @return
+     */
+    public Resource getNextResource() {
+        return getResourceForIndex(position + 1);
+    }
 	
 	public Resource getResourceForIndex( int index ) {
-		if ( entries.isEmpty() ) {
+		if ( entries.isEmpty() || index < 0 || index >= entries.size() ) {
 			return null;
 		}
 		

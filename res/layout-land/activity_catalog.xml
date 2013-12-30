@@ -12,8 +12,7 @@ android:layout_height="match_parent">
                   android:orientation="horizontal">
 
 
-        <fragment
-                class="net.nightwhistler.pageturner.catalog.CatalogFragment"
+        <LinearLayout
                 android:id="@+id/fragment_catalog"
                 android:layout_height="match_parent"
                 android:layout_width="0dp"

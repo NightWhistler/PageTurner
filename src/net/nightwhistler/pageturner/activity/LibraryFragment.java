@@ -226,7 +226,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		for ( Map.Entry<String, FastBitmapDrawable> draw: coverCache.entrySet() ) {
 			draw.getValue().destroy();
 		}
-		
+
 		coverCache.clear();
 	}
 
@@ -253,7 +253,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
 		return true;
 	}
-	
+
 	private FastBitmapDrawable getCover( LibraryBook book ) {
 
         try {
@@ -712,14 +712,14 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
     @Override
     public void importCancelled(int booksImported, List<String> failures, boolean emptyLibrary, boolean silent) {
-        LOG.debug("Got importCancelled() " );
+        LOG.debug("Got importCancelled() ");
         afterImport( booksImported, failures, emptyLibrary, silent, true );
     }
 
     @Override
 	public void importComplete(int booksImported, List<String> errors, boolean emptyLibrary, boolean silent) {
-        LOG.debug("Got importComplete() " );
-        afterImport( booksImported, errors, emptyLibrary, silent, false );
+        LOG.debug("Got importComplete() ");
+        afterImport(booksImported, errors, emptyLibrary, silent, false);
 	}
 
     private void afterImport(int booksImported, List<String> errors, boolean emptyLibrary, boolean silent,
@@ -804,7 +804,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	@Override
 	public void importFailed(String reason, boolean silent) {
 
-        LOG.debug( "Got importFailed()" );
+        LOG.debug("Got importFailed()");
 		
 		if (silent || !isAdded() || getActivity() == null ) {
 			return;
@@ -930,7 +930,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
     }
 
     private void loadCover( ImageView imageView, LibraryBook book, int index ) {
-		Drawable draw = coverCache.get(book.getFileName());			
+		Drawable draw = coverCache.get(book.getFileName());
 		
 		if ( draw != null ) {
 			imageView.setImageDrawable(draw);

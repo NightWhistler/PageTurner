@@ -398,12 +398,97 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	}
 
 	void loadText() {
-		this.taskQueue.jumpQueueExecuteTask(new LoadTextTask());
+
+        if ( spine == null && ! textLoader.hasCachedBook( this.fileName ) ) {
+            taskQueue.executeTask( new OpenFileTask() );
+            taskQueue.executeTask( new LoadTextTask() );
+            taskQueue.executeTask( new PreLoadTask() );
+            taskQueue.executeTask( new CalculatePageNumbersTask() );
+        } else {
+
+            if ( spine == null ) {
+                try {
+                    Book book = initBookAndSpine();
+
+                    if ( book != null ) {
+                        bookOpened( book );
+                    }
+
+                } catch ( IOException io ) {
+                    errorOnBookOpening( io.getMessage() );
+                    return;
+                } catch ( OutOfMemoryError e ) {
+                    errorOnBookOpening( getContext().getString( R.string.out_of_memory ) );
+                    return;
+                }
+            }
+
+            loadText( spine.getCurrentResource() );
+        }
 	}
 
-	private void loadText(String searchTerm) {
-        this.taskQueue.jumpQueueExecuteTask(new LoadTextTask(searchTerm));
+    private void loadText( Resource resource ) {
+
+        LOG.debug( "Trying to load text for resource " + resource );
+
+        Spannable cachedText = textLoader.getCachedTextForResource( resource );
+
+        //Start by clearing the queue
+        taskQueue.clear();
+
+        if ( cachedText != null && getInnerView().getWidth() > 0  ) {
+
+            LOG.debug( "Text is cached, loading on UI Thread.");
+            loadText(cachedText);
+        } else {
+
+            LOG.debug( "Text is NOT cached, loading in background.");
+            taskQueue.executeTask(new LoadTextTask(), resource);
+        }
+
+        taskQueue.executeTask( new PreLoadTask() );
+
+        if ( needsPageNumberCalculation() ) {
+            taskQueue.executeTask( new CalculatePageNumbersTask() );
+        }
+    }
+
+    private void loadText( Spanned text ) {
+
+        strategy.loadText( text );
+
+        restorePosition();
+        strategy.updateGUI();
+        progressUpdate();
+        parseEntryComplete( spine.getCurrentTitle() );
+    }
+
+	private void loadText( String searchTerm ) {
+        this.taskQueue.jumpQueueExecuteTask(new LoadTextTask(searchTerm), spine.getCurrentResource() );
 	}
+
+    private Book initBookAndSpine() throws IOException {
+
+        Book book = textLoader.initBook(fileName);
+
+        this.book = book;
+        this.spine = new PageTurnerSpine(book);
+
+        this.spine.navigateByIndex(BookView.this.storedIndex);
+
+        if (configuration.isShowPageNumbers()) {
+
+            List<List<Integer>> offsets = configuration
+                    .getPageOffsets(fileName);
+
+            if (offsets != null && offsets.size() > 0) {
+                spine.setPageOffsets(offsets);
+            }
+        }
+
+        return book;
+
+    }
 
     public void setFontFamily(FontFamily family) {
         this.childView.setTypeface(family.getDefaultTypeface());
@@ -554,8 +639,15 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 			if (this.spine.navigateByHref(href)) {
 				loadText();
-			} else {				
-				taskQueue.jumpQueueExecuteTask(new LoadTextTask(), href);
+			} else {
+
+                Resource resource = book.getResources().getByHref(href);
+
+                if ( resource != null ) {
+                    loadText( resource );
+                } else {
+                    loadText( new SpannedString( getContext().getString(R.string.dead_link ) ) );
+                }
 			}
 		}
 	}
@@ -1038,9 +1130,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		}
 	}
 
-	private void parseEntryComplete(int entry, String name) {
+	private void parseEntryComplete( String name) {
 		for (BookViewListener listener : this.listeners) {
-			listener.parseEntryComplete(entry, name);
+			listener.parseEntryComplete(name);
 		}
 	}
 
@@ -1157,6 +1249,22 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         return stringBuilder.toString();
     }
 
+    private boolean needsPageNumberCalculation() {
+        if ( ! configuration.isShowPageNumbers() ) {
+            return false;
+        }
+
+        List<List<Integer>> offsets = configuration
+                .getPageOffsets(fileName);
+
+        //Check if we need to calculate at all, if not exit.
+        if (offsets != null && offsets.size() > 0 ) {
+            return false;
+        }
+
+        return true;
+    }
+
 	public void setEnableScrolling(boolean enableScrolling) {
 
 		if (this.strategy == null
@@ -1259,9 +1367,77 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         }
     }
 
+    private class OpenFileTask extends
+            QueueableAsyncTask<Void, BookReadPhase, Book> {
+
+        private String error;
+
+        @Override
+        protected void onPreExecute() {
+            fireOpenFile();
+        }
+
+        @Override
+        protected Book doInBackground(Void... args) {
+            try {
+                return initBookAndSpine();
+            } catch ( IOException io ) {
+                this.error = io.getLocalizedMessage();
+            } catch ( OutOfMemoryError e ) {
+                this.error = getContext().getString( R.string.out_of_memory );
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void doOnPostExecute(Book book) {
+
+            if (book != null) {
+                bookOpened(book);
+            } else {
+                errorOnBookOpening(this.error);
+                return;
+            }
+
+        }
+    }
+
+    private class PreLoadTask extends
+            QueueableAsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            if ( spine == null ) {
+                return null;
+            }
+
+            Resource resource = spine.getNextResource();
+            if ( resource == null ) {
+                return null;
+            }
+
+            Spannable cachedText = textLoader.getCachedTextForResource( resource );
+
+            if ( cachedText == null ) {
+                try {
+                    textLoader.getText( resource, new QueueableAsyncTaskCancellationCallback(this) );
+                } catch ( Exception e ) {
+                    //Ignore
+                } catch ( OutOfMemoryError e ) {
+                    //Ignore as well
+                }
+            }
+
+            return null;
+        }
+
+    }
+
 
 	private class LoadTextTask extends
-			QueueableAsyncTask<String, BookReadPhase, Spanned> {
+			QueueableAsyncTask<Resource, BookReadPhase, Spanned> {
 
 		private String name;
 
@@ -1270,6 +1446,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		private String error;
 
 		private String searchTerm = null;
+
 
 		public LoadTextTask() {
 
@@ -1284,26 +1461,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			this.wasBookLoaded = book != null;
 		}
 
-		private void setBook(Book book) {
-
-			BookView.this.book = book;
-			BookView.this.spine = new PageTurnerSpine(book);
-
-			BookView.this.spine.navigateByIndex(BookView.this.storedIndex);
-
-			if (configuration.isShowPageNumbers()) {
-
-				List<List<Integer>> offsets = configuration
-						.getPageOffsets(fileName);
-
-				if (offsets != null && offsets.size() > 0) {
-					spine.setPageOffsets(offsets);
-				}
-			}
-
-		}
-
-        protected Spanned doInBackground(String... hrefs) {
+        protected Spanned doInBackground(Resource... resources) {
 
             publishProgress(BookReadPhase.START);
 
@@ -1313,29 +1471,19 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
             try {
 
-                if (BookView.this.book == null) {
-                    publishProgress(BookReadPhase.OPEN_FILE);
-                    setBook(textLoader.initBook(fileName));
-                }
-
                 this.name = spine.getCurrentTitle();
 
                 Resource resource;
 
-                if (hrefs.length == 0) {
+                if ( resources == null || resources.length == 0 ) {
                     resource = spine.getCurrentResource();
                 } else {
-                    resource = book.getResources().getByHref(hrefs[0]);
-                }
-
-                if (resource == null) {
-                    return new SpannedString( getContext().getString(R.string.dead_link) );
+                    resource = resources[0];
                 }
 
                 publishProgress(BookReadPhase.PARSE_TEXT);
 
-
-                Spannable result = textLoader.getText(resource);
+                Spannable result = textLoader.getText(resource, new QueueableAsyncTaskCancellationCallback(this) );
                 loader.load(); // Load all image resources.
 
                 //Clear any old highlighting spans
@@ -1380,8 +1528,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             return null;
         }
 
-
-
 		@Override
 		protected void onProgressUpdate(BookReadPhase... values) {
 
@@ -1391,14 +1537,11 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			case START:
 				parseEntryStart(getIndex());
 				break;
-			case OPEN_FILE:
-				fireOpenFile();
-				break;
 			case PARSE_TEXT:
 				fireRenderingText();
 				break;
 			case DONE:
-				parseEntryComplete(spine.getPosition(), this.name);
+				parseEntryComplete(this.name);
 				break;
 			}
 		}
@@ -1406,34 +1549,12 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         @Override
         protected void doOnPostExecute(Spanned result) {
 
-			if (!wasBookLoaded) {
-				if (book != null) {
-					bookOpened(book);
-				} else {
-					errorOnBookOpening(this.error);
-					return;
-				}
-			}
-
 			restorePosition();
 			strategy.updateGUI();
 			progressUpdate();
 
 			onProgressUpdate(BookReadPhase.DONE);
 
-            if (configuration.isShowPageNumbers()) {
-
-                List<List<Integer>> offsets = configuration
-                        .getPageOffsets(fileName);
-
-                if (offsets != null && offsets.size() > 0 ) {
-                    LOG.debug("LoadTextTask: Pagenumbers present, no calculation needed.");
-                } else {
-                    LOG.debug("LoadTextTask: no cached pagenumbers, scheduling calculation task.");
-                    taskQueue.executeTask( new CalculatePageNumbersTask() );
-                }
-            }
-			
 			/**
 			 * This is a hack for scrolling not updating to the right position 
 			 * on Android 4+
@@ -1462,6 +1583,10 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
         @Override
 		protected List<List<Integer>> doInBackground(Object... params) {
+
+            if ( ! needsPageNumberCalculation() ) {
+                return null;
+            }
 
 			try {
 				List<List<Integer>> offsets = getOffsets();
@@ -1537,7 +1662,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                         InputStream input = new ByteArrayInputStream(IOUtil.toByteArray(stream));
 
                         checkForCancellation();
-                        Spannable text = mySpanner.fromHtml(input);
+                        Spannable text = mySpanner.fromHtml(input,
+                                new QueueableAsyncTaskCancellationCallback(CalculatePageNumbersTask.this));
 
                         checkForCancellation();
                         imageLoader.load();
@@ -1561,14 +1687,15 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                 checkForCancellation();
                 Resource res = spine.getResourceForIndex(i);
 
-                if ( textLoader.hasCachedText( res ) ) {
+                Spannable cachedText = textLoader.getCachedTextForResource( res );
+
+                if ( cachedText != null ) {
                     LOG.debug("CalculatePageNumbersTask: Got cached text for href: " + res.getHref() );
-                    Spannable text = textLoader.getText(res);
 
                     FixedPagesStrategy fixedPagesStrategy = getFixedPagesStrategy();
                     fixedPagesStrategy.setBookView(BookView.this);
 
-                    offsetsPerSection.put(res.getHref(), fixedPagesStrategy.getPageOffsets(text, true));
+                    offsetsPerSection.put(res.getHref(), fixedPagesStrategy.getPageOffsets(cachedText, true));
 
                 } else {
                     LOG.debug("CalculatePageNumbersTask: Registering callback for href: " + res.getHref() );

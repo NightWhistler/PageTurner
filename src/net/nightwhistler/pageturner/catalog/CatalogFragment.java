@@ -47,10 +47,8 @@ import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.activity.DialogFactory;
-import net.nightwhistler.pageturner.activity.LibraryActivity;
 import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.scheduling.TaskQueue;
@@ -66,8 +64,6 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static net.nightwhistler.pageturner.catalog.Catalog.getImageLink;
-
 public class CatalogFragment extends RoboSherlockFragment implements
 		LoadFeedCallback, DialogFactory.SearchCallBack, TaskQueue.TaskQueueListener,
         CatalogListAdapter.CatalogImageLoader {
@@ -76,8 +72,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger("CatalogFragment");
-
-	private Stack<String> navStack = new Stack<String>();
 
 	@InjectView(R.id.catalogList)
 	@Nullable
@@ -100,7 +94,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
     @Inject
     private DialogFactory dialogFactory;
-	
+
     @Inject
 	private CatalogListAdapter adapter;
 
@@ -114,21 +108,23 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
     private MenuItem searchMenuItem;
 
+    private String baseURL;
+
+    private Feed staticFeed;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (savedInstanceState != null) {
-			List<String> navList = savedInstanceState.getStringArrayList(STATE_NAV_ARRAY_KEY);
-			if (navList != null && navList.size() > 0) {
-				navStack.addAll(navList);
-			}
-		}
 
         DisplayMetrics metrics = metricsProvider.get();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         this.taskQueue.setTaskQueueListener(this);
 	}
+
+    public void setBaseURL(  String baseURL ) {
+        this.baseURL = baseURL;
+    }
 
     @Override
     public void queueEmpty() {
@@ -139,8 +135,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_catalog, container, false);
 	}
-	
-	@Override
+
+    @Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
@@ -156,11 +152,19 @@ public class CatalogFragment extends RoboSherlockFragment implements
                 onEntryClicked(entry, position);
             }
         });
-	}	
-	
-	private void loadOPDSFeed(String url) {
-		loadOPDSFeed(null, url, false, false, ResultType.REPLACE);
+
+        if ( staticFeed != null ) {
+            adapter.setFeed( staticFeed );
+        }
+
 	}
+
+    public void onBecameVisible() {
+
+        if ( adapter.getFeed() != null ) {
+            ((CatalogParent) getActivity()).onFeedLoaded( adapter.getFeed() );
+        }
+    }
 	
 	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed, boolean asSearchFeed, ResultType resultType ) {
 
@@ -181,27 +185,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
             this.adapter.setLoading(true);
         }
 
-	}	
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		if (!navStack.empty()) {			
-			loadOPDSFeed(navStack.peek());
-		} else {
-			loadOPDSFeed(config.getBaseOPDSFeed());
-		}
 	}
 
-    @Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (!navStack.empty()) {
-			ArrayList<String> navList = new ArrayList<String>(navStack);
-			outState.putStringArrayList(STATE_NAV_ARRAY_KEY, navList);
-		}
-	}
+    public void setStaticFeed( Feed feed ) {
+        this.staticFeed = feed;
+    }
 
     public void performSearch(String searchTerm) {
     	if (searchTerm != null && searchTerm.length() > 0) {
@@ -219,7 +207,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
             }
 		}
     }
-    
+
+    public boolean supportsSearch() {
+        return searchMenuItem.isEnabled();
+    }
+
 	public void onSearchRequested() {
 
         if ( searchMenuItem == null || ! searchMenuItem.isEnabled() ) {
@@ -237,15 +229,15 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	public void onEntryClicked( Entry entry, int position ) {		
 			
 		if ( entry.getId() != null && entry.getId().equals(Catalog.CUSTOM_SITES_ID) ) {			
-			loadCustomSiteFeed();
+            ((CatalogParent) getActivity()).loadCustomSitesFeed();
 		} else if ( entry.getAlternateLink() != null ) {
 			String href = entry.getAlternateLink().getHref();
-			loadURL(entry, href, true, false, ResultType.REPLACE);
+			replaceFeed(entry, href, true);
 		} else if ( entry.getEpubLink() != null ) {
             loadFakeFeek(entry);
 		} else if ( entry.getAtomLink() != null ) {
 			String href = entry.getAtomLink().getHref();
-			loadURL(entry, href, false, false, ResultType.REPLACE);
+			replaceFeed( entry, href, false);
 		} else if ( entry.getWebsiteLink() != null ) {
             String url = entry.getWebsiteLink().getHref();
             Intent i = new Intent(Intent.ACTION_VIEW);
@@ -253,6 +245,19 @@ public class CatalogFragment extends RoboSherlockFragment implements
             startActivity(i);
         }
 	}
+
+    private void replaceFeed( Entry entry, String href, boolean asDetailsFeed ) {
+
+        String baseURL = entry.getBaseURL();
+
+        if ( baseURL == null ) {
+            baseURL = this.baseURL;
+        }
+
+        LOG.debug( "Loading new Feed with baseURL: " + baseURL );
+
+        ((CatalogParent) getActivity()).loadFeed(entry, href, baseURL, asDetailsFeed);
+    }
 
     private void loadFakeFeek( Entry entry ) {
 
@@ -264,44 +269,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
         ((CatalogParent) getActivity()).loadFakeFeed(fakeFeed);
     }
-	
-	private void loadCustomSiteFeed() {
-		
-		List<CustomOPDSSite> sites = config.getCustomOPDSSites();
-		
-		if ( sites.isEmpty() ) {
-			Toast.makeText(getActivity(), R.string.no_custom_sites, Toast.LENGTH_LONG).show();
-			return;
-		}
 
-        pushUrlToNavStack(Catalog.CUSTOM_SITES_ID);
-		
-		Feed customSites = new Feed();
-        customSites.setURL(Catalog.CUSTOM_SITES_ID);
-		customSites.setTitle(getString(R.string.custom_site));
-
-		
-		for ( CustomOPDSSite site: sites ) {
-			Entry entry = new Entry();
-			entry.setTitle(site.getName());
-			entry.setSummary(site.getDescription());
-			
-			Link link = new Link(site.getUrl(), AtomConstants.TYPE_ATOM, AtomConstants.REL_BUY, null);
-			entry.addLink(link);
-			
-			customSites.addEntry(entry);
-		}
-		
-		customSites.setId(Catalog.CUSTOM_SITES_ID);
-		
-		setNewFeed(customSites, ResultType.REPLACE);
-	}
-
-	public void loadURL(String url) {
-		loadURL(null, url, false, false, ResultType.REPLACE);
-	}
-
-    private void loadURL(Entry entry, String url, boolean asDetailsFeed, boolean asSearchFeed, ResultType resultType) {
+    public void loadURL(Entry entry, String url, boolean asDetailsFeed, boolean asSearchFeed, ResultType resultType) {
 
         String base = null;
 
@@ -309,9 +278,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
             base = entry.getBaseURL();
         }
 
-		if (base == null && !navStack.isEmpty()) {
-			base = navStack.peek();
-		}
+        if ( base == null ) {
+            base = this.baseURL;
+        }
+
+        LOG.debug("Using baseURL: " + base);
 
 		try {
 			String target = url;
@@ -322,21 +293,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 			LOG.info("Loading " + target);
 
-            if ( resultType == ResultType.REPLACE ) {
-			    pushUrlToNavStack(target);
-            }
-
 			loadOPDSFeed(entry, target, asDetailsFeed, asSearchFeed, resultType);
 		} catch (MalformedURLException u) {
 			LOG.error("Malformed URL:", u);
 		}
 	}
-
-    private void pushUrlToNavStack(String url) {
-        if ( navStack.isEmpty() || ! url.equals(navStack.peek()) ) {
-            navStack.push(url);
-        }
-    }
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -408,6 +369,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			item.setEnabled(enabled);
 			item.setVisible(enabled);			
 		}
+
+        LOG.debug("Adapter has feed: " + adapter.getFeed() );
 	}	
 
 	@Override
@@ -415,10 +378,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			navStack.clear();
-			loadOPDSFeed(config.getBaseOPDSFeed());
-			return true;
+
 		case R.id.prefs:
 			Intent prefsIntent = new Intent(getActivity(), PageTurnerPrefsActivity.class);
 			startActivity(prefsIntent);
@@ -428,29 +388,11 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		return true;
 	}
 
-	// TODO Refactor this. Let the platform push/pop fragments from the fragment stack.
-	public void onBackPressed() {
-		if (navStack.isEmpty()) {
-			getActivity().finish();
-			return;
-		} 	
-		
-		navStack.pop();
-		
-		if (navStack.isEmpty()) {
-			loadOPDSFeed(config.getBaseOPDSFeed());
-		} else if ( navStack.peek().equals(Catalog.CUSTOM_SITES_ID) ) {
-			loadCustomSiteFeed();
-		}else {
-			loadOPDSFeed(navStack.peek());
-		}
-	}
-
     @Override
     public void notifyLinkUpdated(Link link, Drawable drawable) {
 
         if ( drawable != null ) {
-            this.thumbnailCache.put( link.getHref(), drawable );
+            this.thumbnailCache.put(link.getHref(), drawable);
             adapter.notifyDataSetChanged();
         }
     }
@@ -485,20 +427,19 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
     public void setNewFeed(Feed result, ResultType resultType) {
 
-        if (result != null && isAdded() ) {
+        if (result != null ) {
 
             if ( resultType == null || resultType == ResultType.REPLACE ) {
                 destroyThumbnails();
                 thumbnailCache.clear();
                 adapter.setFeed(result);
-                ((CatalogParent) getActivity() ).onFeedReplaced(result);
+                if ( isAdded() ) {
+                    ((CatalogParent) getActivity() ).onFeedLoaded(result);
+                }
             } else {
                 this.adapter.setLoading(false);
                 adapter.addEntriesFromFeed(result);
             }
-
-            getSherlockActivity().supportInvalidateOptionsMenu();
-            getSherlockActivity().getSupportActionBar().setTitle(result.getTitle());
         }
     }
 

@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.ref.SoftReference;
 import java.util.*;
 
 /**
@@ -61,6 +62,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
     private Map<String, List<CompiledRule>> cssRules = new HashMap<String, List<CompiledRule>>();
 
     private Map<String, FastBitmapDrawable> imageCache = new HashMap<String, FastBitmapDrawable>();
+
 
     private Map<String, Map<String, Integer>> anchors = new HashMap<String, Map<String, Integer>>();
     private List<AnchorHandler> anchorHandlers = new ArrayList<AnchorHandler>();
@@ -226,13 +228,18 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         this.htmlSpanner.registerHandler(tag, handler);
     }
 
+    public boolean hasCachedBook( String fileName ) {
+        return fileName != null && fileName.equals( currentFile );
+    }
+
+
     public Book initBook(String fileName) throws IOException {
 
         if (fileName == null) {
             throw new IOException("No file-name specified.");
         }
 
-        if ( fileName.equals(currentFile) ) {
+        if ( hasCachedBook( fileName ) ) {
             LOG.debug("Returning cached Book for fileName " + currentFile );
             return currentBook;
         }
@@ -310,15 +317,21 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         anchors.get(href).put(anchor, position);
     }
 
-    public boolean hasCachedText( Resource resource ) {
-        return renderedText.containsKey(resource.getHref());
+    public Spannable getCachedTextForResource( Resource resource ) {
+
+        LOG.debug( "Checking for cached resource: " + resource );
+
+        Spannable result = renderedText.get( resource.getHref() );
+        return result;
     }
 
-    public Spannable getText( final Resource resource ) throws IOException {
+    public Spannable getText( final Resource resource,
+                              HtmlSpanner.CancellationCallback cancellationCallback ) throws IOException {
 
-        if ( hasCachedText(resource) ) {
-            LOG.debug("Returning cached text for href " + resource.getHref() );
-            return renderedText.get(resource.getHref());
+        Spannable cached = getCachedTextForResource( resource );
+
+        if ( cached != null ) {
+            return cached;
         }
 
         AnchorHandler.AnchorCallback callback = new AnchorHandler.AnchorCallback() {
@@ -340,6 +353,9 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
         //If memory usage gets over the threshold, try to free up memory
         if ( memoryUsage > CACHE_CLEAR_THRESHOLD || bitmapUsage > CACHE_CLEAR_THRESHOLD) {
+
+            LOG.debug("Clearing cached resources.");
+
             clearCachedText();
             closeLazyLoadedResources();
         }
@@ -357,7 +373,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         Spannable result = new SpannableString("");
 
         try {
-            result = htmlSpanner.fromHtml(res.getReader());
+            result = htmlSpanner.fromHtml(res.getReader(), cancellationCallback);
             renderedText.put(res.getHref(), result);
         } catch (Exception e) {
             LOG.error("Caught exception while rendering text", e);
@@ -370,8 +386,6 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
             }
         }
 
-
-
         return result;
     }
 
@@ -383,7 +397,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         }
     }
 
-    private void clearCachedText() {
+    public void clearCachedText() {
         clearImageCache();
         anchors.clear();
 

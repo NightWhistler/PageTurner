@@ -65,11 +65,10 @@ public interface BookViewListener {
 	
 	/**
 	 * Called after parsing is complete.
-	 * 
-	 * @param entry
+	 *
 	 * @param name
 	 */
-	void parseEntryComplete( int entry, String name );
+	void parseEntryComplete( String name );
 	
 	/** Indicates how far we've progressed in the book **/
 	void progressUpdate( int progressPercentage, int pageNumber, int totalPages );

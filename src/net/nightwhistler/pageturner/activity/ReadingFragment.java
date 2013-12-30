@@ -1630,7 +1630,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     }
 
 	@Override
-	public void parseEntryComplete(int entry, String name) {
+	public void parseEntryComplete( String name) {
 
         if (name != null && !name.equals(this.bookTitle)) {
 			this.titleBase = this.bookTitle + " - " + name;

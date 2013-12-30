@@ -460,7 +460,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         restorePosition();
         strategy.updateGUI();
         progressUpdate();
-        parseEntryComplete( spine.getPosition(), spine.getCurrentTitle() );
+        parseEntryComplete( spine.getCurrentTitle() );
     }
 
 	private void loadText( String searchTerm ) {
@@ -1130,9 +1130,9 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		}
 	}
 
-	private void parseEntryComplete(int entry, String name) {
+	private void parseEntryComplete( String name) {
 		for (BookViewListener listener : this.listeners) {
-			listener.parseEntryComplete(entry, name);
+			listener.parseEntryComplete(name);
 		}
 	}
 
@@ -1541,7 +1541,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 				fireRenderingText();
 				break;
 			case DONE:
-				parseEntryComplete(spine.getPosition(), this.name);
+				parseEntryComplete(this.name);
 				break;
 			}
 		}

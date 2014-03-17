@@ -211,8 +211,19 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		if ( storedPosition != -1 ) {
 			updatePageNumber();
 		}
-		
-		this.childView.setText(getTextForPage(this.pageNum));			
+
+
+        CharSequence sequence = getTextForPage(this.pageNum);
+        try {
+		    this.childView.setText( sequence );
+
+            //If we get an error setting the formatted text,
+            //strip formatting and try again.
+        } catch ( ArrayIndexOutOfBoundsException a ) {
+            this.childView.setText( sequence.toString() );
+        } catch ( IndexOutOfBoundsException ie ) {
+            this.childView.setText( sequence.toString() );
+        }
 	}
 	
 	private CharSequence getTextForPage( int page ) {

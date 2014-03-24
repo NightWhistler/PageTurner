@@ -109,6 +109,9 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
     }
 
     public void registerCustomFont( String name, String href ) {
+
+        LOG.debug( "Registering custom font " + name + " with href " + href );
+
         this.fontResolver.loadEmbeddedFont(name, href);
     }
 

@@ -116,8 +116,16 @@ public class ScrollingStrategy implements PageChangeStrategy {
     @Override
     public void updateGUI() {
         addHighlights( this.text);
-		childView.setText(this.text);
-		updatePosition();
+
+        try {
+            childView.setText(this.text);
+        } catch ( ArrayIndexOutOfBoundsException a ) {
+            this.childView.setText( this.text.toString() );
+        } catch ( IndexOutOfBoundsException ie ) {
+            this.childView.setText( this.text.toString() );
+        }
+
+        updatePosition();
     }
 
 	private Spannable addEndTag(SpannableStringBuilder builder) {

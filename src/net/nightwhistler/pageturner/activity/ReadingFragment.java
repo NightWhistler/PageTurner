@@ -21,7 +21,6 @@ package net.nightwhistler.pageturner.activity;
 
 import android.annotation.TargetApi;
 import android.app.*;
-import android.support.v4.app.FragmentTransaction;
 import android.content.*;
 import android.content.DialogInterface.OnClickListener;
 import android.content.pm.ActivityInfo;
@@ -36,12 +35,12 @@ import android.net.Uri;
 import android.os.*;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
-import com.actionbarsherlock.view.ActionMode;
 import android.view.*;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.animation.Animation;
@@ -49,6 +48,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -89,7 +89,6 @@ import roboguice.inject.InjectView;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -722,7 +721,15 @@ public class ReadingFragment extends RoboSherlockFragment implements
             TTSPlaybackItem item = new TTSPlaybackItem( part, new MediaPlayer(), totalLength, offset, endOfPage, fileName);
             ttsItemPrep.put(fileName, item);
 
-            int result = textToSpeech.synthesizeToFile(part, params, fileName);
+            int result;
+
+            try {
+                result = textToSpeech.synthesizeToFile(part, params, fileName);
+            } catch ( Exception e ) {
+                LOG.error( "Failed to start TTS", e );
+                result = TextToSpeech.ERROR;
+            }
+
             if ( result != TextToSpeech.SUCCESS ) {
                 String message = "synthesizeToFile failed with result " + result;
                 LOG.error(message);

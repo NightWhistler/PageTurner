@@ -18,18 +18,18 @@
  */
 package net.nightwhistler.pageturner.epub;
 
-import nl.siegmann.epublib.domain.Resources;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 
 /**
@@ -48,6 +48,10 @@ import java.util.zip.ZipInputStream;
 public class ResourceLoader  {
 	
 	private String fileName;
+
+    private final String charsetName = "UTF-8";
+
+    private static final Logger LOG = LoggerFactory.getLogger("ResourceLoader");
 		
 	public ResourceLoader(String fileName) {
 		this.fileName = fileName;
@@ -119,9 +123,14 @@ public class ResourceLoader  {
 	public void registerCallback( String forHref, ResourceCallback callback ) {
 			
 		Holder holder = new Holder();
-		holder.href = URLDecoder.decode(forHref);
-		holder.callback = callback;
-		
-		callbacks.add(holder);		
+        try {
+            holder.href = URLDecoder.decode(forHref, charsetName);
+            holder.callback = callback;
+
+            callbacks.add(holder);
+
+        } catch (UnsupportedEncodingException e) {
+            LOG.error("Could not register callback", e);
+        }
 	}
 }

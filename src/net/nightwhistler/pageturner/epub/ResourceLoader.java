@@ -18,13 +18,11 @@
  */
 package net.nightwhistler.pageturner.epub;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -48,10 +46,6 @@ import java.util.zip.ZipFile;
 public class ResourceLoader  {
 	
 	private String fileName;
-
-    private final String charsetName = "UTF-8";
-
-    private static final Logger LOG = LoggerFactory.getLogger("ResourceLoader");
 		
 	public ResourceLoader(String fileName) {
 		this.fileName = fileName;
@@ -120,9 +114,19 @@ public class ResourceLoader  {
 		return result;
 	}
 	
-	public void registerCallback( String forHref, ResourceCallback callback ) {
+	public void registerCallback( String forHref, ResourceCallback callback )
+            throws AssertionError{
 			
 		Holder holder = new Holder();
+
+        // Default Charset for android is UTF-8
+        // http://developer.android.com/reference/java/nio/charset/Charset.html#defaultCharset()
+        String charsetName = Charset.defaultCharset().name();
+
+        if (!Charset.isSupported(charsetName)) {
+            charsetName = "UTF-8";
+        }
+
         try {
             holder.href = URLDecoder.decode(forHref, charsetName);
             holder.callback = callback;
@@ -130,7 +134,8 @@ public class ResourceLoader  {
             callbacks.add(holder);
 
         } catch (UnsupportedEncodingException e) {
-            LOG.error("Could not register callback", e);
+            // I don't think this will ever be reached
+            throw new AssertionError(e);
         }
 	}
 }

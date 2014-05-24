@@ -25,7 +25,6 @@ import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.library.LibraryService;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
-import nl.siegmann.epublib.service.MediatypeService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -33,10 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 
 public class DownloadFileTask extends AsyncTask<String, Long, String> {
 
@@ -111,7 +111,21 @@ public class DownloadFileTask extends AsyncTask<String, Long, String> {
 					fileName = fileName + ".epub";
 				}
 
-				destFile = new File(destFolder, URLDecoder.decode(fileName));
+                // Default Charset for android is UTF-8*
+                String charsetName = Charset.defaultCharset().name();
+
+                if (!Charset.isSupported(charsetName)) {
+                    LOG.warn("{} is not a supported Charset. Will fall back to UTF-8", charsetName);
+                    charsetName = "UTF-8";
+                }
+
+                try {
+                    destFile = new File(destFolder, URLDecoder.decode(fileName,charsetName));
+                } catch (UnsupportedEncodingException e) {
+                    // Won't ever reached here
+                    throw new AssertionError(e);
+                }
+
 
 				if (destFile.exists()) {
 					destFile.delete();

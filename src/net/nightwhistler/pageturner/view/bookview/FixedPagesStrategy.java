@@ -215,14 +215,14 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 
         CharSequence sequence = getTextForPage(this.pageNum);
         try {
-		    this.childView.setText( sequence );
+		    this.childView.setText( sequence.toString().trim() );
 
             //If we get an error setting the formatted text,
             //strip formatting and try again.
         } catch ( ArrayIndexOutOfBoundsException a ) {
-            this.childView.setText( sequence.toString() );
+            this.childView.setText( sequence.toString().trim() );
         } catch ( IndexOutOfBoundsException ie ) {
-            this.childView.setText( sequence.toString() );
+            this.childView.setText( sequence.toString().trim() );
         }
 	}
 	

@@ -29,7 +29,9 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.view.View;
+
 import com.google.inject.Inject;
+
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.dto.HighLight;
@@ -37,6 +39,7 @@ import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import android.graphics.Canvas;
 import android.widget.TextView;
 import net.nightwhistler.pageturner.view.HighlightManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,15 +217,24 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 
 
         CharSequence sequence = getTextForPage(this.pageNum);
+
+        // #555 Remove \n at the end of sequence which get InnerView size changed
+        int endIndex = sequence.length();
+        while (sequence.charAt(endIndex-1) == '\n') {
+        	endIndex--;
+        }
+        
+        sequence = sequence.subSequence(0, endIndex);
+        
         try {
-		    this.childView.setText( sequence.toString().trim() );
+		    this.childView.setText( sequence );
 
             //If we get an error setting the formatted text,
             //strip formatting and try again.
         } catch ( ArrayIndexOutOfBoundsException a ) {
-            this.childView.setText( sequence.toString().trim() );
+            this.childView.setText( sequence );
         } catch ( IndexOutOfBoundsException ie ) {
-            this.childView.setText( sequence.toString().trim() );
+            this.childView.setText( sequence );
         }
 	}
 	

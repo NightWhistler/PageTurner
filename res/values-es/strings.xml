@@ -2,7 +2,6 @@
     <string name="title">Título</string>
     <string name="app_desc">PageTurner es un lector de e-books que permite sincronizar sus progresos en la lectura entre múltiples dispositivos.</string>
 
-    <string name="browse">Navegando…</string>
     <string name="open_file">Abrir archivo ePub</string>
     <string name="open_library">Mis Libros</string>
 
@@ -138,8 +137,6 @@
     <string name="download_complete">Descarga completada.\nEl libro ha sido añadido a su biblioteca.</string>
 
 
-    <string name="feed_failed">No se ha podido conectar. Por favor inténtelo de nuevo.</string>
-    <string name="book_failed">No se ha podido descargar el libro. Por favor inténtelo de nuevo.</string>
 
     <string name="custom_site">Mi propio sitio OPDS </string>
     <string name="add_site">Añadir sitio propio</string>

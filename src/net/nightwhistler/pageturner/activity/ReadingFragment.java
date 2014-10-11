@@ -2368,8 +2368,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
         sendIntent.putExtra(Intent.EXTRA_TEXT, text );
         sendIntent.setType("text/plain");
 
-        startActivity(Intent.createChooser(sendIntent, getText(R.string.abs__share_action_provider_share_with)));
-
+        //startActivity(Intent.createChooser(sendIntent, getText(R.string.abs__share_action_provider_share_with)));
+        startActivity(Intent.createChooser(sendIntent, "Share with..."));
     }
 
 	@Override

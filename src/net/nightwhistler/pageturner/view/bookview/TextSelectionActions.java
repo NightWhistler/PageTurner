@@ -70,7 +70,8 @@ public class TextSelectionActions implements ActionMode.Callback {
             });
         }
 
-        menu.add(R.string.abs__share_action_provider_share_with)
+        //menu.add(R.string.abs__share_action_provider_share_with)
+        menu.add("Share with...")
                 .setOnMenuItemClickListener(new OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(android.view.MenuItem item) {

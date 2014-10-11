@@ -38,8 +38,11 @@ Building PageTurner
 # Install Java
 *   On Ubuntu
 
-        sudo apt-get install openjdk-7-jdk
+        sudo apt-get install openjdk-8-jdk
+
 *   On Windows install the JDK from http://www.oracle.com/technetwork/java/javase/downloads/index.html
+
+PageTurner uses Java 8 lambda's through usage of the RetroLambda library.
 
 # Install the Android SDK 
 
@@ -61,13 +64,6 @@ Building PageTurner
         List of devices attached 
         015d18ad5c14000c        device
 
-# Install Maven 3.0.x
-
-NOTE: Currently PageTurner won't build using Maven 3.1, since the Android plugin isn't compatible.
-
-1. Download Maven 3 tarball http://maven.apache.org/download.html
-2. Puth maven/bin on your path
-
 # Example PATH setup in .bashrc
 
     export ANDROID_HOME=$HOME/projects/adt-bundle-linux/sdk/
@@ -77,13 +73,22 @@ NOTE: Currently PageTurner won't build using Maven 3.1, since the Android plugin
         export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-i386/jre
     fi
 
-    PATH=$HOME/projects/apache-maven-3.0.4/bin:$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+    PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+
+
+# Gradle
+
+PageTurner is now built using Gradle instead of Maven. If you want to use a local Gradle version, make sure it's at least version 2.1. The preferred way is to run the Gradle wrapper. This will automatically download the correct version of gradle to your system.
+
+Run the Gradle wrapper by running
+
+    gradlew
 
 # Build PageTurner
 Once everything is in place you can build PageTurner and install it on your device with 
 
-    mvn clean install
-    mvn android:deploy
+    gradlew build
+    gradlew installDebug
 
 Eclipse
 -------

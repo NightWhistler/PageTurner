@@ -48,7 +48,6 @@
     <string name="importing_books">أستيراد الكتب …</string>
     <string name="scanning_epub">البحث عن ملفات EPUB</string>
     <string name="importing">أستيراد 	 %1$d 	من 	%2$d</string>
-    <string name="importing">أستيراد	%1$d	من	%2$d</string>	
     <string name="scan_folders">البحث عن ملفات EPUB.\n مجلد البحث: %d</string>
     <string name="import_errors">بعض الملفات يوجد بها خلل عن أستيرادها:</string>
     <string name="no_books_found">حاليا لا توجد كتب بمكتبتك </string>
@@ -107,7 +106,6 @@
     <string name="feed_failed">لا يمكن الاتصال بالموقع. الرجاء المحاوله مرة أخرى.</string>
     <string name="book_failed">لا يمكن تحميل الكتاب. الرجاء المحاولة مرة أخرى.</string>
 
-    <string name="browse">أستعرض …</string>
     
     <string name="search_books">البحث في الكتب</string>
     <string name="enter_query">الرجاء إدخال كلمات البحث</string>
@@ -132,8 +130,6 @@
 
 
     <!-- Not yet translated -->
-    <string name="feed_failed">Could not contact the site. Please try again.</string>
-    <string name="book_failed">Could not download the book. Please try again.</string>
 
     <string name="custom_site">My custom OPDS sites</string>
     <string name="add_site">Add custom site</string>

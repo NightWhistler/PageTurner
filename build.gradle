@@ -1,0 +1,91 @@
+buildscript {
+    repositories {
+
+        mavenLocal()
+
+        maven { url 'http://repo.pageturner-reader.org' }
+        maven { url 'http://acra.googlecode.com/svn/repository/releases' }
+
+        mavenCentral()
+
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.13.2'
+
+    }
+}
+
+apply plugin: 'android'
+
+repositories {
+    
+    mavenLocal()
+
+    maven { url 'http://repo.pageturner-reader.org' }
+    maven { url 'http://acra.googlecode.com/svn/repository/releases' }
+
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+    compile 'com.android.support:support-v4:18.0+'
+    compile 'com.google.code.findbugs:jsr305:1.3.9'
+    provided 'com.google.android:annotations:4.1.1.4'
+    provided 'org.slf4j:slf4j-api:1.6.1'
+    compile 'org.roboguice:roboguice:2.0'
+    
+    compile('nl.siegmann.epublib:epublib-core:3.1') {
+        exclude group: 'xmlpull'
+        exclude group: 'org.slf4j'
+        exclude group: 'net.sf.kxml'
+    }
+
+    compile 'net.nightwhistler.htmlspanner:htmlspanner:0.4'
+    compile 'ch.acra:acra:4.4.0'
+    compile 'com.github.rtyley:roboguice-sherlock:1.5'
+}
+
+android {
+    buildToolsVersion "19.1.0"
+    compileSdkVersion 19
+    
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+
+            renderscript.srcDirs = ['src']
+
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+    }
+
+    packagingOptions {
+	    exclude 'META-INF/LICENSE.txt'
+	    exclude 'META-INF/NOTICE.txt'
+	}
+
+    lintOptions {
+        abortOnError false
+    }
+
+}
+
+// Signing configuration, valid for all builds (1)
+/*
+androidSignAndAlign {
+    keyStore = "path/to/my/keystore"
+    keyAlias = "my-key-alias"
+    keyStorePassword = "mystorepass"
+    keyAliasPassword = "myaliaspass"
+}
+*/
+
+
+

@@ -48,6 +48,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.actionbarsherlock.widget.SearchView;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
+import com.google.common.base.Function;
 import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
@@ -56,6 +57,7 @@ import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.Configuration.LibraryView;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.UiUtils;
 import net.nightwhistler.pageturner.library.*;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import net.nightwhistler.pageturner.scheduling.TaskQueue;
@@ -69,6 +71,7 @@ import java.io.File;
 import java.text.DateFormat;
 import java.util.*;
 
+import static net.nightwhistler.pageturner.UiUtils.onMenuPress;
 import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
 
 public class LibraryFragment extends RoboSherlockFragment implements ImportCallback, OnItemClickListener,
@@ -385,86 +388,37 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {		
-        inflater.inflate(R.menu.library_menu, menu);        
-       		
-		OnMenuItemClickListener toggleListener = new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				
-				if ( switcher.getDisplayedChild() == 0 ) {
-					bookAdapter = new BookCaseAdapter();
-					bookCaseView.setAdapter(bookAdapter);	
-					config.setLibraryView(LibraryView.BOOKCASE);					
-				} else {
-					bookAdapter = new BookListAdapter(getActivity());
-					listView.setAdapter(bookAdapter);
-					config.setLibraryView(LibraryView.LIST);					
-				}
-				
-				switcher.showNext();
-				refreshView();
-				return true;				
-            }
-        };
-        
-        MenuItem shelves = menu.findItem(R.id.shelves_view);        
-        shelves.setOnMenuItemClickListener(toggleListener);
-        
-        MenuItem list = menu.findItem(R.id.list_view);        
-        list.setOnMenuItemClickListener(toggleListener);
-		
-        menu.findItem(R.id.preferences)		
-			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				Intent intent = new Intent(getActivity(), PageTurnerPrefsActivity.class);
-				startActivity(intent);
-				
-				return true;
-			}
-		});
-		
-		menu.findItem(R.id.scan_books)		
-			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {	
-				showImportDialog();
-				return true;
-			}
-		});		
-		
-		menu.findItem(R.id.about)
-			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				dialogFactory.buildAboutDialog().show();
-				return true;
-			}
-		});
+        inflater.inflate(R.menu.library_menu, menu);
 
-		menu.findItem(R.id.profile_day)
-			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				switchToColourProfile(ColourProfile.DAY);
-				return true;
-			}
-		});
-		
-		menu.findItem(R.id.profile_night)
-			.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				switchToColourProfile(ColourProfile.NIGHT);
-				return true;
-			}
-		});
+        UiUtils.Action toggleListener = () -> {
+
+            if ( switcher.getDisplayedChild() == 0 ) {
+                bookAdapter = new BookCaseAdapter();
+                bookCaseView.setAdapter(bookAdapter);
+                config.setLibraryView(LibraryView.BOOKCASE);
+            } else {
+                bookAdapter = new BookListAdapter(getActivity());
+                listView.setAdapter(bookAdapter);
+                config.setLibraryView(LibraryView.LIST);
+            }
+
+            switcher.showNext();
+            refreshView();
+        };
+
+        onMenuPress( menu, R.id.shelves_view ).thenDo( toggleListener );
+        onMenuPress( menu, R.id.list_view ).thenDo( toggleListener );
+
+        onMenuPress( menu, R.id.preferences ).thenDo( () -> {
+            Intent intent = new Intent(getActivity(), PageTurnerPrefsActivity.class);
+            startActivity(intent);
+        });
+
+        onMenuPress( menu, R.id.scan_books ).thenDo( this::showImportDialog );
+        onMenuPress( menu, R.id.about ).thenDo( dialogFactory.buildAboutDialog()::show );
+        
+        onMenuPress( menu, R.id.profile_day ).thenDo(() -> switchToColourProfile(ColourProfile.DAY) );
+        onMenuPress( menu, R.id.profile_night ).thenDo(() -> switchToColourProfile(ColourProfile.NIGHT) );
 
         this.searchMenuItem = menu.findItem(R.id.menu_search);
         if (searchMenuItem != null) {
@@ -499,16 +453,12 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
                 });
 
             } else {
-                searchMenuItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        dialogFactory.showSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
-                        return false;
-                    }
+                searchMenuItem.setOnMenuItemClickListener( item -> {
+                    dialogFactory.showSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
+                    return false;
                 });
             }
         }
-
 
         // Only show open file item if we have a file manager installed
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -516,13 +466,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         if (isIntentAvailable(getActivity(), intent)) {
-            menu.findItem(R.id.open_file).setOnMenuItemClickListener(new OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    launchFileManager();
-                    return true;
-                }
-            });
+            onMenuPress( menu, R.id.open_file ).thenDo(() -> launchFileManager() );
         } else {
             menu.findItem(R.id.open_file).setVisible(false);
         }
@@ -535,18 +479,15 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-        this.intentCallBack = new IntentCallBack() {
+        this.intentCallBack = (int resultCode, Intent data)  -> {
+            if ( resultCode == Activity.RESULT_OK && data != null ) {
+                Intent readingIntent = new Intent( getActivity(), ReadingActivity.class);
+                readingIntent.setData(data.getData());
+                getActivity().setResult(Activity.RESULT_OK, readingIntent);
 
-            @Override
-            public void onResult(int resultCode, Intent data) {
-                if ( resultCode == Activity.RESULT_OK && data != null ) {
-                    Intent readingIntent = new Intent( getActivity(), ReadingActivity.class);
-                    readingIntent.setData(data.getData());
-                    getActivity().setResult(Activity.RESULT_OK, readingIntent);
-
-                    getActivity().startActivityIfNeeded(readingIntent, 99);
-                }
+                getActivity().startActivityIfNeeded(readingIntent, 99);
             }
+
         };
 
         try {

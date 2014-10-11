@@ -68,8 +68,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		LoadFeedCallback, DialogFactory.SearchCallBack, TaskQueue.TaskQueueListener,
         CatalogListAdapter.CatalogImageLoader {
 	
-    private static final String STATE_NAV_ARRAY_KEY = "nav_array";    
-
 	private static final Logger LOG = LoggerFactory
 			.getLogger("CatalogFragment");
 
@@ -77,12 +75,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Nullable
 	private ListView catalogList;
 
-	@Inject
-	private Configuration config;
-	
-	@Inject
-	private LibraryService libraryService;
-	
 	@Inject
 	private Provider<LoadOPDSTask> loadOPDSTaskProvider;
 
@@ -144,13 +136,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
 		catalogList.setAdapter(adapter);
         adapter.setImageLoader(this);
         catalogList.setOnScrollListener(new LoadingScrollListener());
-		catalogList.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> list, View arg1, int position,
-                                    long arg3) {
-                Entry entry = adapter.getItem(position);
-                onEntryClicked(entry, position);
-            }
+        catalogList.setOnItemClickListener( (AdapterView<?> list, View arg1, int position, long arg3) -> {
+            Entry entry = adapter.getItem(position);
+            onEntryClicked(entry, position);
         });
 
         if ( staticFeed != null ) {
@@ -331,12 +319,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
                     }
                 } );
             } else {
-                searchMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
+                searchMenuItem.setOnMenuItemClickListener( item -> {
                         dialogFactory.showSearchDialog(R.string.search_books, R.string.enter_query, CatalogFragment.this);
                         return false;
-                    }
                 });
             }
         }
@@ -570,18 +555,14 @@ public class CatalogFragment extends RoboSherlockFragment implements
                 handler.removeCallbacks(updater);
             }
 
-            updater = new Runnable() {
-                @Override
-                public void run() {
+            updater = () -> {
+                for ( int i=0; i < visibleItemCount; i++ ) {
+                    Entry entry = adapter.getItem( firstVisibleItem + i );
+                    if ( entry != null ) {
+                        Link imageLink = Catalog.getImageLink(entry.getFeed(), entry);
 
-                    for ( int i=0; i < visibleItemCount; i++ ) {
-                        Entry entry = adapter.getItem( firstVisibleItem + i );
-                        if ( entry != null ) {
-                            Link imageLink = Catalog.getImageLink(entry.getFeed(), entry);
-
-                            if ( imageLink != null && !thumbnailCache.containsKey(imageLink.getHref() ) ) {
-                                queueImageLoading( entry.getBaseURL(), imageLink );
-                            }
+                        if ( imageLink != null && !thumbnailCache.containsKey(imageLink.getHref() ) ) {
+                            queueImageLoading( entry.getBaseURL(), imageLink );
                         }
                     }
                 }

@@ -1185,19 +1185,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					+ author.getLastname());
 		}
 
-		backgroundHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-
-				try {
-					libraryService.storeBook(fileName, book, true,
-							config.isCopyToLibrayEnabled());
-				} catch (Exception io) {
-					LOG.error("Copy to library failed.", io);
-				}
-			}
-		});
+        backgroundHandler.post( () -> {
+            try {
+                libraryService.storeBook(fileName, book, true,
+                        config.isCopyToLibrayEnabled());
+            } catch (Exception io) {
+                LOG.error("Copy to library failed.", io);
+            }
+        });
 		
 		updateFromPrefs();
 	}

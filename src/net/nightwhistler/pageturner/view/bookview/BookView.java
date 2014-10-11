@@ -1046,10 +1046,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 							getContext().getResources(),
 							BitmapFactory.decodeByteArray(binData, 0, binData.length )),
 							start, builder.length());
-                    } catch ( OutOfMemoryError outOfMemoryError ) {
-                        //Simply don't load
-                    } catch ( IllegalArgumentException ia ) {
-                        //Invalid Base64, ignore
+                    } catch ( OutOfMemoryError | IllegalArgumentException ia ) {
+                        //Out of memory or invalid Base64, ignore
                     }
 					
 				}
@@ -1650,35 +1648,30 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
             //We use the ResourceLoader here to load all the text in the book in 1 pass,
             //but we only keep a single section in memory at each moment
-            ResourceCallback callback = new ResourceCallback() {
+            ResourceCallback callback = (String href, InputStream stream) -> {
 
-                @Override
-                public void onLoadResource(String href, InputStream stream) {
+                try {
 
-                    try {
+                    checkForCancellation();
+                    LOG.debug("CalculatePageNumbersTask: loading text for: " + href );
+                    InputStream input = new ByteArrayInputStream(IOUtil.toByteArray(stream));
 
-                        checkForCancellation();
-                        LOG.debug("CalculatePageNumbersTask: loading text for: " + href );
-                        InputStream input = new ByteArrayInputStream(IOUtil.toByteArray(stream));
+                    checkForCancellation();
+                    Spannable text = mySpanner.fromHtml(input,
+                            new QueueableAsyncTaskCancellationCallback(CalculatePageNumbersTask.this));
 
-                        checkForCancellation();
-                        Spannable text = mySpanner.fromHtml(input,
-                                new QueueableAsyncTaskCancellationCallback(CalculatePageNumbersTask.this));
+                    checkForCancellation();
+                    imageLoader.load();
 
-                        checkForCancellation();
-                        imageLoader.load();
+                    checkForCancellation();
+                    FixedPagesStrategy fixedPagesStrategy = getFixedPagesStrategy();
+                    fixedPagesStrategy.setBookView(BookView.this);
 
-                        checkForCancellation();
-                        FixedPagesStrategy fixedPagesStrategy = getFixedPagesStrategy();
-                        fixedPagesStrategy.setBookView(BookView.this);
+                    offsetsPerSection.put(href, fixedPagesStrategy.getPageOffsets(text, true));
 
-                        offsetsPerSection.put(href, fixedPagesStrategy.getPageOffsets(text, true));
-
-                    } catch ( IOException io ) {
-                        LOG.error( "CalculatePageNumbersTask: failed to load text for " + href, io );
-                    }
+                } catch ( IOException io ) {
+                    LOG.error( "CalculatePageNumbersTask: failed to load text for " + href, io );
                 }
-
             };
 
             //Do first pass: grab either cached text, or schedule a callback

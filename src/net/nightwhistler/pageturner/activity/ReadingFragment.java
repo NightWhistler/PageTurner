@@ -329,14 +329,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             }
         });
 
-
-		this.textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
-			@Override
-			public void onInit(int status) {
-				onTextToSpeechInit(status);				
-			}
-		});
-
+        this.textToSpeech = new TextToSpeech(context, (status) -> onTextToSpeechInit(status) );
 
 		this.bookView.addListener(this);
 		this.bookView.setTextSelectionCallback(this);
@@ -428,17 +421,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		final GestureDetector gestureDetector = new GestureDetector(context,
 				new NavGestureDetector(bookView, this, metrics));
 
-		View.OnTouchListener gestureListener = new View.OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
-				
-				if ( ttsIsRunning() ) {
-					return false;
-				}
-				
-				return gestureDetector.onTouchEvent(event);
-			}
-		};
-		
+		View.OnTouchListener gestureListener = (View v, MotionEvent event) ->
+		    ttsIsRunning() ? false: gestureDetector.onTouchEvent(event);
+
+
 		this.viewSwitcher.setOnTouchListener(gestureListener);
 		this.bookView.setOnTouchListener(gestureListener);
         this.dummyView.setOnTouchListener(gestureListener);
@@ -485,18 +471,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
             uiHandler.post( progressBarUpdater );
         }
 
-        activity.getSupportActionBar().addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
-            @Override
-            public void onMenuVisibilityChanged(boolean isVisible) {
+        activity.getSupportActionBar().addOnMenuVisibilityListener( (boolean isVisible) -> {
 
-                LOG.debug("Detected change of visibility in action-bar: visible=" + isVisible );
+            LOG.debug("Detected change of visibility in action-bar: visible=" + isVisible );
 
-                if (isVisible) {
-                    titleBarLayout.setVisibility(View.VISIBLE);
-                } else {
-                    titleBarLayout.setVisibility(View.GONE);
-                }
+            if (isVisible) {
+                titleBarLayout.setVisibility(View.VISIBLE);
+            } else {
+                titleBarLayout.setVisibility(View.GONE);
             }
+
         });
 
 
@@ -2368,8 +2352,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
         sendIntent.putExtra(Intent.EXTRA_TEXT, text );
         sendIntent.setType("text/plain");
 
-        startActivity(Intent.createChooser(sendIntent, getText(R.string.abs__share_action_provider_share_with)));
-
+        //startActivity(Intent.createChooser(sendIntent, getText(R.string.abs__share_action_provider_share_with)));
+        startActivity(Intent.createChooser(sendIntent, "Share with..."));
     }
 
 	@Override

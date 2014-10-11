@@ -26,7 +26,7 @@ import static java.lang.Integer.toHexString;
 /**
  * Subclass of AsyncTask which notifies the scheduler when it's done.
  *
-  * @param <Params>
+ * @param <Params>
  * @param <Progress>
  * @param <Result>
  */

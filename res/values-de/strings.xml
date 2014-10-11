@@ -109,7 +109,6 @@
     <string name="feed_failed">Konnte die Seite nicht kontaktieren. Bitte nochmals versuchen.</string>
      <string name="book_failed">Konnte das Buch nicht laden. Bitte nochmals versuchen.</string>
 
-     <string name="browse">Suchen…</string>
      
      <string name="search_books">Nach Büchern suchen</string>
      <string name="enter_query">Bitte Suchbegriff eingeben</string>
@@ -133,8 +132,6 @@
     <string name="download_complete">Fertig heruntergeladen.\nDas Buch wurde zum Bücherregal hinzugefügt.</string>
 
 
-    <string name="feed_failed">Konnte Bibliothek nicht erreichen. Bitte erneut versuchen.</string>
-    <string name="book_failed">Konnte Buch nicht herunterladen. Bitte erneut versuchen.</string>
 
     <string name="custom_site">Eigene OPDS Bibliothek</string>
     <string name="add_site">OPDS Bibliothek hinzufügen</string>
@@ -301,8 +298,6 @@
     <string name="pref_calibre_user">Benutzername</string>
     <string name="pref_calibre_user_summary">Dein Calibre Benutzername</string>
     <string name="pref_calibre_user_hint">calibre</string>
-    <string name="pref_calibre_password">Kennwort</string>
-    <string name="pref_calibre_password_summary">Dein Calibre Kennwort</string>
 
     <string name="pref_show_pagenum">Zeige Seitenzahlen</string>
     <string name="pref_show_pagenum_summary">Zeige Seitenzahlen während des Lesens. Es kann ein paar Sekunden dauern bis sie zum ersten mal dargestellt werden.</string>

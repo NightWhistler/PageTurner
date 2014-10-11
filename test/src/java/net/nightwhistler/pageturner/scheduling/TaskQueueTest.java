@@ -30,7 +30,7 @@ public class TaskQueueTest {
     @Before
     public void init() {
         this.taskQueue = new TaskQueue();
-        this.listener =  mock(TaskQueue.TaskQueueListener.class);
+        this.listener = mock(TaskQueue.TaskQueueListener.class);
         this.taskQueue.setTaskQueueListener(listener);
     }
 

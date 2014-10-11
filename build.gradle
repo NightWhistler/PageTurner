@@ -17,10 +17,12 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:0.13.2'
         classpath 'org.robolectric:robolectric-gradle-plugin:0.13.+'
+        classpath 'me.tatarka:gradle-retrolambda:2.4.0'
     }
 }
 
-apply plugin: 'android'
+apply plugin: 'com.android.application' //or apply plugin: 'java'
+apply plugin: 'retrolambda'
 apply plugin: 'robolectric'
 
 repositories {
@@ -110,7 +112,10 @@ android {
     buildToolsVersion "19.1.0"
     compileSdkVersion 19
 
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"

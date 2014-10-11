@@ -31,10 +31,18 @@ import static org.acra.ReportField.*;
         customReportContent = { REPORT_ID, APP_VERSION_CODE, APP_VERSION_NAME, ANDROID_VERSION, BRAND, PHONE_MODEL, BUILD, PRODUCT, STACK_TRACE, LOGCAT, PACKAGE_NAME }
 )
 public class PageTurner extends Application {
-	
+
+    private static boolean acraInitDone;
+
 	@Override
 	public void onCreate() {
-		ACRA.init(this);
+
+        //This is a work-around because unit-tests call ACRA more than once.
+        if ( ! acraInitDone ) {
+            ACRA.init(this);
+            acraInitDone = true;
+        }
+
 		if(Configuration.IS_EINK_DEVICE) { // e-ink looks better with dark-on-light (esp. Nook Touch where theming breaks light-on-dark
 			setTheme(R.style.Theme_Sherlock_Light);
 		}

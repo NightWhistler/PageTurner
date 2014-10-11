@@ -4,7 +4,7 @@ import android.text.Spanned;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.widget.TextView;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import net.nightwhistler.pageturner.Configuration;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.robolectric.annotation.Config;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
 
+@Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class FixedPagesStrategyTest {
 	

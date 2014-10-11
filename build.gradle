@@ -29,20 +29,27 @@ repositories {
 }
 
 dependencies {
-    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
-    compile 'com.android.support:support-v4:18.0+'
-    compile 'com.google.code.findbugs:jsr305:1.3.9'
-    provided 'com.google.android:annotations:4.1.1.4'
-    compile 'org.roboguice:roboguice:2.0'
-    
-    compile 'nl.siegmann.epublib:epublib-core:3.1'
-    //exclude group 'xmlpull'
-    //exclude group 'org.slf4j'
-    //exclude group 'net.sf.kxml'
+    compile(
+        [group: 'com.actionbarsherlock', name:'actionbarsherlock', version:'4.4.0', ext: 'aar'],
+        [group: 'com.android.support', name: 'support-v4', version: '18.0+'],
+        [group: 'com.google.code.findbugs', name: 'jsr305', version: '1.3.9'],
+        [group: 'org.roboguice', name: 'roboguice', version: '2.0'],
+        [group: 'net.nightwhistler.htmlspanner', name: 'htmlspanner', version: '0.5-SNAPSHOT'],
+        [group: 'ch.acra', name: 'acra', version: '4.4.0'],
+        [group: 'com.github.rtyley', name: 'roboguice-sherlock', version: '1.5'],
+        [group: 'org.slf4j', name: 'slf4j-android', version: '1.6.1-RC1']
+    )
 
-    compile 'net.nightwhistler.htmlspanner:htmlspanner:0.5-SNAPSHOT'
-    compile 'ch.acra:acra:4.4.0'
-    compile 'com.github.rtyley:roboguice-sherlock:1.5'
+    compile('nl.siegmann.epublib:epublib-core:3.1') {
+        exclude group: 'xmlpull'
+        exclude group: 'org.slf4j'
+        exclude group: 'net.sf.kxml'
+    }
+
+    provided(
+        [group: 'com.google.android', name: 'annotations', version: '4.1.1.4'],
+        [group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1']
+    )
 }
 
 android {
@@ -63,6 +70,16 @@ android {
             assets.srcDirs = ['assets']
         }
     }
+
+    packagingOptions {
+	    exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+	}
+
+    lintOptions {
+          abortOnError false
+    }
+
 }
 
 // Signing configuration, valid for all builds (1)

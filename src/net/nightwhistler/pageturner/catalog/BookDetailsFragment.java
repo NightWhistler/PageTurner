@@ -98,11 +98,6 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     @Inject
     private NotificationManager notificationManager;
 
-   // @InjectView(R.id.relatedLinksContainer)
-   // ViewGroup altLinkParent;
-
-    private int displayDensity;
-
     private Feed feed;
 
     @Override
@@ -115,14 +110,11 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         super.onActivityCreated(savedInstanceState);
         DisplayMetrics metrics = metricsProvider.get();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-        this.displayDensity = metrics.densityDpi;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
 
         if ( this.feed != null ) {
             doSetFeed(feed);
@@ -140,20 +132,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             try {
                 final URL url = new URL(new URL(base), entry.getEpubLink().getHref());
 
-                downloadButton.setOnClickListener( new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-                        startDownload(true, url.toExternalForm());
-                    }
-                });
-
-                addToLibraryButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        startDownload(false, url.toExternalForm());
-                    }
-                });
+                downloadButton.setOnClickListener( v -> startDownload(true, url.toExternalForm() ));
+                addToLibraryButton.setOnClickListener( v -> startDownload(false, url.toExternalForm()));
 
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
@@ -165,15 +145,11 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         }
 
         if (entry.getBuyLink() != null) {
-
-            buyNowButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String url = entry.getBuyLink().getHref();
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setData(Uri.parse(url));
-                    startActivity(i);
-                }
+            buyNowButton.setOnClickListener( v -> {
+                String url = entry.getBuyLink().getHref();
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
             });
         } else {
             buyNowButton.setVisibility(View.GONE);
@@ -181,9 +157,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             if ( divider != null ) {
                 divider.setVisibility(View.GONE);
             }
-
         }
-
 
         if (entry.getAuthor() != null) {
             String authorText = String.format(
@@ -193,27 +167,6 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         } else {
             authorTextView.setText("");
         }
-
-        /*
-        altLinkParent.removeAllViews();
-
-        for ( final Link altLink: entry.getAlternateLinks() ) {
-            TextView linkTextView = new TextView(getActivity());
-            linkTextView.setTextAppearance( getActivity(), android.R.style.TextAppearance_Medium );
-            linkTextView.setText( altLink.getTitle() );
-            linkTextView.setBackgroundResource(android.R.drawable.list_selector_background );
-            linkTextView.setTextColor(R.color.abs__bright_foreground_holo_light);
-
-            linkTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ((CatalogParent) getActivity()).loadFeedFromUrl(altLink.getHref());
-                }
-            } );
-
-            altLinkParent.addView(linkTextView);
-        }
-        */
 
         final Link imgLink = Catalog.getImageLink(feed, entry);
 

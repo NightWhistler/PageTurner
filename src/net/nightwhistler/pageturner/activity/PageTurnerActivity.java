@@ -25,11 +25,7 @@ import roboguice.inject.InjectView;
 import java.io.File;
 
 /**
- * Created with IntelliJ IDEA.
- * User: alex
- * Date: 7/14/13
- * Time: 10:14 AM
- * To change this template use File | Settings | File Templates.
+ * Superclass for all PageTurner activity classes.
  */
 public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         implements ExpandableListView.OnGroupClickListener, ExpandableListView.OnChildClickListener {
@@ -171,7 +167,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         initDrawerItems( mDrawerOptions );
-        return super.onPrepareOptionsMenu(menu);    //To change body of overridden methods use File | Settings | File Templates.
+        return super.onPrepareOptionsMenu(menu);
     }
 
     protected static String[] array( String... items ) {

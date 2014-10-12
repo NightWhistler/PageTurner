@@ -146,7 +146,7 @@ public class PageOffsets {
 		List<List<Integer>> result = new ArrayList<List<Integer>>();
 		
 		for (int i = 0; i < jsonArray.length(); i++) {
-			List<Integer> sublist = new ArrayList<Integer>();
+			List<Integer> sublist = new ArrayList<>();
 
 			JSONArray subArray = new JSONArray(jsonArray.getString(i));
 

@@ -32,7 +32,7 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
     public NavigationAdapter( Context context, String... items ) {
         this.context = context;
         this.groups = Arrays.asList(items);
-        this.children = new HashMap<Integer, List<NavigationCallback>>();
+        this.children = new HashMap<>();
     }
 
     public void setChildren( int groupId, List<NavigationCallback> childItems ) {

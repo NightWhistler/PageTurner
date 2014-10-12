@@ -53,6 +53,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
+import com.google.common.base.Function;
 import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -62,6 +63,7 @@ import net.nightwhistler.pageturner.Configuration.ReadingDirection;
 import net.nightwhistler.pageturner.Configuration.ScrollStyle;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.TextUtil;
+import net.nightwhistler.pageturner.UiUtils;
 import net.nightwhistler.pageturner.animation.*;
 import net.nightwhistler.pageturner.bookmark.Bookmark;
 import net.nightwhistler.pageturner.bookmark.BookmarkDatabaseHelper;
@@ -93,6 +95,7 @@ import java.net.URLEncoder;
 import java.util.*;
 
 import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
+import static net.nightwhistler.pageturner.UiUtils.onMenuPress;
 
 public class ReadingFragment extends RoboSherlockFragment implements
 		BookViewListener, TextSelectionCallback, OnUtteranceCompletedListener,
@@ -104,18 +107,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	protected static final int REQUEST_CODE_GET_CONTENT = 2;
 
 	public static final String PICK_RESULT_ACTION = "colordict.intent.action.PICK_RESULT";
-	public static final String SEARCH_ACTION = "colordict.intent.action.SEARCH";
 	public static final String EXTRA_QUERY = "EXTRA_QUERY";
 	public static final String EXTRA_FULLSCREEN = "EXTRA_FULLSCREEN";
 	public static final String EXTRA_HEIGHT = "EXTRA_HEIGHT";
-	public static final String EXTRA_WIDTH = "EXTRA_WIDTH";
 	public static final String EXTRA_GRAVITY = "EXTRA_GRAVITY";
 	public static final String EXTRA_MARGIN_LEFT = "EXTRA_MARGIN_LEFT";
-	public static final String EXTRA_MARGIN_TOP = "EXTRA_MARGIN_TOP";
-	public static final String EXTRA_MARGIN_BOTTOM = "EXTRA_MARGIN_BOTTOM";
-	public static final String EXTRA_MARGIN_RIGHT = "EXTRA_MARGIN_RIGHT";
-
-    private static final int BOOK_OPEN_STAGES = 5;
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger("ReadingFragment");
@@ -209,8 +205,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     private MenuItem searchMenuItem;
 
-    private Map<String, TTSPlaybackItem> ttsItemPrep = new HashMap<String, TTSPlaybackItem>();
-    private List<SearchResult> searchResults = new ArrayList<SearchResult>();
+    private Map<String, TTSPlaybackItem> ttsItemPrep = new HashMap<>();
+    private List<SearchResult> searchResults = new ArrayList<>();
 
 	private ProgressDialog waitDialog;
 
@@ -329,7 +325,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             }
         });
 
-        this.textToSpeech = new TextToSpeech(context, (status) -> onTextToSpeechInit(status) );
+        this.textToSpeech = new TextToSpeech(context, this::onTextToSpeechInit );
 
 		this.bookView.addListener(this);
 		this.bookView.setTextSelectionCallback(this);
@@ -422,8 +418,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 				new NavGestureDetector(bookView, this, metrics));
 
 		View.OnTouchListener gestureListener = (View v, MotionEvent event) ->
-		    ttsIsRunning() ? false: gestureDetector.onTouchEvent(event);
-
+		    !ttsIsRunning() && gestureDetector.onTouchEvent(event);
 
 		this.viewSwitcher.setOnTouchListener(gestureListener);
 		this.bookView.setOnTouchListener(gestureListener);
@@ -471,7 +466,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             uiHandler.post( progressBarUpdater );
         }
 
-        activity.getSupportActionBar().addOnMenuVisibilityListener( (boolean isVisible) -> {
+        activity.getSupportActionBar().addOnMenuVisibilityListener( isVisible -> {
 
             LOG.debug("Detected change of visibility in action-bar: visible=" + isVisible );
 
@@ -483,17 +478,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         });
 
-
-        /*
-        new ShakeListener(getActivity()).setOnShakeListener(new ShakeListener.OnShakeListener() {
-            @Override
-            public void onShake() {
-                if ( ! ttsIsRunning() ) {
-                    startTextToSpeech();
-                }
-            }
-        });
-        */
 	}
 
 	private void saveConfigState() {
@@ -670,20 +654,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
     }
 
     private void showTTSFailed(final String message) {
-        uiHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                stopTextToSpeech(true);
-                closeWaitDialog();
+        uiHandler.post( () -> {
+            stopTextToSpeech(true);
+            closeWaitDialog();
 
-                if ( isAdded() ) {
-                    playBeep(true);
+            if ( isAdded() ) {
+                playBeep(true);
 
-                    StringBuilder textBuilder = new StringBuilder( getString(R.string.tts_failed) );
-                    textBuilder.append("\n").append(message);
+                StringBuilder textBuilder = new StringBuilder( getString(R.string.tts_failed) );
+                textBuilder.append("\n").append(message);
 
-                    Toast.makeText(context, textBuilder.toString(), Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(context, textBuilder.toString(), Toast.LENGTH_SHORT).show();
             }
         } );
     }
@@ -698,7 +679,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         if ( part.trim().length() > 0 || endOfPage ) {
 
-            HashMap<String, String> params = new HashMap<String, String>();
+            HashMap<String, String> params = new HashMap<>();
 
             params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, fileName);
 
@@ -757,13 +738,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             return;
 		} 
 		
-		this.uiHandler.post(new Runnable() {
-			
-			@Override
-			public void run() {					
-				closeWaitDialog();
-			}
-		});		
+		this.uiHandler.post( this::closeWaitDialog );
 		
 		//If the queue is size 1, it only contains the player we just added,
 		//meaning this is a first playback start.
@@ -881,12 +856,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			startPlayback();
 
             if ( item.isLastElementOfPage() ) {
-                this.uiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        pageDown(Orientation.VERTICAL);
-                    }
-                });
+                this.uiHandler.post( () -> pageDown(Orientation.VERTICAL) );
             }
 		}		
 
@@ -942,7 +912,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     }
 
     @SuppressWarnings("deprecation")
-	public void onTextToSpeechInit(int status) {					
+	public void onTextToSpeechInit(int status) {
 
 		this.ttsAvailable = (status == TextToSpeech.SUCCESS) && !Configuration.IS_NOOK_TOUCH;
 
@@ -950,7 +920,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             this.textToSpeech.setOnUtteranceCompletedListener(this);
         }
 	}
-	
+
 	private void updateFileName(Bundle savedInstanceState, String fileName) {
 
 		this.fileName = fileName;
@@ -1022,6 +992,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         pageNumberView.invalidate();
 	}
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void updateFromPrefs() {
 
         SherlockFragmentActivity activity = getSherlockActivity();
@@ -1218,55 +1189,35 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			if (isDictionaryAvailable()) {
 				android.view.MenuItem item = menu
 						.add(getString(R.string.dictionary_lookup));
-				item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-					@Override
-					public boolean onMenuItemClick(android.view.MenuItem item) {
-						lookupDictionary(word.toString());
-						return true;
-					}
-				});
+                onMenuPress(item).thenDo( () -> lookupDictionary(word.toString()) );
 			}
 
-            menu.add(R.string.highlight).setOnMenuItemClickListener(
-                    new OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(android.view.MenuItem menuItem) {
-
-                            highLight( startIndex, endIndex, word.toString() );
-
-                            return false;
-                        }
-                    });
-
-
-			android.view.MenuItem newItem = menu
-					.add(getString(R.string.wikipedia_lookup));
-			newItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-				@Override
-				public boolean onMenuItemClick(android.view.MenuItem item) {
-					lookupWikipedia(word.toString());
-					return true;
-				}
-			});
-
-            android.view.MenuItem newItem3 = menu
-                    .add(getString(R.string.lookup_wiktionary));
-            newItem3.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(android.view.MenuItem item) {
-                    lookupWiktionary(word.toString());
-                    return true;
-                }
+            menu.add(R.string.highlight).setOnMenuItemClickListener( item -> {
+                highLight( startIndex, endIndex, word.toString() );
+                return false;
             });
 
-			android.view.MenuItem newItem2 = menu
+			android.view.MenuItem lookUpWikipediaItem = menu
+					.add(getString(R.string.wikipedia_lookup));
+
+            onMenuPress(lookUpWikipediaItem).thenDo(
+                    () -> lookupWikipedia(word.toString()));
+
+
+            android.view.MenuItem lookUpWiktionaryItem = menu
+                    .add(getString(R.string.lookup_wiktionary));
+
+            lookUpWiktionaryItem.setOnMenuItemClickListener( item -> {
+                    lookupWiktionary(word.toString());
+                    return true;
+            });
+
+			android.view.MenuItem lookupGoogleItem = menu
 					.add(getString(R.string.google_lookup));
-			newItem2.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-				@Override
-				public boolean onMenuItemClick(android.view.MenuItem item) {
+
+            lookupGoogleItem.setOnMenuItemClickListener( item -> {
 					lookupGoogle(word.toString());
 					return true;
-				}
 			});
 
 			this.selectedWord = null;
@@ -1298,25 +1249,18 @@ public class ReadingFragment extends RoboSherlockFragment implements
         editalert.setView(input);
         input.setText( highLight.getTextNote() );
 
-        editalert.setPositiveButton(R.string.save_note, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
+        editalert.setPositiveButton(R.string.save_note, (dialog, which) -> {
                 highLight.setTextNote(input.getText().toString());
                 bookView.update();
                 highlightManager.saveHighLights();
-            }
-        });
-        editalert.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-
-            }
         });
 
-        editalert.setNeutralButton(R.string.clear_note, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                highLight.setTextNote(null);
-                bookView.update();
-                highlightManager.saveHighLights();
-            }
+        editalert.setNegativeButton(android.R.string.cancel, (dialog,which) -> {} );
+
+        editalert.setNeutralButton(R.string.clear_note, (dialog, which) -> {
+            highLight.setTextNote(null);
+            bookView.update();
+            highlightManager.saveHighLights();
         });
 
         editalert.show();
@@ -1453,21 +1397,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     private void deleteHightlight( final HighLight highLight ) {
 
-        final OnClickListener deleteHighlight = new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                highlightManager.removeHighLight(highLight);
-                Toast.makeText( context,R.string.highlight_deleted, Toast.LENGTH_SHORT ).show();
-                bookView.update();
-            }
-        };
-
         if ( highLight.getTextNote() != null && highLight.getTextNote().length() > 0 ) {
             new AlertDialog.Builder(context)
                     .setMessage( R.string.notes_attached )
-                    .setNegativeButton( android.R.string.no, null )
-                    .setPositiveButton(android.R.string.yes, deleteHighlight )
-                    .show();
+                    .setNegativeButton( android.R.string.no, (a,b) -> {} )
+                    .setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
+                        highlightManager.removeHighLight(highLight);
+                        Toast.makeText( context,R.string.highlight_deleted, Toast.LENGTH_SHORT ).show();
+                        bookView.update();
+                    })
+                   .show();
         } else {
             highlightManager.removeHighLight(highLight);
             Toast.makeText( context,R.string.highlight_deleted, Toast.LENGTH_SHORT ).show();
@@ -1591,20 +1530,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
             this.waitDialog.setOwnerActivity(getActivity());
         }
 
-        this.waitDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialog, int keyCode,
-                                 KeyEvent event) {
-                // This just consumes all key events and does nothing.
-                return true;
-
-            }
-        });
+        // This just consumes all key events and does nothing.
+        this.waitDialog.setOnKeyListener( (dialog,keyCode,event) -> true );
 
         return this.waitDialog;
     }
-
-
 
     private void closeWaitDialog() {
 
@@ -1612,7 +1542,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
             this.waitDialog.dismiss();
             this.waitDialog = null;
         }
-
     }
 
 	@Override
@@ -1768,7 +1697,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
         buttonToClick.invalidate();
         return true;
     }
-
 	
 	public boolean dispatchKeyEvent(KeyEvent event) {
 
@@ -1776,7 +1704,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
         int keyCode = event.getKeyCode();
 
         LOG.debug("Got key event: " + keyCode + " with action " + action );
-
 
         if ( searchMenuItem != null && searchMenuItem.isActionViewExpanded() ) {
             boolean result = searchMenuItem.getActionView().dispatchKeyEvent(event);
@@ -2328,8 +2255,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
         int pageNumber = bookView.getPageNumberFor( bookView.getIndex(), offset );
         int totalPages = bookView.getTotalNumberOfPages();
 
-        int percentage = bookView.getPercentageFor( bookView.getIndex(), offset );
-
         if ( pageNumber != -1 ) {
             text = text + String.format( getString(R.string.page_number_of),
                     pageNumber, totalPages ) + " (" + progressPercentage + "%)\n\n";
@@ -2343,11 +2268,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
 
-
         sendIntent.putExtra(Intent.EXTRA_TEXT, text );
         sendIntent.setType("text/plain");
 
-        //startActivity(Intent.createChooser(sendIntent, getText(R.string.abs__share_action_provider_share_with)));
+        //FIXME: Should use share text from ActionBarSherlock
         startActivity(Intent.createChooser(sendIntent, "Share with..."));
     }
 
@@ -2633,14 +2557,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			}
 
 			brightnessToast.show();
-
-			backgroundHandler.post(new Runnable() {
-
-				@Override
-				public void run() {
-					config.setBrightness(level);
-				}
-			});
+			backgroundHandler.post( () -> config.setBrightness(level) );
 
 			return true;
 		}
@@ -2701,7 +2618,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     public List<NavigationCallback> getTableOfContents() {
 
-        List<NavigationCallback> result = new ArrayList<NavigationCallback>();
+        List<NavigationCallback> result = new ArrayList<>();
         List<TocEntry> tocEntries = this.bookView.getTableOfContents();
 
         if ( tocEntries != null ) {
@@ -2749,18 +2666,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         libraryService.updateReadingProgress(fileName, progressPercentage);
 
-		backgroundHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					progressService.storeProgress(fileName,
-							index, position,
-							progressPercentage);
-				} catch (Exception e) {
-					LOG.error("Error saving progress", e);
-				}
-			}
-		});
+        backgroundHandler.post( () -> {
+            try {
+                progressService.storeProgress(fileName,
+                        index, position,
+                        progressPercentage);
+            } catch (Exception e) {
+                LOG.error("Error saving progress", e);
+            }
+
+        });
 	}
 
     @Override
@@ -2840,15 +2755,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             };
         };
 
-        searchProgress
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        task.cancel(true);
-                    }
-                });
-
+        searchProgress.setOnCancelListener( dialog -> task.cancel(true) );
         task.execute(query);
     }
 
@@ -2902,12 +2809,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		AlertDialog dialog = builder.create();
 		dialog.setOwnerActivity(getActivity());
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                isSearchResultsDialogShowing = false;
-            }
-        });
+        dialog.setOnDismissListener( d -> isSearchResultsDialogShowing = false );
 		dialog.show();
 	}
 
@@ -2917,7 +2819,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     public List<NavigationCallback> getSearchResults() {
 
-        List<NavigationCallback> result = new ArrayList<NavigationCallback>();
+        List<NavigationCallback> result = new ArrayList<>();
 
         if ( searchResults == null ) {
             return result;
@@ -2925,15 +2827,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         final int totalNumberOfPages = bookView.getTotalNumberOfPages();
 
-        int counter = 0;
-
         for ( final SearchResult searchResult: this.searchResults ) {
 
             int percentage = bookView.getPercentageFor(searchResult.getIndex(), searchResult.getStart());
             int pageNumber = bookView.getPageNumberFor(searchResult.getIndex(), searchResult.getStart());
 
             final String text;
-            final int currentCount = counter;
 
             if ( pageNumber != -1 ) {
                 text = String.format( context.getString(R.string.page_number_of),
@@ -2964,8 +2863,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
                     //Do nothing
                 }
             });
-
-            counter++;
         }
 
         return result;
@@ -3012,7 +2909,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         List<Bookmark> bookmarks = this.bookmarkDatabaseHelper.getBookmarksForFile( bookView.getFileName() );
 
-        List<NavigationCallback> result = new ArrayList<NavigationCallback>();
+        List<NavigationCallback> result = new ArrayList<>();
 
         for ( final Bookmark bookmark: bookmarks ) {
 
@@ -3043,7 +2940,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         }
 
-
         return result;
     }
 
@@ -3052,7 +2948,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         List<HighLight> highLights = this.highlightManager.getHighLights( bookView.getFileName() );
 
-        List<NavigationCallback> result = new ArrayList<NavigationCallback>();
+        List<NavigationCallback> result = new ArrayList<>();
 
         for ( final HighLight highLight: highLights ) {
 
@@ -3098,12 +2994,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 ProgressDialog progressDialog = getWaitDialog();
                 progressDialog.setMessage(getString(R.string.syncing));
                 progressDialog.setCancelable(true);
-                progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialogInterface) {
-                        ManualProgressSync.this.cancel(true);
-                    }
-                });
+                progressDialog.setOnCancelListener( d -> ManualProgressSync.this.cancel(true) );
 
                 progressDialog.show();
             }
@@ -3141,14 +3032,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 					alertDialog.setMessage(R.string.connection_fail);
 				}
 
-				alertDialog.setNeutralButton(android.R.string.ok,
-						new OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								dialog.dismiss();
-							}
-						});
-
+				alertDialog.setNeutralButton(android.R.string.ok, (dialog, which) -> dialog.dismiss() );
 				alertDialog.show();
 
 			} else if ( progress.isEmpty() ) {
@@ -3168,16 +3052,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			    ProgressDialog progressDialog = getWaitDialog();
                 progressDialog.setMessage(getString(R.string.syncing));
                 progressDialog.setCancelable(true);
-                progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialogInterface) {
-                        DownloadProgressTask.this.cancel(true);
-
-                        ProgressDialog progressDialog = getWaitDialog();
-                        progressDialog.setMessage( getString( R.string.cancelling) );
-                        progressDialog.show();
-
-                    }
+                progressDialog.setOnCancelListener( d -> {
+                    DownloadProgressTask.this.cancel(true);
+                    progressDialog.setMessage( getString( R.string.cancelling) );
+                    progressDialog.show();
                 });
 
                 progressDialog.show();
@@ -3186,8 +3064,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         @Override
         protected void onCancelled() {
-
-
             bookView.restore();
         }
 

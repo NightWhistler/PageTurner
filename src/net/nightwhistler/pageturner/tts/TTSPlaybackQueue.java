@@ -33,7 +33,7 @@ It only accepts items when it has first been activated.
 public class TTSPlaybackQueue {
 
     private boolean active;
-    private Queue<TTSPlaybackItem> playbackItemQueue = new ConcurrentLinkedQueue<TTSPlaybackItem>();
+    private Queue<TTSPlaybackItem> playbackItemQueue = new ConcurrentLinkedQueue<>();
 
     public boolean isActive() {
         return active;

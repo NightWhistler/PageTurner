@@ -54,7 +54,7 @@ public class Configuration {
 	private SharedPreferences settings;
 	private Context context;
 
-	private Map<String, FontFamily> fontCache = new HashMap<String, FontFamily>();
+	private Map<String, FontFamily> fontCache = new HashMap<>();
 
 	public static enum ScrollStyle {
 		ROLLING_BLIND, PAGE_TIMER
@@ -376,7 +376,7 @@ public class Configuration {
             return HighLight.fromJSON(fileName,  prefs.getString(KEY_HIGHLIGHTS, "[]"));
         }
 
-        return new ArrayList<HighLight>();
+        return new ArrayList<>();
     }
 
     public void storeHighlights( String fileName, List<HighLight> highLights ) {
@@ -430,7 +430,7 @@ public class Configuration {
 
 		String sites = settings.getString(KEY_OPDS_SITES, "");
 
-		List<CustomOPDSSite> result = new ArrayList<CustomOPDSSite>();
+		List<CustomOPDSSite> result = new ArrayList<>();
 		try {
 			JSONArray array = new JSONArray(sites);
 			for (int i = 0; i < array.length(); i++) {
@@ -835,14 +835,7 @@ public class Configuration {
 	 * if it works reliably.
 	 */
 	public static double getMemoryUsage() {
-		/*
-        Runtime runtime = Runtime.getRuntime();
-		long maxHeapMemoryBytes = runtime.maxMemory();
-		long allocatedMemoryBytes = runtime.totalMemory()
-				- runtime.freeMemory();
-		return (double) allocatedMemoryBytes / (double) maxHeapMemoryBytes;
-		*/
-        long max = Runtime.getRuntime().maxMemory();
+	 long max = Runtime.getRuntime().maxMemory();
         long used = Runtime.getRuntime().totalMemory();
 
         return (double) used / (double) max;

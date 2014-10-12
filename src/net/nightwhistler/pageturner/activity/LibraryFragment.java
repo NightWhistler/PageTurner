@@ -45,10 +45,9 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.actionbarsherlock.widget.SearchView;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
-import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
@@ -127,8 +126,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	private static final Logger LOG = LoggerFactory.getLogger("LibraryActivity");
 	
 	private IntentCallBack intentCallBack;
-	private List<CoverCallback> callbacks = new ArrayList<CoverCallback>();
-	private Map<String, FastBitmapDrawable> coverCache = new HashMap<String, FastBitmapDrawable>();
+	private List<CoverCallback> callbacks = new ArrayList<>();
+	private Map<String, FastBitmapDrawable> coverCache = new HashMap<>();
 
     private MenuItem searchMenuItem;
 
@@ -201,7 +200,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(actionBar.getThemedContext(),
+		ArrayAdapter<String> adapter = new ArrayAdapter<>(actionBar.getThemedContext(),
 				android.R.layout.simple_list_item_1,
 				android.R.id.text1, getResources().getStringArray(R.array.libraryQueries));
 
@@ -209,7 +208,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
 
         refreshView();
-        executeTask(new CleanFilesTask(this, libraryService, config));
+        executeTask(new CleanFilesTask(this, libraryService));
         executeTask(new ImportTask(getActivity(), libraryService, this, config, config.isCopyToLibrayEnabled(),
                 true), new File(config.getLibraryFolder()) );
 	}
@@ -332,26 +331,16 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         spanner.unregisterHandler("img" ); //We don't want to render images
 
 		descriptionView.setText(spanner.fromHtml( libraryBook.getDescription()));
-		
-		builder.setNeutralButton(R.string.delete, new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				libraryService.deleteBook( libraryBook.getFileName() );
-				refreshView();
-				dialog.dismiss();			
-			}
-		});			
+
+        builder.setNeutralButton(R.string.delete, (dialog, which) -> {
+            libraryService.deleteBook( libraryBook.getFileName() );
+            refreshView();
+            dialog.dismiss();
+        });
 		
 		builder.setNegativeButton(android.R.string.cancel, null);
-		builder.setPositiveButton(R.string.read, new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				openBook(libraryBook);						
-			}
-		});
-		
+		builder.setPositiveButton(R.string.read, (dialog, which) -> openBook(libraryBook) );
+
 		builder.show();
 	}
 	
@@ -364,7 +353,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				
 		getActivity().startActivityIfNeeded(intent, 99);		
 	}
-	
 		
 	private void startImport(File startFolder, boolean copy) {		
 		ImportTask importTask = new ImportTask(getActivity(), libraryService, this, config, copy, false);
@@ -377,7 +365,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         this.taskQueue.clear();
         executeTask( importTask, startFolder );
 	}
-
 
     @Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -416,7 +403,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
         onMenuPress( menu, R.id.scan_books ).thenDo( this::showImportDialog );
         onMenuPress( menu, R.id.about ).thenDo( dialogFactory.buildAboutDialog()::show );
-        
+
         onMenuPress( menu, R.id.profile_day ).thenDo(() -> switchToColourProfile(ColourProfile.DAY) );
         onMenuPress( menu, R.id.profile_night ).thenDo(() -> switchToColourProfile(ColourProfile.NIGHT) );
 
@@ -426,18 +413,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
             if (searchView != null) {
 
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String query) {
-                        performSearch(query);
-                        return true;
-                    }
-                } );
+                searchView.setOnQueryTextListener( UiUtils.onQuery( this::performSearch ));
 
                 searchMenuItem.setOnActionExpandListener( new MenuItem.OnActionExpandListener() {
                     @Override
@@ -466,7 +442,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         if (isIntentAvailable(getActivity(), intent)) {
-            onMenuPress( menu, R.id.open_file ).thenDo(() -> launchFileManager() );
+            onMenuPress( menu, R.id.open_file ).thenDo( this::launchFileManager );
         } else {
             menu.findItem(R.id.open_file).setVisible(false);
         }
@@ -513,7 +489,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
     public void performSearch(String query) {
         if ( query != null ) {
             setSupportProgressBarIndeterminateVisibility(true);
-            this.taskQueue.jumpQueueExecuteTask(new LoadBooksTask(config.getLastLibraryQuery(), query.toString()));
+            this.taskQueue.jumpQueueExecuteTask(new LoadBooksTask(config.getLastLibraryQuery(), query));
         }
     }
 	
@@ -546,62 +522,44 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		final Button browseButton = (Button) layout.findViewById(R.id.browseButton);
 		
 		folder.setText( config.getStorageBase() + "/eBooks" );
-		
-		folder.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				scanSpecific.setChecked(true);				
-			}
-		});			
-		
+		folder.setOnClickListener( v ->	scanSpecific.setChecked(true) );
+
 		//Copy default setting from the prefs
 		copyToLibrary.setChecked( config.isCopyToLibrayEnabled() );
 		
 		builder = new AlertDialog.Builder(getActivity());
 		builder.setView(layout);
+
+        this.intentCallBack = (int resultCode, Intent data) -> {
+            if ( resultCode == Activity.RESULT_OK && data != null ) {
+                folder.setText(data.getData().getPath());
+            }
+        };
 		
-		OnClickListener okListener = new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-				dialog.dismiss();
-				
-				if ( scanSpecific.isChecked() ) {
-					startImport(new File(folder.getText().toString()), copyToLibrary.isChecked() );
-				} else {
-					startImport(new File(config.getStorageBase()), copyToLibrary.isChecked());
-				}				
-			}
-		};
-		
-		View.OnClickListener browseListener = new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				scanSpecific.setChecked(true);				
-				Intent intent = new Intent(getActivity(), FileBrowseActivity.class);
-				intent.setData( Uri.parse(folder.getText().toString() ));
-				startActivityForResult(intent, 0);
-			}
-		};
-		
-		this.intentCallBack = new IntentCallBack() {
-			
-			@Override
-			public void onResult(int resultCode, Intent data) {
-				if ( resultCode == Activity.RESULT_OK && data != null ) {
-					folder.setText(data.getData().getPath());
-				}
-			}
-		};		
-		
-		browseButton.setOnClickListener(browseListener);
+		browseButton.setOnClickListener(v -> {
+            scanSpecific.setChecked(true);
+            Intent intent = new Intent(getActivity(), FileBrowseActivity.class);
+            intent.setData( Uri.parse(folder.getText().toString() ));
+            startActivityForResult(intent, 0);
+        });
 		
 		builder.setTitle(R.string.import_books);
-		builder.setPositiveButton(android.R.string.ok, okListener );
-		builder.setNegativeButton(android.R.string.cancel, null );
+
+        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            dialog.dismiss();
+
+            File folderToScan;
+
+            if ( scanSpecific.isChecked() ) {
+                folderToScan = new File(folder.getText().toString());
+            } else {
+                folderToScan = new File(config.getStorageBase());
+            }
+
+            startImport(folderToScan, copyToLibrary.isChecked());
+        });
+
+		builder.setNegativeButton(android.R.string.cancel, null);
 		
 		builder.show();
 	}	
@@ -680,14 +638,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
         importDialog.hide();
 
-        OnClickListener dismiss = new OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        };
-
         //If the user cancelled the import, don't bug him/her with alerts.
         if ( (! errors.isEmpty()) ) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -695,7 +645,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
             builder.setItems( errors.toArray(new String[errors.size()]), null );
 
-            builder.setNeutralButton(android.R.string.ok, dismiss );
+            builder.setNeutralButton(android.R.string.ok, (dialog, which) -> dialog.dismiss() );
 
             builder.show();
         }
@@ -719,20 +669,14 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
                 builder.setMessage( getString(R.string.no_bks_fnd_text2) );
 
-                builder.setPositiveButton( android.R.string.yes, new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        ( (PageTurnerActivity) getSherlockActivity() )
-                                .launchActivity( CatalogActivity.class );
-                    }
-                });
+                builder.setPositiveButton( android.R.string.yes, (dialogInterface, i) ->
+                    ( (PageTurnerActivity) getSherlockActivity() ).launchActivity( CatalogActivity.class ));
 
                 builder.setNegativeButton( android.R.string.no, null );
 
             } else {
                 builder.setMessage( getString(R.string.no_new_books_found));
-
-                builder.setNeutralButton(android.R.string.ok, dismiss);
+                builder.setNeutralButton(android.R.string.ok, ( dialog, which) -> dialog.dismiss() );
             }
 
             builder.show();
@@ -911,59 +855,56 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			if ( this.lastRunnable != null ) {
 				handler.removeCallbacks(lastRunnable);
 			}
-			
-			this.lastRunnable = new Runnable() {
-				
-				@Override
-				public void run() {					
-					
-					if ( bookAdapter.isKeyed() ) {
-						
-						String key = bookAdapter.getKey( firstVisibleItem );
-						Character keyChar = null;
-						
-						if (key != null && key.length() > 0 ) {
-							keyChar = Character.toUpperCase( key.charAt(0) );
-						}						
-						
-						if (keyChar != null && ! keyChar.equals(lastCharacter)) {
 
-							lastCharacter = keyChar;
-							List<Character> alphabet = bookAdapter.getAlphabet();
-							
-							//If the highlight-char is already set, this means the 
-							//user clicked the bar, so don't scroll it.
-							if (alphabetAdapter != null && ! keyChar.equals( alphabetAdapter.getHighlightChar() ) ) {
-								alphabetAdapter.setHighlightChar(keyChar);
-								alphabetBar.setSelection( alphabet.indexOf(keyChar) );
-							}
-							
-							for ( int i=0; i < alphabetBar.getChildCount(); i++ ) {
-								View child = alphabetBar.getChildAt(i);
-								if ( child.getTag().equals(keyChar) ) {
-									child.setBackgroundDrawable( holoDrawable );
-								} else {
-									child.setBackgroundDrawable(null);
-								}
-							}							
-						}						
-					}
-					
-					List<CoverCallback> localList = new ArrayList<CoverCallback>( callbacks );
-					callbacks.clear();
-					
-					int lastVisibleItem = firstVisibleItem + visibleItemCount - 1;
-					
-					LOG.debug( "Loading items " + firstVisibleItem + " to " + lastVisibleItem + " of " + totalItemCount );
-					
-					for ( CoverCallback callback: localList ) {
-						if ( callback.viewIndex >= firstVisibleItem && callback.viewIndex <= lastVisibleItem ) {
-							callback.run();
-						}
-					}
-						
-				}
-			};
+            this.lastRunnable = () -> {
+
+                if ( bookAdapter.isKeyed() ) {
+
+                    String key = bookAdapter.getKey( firstVisibleItem );
+                    Character keyChar = null;
+
+                    if (key != null && key.length() > 0 ) {
+                        keyChar = Character.toUpperCase( key.charAt(0) );
+                    }
+
+                    if (keyChar != null && ! keyChar.equals(lastCharacter)) {
+
+                        lastCharacter = keyChar;
+                        List<Character> alphabet = bookAdapter.getAlphabet();
+
+                        //If the highlight-char is already set, this means the
+                        //user clicked the bar, so don't scroll it.
+                        if (alphabetAdapter != null && ! keyChar.equals( alphabetAdapter.getHighlightChar() ) ) {
+                            alphabetAdapter.setHighlightChar(keyChar);
+                            alphabetBar.setSelection( alphabet.indexOf(keyChar) );
+                        }
+
+                        for ( int i=0; i < alphabetBar.getChildCount(); i++ ) {
+                            View child = alphabetBar.getChildAt(i);
+                            if ( child.getTag().equals(keyChar) ) {
+                                child.setBackgroundDrawable( holoDrawable );
+                            } else {
+                                child.setBackgroundDrawable(null);
+                            }
+                        }
+                    }
+                }
+
+                List<CoverCallback> localList = new ArrayList<>( callbacks );
+                callbacks.clear();
+
+                int lastVisibleItem = firstVisibleItem + visibleItemCount - 1;
+
+                LOG.debug( "Loading items " + firstVisibleItem + " to " + lastVisibleItem + " of " + totalItemCount );
+
+                for ( CoverCallback callback: localList ) {
+                    if ( callback.viewIndex >= firstVisibleItem && callback.viewIndex <= lastVisibleItem ) {
+                        callback.run();
+                    }
+                }
+
+
+            };
 				
 			handler.postDelayed(lastRunnable, 550);			
 		}
@@ -1018,22 +959,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			
 			result.setTag(index);
 			
-			result.setOnClickListener( new View.OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					LibraryFragment.this.onItemClick(null, null, index, 0);
-				}
-			});	
-			
-			result.setOnLongClickListener( new View.OnLongClickListener() {
-				
-				@Override
-				public boolean onLongClick(View v) {
-					return LibraryFragment.this.onItemLongClick(null, null, index, 0);
-				}
-			});
-			
+			result.setOnClickListener( v -> LibraryFragment.this.onItemClick(null, null, index, 0) );
+			result.setOnLongClickListener( v -> LibraryFragment.this.onItemLongClick(null, null, index, 0));
 			
 			final ImageView image = (ImageView) result.findViewById(R.id.bookCover);
 			image.setImageDrawable(backupCover);
@@ -1057,25 +984,18 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.no_books_found);
 		builder.setMessage( getString(R.string.scan_bks_question) );
-		builder.setPositiveButton(android.R.string.yes, new android.content.DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();				
-				showImportDialog();
-			}
-		});
-		
-		builder.setNegativeButton(android.R.string.no, new android.content.DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();						
-				importQuestion = null;
-			}
-		});				
-		
-		this.importQuestion = builder.create();
+
+        builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
+            dialog.dismiss();
+            showImportDialog();
+        });
+
+        builder.setNegativeButton(android.R.string.no, (dialog, which ) -> {
+            dialog.dismiss();
+            importQuestion = null;
+        });
+
+        this.importQuestion = builder.create();
 	}
 	
 	private void setAlphabetBarVisible( boolean visible ) {
@@ -1085,6 +1005,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		alphabetBar.setVisibility(vis);
 		alphabetDivider.setVisibility(vis);		
 		listView.setFastScrollEnabled(visible);
+
+        Supplier<String> s = String::new;
 	}
 
     private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
@@ -1120,8 +1042,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		private List<Character> data;
 		
 		private Character highlightChar;
-		
-		private int savedColor = -1;
 		
 		public AlphabetAdapter(Context context, int layout, int view, List<Character> input ) {
 			super(context, layout, view, input);
@@ -1169,15 +1089,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
             alphabetBar.setAdapter(alphabetAdapter);
 
-            alphabetBar.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> arg0, View arg1,
-                                        int arg2, long arg3) {
-
-                    Character c = keyedResult.getAlphabet().get(arg2);
-                    onAlphabetBarClick(keyedResult, c);
-                }
-            });
+            alphabetBar.setOnItemClickListener( (a, b, index, c) ->
+                    onAlphabetBarClick(keyedResult, keyedResult.getAlphabet().get(index) ));
 
             setAlphabetBarVisible(true);
         } else {

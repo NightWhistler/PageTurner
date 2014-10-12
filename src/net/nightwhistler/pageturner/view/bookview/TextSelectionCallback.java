@@ -19,8 +19,6 @@
 
 package net.nightwhistler.pageturner.view.bookview;
 
-import android.graphics.Color;
-
 public interface TextSelectionCallback {
 
 	void lookupWikipedia( String text );

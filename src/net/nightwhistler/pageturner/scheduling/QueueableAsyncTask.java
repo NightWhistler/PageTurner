@@ -20,6 +20,7 @@
 package net.nightwhistler.pageturner.scheduling;
 
 import android.os.AsyncTask;
+import net.nightwhistler.pageturner.UiUtils;
 
 import static java.lang.Integer.toHexString;
 
@@ -105,4 +106,5 @@ public abstract class QueueableAsyncTask<Params, Progress, Result> extends Async
     public String toString() {
         return getClass().getSimpleName() + " (" + toHexString( hashCode() ) + ")";
     }
+
 }

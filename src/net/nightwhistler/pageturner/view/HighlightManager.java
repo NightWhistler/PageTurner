@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class HighlightManager {
 
-    private List<HighLight> currentHighlights = new ArrayList<HighLight>();
+    private List<HighLight> currentHighlights = new ArrayList<>();
     private String currentFileName;
 
     private static final HighlightComparator COMP = new HighlightComparator();
@@ -33,7 +33,7 @@ public class HighlightManager {
         }
 
         if ( fileName == null ) {
-            this.currentHighlights = new ArrayList<HighLight>();
+            this.currentHighlights = new ArrayList<>();
         } else if ( ! fileName.equals(currentFileName) ) {
             this.currentHighlights = config.getHightLights(fileName);
             sort( this.currentHighlights );

@@ -103,7 +103,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 			}
 
             if ( statusCode == HTTP_NOT_FOUND ) {
-                return new ArrayList<BookProgress>();
+                return new ArrayList<>();
             }
 			
 			if ( statusCode != HTTP_SUCCESS ) {
@@ -114,7 +114,7 @@ public class PageTurnerWebProgressService implements ProgressService {
 			
 			JSONArray jsonArray = new JSONArray(responseString);
 			
-			List<BookProgress> result = new ArrayList<BookProgress>();
+			List<BookProgress> result = new ArrayList<>();
 			
 			for ( int i=0; i < jsonArray.length(); i++ ) {
 				

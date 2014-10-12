@@ -58,14 +58,14 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
     private String currentFile;
     private Book currentBook;
-    private Map<String, Spannable> renderedText = new HashMap<String, Spannable>();
-    private Map<String, List<CompiledRule>> cssRules = new HashMap<String, List<CompiledRule>>();
+    private Map<String, Spannable> renderedText = new HashMap<>();
+    private Map<String, List<CompiledRule>> cssRules = new HashMap<>();
 
-    private Map<String, FastBitmapDrawable> imageCache = new HashMap<String, FastBitmapDrawable>();
+    private Map<String, FastBitmapDrawable> imageCache = new HashMap<>();
 
 
-    private Map<String, Map<String, Integer>> anchors = new HashMap<String, Map<String, Integer>>();
-    private List<AnchorHandler> anchorHandlers = new ArrayList<AnchorHandler>();
+    private Map<String, Map<String, Integer>> anchors = new HashMap<>();
+    private List<AnchorHandler> anchorHandlers = new ArrayList<>();
 
     private static final Logger LOG = LoggerFactory.getLogger("TextLoader");
 
@@ -121,7 +121,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
             return Collections.unmodifiableList(cssRules.get(href));
         }
 
-        List<CompiledRule> result = new ArrayList<CompiledRule>();
+        List<CompiledRule> result = new ArrayList<>();
 
         if ( currentBook == null ) {
             return result;
@@ -140,7 +140,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
         if ( res == null ) {
             LOG.error("Could not find CSS resource " + strippedHref );
-            return new ArrayList<CompiledRule>();
+            return new ArrayList<>();
         }
 
         StringWriter writer = new StringWriter();
@@ -161,7 +161,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
         } catch (IOException io) {
             LOG.error("Error while reading resource", io);
-            return new ArrayList<CompiledRule>();
+            return new ArrayList<>();
         } catch (Exception e) {
             LOG.error("Error reading CSS file", e);
         } finally {
@@ -249,7 +249,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
         closeCurrentBook();
 
-        this.anchors = new HashMap<String, Map<String, Integer>>();
+        this.anchors = new HashMap<>();
 
         // read epub file
         EpubReader epubReader = new EpubReader();
@@ -314,7 +314,7 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
     private void registerNewAnchor(String href, String anchor, int position ) {
         if ( ! anchors.containsKey(href)) {
-            anchors.put(href, new HashMap<String, Integer>());
+            anchors.put(href, new HashMap<>());
         }
 
         anchors.get(href).put(anchor, position);
@@ -337,15 +337,9 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
             return cached;
         }
 
-        AnchorHandler.AnchorCallback callback = new AnchorHandler.AnchorCallback() {
-            @Override
-            public void registerAnchor(String anchor, int position) {
-                registerNewAnchor(resource.getHref(), anchor, position);
-            }
-        };
-
         for ( AnchorHandler handler: this.anchorHandlers ) {
-            handler.setCallback(callback);
+            handler.setCallback((anchor, position) ->
+                    registerNewAnchor(resource.getHref(), anchor, position));
         }
 
         double memoryUsage = Configuration.getMemoryUsage();

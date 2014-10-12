@@ -61,12 +61,6 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
     @Inject
     private Configuration config;
 
-
-    private MenuItem searchMenuItem;
-
-    @Inject
-    private DialogFactory dialogFactory;
-
     private String baseFeedTitle;
 
     @Override

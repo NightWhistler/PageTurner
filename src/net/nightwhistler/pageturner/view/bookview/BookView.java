@@ -126,16 +126,15 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
     @Inject
     private Provider<ScrollingStrategy> scrollingStrategyProvider;
 
-	private OnTouchListener onTouchListener;
-
 	public BookView(Context context, AttributeSet attributes) {
 		super(context, attributes);
 		this.scrollHandler = new Handler();
         RoboGuice.injectMembers(context, this);
 	}
-	
+
+    @TargetApi(Configuration.TEXT_SELECTION_PLATFORM_VERSION)
 	public void init() {
-		this.listeners = new HashSet<BookViewListener>();
+		this.listeners = new HashSet<>();
 
 		this.childView = (InnerView) this.findViewById(R.id.innerView);
 		this.childView.setBookView(this);
@@ -219,7 +218,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 	@Override
 	public void setOnTouchListener(OnTouchListener l) {
-		this.onTouchListener = l;
 		super.setOnTouchListener(l);
 		this.childView.setOnTouchListener(l);
 	}
@@ -1337,6 +1335,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             super.onDraw(canvas);
         }
 
+        @TargetApi( Build.VERSION_CODES.HONEYCOMB )
         @Override
         public ActionMode startActionMode(ActionMode.Callback callback) {
 
@@ -1421,10 +1420,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             if ( cachedText == null ) {
                 try {
                     textLoader.getText( resource, new QueueableAsyncTaskCancellationCallback(this) );
-                } catch ( Exception e ) {
+                } catch ( Exception | OutOfMemoryError e ) {
                     //Ignore
-                } catch ( OutOfMemoryError e ) {
-                    //Ignore as well
                 }
             }
 
@@ -1439,12 +1436,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 		private String name;
 
-		private boolean wasBookLoaded;
-
-		private String error;
-
 		private String searchTerm = null;
-
 
 		public LoadTextTask() {
 
@@ -1456,7 +1448,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
 		@Override
 		protected void onPreExecute() {
-			this.wasBookLoaded = book != null;
 		}
 
         protected Spanned doInBackground(Resource... resources) {
@@ -1513,14 +1504,16 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                 return result;
             } catch (Exception io) {
                 LOG.error( "Error loading text", io );
-                this.error = String.format( getContext().getString(R.string.could_not_load),
-                        io.getMessage());
-                this.wasBookLoaded = false;
+
+                //FIXME: actually use this error
+                //this.error = String.format( getContext().getString(R.string.could_not_load),
+                  //      io.getMessage());
 
             } catch (OutOfMemoryError io) {
                 LOG.error( "Error loading text", io );
-                this.error = getContext().getString(R.string.out_of_memory);
-                this.wasBookLoaded = false;
+
+                //FIXME: actually use this error
+                //this.error = getContext().getString(R.string.out_of_memory);
             }
 
             return null;
@@ -1558,13 +1551,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			 * on Android 4+
 			 */
 			if ( strategy.isScrolling() ) {
-				scrollHandler.postDelayed(new Runnable() {
-					
-					@Override
-					public void run() {
-						restorePosition();						
-					}
-				}, 100);
+				scrollHandler.postDelayed( BookView.this::restorePosition, 100 );
 			}
         }
 	}
@@ -1621,7 +1608,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         private List<List<Integer>> getOffsets()
                 throws IOException {
 
-            List<List<Integer>> result = new ArrayList<List<Integer>>();
+            List<List<Integer>> result = new ArrayList<>();
             final ResourceLoader imageLoader = new ResourceLoader(fileName);
             final ResourceLoader textResourceLoader = new ResourceLoader(fileName);
 
@@ -1644,7 +1631,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             mySpanner.registerHandler("image", tagHandler);
             mySpanner.registerHandler("link", new CSSLinkHandler(textLoader));
 
-            final Map<String, List<Integer>> offsetsPerSection = new HashMap<String, List<Integer>>();
+            final Map<String, List<Integer>> offsetsPerSection = new HashMap<>();
 
             //We use the ResourceLoader here to load all the text in the book in 1 pass,
             //but we only keep a single section in memory at each moment

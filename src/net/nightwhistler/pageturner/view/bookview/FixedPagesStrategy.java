@@ -55,7 +55,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	
 	private int pageNum;
 	
-	private List<Integer> pageOffsets = new ArrayList<Integer>();
+	private List<Integer> pageOffsets = new ArrayList<>();
 	
 	private BookView bookView;
 	private TextView childView;
@@ -106,13 +106,13 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	}
 
     public List<Integer> getPageOffsets() {
-        return new ArrayList<Integer>(this.pageOffsets);
+        return new ArrayList<>(this.pageOffsets);
     }
 
 	public List<Integer> getPageOffsets(CharSequence text, boolean includePageNumbers ) {
 		
 		if ( text == null ) {
-			return new ArrayList<Integer>();
+			return new ArrayList<>();
 		}
 		
 		List<Integer> pageOffsets = new ArrayList<Integer>();
@@ -125,7 +125,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		StaticLayout layout = layoutFactory.create(text, textPaint, boundedWidth, bookView.getLineSpacing() );
 
         if ( layout == null ) {
-            return new ArrayList<Integer>();
+            return new ArrayList<>();
         }
 
         LOG.debug( "Layout height: " + layout.getHeight() );
@@ -219,8 +219,6 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 
             //If we get an error setting the formatted text,
             //strip formatting and try again.
-        } catch ( ArrayIndexOutOfBoundsException a ) {
-            this.childView.setText( sequence.toString() );
         } catch ( IndexOutOfBoundsException ie ) {
             this.childView.setText( sequence.toString() );
         }

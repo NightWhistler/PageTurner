@@ -93,10 +93,8 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
             Bitmap bitmap = BitmapFactory.decodeStream(resp.getEntity().getContent());
             this.drawable = new FastBitmapDrawable( bitmap );
 
-        } catch (Exception io) {
+        } catch (Exception | OutOfMemoryError e) {
             //Ignore and exit.
-        } catch ( OutOfMemoryError error ) {
-
         }
 
         return null;

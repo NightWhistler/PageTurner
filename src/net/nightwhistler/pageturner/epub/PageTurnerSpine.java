@@ -39,7 +39,7 @@ public class PageTurnerSpine {
 
 	private List<SpineEntry> entries;
 	
-	private List<List<Integer>> pageOffsets = new ArrayList<List<Integer>>();
+	private List<List<Integer>> pageOffsets = new ArrayList<>();
 	
 	private int position;
 	
@@ -56,7 +56,7 @@ public class PageTurnerSpine {
 	 * @param book
 	 */
 	public PageTurnerSpine(Book book) {
-		this.entries = new ArrayList<PageTurnerSpine.SpineEntry>();
+		this.entries = new ArrayList<>();
 		this.position = 0;
 		
 		addResource(createCoverResource(book));
@@ -84,7 +84,7 @@ public class PageTurnerSpine {
         if ( pageOffsets != null ) {
 		    this.pageOffsets = pageOffsets;
         } else {
-            this.pageOffsets = new ArrayList<List<Integer>>();
+            this.pageOffsets = new ArrayList<>();
         }
 	}
 	
@@ -396,7 +396,7 @@ public class PageTurnerSpine {
 	 */
 	public List<Double> getRelativeSizes() {
 		int total = 0;
-		List<Integer> sizes = new ArrayList<Integer>();
+		List<Integer> sizes = new ArrayList<>();
 		
 		for ( int i=0; i < entries.size(); i++ ) {
 			int size = entries.get(i).size;
@@ -404,7 +404,7 @@ public class PageTurnerSpine {
 			total += size;
 		}
 		
-		List<Double> result = new ArrayList<Double>();
+		List<Double> result = new ArrayList<>();
 		for ( int i=0; i < sizes.size(); i++ ) {
 			double part = (double) sizes.get(i) / (double) total;
 			result.add( part );

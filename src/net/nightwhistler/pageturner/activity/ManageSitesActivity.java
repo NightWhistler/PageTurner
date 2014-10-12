@@ -158,37 +158,32 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 		siteDesc.setText(site.getDescription());
 		userName.setText(site.getUserName());
 		password.setText(site.getPassword());
-				
-		builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-				if ( siteName.getText().toString().trim().length() == 0 ) {
-					Toast.makeText(ManageSitesActivity.this, R.string.msg_name_blank, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				
-				if ( siteURL.getText().toString().trim().length() == 0 ) {
-					Toast.makeText(ManageSitesActivity.this, R.string.msg_url_blank, Toast.LENGTH_SHORT).show();
-					return;
-				}				
-				
-				site.setName(siteName.getText().toString());
-				site.setDescription(siteDesc.getText().toString());
-				site.setUrl(siteURL.getText().toString());
-				site.setUserName(userName.getText().toString());
-				site.setPassword(password.getText().toString());
-							
-				if ( siteParam == null ) {
-					adapter.add(site);
-				}
-				
-				storeSites();
-				adapter.notifyDataSetChanged();
-				dialog.dismiss();
-			}
-		});
+
+        builder.setPositiveButton(R.string.save, (dialog, which) -> {
+            if ( siteName.getText().toString().trim().length() == 0 ) {
+                Toast.makeText(ManageSitesActivity.this, R.string.msg_name_blank, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if ( siteURL.getText().toString().trim().length() == 0 ) {
+                Toast.makeText(ManageSitesActivity.this, R.string.msg_url_blank, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            site.setName(siteName.getText().toString());
+            site.setDescription(siteDesc.getText().toString());
+            site.setUrl(siteURL.getText().toString());
+            site.setUserName(userName.getText().toString());
+            site.setPassword(password.getText().toString());
+
+            if ( siteParam == null ) {
+                adapter.add(site);
+            }
+
+            storeSites();
+            adapter.notifyDataSetChanged();
+            dialog.dismiss();
+        });
 		
 		builder.setNegativeButton(android.R.string.cancel, null );		
 	
@@ -221,9 +216,6 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 			return view;
 		}
 		
-		
-		
 	}
-	
 
 }

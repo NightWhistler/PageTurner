@@ -53,8 +53,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
 
 			LOG.info("Received media button, re-broadcasting as PageTurnerMediaKey");
 
-			KeyEvent event = (KeyEvent) intent
-					.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+			KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
 
             if ( event != null ) {
 			    Intent myIntent = new Intent(INTENT_PAGETURNER_MEDIA);

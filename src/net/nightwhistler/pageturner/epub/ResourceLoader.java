@@ -18,6 +18,7 @@
  */
 package net.nightwhistler.pageturner.epub;
 
+import com.google.common.collect.Collections2;
 import nl.siegmann.epublib.domain.Resources;
 
 import java.io.FileInputStream;
@@ -62,7 +63,7 @@ public class ResourceLoader  {
 		ResourceCallback callback;
 	}
 	
-	private List<Holder> callbacks = new ArrayList<ResourceLoader.Holder>();
+	private List<Holder> callbacks = new ArrayList<>();
 	
 	public void clear() {
 		this.callbacks.clear();
@@ -105,8 +106,8 @@ public class ResourceLoader  {
 	}
 	
 	private List<ResourceCallback> findCallbacksFor( String href ) {
-		List<ResourceCallback> result = new ArrayList<ResourceLoader.ResourceCallback>();
-		
+		List<ResourceCallback> result = new ArrayList<>();
+
 		for ( Holder holder: this.callbacks ) {
 			if ( href.endsWith(holder.href ) ) {
 				result.add(holder.callback);

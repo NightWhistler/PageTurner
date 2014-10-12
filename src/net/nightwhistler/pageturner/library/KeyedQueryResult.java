@@ -32,17 +32,14 @@ import java.util.*;
  */
 public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 
-	private List<String> keys;	
-	
+	private List<String> keys;
 	private List<Character> alphabet;
-	private String alphabetString;
-	
+
 	public KeyedQueryResult(Cursor cursor, List<String> keys ) {
 		super(cursor);		
 		this.keys = keys;	
 		
 		this.alphabet = calculateAlphaBet();
-		this.alphabetString = calculateAlphabetString();
 	}
 	
 	public List<String> getKeys() {
@@ -50,7 +47,7 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 	}
 	
 	private List<Character> calculateAlphaBet() {
-		SortedSet<Character> result = new TreeSet<Character>();
+		SortedSet<Character> result = new TreeSet<>();
 		
 		for ( String key: keys ) {
 			if ( key.length() > 0 ) {
@@ -58,20 +55,7 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 			}
 		}
 		
-		return Collections.unmodifiableList( new ArrayList<Character>(result) );
-	}
-	
-	private String calculateAlphabetString() {
-		StringBuffer buff = new StringBuffer();
-		for ( Character c: getAlphabet() ) {
-			buff.append(c);
-		}
-		
-		return buff.toString();
-	}	
-	
-	public String getAlphabetString() {
-		return alphabetString;
+		return Collections.unmodifiableList( new ArrayList<>(result) );
 	}
 	
 	public List<Character> getAlphabet() {
@@ -104,17 +88,5 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 		
 		return -1;
 	}
-	
-	public T getFirstItemFor( Character c ) {
-		int i = getOffsetFor(c);
-		
-		if ( i == -1 ) {
-			return null;
-		} else {
-			return getItemAt(i);
-		}
-	}
-	
-	
 
 }

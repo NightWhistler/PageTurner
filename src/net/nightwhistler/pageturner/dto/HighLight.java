@@ -99,7 +99,7 @@ public class HighLight {
 
         try {
             JSONArray jsonArray = new JSONArray(jsonSource);
-            List<HighLight> result = new ArrayList<HighLight>();
+            List<HighLight> result = new ArrayList<>();
 
             for (int i = 0; i < jsonArray.length(); i++) {
 

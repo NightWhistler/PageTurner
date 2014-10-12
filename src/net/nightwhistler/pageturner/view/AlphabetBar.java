@@ -91,15 +91,11 @@ public class AlphabetBar extends LinearLayout
 
             label.setClickable(true);
             label.setFocusable(true);
-            label.setOnClickListener( new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					if ( callback != null ) {
-						callback.characterClicked(currentChar);
-					}
-				}
-			});
+            label.setOnClickListener( v ->  {
+                if ( callback != null ) {
+                    callback.characterClicked(currentChar);
+                }
+            });
 
             addView(label, new LinearLayout.LayoutParams(
               LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));

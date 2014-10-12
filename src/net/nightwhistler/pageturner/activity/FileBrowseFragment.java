@@ -99,12 +99,12 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 	private class FileAdapter extends BaseAdapter {
 		
 		private File currentFolder;
-		private List<FileItem> items = new ArrayList<FileItem>();
+		private List<FileItem> items = new ArrayList<>();
 		
 		public void setFolder( File folder ) {
 			
 			this.currentFolder = folder;
-			items = new ArrayList<FileItem>();
+			items = new ArrayList<>();
 			File[] listing = folder.listFiles();
 			
 			if ( listing != null ) {
@@ -169,15 +169,10 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
                 selectBox.setVisibility(View.GONE);
             }
 
-			selectBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-				
-				@Override
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-					if ( isChecked ) {
-                        returnFile( fileItem.file );
-					}
-				}
-			});
+            selectBox.setOnCheckedChangeListener( (buttonView, isChecked) -> {
+                if ( isChecked ) { returnFile( fileItem.file );  }
+            });
+
 			selectBox.setFocusable(false);
 			
 			TextView label = (TextView) rowView.findViewById(R.id.folderName);

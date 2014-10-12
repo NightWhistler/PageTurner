@@ -40,8 +40,7 @@ public class PageTurnerPrefsActivity extends RoboSherlockPreferenceActivity {
 		super.onCreate(savedInstanceState);
 		
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-		//getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		
+
 		if ( ! settings.contains("device_name") ) {
 	 	   SharedPreferences.Editor editor = settings.edit();
 	 	   editor.putString("device_name", Build.MODEL );

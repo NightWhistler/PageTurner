@@ -149,17 +149,14 @@ public class ScrollingStrategy implements PageChangeStrategy {
 				pageDown();					
 			}
 		};
-		
+
 		Drawable img = context.getResources().getDrawable(R.drawable.gateway);
 		img.setBounds(0, 0, img.getIntrinsicWidth(), img.getIntrinsicHeight() );
 		builder.setSpan(new ImageSpan(img), length, length+1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		builder.setSpan(span, length, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		builder.setSpan(new AlignmentSpan() {
-			@Override
-			public Alignment getAlignment() {
-				return Alignment.ALIGN_CENTER;
-			}
-		}, length, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        builder.setSpan( (AlignmentSpan) () -> Alignment.ALIGN_CENTER
+			, length, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 		return builder;		
 	}
@@ -170,13 +167,9 @@ public class ScrollingStrategy implements PageChangeStrategy {
         for ( final HighLight highLight: highLights ) {
             if ( highLight.getIndex() == bookView.getIndex() ) {
 
-//                LOG.debug("Got highlight from " + highLight.getStart() + " to " + highLight.getEnd() + " with offset " + offset );
-
                 builder.setSpan(new HighlightSpan(highLight),
                         highLight.getStart(), highLight.getEnd(),
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-
             }
         }
     }
@@ -210,7 +203,6 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	}
 	
 	public void updatePosition() {
-
 
 		if ( storedPosition == -1 && this.storedPercentage == -1d ) {
 			return;  //Hopefully come back later
@@ -305,8 +297,6 @@ public class ScrollingStrategy implements PageChangeStrategy {
 		}
 		
 		int currentLine = layout.getLineForVertical(ypos);
-		
-		//System.out.println("Returning line " + currentLine + " for ypos " + ypos);
 		
 		if ( currentLine > 0 ) {
 			int height = layout.getLineBottom(currentLine -1);

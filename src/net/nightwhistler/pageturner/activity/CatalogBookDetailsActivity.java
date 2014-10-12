@@ -49,7 +49,6 @@ public class CatalogBookDetailsActivity extends PageTurnerActivity implements Ca
             return;
         }
 
-
         detailsFragment = (BookDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_bookdetails);
 
         Intent intent = getIntent();
@@ -75,21 +74,21 @@ public class CatalogBookDetailsActivity extends PageTurnerActivity implements Ca
 
     @Override
     public void loadFakeFeed(Feed fakeFeed) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     @Override
     public void onFeedLoaded(Feed feed) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     @Override
     public void loadFeed(Entry entry, String href, String baseURL, boolean asDetailsFeed) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     @Override
     public void loadCustomSitesFeed() {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 }

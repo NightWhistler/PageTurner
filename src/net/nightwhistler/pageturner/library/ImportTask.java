@@ -43,7 +43,7 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 	
 	private boolean copyToLibrary;
 	
-	private List<String> errors = new ArrayList<String>();
+	private List<String> errors = new ArrayList<>();
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ImportTask.class);
 	
@@ -143,7 +143,7 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
             return;
         }
 
-        Queue<File> dirs = new LinkedList<File>();
+        Queue<File> dirs = new LinkedList<>();
         dirs.add(folder);
 
         while ( !isCancelled() && !dirs.isEmpty() ) {

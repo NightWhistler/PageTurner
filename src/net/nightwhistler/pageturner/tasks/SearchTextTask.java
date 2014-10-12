@@ -63,7 +63,7 @@ public class SearchTextTask extends AsyncTask<String, SearchResult, List<SearchR
 		String searchTerm = params[0];
 		Pattern pattern = Pattern.compile(Pattern.quote((searchTerm)),Pattern.CASE_INSENSITIVE);
 		
-		List<SearchResult> result = new ArrayList<SearchResult>();
+		List<SearchResult> result = new ArrayList<>();
 		
 		try {
 

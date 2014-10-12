@@ -31,25 +31,22 @@ import java.util.List;
  */
 public class CleanFilesTask extends QueueableAsyncTask<Void, Void, Void> {
 
-    private Configuration config;
-
     private LibraryService libraryService;
 
     private ImportCallback callback;
 
     private int deletedFiles = 0;
 
-    public CleanFilesTask(ImportCallback callback, LibraryService service, Configuration config) {
+    public CleanFilesTask(ImportCallback callback, LibraryService service) {
         this.callback = callback;
         this.libraryService = service;
-        this.config = config;
     }
 
     @Override
     protected Void doInBackground(Void... voids) {
 
         QueryResult<LibraryBook> allBooks = libraryService.findAllByTitle(null);
-        List<String> filesToDelete = new ArrayList<String>();
+        List<String> filesToDelete = new ArrayList<>();
 
         for ( int i=0; i < allBooks.getSize() && ! isCancelled(); i++ ) {
             LibraryBook book = allBooks.getItemAt(i);

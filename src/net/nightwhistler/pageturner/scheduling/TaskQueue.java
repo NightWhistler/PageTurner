@@ -30,7 +30,7 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
 
         task.setCallback(this);
 
-        this.taskQueue.add(new QueuedTask<A, B, C>(task, parameters));
+        this.taskQueue.add(new QueuedTask<>(task, parameters));
 
         Log.d("TaskQueue", "Scheduled task of type " + task
                 + " total tasks scheduled now: " + this.taskQueue.size() );

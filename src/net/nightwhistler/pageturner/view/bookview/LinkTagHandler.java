@@ -47,7 +47,7 @@ public class LinkTagHandler extends TagNodeHandler {
 
         this.callBack = callBack;
 
-        this.externalProtocols = new ArrayList<String>();
+        this.externalProtocols = new ArrayList<>();
         externalProtocols.add("http://");
         externalProtocols.add("epub://");
         externalProtocols.add("https://");
@@ -79,7 +79,6 @@ public class LinkTagHandler extends TagNodeHandler {
 
         // If not, consider it an internal nav link.
         ClickableSpan span = new ClickableSpan() {
-
             @Override
             public void onClick(View widget) {
                 callBack.linkClicked(linkHref);

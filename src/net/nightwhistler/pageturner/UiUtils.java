@@ -2,6 +2,7 @@ package net.nightwhistler.pageturner;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.widget.SearchView;
 import com.google.common.base.Function;
 
 /**
@@ -22,10 +23,32 @@ public class UiUtils {
     }
 
     public static Operation<Action> onMenuPress( MenuItem menuItem ) {
+        return action -> menuItem.setOnMenuItemClickListener(item -> {
+            action.perform();
+            return true;
+        });
+    }
+
+    public static Operation<Action> onMenuPress( android.view.MenuItem menuItem ) {
         return action -> menuItem.setOnMenuItemClickListener( item -> {
             action.perform();
             return true;
         });
+    }
+
+    public static SearchView.OnQueryTextListener onQuery( Operation<String> op ) {
+        return new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                op.thenDo(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                return  false;
+            }
+        };
     }
 
 }

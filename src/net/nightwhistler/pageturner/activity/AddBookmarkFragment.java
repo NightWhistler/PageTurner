@@ -74,18 +74,11 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
         AddBookmarkHandler handler = new AddBookmarkHandler();
         inputField.setOnEditorActionListener(handler);
 
-
         return new AlertDialog.Builder(
                 getActivity())
                 .setTitle(R.string.add_bookmark)
                 .setView( view )
-                .setPositiveButton(R.string.add,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                handleAction();
-                            }
-                        }
-                )
+                .setPositiveButton(R.string.add, (dialog, which) -> handleAction() )
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
     }

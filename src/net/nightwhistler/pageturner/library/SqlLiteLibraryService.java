@@ -85,9 +85,7 @@ public class SqlLiteLibraryService implements LibraryService {
     			thumbNail = resizeImage(book.getCoverImage().getData());
     			book.getCoverImage().close();
     		}
-    	} catch (IOException io) {
-    		
-    	} catch (OutOfMemoryError err) {
+    	} catch (IOException | OutOfMemoryError e) {
     		//If the image resource is too big, just import without a cover.
     	}
 		

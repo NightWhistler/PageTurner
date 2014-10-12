@@ -53,45 +53,32 @@ public class DialogFactory {
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         searchInputDialogBuilder.setView(input);
 
-
         searchInputDialogBuilder.setPositiveButton(android.R.string.search_go,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        callBack.performSearch(input.getText().toString());
-                    }
-                });
+                (dialog, which) -> callBack.performSearch(input.getText().toString()) );
 
         searchInputDialogBuilder.setNegativeButton(android.R.string.cancel,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // Canceled.
-                    }
-                });
+                (dialog, which) -> {} );
 
         final AlertDialog searchInputDialog = searchInputDialogBuilder.show();
 
-        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
-            @Override
-            public boolean onEditorAction(TextView v, int actionId,
-                                          KeyEvent event) {
-                if (event == null) {
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        callBack.performSearch(input.getText().toString());
-                        searchInputDialog.dismiss();
-                        return true;
-                    }
-                } else if (actionId == EditorInfo.IME_NULL) {
-                    if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                        callBack.performSearch(input.getText().toString());
-                        searchInputDialog.dismiss();
-                    }
-
+        input.setOnEditorActionListener( (v, actionId, event) -> {
+            if (event == null) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    callBack.performSearch(input.getText().toString());
+                    searchInputDialog.dismiss();
                     return true;
                 }
+            } else if (actionId == EditorInfo.IME_NULL) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    callBack.performSearch(input.getText().toString());
+                    searchInputDialog.dismiss();
+                }
 
-                return false;
+                return true;
             }
+
+            return false;
+
         });
     }
 
@@ -115,13 +102,8 @@ public class DialogFactory {
 
 		builder.setMessage( Html.fromHtml(html));
 
-		builder.setNeutralButton(context.getString(android.R.string.ok), 
-				new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();				
-			}
-		});
+		builder.setNeutralButton(context.getString(android.R.string.ok),
+                (dialog, which) -> dialog.dismiss() );
 
         return builder.create();
 	}

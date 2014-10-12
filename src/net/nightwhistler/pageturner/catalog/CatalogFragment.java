@@ -48,6 +48,7 @@ import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.UiUtils;
 import net.nightwhistler.pageturner.activity.DialogFactory;
 import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
 import net.nightwhistler.pageturner.library.LibraryService;
@@ -96,7 +97,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
     @Inject
     private TaskQueue taskQueue;
 
-    private Map<String, Drawable> thumbnailCache = new ConcurrentHashMap<String, Drawable>();
+    private Map<String, Drawable> thumbnailCache = new ConcurrentHashMap<>();
 
     private MenuItem searchMenuItem;
 
@@ -304,20 +305,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
             final SearchView searchView = (SearchView) searchMenuItem.getActionView();
 
             if (searchView != null) {
-
                 searchView.setSubmitButtonEnabled(true);
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        performSearch(query);
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String query) {
-                        return  false;
-                    }
-                } );
+                searchView.setOnQueryTextListener(UiUtils.onQuery( this::performSearch ) );
             } else {
                 searchMenuItem.setOnMenuItemClickListener( item -> {
                         dialogFactory.showSearchDialog(R.string.search_books, R.string.enter_query, CatalogFragment.this);

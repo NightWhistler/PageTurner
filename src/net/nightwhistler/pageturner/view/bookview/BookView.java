@@ -21,13 +21,14 @@ package net.nightwhistler.pageturner.view.bookview;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.ClipboardManager;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.text.*;
@@ -36,11 +37,10 @@ import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.util.Base64;
-import android.view.KeyEvent;
+import android.view.ActionMode;
 import android.view.MotionEvent;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.view.ActionMode;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import net.nightwhistler.htmlspanner.FontFamily;
@@ -57,8 +57,8 @@ import net.nightwhistler.pageturner.dto.TocEntry;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.epub.ResourceLoader;
 import net.nightwhistler.pageturner.epub.ResourceLoader.ResourceCallback;
-import net.nightwhistler.pageturner.scheduling.*;
-import net.nightwhistler.pageturner.tasks.SearchTextTask;
+import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
+import net.nightwhistler.pageturner.scheduling.TaskQueue;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
@@ -71,9 +71,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import roboguice.RoboGuice;
 
-import javax.annotation.Nullable;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -615,11 +618,27 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 		this.prevIndex = this.getIndex();
 		this.prevPos = this.getProgressPosition();
 
-		// URLDecode the href, so it does not contain %20 etc.
-		String href = URLDecoder.decode(StringUtil.substringBefore(rawHref,
-                Constants.FRAGMENT_SEPARATOR_CHAR));
+        // Default Charset for android is UTF-8
+        // http://developer.android.com/reference/java/nio/charset/Charset.html#defaultCharset()
+        String charsetName = Charset.defaultCharset().name();
 
-		// Don't decode the anchor.
+        if (!Charset.isSupported(charsetName)) {
+            LOG.warn("{} is not a supported Charset. Will fall back to UTF-8", charsetName);
+            charsetName = "UTF-8";
+        }
+
+		// URLDecode the href, so it does not contain %20 etc.
+        String href;
+        try {
+            href = URLDecoder.decode(StringUtil.substringBefore(rawHref,
+                    Constants.FRAGMENT_SEPARATOR_CHAR), charsetName);
+
+        } catch (UnsupportedEncodingException e) {
+            // Won't ever be reached
+            throw new AssertionError(e);
+        }
+
+        // Don't decode the anchor.
 		String anchor = StringUtil.substringAfterLast(rawHref,
 				Constants.FRAGMENT_SEPARATOR_CHAR);
 

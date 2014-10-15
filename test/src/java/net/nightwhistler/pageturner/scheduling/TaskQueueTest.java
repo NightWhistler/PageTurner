@@ -1,5 +1,7 @@
 package net.nightwhistler.pageturner.scheduling;
 
+import android.annotation.TargetApi;
+import android.os.AsyncTask;
 import org.junit.Ignore;
 import org.robolectric.RobolectricTestRunner;
 import org.junit.Assert;
@@ -7,6 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
+
+import java.util.concurrent.Executor;
 
 import static org.mockito.Mockito.*;
 
@@ -18,7 +22,7 @@ import static org.mockito.Mockito.*;
  * To change this template use File | Settings | File Templates.
  */
 
-@Ignore //Turned off for now
+@TargetApi(16)
 @Config(emulateSdk = 16)
 @RunWith(RobolectricTestRunner.class)
 public class TaskQueueTest {
@@ -44,7 +48,7 @@ public class TaskQueueTest {
 
         taskQueue.executeTask(mockTaskA, params);
 
-        verify(mockTaskA).execute(params);
+        verify(mockTaskA).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
 
         //Mock completion of task A
         taskQueue.taskCompleted(mockTaskA, false);
@@ -62,7 +66,7 @@ public class TaskQueueTest {
 
         taskQueue.executeTask(mockTaskA, params);
 
-        verify(mockTaskA).execute(params);
+        verify(mockTaskA).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
 
         //Mock completion of a different task
         taskQueue.taskCompleted(mock(QueueableAsyncTask.class), false);
@@ -87,23 +91,23 @@ public class TaskQueueTest {
         taskQueue.executeTask(mockTaskB);
         taskQueue.executeTask(mockTaskC);
 
-        verify(mockTaskA).execute();
-        verify(mockTaskB, never() ).execute();
-        verify(mockTaskC, never() ).execute();
+        verify(mockTaskA).executeOnExecutor(any(Executor.class));
+        verify(mockTaskB, never() ).executeOnExecutor(any(Executor.class));
+        verify(mockTaskC, never() ).executeOnExecutor(any(Executor.class));
 
         taskQueue.taskCompleted(mockTaskA, false);
         verifyZeroInteractions(listener);
 
-        verify( mockTaskB ).execute();
-        verify(mockTaskC, never() ).execute();
+        verify( mockTaskB ).executeOnExecutor(any(Executor.class));
+        verify(mockTaskC, never() ).executeOnExecutor(any(Executor.class));
 
         //Should not be executed again
-        verify(mockTaskA, times(1)).execute();
+        verify(mockTaskA, times(1)).executeOnExecutor(any(Executor.class));
 
         taskQueue.taskCompleted(mockTaskB, false);
-        verify(mockTaskC).execute();
-        verify(mockTaskA, times(1)).execute();
-        verify(mockTaskB, times(1)).execute();
+        verify(mockTaskC).executeOnExecutor(any(Executor.class));
+        verify(mockTaskA, times(1)).executeOnExecutor(any(Executor.class));
+        verify(mockTaskB, times(1)).executeOnExecutor(any(Executor.class));
 
         taskQueue.taskCompleted(mockTaskC, false);
 
@@ -123,17 +127,17 @@ public class TaskQueueTest {
         taskQueue.executeTask(mockTaskB);
         taskQueue.executeTask(mockTaskC);
 
-        verify(mockTaskA).execute();
-        verify(mockTaskB, never() ).execute();
-        verify(mockTaskC, never() ).execute();
+        verify(mockTaskA).executeOnExecutor( any(Executor.class) );
+        verify(mockTaskB, never() ).executeOnExecutor(any(Executor.class));
+        verify(mockTaskC, never()).executeOnExecutor(any(Executor.class));
 
         taskQueue.clear();
         verify( mockTaskA ).requestCancellation();
 
         taskQueue.taskCompleted(mockTaskA, true);
 
-        verify(mockTaskB, never()).execute();
-        verify(mockTaskC, never()).execute();
+        verify(mockTaskB, never()).executeOnExecutor(any(Executor.class));
+        verify(mockTaskC, never()).executeOnExecutor(any(Executor.class));
 
         //verifyZeroInteractions(listener);      ???
 
@@ -161,23 +165,23 @@ public class TaskQueueTest {
         taskQueue.executeTask(mockTaskB);
         taskQueue.executeTask(mockTaskC);
 
-        verify(mockTaskA).execute();
-        verify(mockTaskB, never() ).execute();
-        verify(mockTaskC, never() ).execute();
+        verify(mockTaskA).executeOnExecutor(any(Executor.class));
+        verify(mockTaskB, never() ).executeOnExecutor(any(Executor.class));
+        verify(mockTaskC, never() ).executeOnExecutor(any(Executor.class));
 
         taskQueue.jumpQueueExecuteTask(mockTaskD);
 
         verify(mockTaskA).requestCancellation();
-        verify(mockTaskD).execute();
+        verify(mockTaskD).executeOnExecutor(any(Executor.class));
 
         taskQueue.taskCompleted(mockTaskA, true);
 
         taskQueue.taskCompleted(mockTaskD, false);
-        verify( mockTaskB ).execute();
+        verify( mockTaskB ).executeOnExecutor(any(Executor.class));
 
         taskQueue.taskCompleted(mockTaskB, false);
 
-        verify(mockTaskC).execute();
+        verify(mockTaskC).executeOnExecutor(any(Executor.class));
         taskQueue.taskCompleted(mockTaskC, false);
 
         verify(listener).queueEmpty();

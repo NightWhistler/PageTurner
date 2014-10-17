@@ -27,10 +27,17 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import com.google.inject.Inject;
+import jedi.functional.FunctionalPrimitives;
+import jedi.option.Option;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.R;
+
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
+import static jedi.option.Options.some;
+import static net.nightwhistler.pageturner.catalog.Catalog.getImageLink;
 
 public class CatalogListAdapter extends BaseAdapter {
 	
@@ -42,7 +49,7 @@ public class CatalogListAdapter extends BaseAdapter {
     private CatalogImageLoader imageLoader;
 
     public static interface CatalogImageLoader {
-        Drawable getThumbnailFor( String baseURL, Link link );
+        Option<Drawable> getThumbnailFor( String baseURL, Link link );
     }
 
 	@Inject
@@ -61,8 +68,7 @@ public class CatalogListAdapter extends BaseAdapter {
                 Entry lastEntry = feed.getEntries().get( feed.getSize() - 1);
                 feed.addEntry(this.loadingEntry);
 
-                this.loadingEntry.setFeed(lastEntry.getFeed());
-
+                lastEntry.getFeed().forEach( f -> this.loadingEntry.setFeed(f) );
             }
         } else {
             feed.removeEntry(this.loadingEntry);
@@ -87,8 +93,8 @@ public class CatalogListAdapter extends BaseAdapter {
 		this.notifyDataSetChanged();		
 	}
 	
-	public Feed getFeed() {
-		return feed;
+	public Option<Feed> getFeed() {
+		return option(feed);
 	}
 
 	@Override
@@ -102,12 +108,12 @@ public class CatalogListAdapter extends BaseAdapter {
 	}
 	
 	@Override
-	public Entry getItem(int position) {
+	public Option<Entry> getItem(int position) {
         if ( position >= 0 && position < feed.getEntries().size() ) {
-		    return feed.getEntries().get(position);
+		    return some(feed.getEntries().get(position));
         }
 
-        return null;
+        return none();
 	}
 	
 	@Override
@@ -119,9 +125,9 @@ public class CatalogListAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View rowView;
-		final Entry entry = getItem(position);
+		final Option<Entry> entry = getItem(position);
 
-        if ( entry == this.loadingEntry ) {
+        if ( entry.unsafeGet() == this.loadingEntry ) {
             ProgressBar bar = new ProgressBar(this.context);
             bar.setIndeterminate(true);
             return bar;
@@ -134,23 +140,40 @@ public class CatalogListAdapter extends BaseAdapter {
             rowView = convertView;
         }
 
-        final Link imgLink = Catalog.getImageLink(getFeed(), entry);
-
-		Catalog.loadBookDetails(rowView, entry, true );
+        if ( ! FunctionalPrimitives.isEmpty(entry) ) {
+            Catalog.loadBookDetails(rowView, entry.unsafeGet(), true);
+        }
 
         ImageView icon = (ImageView) rowView.findViewById(R.id.itemIcon);
 
-        Drawable drawableToSet = context.getResources().getDrawable(R.drawable.unknown_cover);;
+        Option<Drawable> drawableOption = none();
 
-        if ( this.imageLoader != null && imgLink != null ) {
-            Drawable drawable = this.imageLoader.getThumbnailFor( entry.getBaseURL(), imgLink );
-            if ( drawable != null ) {
-                drawableToSet = drawable;
-            }
+        if ( ! FunctionalPrimitives.isEmpty(entry) ) {
+            drawableOption = getThumbnail( entry.unsafeGet() );
         }
 
-        icon.setImageDrawable( drawableToSet );
+        icon.setImageDrawable( drawableOption.getOrElse(
+                context.getResources().getDrawable(R.drawable.unknown_cover)
+        ));
+
 		return rowView;
 	}
+
+    private Option<Drawable> getThumbnail( Entry entry ) {
+
+        Option<Feed> feed = getFeed();
+
+        if ( FunctionalPrimitives.isEmpty( feed ) ) {
+            return none();
+        }
+
+        final Option<Link> imgLink = getImageLink( feed.unsafeGet(), entry );
+
+        if ( this.imageLoader == null || FunctionalPrimitives.isEmpty(imgLink) ) {
+            return none();
+        }
+
+        return this.imageLoader.getThumbnailFor( entry.getBaseURL(), imgLink.unsafeGet() );
+    }
 	
 }

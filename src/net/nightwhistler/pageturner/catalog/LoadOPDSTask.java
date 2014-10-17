@@ -20,6 +20,7 @@ package net.nightwhistler.pageturner.catalog;
 
 import android.content.Context;
 import com.google.inject.Inject;
+import jedi.option.Option;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
@@ -39,7 +40,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
+import static jedi.functional.FunctionalPrimitives.isEmpty;
+import static jedi.option.Options.none;
+import static jedi.option.Options.some;
+
+public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Option<Feed>> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger("LoadOPDSTask");
 
@@ -75,12 +80,12 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
     }
 
     @Override
-	protected Feed doInBackground(String... params) {
+	protected Option<Feed> doInBackground(String... params) {
 
 		String baseUrl = params[0];
 
 		if (baseUrl == null || baseUrl.trim().length() == 0) {
-			return null;
+			return none();
 		}
 
         boolean isBaseFeed = baseUrl.equals(config.getBaseOPDSFeed());
@@ -98,7 +103,7 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 
 			if ( response.getStatusLine().getStatusCode() != 200 ) {
 				this.errorMessage = "HTTP " + response.getStatusLine().getStatusCode() + ": " + response.getStatusLine().getReasonPhrase();
-				return null;
+				return none();
 			}
 
 			InputStream stream = response.getEntity().getContent();
@@ -116,13 +121,16 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
             }
 
             if ( isCancelled() ) {
-                return null;
+                return none();
             }
 
-			Link searchLink = feed.findByRel(AtomConstants.REL_SEARCH);
+			Option<Link> searchLinkOption = feed.findByRel(AtomConstants.REL_SEARCH);
 
-			if (searchLink != null) {
-				URL mBaseUrl = new URL(baseUrl);
+            if ( ! isEmpty(searchLinkOption) ) {
+
+                Link searchLink = searchLinkOption.unsafeGet();
+
+            	URL mBaseUrl = new URL(baseUrl);
 				URL mSearchUrl = new URL(mBaseUrl, searchLink.getHref());
 				searchLink.setHref(mSearchUrl.toString());
 
@@ -151,24 +159,25 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 					    SearchDescription desc = Nucular
 							.readOpenSearchFromStream(searchStream);
 
-					    if (desc.getSearchLink() != null) {
-						    searchLink.setHref(desc.getSearchLink().getHref());
-                            searchLink.setType(AtomConstants.TYPE_ATOM);
-					    }
+					    desc.getSearchLink().forEach( l ->
+                            searchLink.setHref(l.getHref())
+                        );
+
+                        searchLink.setType(AtomConstants.TYPE_ATOM);
+
                     } catch ( Exception searchIO ) {
                         LOG.error("Could not get search info", searchIO );
                     }
 				}
 
                 LOG.debug("Using searchURL " + searchLink.getHref() );
-
 			}
 
-			return feed;
+			return some(feed);
 		} catch (Exception e) {
 			this.errorMessage = e.getLocalizedMessage();
 			LOG.error("Download failed for url: " + baseUrl, e);
-			return null;
+			return none();
 		}
 
 	}
@@ -191,19 +200,20 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
     }
 
     @Override
-    protected void doOnPostExecute(Feed result) {
-		if (result == null) {
-			callBack.errorLoadingFeed(errorMessage);
-		}  else if ( result.getSize() == 0 ) {
-            callBack.emptyFeedLoaded(result);
-        } else {
-            callBack.setNewFeed(result, resultType);
-        }
+    protected void doOnPostExecute(Option<Feed> result) {
+
+        result.match( f -> {
+            if ( f.getSize() == 0 ) {
+                callBack.emptyFeedLoaded(f);
+            } else {
+                callBack.setNewFeed(f, resultType);
+            }
+        }, () -> callBack.errorLoadingFeed(errorMessage) );
 	}
 
 	private void addCustomSitesEntry(Feed feed) {
 
-        Link iconLink = feed.findByRel("pageturner:custom_sites");
+        Option<Link> iconLink = feed.findByRel("pageturner:custom_sites");
 
 		Entry entry = new Entry();
 		entry.setTitle(context.getString(R.string.custom_site));
@@ -211,10 +221,10 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 		entry.setId(Catalog.CUSTOM_SITES_ID);
         entry.setBaseURL( feed.getURL() );
 
-        if ( iconLink != null ) {
-            Link thumbnailLink = new Link(iconLink.getHref(), iconLink.getType(), AtomConstants.REL_IMAGE, null);
+        iconLink.forEach( l -> {
+            Link thumbnailLink = new Link(l.getHref(), l.getType(), AtomConstants.REL_IMAGE, null);
             entry.addLink(thumbnailLink);
-        }
+        });
 
 		feed.addEntry(entry);
 	}

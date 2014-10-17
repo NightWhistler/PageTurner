@@ -18,6 +18,8 @@
  */
 package net.nightwhistler.nucular.atom;
 
+import jedi.option.Option;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +58,7 @@ public class Feed extends AtomElement {
         this.entries.remove(entry);
     }
 	
-	public Link getNextLink() {
+	public Option<Link> getNextLink() {
 		return findByRel(REL_NEXT);
 	}
 
@@ -68,18 +70,14 @@ public class Feed extends AtomElement {
         return this.url;
     }
 	
-	public Link getPreviousLink() {
+	public Option<Link> getPreviousLink() {
 		return findByRel(REL_PREV);
 	}
 	
-	public Link getSearchLink() {
-		Link link = findByRel(REL_SEARCH);
-		
-		if ( link != null && link.getType().equals(AtomConstants.TYPE_ATOM)) {
-			return link;
-		}
-		
-		return null;
+	public Option<Link> getSearchLink() {
+		Option<Link> link = findByRel(REL_SEARCH);
+
+        return link.filter( l -> l.getType().equals(AtomConstants.TYPE_ATOM ));
 	}
 	
 	public void setDetailFeed(boolean detailFeed) {

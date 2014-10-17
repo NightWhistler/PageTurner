@@ -18,10 +18,15 @@
  */
 package net.nightwhistler.nucular.atom;
 
+import jedi.option.Option;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static jedi.functional.FunctionalPrimitives.firstOption;
+import static jedi.option.Options.some;
 
 public abstract class AtomElement implements Serializable {
 
@@ -73,13 +78,8 @@ public abstract class AtomElement implements Serializable {
 		this.links.add(link);
 	}	
 	
-	public Link findByRel(String rel) {
-		for ( Link link: getLinks() ) {
-			if (link.getRel() != null && link.getRel().equals(rel)) {
-				return link;
-			}
-		}
-		
-		return null;
+	public Option<Link> findByRel(String rel) {
+        return firstOption( getLinks(),
+                link -> link.getRel() != null && link.getRel().equals(rel) );
 	}
 }

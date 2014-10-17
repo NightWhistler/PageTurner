@@ -3,7 +3,6 @@ package net.nightwhistler.pageturner;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
-import com.google.common.base.Function;
 
 /**
  * Created by alex on 10/11/14.

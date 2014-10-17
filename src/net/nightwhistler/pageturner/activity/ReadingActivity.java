@@ -32,6 +32,7 @@ import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import com.actionbarsherlock.internal.widget.IcsAdapterView;
 import com.google.inject.Inject;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.view.NavigationCallback;
@@ -124,14 +125,12 @@ public class ReadingActivity extends PageTurnerActivity implements AdapterView.O
             int childPosition = getAdapter().getIndexForChildId( groupPosition,
                     ExpandableListView.getPackedPositionChild(id) );
 
-            NavigationCallback childItem = getAdapter().getChild( groupPosition, childPosition );
+            Option<NavigationCallback> childItem = getAdapter().getChild( groupPosition, childPosition );
 
             LOG.debug("Long-click on " + groupPosition + ", " + childPosition );
             LOG.debug("Child-item: " + childItem );
 
-            if ( childItem != null ) {
-                childItem.onLongClick();
-            }
+            childItem.forEach( item -> item.onLongClick() );
 
             closeNavigationDrawer();
             return true;
@@ -207,11 +206,8 @@ public class ReadingActivity extends PageTurnerActivity implements AdapterView.O
 
         super.onChildClick(expandableListView, view, i, i2, l );
 
-        NavigationCallback childItem = getAdapter().getChild( i, i2 );
-
-        if ( childItem != null ) {
-            childItem.onClick();
-        }
+        Option<NavigationCallback> childItem = getAdapter().getChild( i, i2 );
+        childItem.forEach( item -> item.onClick() );
 
         return false;
     }

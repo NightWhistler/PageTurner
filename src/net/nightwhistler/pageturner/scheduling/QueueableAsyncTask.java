@@ -20,8 +20,8 @@
 package net.nightwhistler.pageturner.scheduling;
 
 import android.os.AsyncTask;
-import com.google.common.base.Function;
-import net.nightwhistler.pageturner.UiUtils;
+import jedi.functional.Command;
+import jedi.functional.Functor;
 
 import static java.lang.Integer.toHexString;
 
@@ -38,10 +38,10 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
         void taskCompleted( QueueableAsyncTask<?,?,?> task, boolean wasCancelled );
     }
 
-    private UiUtils.Operation<Result> onPostExecuteOperation;
-    private UiUtils.Operation<Result> onCancelledOperation;
+    private Command<Result> onPostExecuteOperation;
+    private Command<Result> onCancelledOperation;
 
-    private Function<Params[], Result> doInBackgroundFunction;
+    private Functor<Params[], Result> doInBackgroundFunction;
 
     private QueueCallback callback;
 
@@ -93,7 +93,7 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
 
     public void doOnCancelled(Result result) {
         if ( this.onCancelledOperation != null ) {
-            this.onCancelledOperation.thenDo( result );
+            this.onCancelledOperation.execute(result);
         }
     }
 
@@ -110,14 +110,14 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
      */
     protected void doOnPostExecute(Result result) {
         if ( this.onPostExecuteOperation != null ) {
-            this.onPostExecuteOperation.thenDo( result );
+            this.onPostExecuteOperation.execute(result);
         }
     }
 
     @Override
     protected Result doInBackground(Params... paramses) {
         if ( this.doInBackgroundFunction != null ) {
-            return this.doInBackgroundFunction.apply( paramses );
+            return this.doInBackgroundFunction.execute( paramses );
         }
 
         return null;
@@ -134,17 +134,17 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
      * @param onCancelledOperation
      * @return this object
      */
-    public QueueableAsyncTask setOnCancelled(UiUtils.Operation<Result> onCancelledOperation) {
+    public QueueableAsyncTask setOnCancelled(Command<Result> onCancelledOperation) {
         this.onCancelledOperation = onCancelledOperation;
         return this;
     }
 
-    public QueueableAsyncTask setOnPostExecute(UiUtils.Operation<Result> onPostExecuteOperation) {
+    public QueueableAsyncTask setOnPostExecute(Command<Result> onPostExecuteOperation) {
         this.onPostExecuteOperation = onPostExecuteOperation;
         return this;
     }
 
-    public QueueableAsyncTask setDoInBackgroundFunction(Function<Params[], Result> doInBackgroundFunction) {
+    public QueueableAsyncTask setDoInBackgroundFunction(Functor<Params[], Result> doInBackgroundFunction) {
         this.doInBackgroundFunction = doInBackgroundFunction;
         return this;
     }

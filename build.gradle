@@ -50,7 +50,9 @@ dependencies {
         [group: 'ch.acra', name: 'acra', version: '4.4.0'],
 
         [group: 'org.slf4j', name: 'slf4j-android', version: '1.6.1-RC1'],
-        [group:'com.google.guava', name: 'guava', version: '18.0']
+        [group: 'org.codehaus.jedi', name: 'jedi-core', version: '3.0.5']
+
+
     )
 
     compile( 'com.github.rtyley:roboguice-sherlock:1.5' ) {

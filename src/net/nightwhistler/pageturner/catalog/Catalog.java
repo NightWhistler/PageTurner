@@ -28,6 +28,8 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import jedi.functional.Filter;
+import jedi.option.Option;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
@@ -36,6 +38,13 @@ import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static jedi.functional.FunctionalPrimitives.firstOption;
+import static jedi.functional.FunctionalPrimitives.isEmpty;
 
 public class Catalog {
 	
@@ -57,23 +66,19 @@ public class Catalog {
 	 * @param entry
 	 * @return
 	 */
-	public static Link getImageLink(Feed feed, Entry entry) {
-		Link[] linkOptions;
+	public static Option<Link> getImageLink(Feed feed, Entry entry) {
 
-		if ( feed.isDetailFeed() ) {
-			linkOptions = new Link[] { entry.getImageLink(), entry.getThumbnailLink() };
-		} else {
-			linkOptions = new Link[] { entry.getThumbnailLink(), entry.getImageLink() };						
-		}
-		
-		Link imageLink = null;					
-		for ( int i=0; imageLink == null && i < linkOptions.length; i++ ) {
-			imageLink = linkOptions[i];
-		}
-		
-		return imageLink;
+        List<Link> items;
+
+        if ( feed.isDetailFeed() ) {
+            items = asList( entry.getImageLink().unsafeGet(), entry.getThumbnailLink().unsafeGet() );
+        } else {
+            items = asList( entry.getThumbnailLink().unsafeGet(), entry.getImageLink().unsafeGet() );
+        }
+
+        return firstOption( items, l -> l != null );
 	}
-	
+
 	/**
 	 * Loads the details for the given entry into the given layout.
 	 *

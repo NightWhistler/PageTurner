@@ -23,8 +23,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
@@ -37,8 +35,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -47,8 +43,8 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
-import com.google.common.base.Supplier;
 import com.google.inject.Inject;
+import jedi.option.Option;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.ColourProfile;
@@ -70,11 +66,13 @@ import java.io.File;
 import java.text.DateFormat;
 import java.util.*;
 
+import static java.lang.Character.toUpperCase;
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
 import static net.nightwhistler.pageturner.UiUtils.onMenuPress;
 import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
 
-public class LibraryFragment extends RoboSherlockFragment implements ImportCallback, OnItemClickListener,
-        OnItemLongClickListener, DialogFactory.SearchCallBack, TaskQueue.TaskQueueListener {
+public class LibraryFragment extends RoboSherlockFragment implements ImportCallback {
 
     protected static final int REQUEST_CODE_GET_CONTENT = 2;
 	
@@ -150,14 +148,13 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			this.askedUserToImport = savedInstanceState.getBoolean("import_q", false);
 		}
 
-        this.taskQueue.setTaskQueueListener(this);
+        this.taskQueue.setTaskQueueListener(this::onTaskQueueEmpty);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_library, container, false);
 	}
-
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -188,8 +185,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		importDialog.setTitle(R.string.importing_books);
 		importDialog.setMessage(getString(R.string.scanning_epub));
 		registerForContextMenu(this.listView);	
-		this.listView.setOnItemClickListener(this);
-		this.listView.setOnItemLongClickListener(this);
+
+        this.listView.setOnItemClickListener( this::onItemClick );
+		this.listView.setOnItemLongClickListener(this::onItemLongClick );
 		
 		setAlphabetBarVisible(false);
 	}
@@ -204,8 +202,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				android.R.layout.simple_list_item_1,
 				android.R.id.text1, getResources().getStringArray(R.array.libraryQueries));
 
-		actionBar.setListNavigationCallbacks(adapter, new MenuSelectionListener() );
-
+		actionBar.setListNavigationCallbacks(adapter, this::onNavigationItemSelected );
 
         refreshView();
         executeTask(new CleanFilesTask(this, libraryService));
@@ -218,9 +215,11 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         this.taskQueue.executeTask(task, parameters);
     }
 
-    @Override
-    public void queueEmpty() {
-        LOG.debug( "Got queueEmpty()" );
+    /**
+     * Triggered by the TaskQueue when all tasks are finished.
+     */
+    private void onTaskQueueEmpty() {
+        LOG.debug( "Got onTaskQueueEmpty()" );
         setSupportProgressBarIndeterminateVisibility(false);
     }
 
@@ -232,8 +231,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		coverCache.clear();
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
+	private void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 
         if ( config.getLongShortPressBehaviour() == Configuration.LongShortPressBehaviour.NORMAL ) {
@@ -242,9 +240,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             openBook(this.bookAdapter.getResultAt(position));
         }
 	}	
-	
-	@Override
-	public boolean onItemLongClick(AdapterView<?> parent, View view,
+
+	private boolean onItemLongClick(AdapterView<?> parent, View view,
 			int position, long id) {
 
         if ( config.getLongShortPressBehaviour() == Configuration.LongShortPressBehaviour.NORMAL ) {
@@ -256,21 +253,20 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		return true;
 	}
 
-	private FastBitmapDrawable getCover( LibraryBook book ) {
+	private Option<Drawable> getCover( LibraryBook book ) {
 
         try {
-
             if ( !coverCache.containsKey(book.getFileName() ) ) {
                 Bitmap bitmap = BitmapFactory.decodeByteArray(book.getCoverImage(), 0, book.getCoverImage().length );
                 FastBitmapDrawable drawable = new FastBitmapDrawable(bitmap);
                 coverCache.put( book.getFileName(), drawable );
             }
 
-            return coverCache.get( book.getFileName() );
+            return option(coverCache.get(book.getFileName()));
 
         } catch ( OutOfMemoryError outOfMemoryError ) {
             clearCoverCache();
-            return null;
+            return none();
         }
 	}
 	
@@ -290,14 +286,10 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		ImageView coverView = (ImageView) layout.findViewById(R.id.coverImage );
 
 		if ( libraryBook.getCoverImage() != null ) {
+            Drawable coverDrawable = getCover(libraryBook).getOrElse(
+                    getResources().getDrawable(R.drawable.unknown_cover) );
 
-            Drawable coverDrawable = getCover(libraryBook);
-
-            if ( coverDrawable != null ) {
-                coverView.setImageDrawable(coverDrawable);
-            } else {
-                coverView.setImageDrawable(getResources().getDrawable(R.drawable.unknown_cover));
-            }
+            coverView.setImageDrawable(coverDrawable);
         }
 
 		TextView titleView = (TextView) layout.findViewById(R.id.titleField);
@@ -363,7 +355,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		listView.setKeepScreenOn(true);
 
         this.taskQueue.clear();
-        executeTask( importTask, startFolder );
+        executeTask(importTask, startFolder);
 	}
 
     @Override
@@ -430,7 +422,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
             } else {
                 searchMenuItem.setOnMenuItemClickListener( item -> {
-                    dialogFactory.showSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
+                    dialogFactory.showSearchDialog(R.string.search_library, R.string.enter_query, this::performSearch);
                     return false;
                 });
             }
@@ -480,13 +472,11 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             this.searchMenuItem.expandActionView();
             this.searchMenuItem.getActionView().requestFocus();
         } else {
-            dialogFactory.showSearchDialog(R.string.search_library, R.string.enter_query, LibraryFragment.this);
+            dialogFactory.showSearchDialog(R.string.search_library, R.string.enter_query, this::performSearch);
         }
     }
 
-
-    @Override
-    public void performSearch(String query) {
+    private void performSearch(String query) {
         if ( query != null ) {
             setSupportProgressBarIndeterminateVisibility(true);
             this.taskQueue.jumpQueueExecuteTask(new LoadBooksTask(config.getLastLibraryQuery(), query));
@@ -715,7 +705,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	public void onAlphabetBarClick( KeyedQueryResult<LibraryBook> result, Character c ) {
 		
-		int index = result.getOffsetFor(Character.toUpperCase(c));
+		int index = result.getOffsetFor(toUpperCase(c));
 		
 		if ( index == -1 ) {
 			return;
@@ -864,7 +854,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
                     Character keyChar = null;
 
                     if (key != null && key.length() > 0 ) {
-                        keyChar = Character.toUpperCase( key.charAt(0) );
+                        keyChar = toUpperCase(key.charAt(0));
                     }
 
                     if (keyChar != null && ! keyChar.equals(lastCharacter)) {
@@ -903,7 +893,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
                     }
                 }
 
-
             };
 				
 			handler.postDelayed(lastRunnable, 550);			
@@ -929,12 +918,10 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		public void run() {			
 			try {
-                FastBitmapDrawable drawable = getCover(book);
 
-                if ( drawable != null ) {
-                    view.setImageDrawable(drawable);
-                }
-			} catch (IllegalStateException i) {
+                getCover(book).forEach( drawable -> view.setImageDrawable(drawable) );
+
+            } catch (IllegalStateException i) {
                 //Do nothing, happens when we're no longer attached.
             }
 		}
@@ -1005,8 +992,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		alphabetBar.setVisibility(vis);
 		alphabetDivider.setVisibility(vis);		
 		listView.setFastScrollEnabled(visible);
-
-        Supplier<String> s = String::new;
 	}
 
     private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
@@ -1018,24 +1003,20 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             LOG.debug("Got null activity.");
         }
     }
-	
-	private class MenuSelectionListener implements OnNavigationListener {	
-		
-		@Override
-		public boolean onNavigationItemSelected(int pos, long arg1) {
 
-			LibrarySelection newSelections = LibrarySelection.values()[pos];
+    private boolean onNavigationItemSelected(int pos, long arg1) {
 
-            if ( newSelections != config.getLastLibraryQuery() ) {
-			    config.setLastLibraryQuery(newSelections);
-			
-			    bookAdapter.clear();
-                loadView(newSelections, "onNavigationItemSelected()");
-            }
+        LibrarySelection newSelections = LibrarySelection.values()[pos];
 
-			return false;
-		}
-	}	
+        if ( newSelections != config.getLastLibraryQuery() ) {
+            config.setLastLibraryQuery(newSelections);
+
+            bookAdapter.clear();
+            loadView(newSelections, "onNavigationItemSelected()");
+        }
+
+        return false;
+    }
 
 	private class AlphabetAdapter extends ArrayAdapter<Character> {
 		

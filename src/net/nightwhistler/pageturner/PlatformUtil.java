@@ -44,6 +44,12 @@ public class PlatformUtil {
 
     public static boolean isRunningOnUiThread() { return Looper.getMainLooper().getThread() == Thread.currentThread(); }
 
+    public static void verifyNotOnUiThread() {
+        if ( isRunningOnUiThread() ) {
+            throw new IllegalStateException("This method should not be called from the UI Thread!");
+        }
+    }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static <A, B, C> void executeTask( AsyncTask<A, B, C> task, A... params ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {

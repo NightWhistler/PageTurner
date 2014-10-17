@@ -22,6 +22,7 @@ package net.nightwhistler.pageturner.tasks;
 import android.os.AsyncTask;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import jedi.option.Option;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
@@ -37,7 +38,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SearchTextTask extends AsyncTask<String, SearchResult, List<SearchResult>> {
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
+
+public class SearchTextTask extends AsyncTask<String, SearchResult, Option<List<SearchResult>>> {
 	
 	private Book book;
 	
@@ -58,7 +62,7 @@ public class SearchTextTask extends AsyncTask<String, SearchResult, List<SearchR
 	
 
 	@Override
-	protected List<SearchResult> doInBackground(String... params) {
+	protected Option<List<SearchResult>> doInBackground(String... params) {
 		
 		String searchTerm = params[0];
 		Pattern pattern = Pattern.compile(Pattern.quote((searchTerm)),Pattern.CASE_INSENSITIVE);
@@ -83,7 +87,7 @@ public class SearchTextTask extends AsyncTask<String, SearchResult, List<SearchR
 					int to = Math.min(spanned.length() -1, matcher.end() + 20 );
 					
 					if ( isCancelled() ) {
-						return null;
+						return none();
 					}
 					
 					String text = "…" + spanned.subSequence(from, to).toString().trim() + "…";
@@ -95,10 +99,10 @@ public class SearchTextTask extends AsyncTask<String, SearchResult, List<SearchR
 				
 			}
 		} catch (IOException io) {
-			return null;
+			return none();
 		}
 
-		return result;		
+		return option(result);
 	}
 	
 	private static class DummyHandler extends TagNodeHandler {

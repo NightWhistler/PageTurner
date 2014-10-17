@@ -25,11 +25,14 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import net.nightwhistler.pageturner.view.bookview.BookViewListener;
 import net.nightwhistler.pageturner.view.bookview.HighlightSpan;
 import net.nightwhistler.pageturner.view.bookview.SelectedWord;
+
+import java.util.List;
 
 /**
  * Translates low-level touch and gesture events into more high-level
@@ -63,31 +66,28 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
         bookView.blockFor( BOOKVIEW_BLOCK_TIME );
 
 		//Links get preference
-		ClickableSpan[] spans = bookView.getLinkAt(e.getX(), e.getY() );
-		if ( spans != null && spans.length > 0 ) {
+		List<ClickableSpan> spans = bookView.getLinkAt(e.getX(), e.getY() );
 
-            Log.d("NavGestureDetector", "Got " + spans.length + " ClickableSpans.");
-			for ( ClickableSpan span: spans ) {
-				span.onClick(bookView);
-			}
+        Log.d("NavGestureDetector", "Got " + spans.size() + " ClickableSpans.");
+        if ( spans.size() > 0 ) {
+            for (ClickableSpan span : spans) {
+                span.onClick(bookView);
+            }
 
-			return true;
-		} else {
-            Log.d("NavGestureDetector", "No ClickableSpans found.");
+            return true;
         }
 
-        HighlightSpan[] highlightSpans = bookView.getHighlightsAt(e.getX(), e.getY());
+        List<HighlightSpan> highlightSpans = bookView.getHighlightsAt(e.getX(), e.getY());
 
-        if ( highlightSpans != null && highlightSpans.length > 0 ) {
-            Log.d("NavGestureDetector", "Got " + highlightSpans.length + " HighLightSpans.");
+        Log.d("NavGestureDetector", "Got " + highlightSpans.size() + " HighLightSpans.");
+
+        if ( highlightSpans.size() > 0 ) {
 
             for ( HighlightSpan span: highlightSpans ) {
                 bookView.highlightClicked( span.getHighLight() );
             }
 
             return true;
-        } else {
-            Log.d("NavGestureDetector", "No HighLightSpans found.");
         }
 		
     	final int TAP_RANGE_H = bookView.getWidth() / 5;
@@ -169,11 +169,11 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 
 		//On older platforms we generate a popup-event.
 		if ( Build.VERSION.SDK_INT < Configuration.TEXT_SELECTION_PLATFORM_VERSION) {
-			SelectedWord word = bookView.getWordAt(e.getX(), e.getY() );
+			Option<SelectedWord> wordOption = bookView.getWordAt(e.getX(), e.getY() );
 
-			if ( word != null ) {
-				bookViewListener.onWordLongPressed( word.getStartOffset(), word.getEndOffset(), word.getText() );
-			}
+            wordOption.match( word ->
+                bookViewListener.onWordLongPressed( word.getStartOffset(), word.getEndOffset(), word.getText() )
+            , () -> {} );
 
 			super.onLongPress(e);
 		}		

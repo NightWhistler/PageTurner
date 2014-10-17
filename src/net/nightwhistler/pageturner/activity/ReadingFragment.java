@@ -50,6 +50,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
+import jedi.option.Option;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.Configuration.AnimationStyle;
@@ -85,6 +86,7 @@ import java.net.URLEncoder;
 import java.util.*;
 
 import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
+import static net.nightwhistler.pageturner.PlatformUtil.verifyNotOnUiThread;
 import static net.nightwhistler.pageturner.UiUtils.onMenuPress;
 
 public class ReadingFragment extends RoboSherlockFragment implements
@@ -1817,6 +1819,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
      * Should be called from a background thread.
      */
     private void doAutoScroll() {
+
+        verifyNotOnUiThread();
+
         if (dummyView.getAnimator() == null) {
             LOG.debug("BookView no longer has an animator. Aborting rolling blind.");
             stopAnimating();
@@ -1927,6 +1932,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
      * @param animator
      */
     private void doPageCurl( PageCurlAnimator animator ) {
+
+        verifyNotOnUiThread();
+
         if (animator.isFinished()) {
 
             if (viewSwitcher.getCurrentView() == dummyView) {
@@ -2710,14 +2718,17 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 }
             }
 
-            protected void onPostExecute(java.util.List<SearchResult> result) {
+            protected void onPostExecute(Option<List<SearchResult>> result) {
 
                 searchProgress.dismiss();
 
                 if (!isCancelled() && isAdded() ) {
-                    if (result.size() > 0) {
-                        searchResults = result;
-                        showSearchResultDialog(result);
+
+                    List<SearchResult> resultList = result.getOrElse( new ArrayList<>() );
+
+                    if (resultList.size() > 0) {
+                        searchResults = resultList;
+                        showSearchResultDialog(resultList);
                     } else {
                         Toast.makeText(context,
                                 R.string.search_no_matches, Toast.LENGTH_LONG)

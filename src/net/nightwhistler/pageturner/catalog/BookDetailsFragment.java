@@ -41,6 +41,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import jedi.option.Option;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
@@ -54,6 +55,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Random;
+
+import static jedi.functional.FunctionalPrimitives.isEmpty;
 
 /**
  * Fragment which shows the details of the book to be downloaded.
@@ -125,12 +128,14 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         //If we're here, the feed always has just 1 entry
         final Entry entry = feed.getEntries().get(0);
 
-        if ( entry.getEpubLink() != null ) {
+        Option<Link> epubLink = entry.getEpubLink();
+
+        if ( ! isEmpty(epubLink) ) {
 
             String base = feed.getURL();
 
             try {
-                final URL url = new URL(new URL(base), entry.getEpubLink().getHref());
+                final URL url = new URL(new URL(base), epubLink.unsafeGet().getHref());
 
                 downloadButton.setOnClickListener( v -> startDownload(true, url.toExternalForm() ));
                 addToLibraryButton.setOnClickListener( v -> startDownload(false, url.toExternalForm()));
@@ -144,9 +149,11 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             addToLibraryButton.setVisibility(View.GONE);
         }
 
-        if (entry.getBuyLink() != null) {
+        Option<Link> buyLink = entry.getBuyLink();
+
+        if ( !isEmpty( buyLink ) ) {
             buyNowButton.setOnClickListener( v -> {
-                String url = entry.getBuyLink().getHref();
+                String url = buyLink.unsafeGet().getHref();
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
                 startActivity(i);
@@ -168,7 +175,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             authorTextView.setText("");
         }
 
-        final Link imgLink = Catalog.getImageLink(feed, entry);
+        final Option<Link> imgLink = Catalog.getImageLink(feed, entry);
 
         Catalog.loadBookDetails(mainLayout, entry, false);
         icon.setImageDrawable( getActivity().getResources().getDrawable(R.drawable.unknown_cover));
@@ -177,7 +184,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         task.setLoadFeedCallback(this);
         task.setBaseUrl(feed.getURL());
 
-        task.execute(imgLink);
+        imgLink.forEach( task::execute );
     }
 
     @Override

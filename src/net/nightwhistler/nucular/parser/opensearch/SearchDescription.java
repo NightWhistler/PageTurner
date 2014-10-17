@@ -19,11 +19,14 @@
 
 package net.nightwhistler.nucular.parser.opensearch;
 
+import jedi.option.Option;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Link;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static jedi.functional.FunctionalPrimitives.firstOption;
 
 public class SearchDescription {
 
@@ -33,13 +36,7 @@ public class SearchDescription {
 		this.links.add(link);
 	}
 	
-	public Link getSearchLink() {
-		for ( Link l: this.links ) {
-			if ( AtomConstants.TYPE_ATOM.equals(l.getType() )) {
-				return l;
-			}
-		}
-		
-		return null;
+	public Option<Link> getSearchLink() {
+		return firstOption( this.links, l -> AtomConstants.TYPE_ATOM.equals( l.getType() ) );
 	}
 }

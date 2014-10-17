@@ -27,6 +27,9 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import jedi.functional.FunctionalPrimitives;
+import jedi.option.Option;
+import jedi.option.OptionMatcher;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
@@ -41,6 +44,10 @@ import roboguice.inject.InjectFragment;
 
 import javax.annotation.Nullable;
 import java.util.List;
+
+import static jedi.functional.FunctionalPrimitives.isEmpty;
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
 
 public class CatalogActivity extends PageTurnerActivity implements CatalogParent,
         FragmentManager.OnBackStackChangedListener {
@@ -123,12 +130,13 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
 
         if ( fragmentManager.getBackStackEntryCount() > 0 ) {
 
-            Fragment fragment = getCurrentVisibleFragment();
-
-            if ( fragment != null && fragment instanceof CatalogFragment ) {
-                LOG.debug( "Notifying fragment.");
-                ((CatalogFragment) fragment).onBecameVisible();
-            }
+            Option<Fragment> fragmentOption = getCurrentVisibleFragment();
+            fragmentOption.forEach( (fragment) -> {
+                if ( fragment instanceof CatalogFragment ) {
+                    LOG.debug( "Notifying fragment.");
+                    ((CatalogFragment) fragment).onBecameVisible();
+                }
+            });
 
         } else if ( baseFeedTitle != null ) {
             supportInvalidateOptionsMenu();
@@ -218,20 +226,20 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
         newCatalogFragment.loadURL(entry, href, asDetailsFeed, false, LoadFeedCallback.ResultType.REPLACE);
     }
 
-    private Fragment getCurrentVisibleFragment() {
+    private Option<Fragment> getCurrentVisibleFragment() {
 
         if ( fragmentManager.getBackStackEntryCount() < 1 ) {
-            return null;
+            return none();
         }
 
         FragmentManager.BackStackEntry entry = fragmentManager.getBackStackEntryAt(
                 fragmentManager.getBackStackEntryCount() - 1 );
 
 
-        Fragment result = fragmentManager.findFragmentByTag( entry.getName() );
+        Option<Fragment> result = option(fragmentManager.findFragmentByTag(entry.getName()));
 
-        if ( result == null ) {
-            LOG.debug("Could not find fragment with name " + entry.getName() );
+        if ( isEmpty( result ) ){
+            LOG.debug("Could not find fragment with name " + entry.getName());
         }
 
         return result;
@@ -241,18 +249,19 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
     @Override
     public boolean onSearchRequested() {
 
-        Fragment fragment = getCurrentVisibleFragment();
+        Option<Fragment> fragmentOption = getCurrentVisibleFragment();
 
-        LOG.debug("Got fragment " + fragment );
+        return fragmentOption.match( (fragment) -> {
 
-        if ( fragment != null && fragment instanceof CatalogFragment ) {
-            CatalogFragment catalogFragment = (CatalogFragment) fragment;
+           if ( fragment instanceof CatalogFragment ) {
+               CatalogFragment catalogFragment = (CatalogFragment) fragment;
 
-            catalogFragment.onSearchRequested();
-            return catalogFragment.supportsSearch();
-        }
+               catalogFragment.onSearchRequested();
+               return catalogFragment.supportsSearch();
+           }
 
-        return false;
+           return false;
+        }, () -> false );
     }
 
     @Override

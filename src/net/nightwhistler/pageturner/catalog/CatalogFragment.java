@@ -30,8 +30,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -42,16 +40,15 @@ import com.actionbarsherlock.widget.SearchView;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import jedi.option.Option;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
-import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.UiUtils;
 import net.nightwhistler.pageturner.activity.DialogFactory;
 import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
-import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.scheduling.TaskQueue;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import org.slf4j.Logger;
@@ -65,9 +62,10 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CatalogFragment extends RoboSherlockFragment implements
-		LoadFeedCallback, DialogFactory.SearchCallBack, TaskQueue.TaskQueueListener,
-        CatalogListAdapter.CatalogImageLoader {
+import static jedi.functional.FunctionalPrimitives.isEmpty;
+import static jedi.option.Options.option;
+
+public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCallback {
 	
 	private static final Logger LOG = LoggerFactory
 			.getLogger("CatalogFragment");
@@ -112,15 +110,14 @@ public class CatalogFragment extends RoboSherlockFragment implements
         DisplayMetrics metrics = metricsProvider.get();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        this.taskQueue.setTaskQueueListener(this);
+        this.taskQueue.setTaskQueueListener( this::onTaskQueueEmpty);
 	}
 
     public void setBaseURL(  String baseURL ) {
         this.baseURL = baseURL;
     }
 
-    @Override
-    public void queueEmpty() {
+    private void onTaskQueueEmpty() {
         onLoadingDone();
     }
 
@@ -135,11 +132,14 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
 		setHasOptionsMenu(true);
 		catalogList.setAdapter(adapter);
-        adapter.setImageLoader(this);
+        adapter.setImageLoader( (baseURL, link) ->
+                option(thumbnailCache.get(link.getHref())) );
+
         catalogList.setOnScrollListener(new LoadingScrollListener());
-        catalogList.setOnItemClickListener( (AdapterView<?> list, View arg1, int position, long arg3) -> {
-            Entry entry = adapter.getItem(position);
-            onEntryClicked(entry, position);
+
+        catalogList.setOnItemClickListener( (list, v, position, a) -> {
+            Option<Entry> entry = adapter.getItem(position);
+            entry.forEach( e -> onEntryClicked(e, position));
         });
 
         if ( staticFeed != null ) {
@@ -149,10 +149,9 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	}
 
     public void onBecameVisible() {
-
-        if ( adapter.getFeed() != null ) {
-            ((CatalogParent) getActivity()).onFeedLoaded( adapter.getFeed() );
-        }
+        adapter.getFeed().forEach( f ->
+            ((CatalogParent) getActivity() ).onFeedLoaded( f )
+        );
     }
 	
 	private void loadOPDSFeed( Entry entry, String url, boolean asDetailsFeed, boolean asSearchFeed, ResultType resultType ) {
@@ -183,17 +182,16 @@ public class CatalogFragment extends RoboSherlockFragment implements
     public void performSearch(String searchTerm) {
     	if (searchTerm != null && searchTerm.length() > 0) {
 			String searchString = URLEncoder.encode(searchTerm);
-            Feed feed = adapter.getFeed();
+            Option<Feed> feed = adapter.getFeed();
 
-            if ( feed != null && feed.getSearchLink() != null ) {
-			    String linkUrl = feed.getSearchLink()
-					.getHref();
+            feed.forEach( f -> f.getSearchLink().forEach( searchLink -> {
+                String linkUrl = searchLink.getHref();
 
-			    linkUrl = linkUrl.replace( AtomConstants.SEARCH_TERMS,
-				    	searchString);
+                linkUrl = linkUrl.replace( AtomConstants.SEARCH_TERMS,
+                        searchString);
 
                 loadURL(null, linkUrl, false, true, ResultType.REPLACE);
-            }
+            }));
 		}
     }
 
@@ -211,7 +209,7 @@ public class CatalogFragment extends RoboSherlockFragment implements
             this.searchMenuItem.expandActionView();
             this.searchMenuItem.getActionView().requestFocus();
         } else {
-            dialogFactory.showSearchDialog(R.string.search_books, R.string.enter_query, CatalogFragment.this);
+            dialogFactory.showSearchDialog(R.string.search_books, R.string.enter_query, this::performSearch );
         }
 	}
 
@@ -219,16 +217,16 @@ public class CatalogFragment extends RoboSherlockFragment implements
 			
 		if ( entry.getId() != null && entry.getId().equals(Catalog.CUSTOM_SITES_ID) ) {			
             ((CatalogParent) getActivity()).loadCustomSitesFeed();
-		} else if ( entry.getAlternateLink() != null ) {
-			String href = entry.getAlternateLink().getHref();
+		} else if ( ! isEmpty( entry.getAlternateLink() ) ) {
+			String href = entry.getAlternateLink().unsafeGet().getHref();
 			replaceFeed(entry, href, true);
-		} else if ( entry.getEpubLink() != null ) {
+		} else if ( ! isEmpty( entry.getEpubLink() )) {
             loadFakeFeek(entry);
-		} else if ( entry.getAtomLink() != null ) {
-			String href = entry.getAtomLink().getHref();
+		} else if ( ! isEmpty(entry.getAtomLink()) ) {
+			String href = entry.getAtomLink().unsafeGet().getHref();
 			replaceFeed( entry, href, false);
-		} else if ( entry.getWebsiteLink() != null ) {
-            String url = entry.getWebsiteLink().getHref();
+		} else if ( ! isEmpty( entry.getWebsiteLink() ) ) {
+            String url = entry.getWebsiteLink().unsafeGet().getHref();
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse(url));
             startActivity(i);
@@ -309,7 +307,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
                 searchView.setOnQueryTextListener(UiUtils.onQuery( this::performSearch ) );
             } else {
                 searchMenuItem.setOnMenuItemClickListener( item -> {
-                        dialogFactory.showSearchDialog(R.string.search_books, R.string.enter_query, CatalogFragment.this);
+                        dialogFactory.showSearchDialog(R.string.search_books,
+                                R.string.enter_query, this::performSearch );
                         return false;
                 });
             }
@@ -318,18 +317,17 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		Feed feed = adapter.getFeed();
-		
-		if ( feed == null ) {
-			return;
-		}
 
-		boolean searchEnabled = feed.getSearchLink() != null;
+        Option<Feed> feed = adapter.getFeed();
+
+        boolean searchEnabled = feed.match( f ->
+                        !isEmpty( f.getSearchLink() ),
+                () -> false );
 		
 		for ( int i=0; i < menu.size(); i++ ) {
 			MenuItem item = menu.getItem(i);
 			
-			boolean enabled = false;
+			boolean enabled;
 			
 			switch (item.getItemId()) {
 
@@ -350,7 +348,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
-		
 		switch (item.getItemId()) {
 
 		case R.id.prefs:
@@ -427,11 +424,6 @@ public class CatalogFragment extends RoboSherlockFragment implements
         }
     }
 
-    @Override
-    public Drawable getThumbnailFor( String baseURL, Link link ) {
-        return thumbnailCache.get( link.getHref() );
-    }
-
     private void queueImageLoading( String baseURL, Link imageLink ) {
 
         Context context = getActivity();
@@ -502,11 +494,8 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
         @Override
         public void onScroll(AbsListView view, final int firstVisibleItem, final int visibleItemCount, int totalItemCount) {
-
             loadThumbnails(firstVisibleItem, visibleItemCount, totalItemCount );
-
             loadNextFeed(firstVisibleItem, visibleItemCount, totalItemCount );
-
         }
 
         private void loadNextFeed( final int firstVisibleItem, final int visibleItemCount, int totalItemCount ) {
@@ -515,28 +504,31 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
             if ( totalItemCount - lastVisibleItem  <= LOAD_THRESHOLD && adapter.getCount() > 0) {
 
-                Entry lastEntry = adapter.getItem( adapter.getCount() -1 );
-                Feed feed = lastEntry.getFeed();
+                Option<Entry> lastEntry = adapter.getItem( adapter.getCount() -1 );
 
-                if ( feed == null || feed.getNextLink() == null) {
-                    LOG.debug("Scroll down detected, but no next link available");
-                    return;
-                }
+                if ( ! isEmpty( lastEntry ) ) {
+                    Option<Feed> feed = lastEntry.unsafeGet().getFeed();
 
-                Link nextLink = feed.getNextLink();
+                    if ( ! isEmpty( feed ) ) {
+                        Option<Link> nextLink = feed.unsafeGet().getNextLink();
 
-                if ( ! nextLink.getHref().equals(lastLoadedUrl) ) {
-                    Entry nextEntry = new Entry();
-                    nextEntry.setFeed(feed);
-                    nextEntry.addLink(nextLink);
+                        if ( ! isEmpty( nextLink ) ) {
+                            Link link = nextLink.unsafeGet();
 
-                    LOG.debug("Starting download for " + nextLink.getHref() + " after scroll");
+                            if (! link.getHref().equals(lastLoadedUrl)) {
+                                Entry nextEntry = new Entry();
+                                nextEntry.setFeed(feed.unsafeGet());
+                                nextEntry.addLink(link);
 
-                    lastLoadedUrl = nextLink.getHref();
-                    loadURL(nextEntry, nextLink.getHref(), false, false, ResultType.APPEND);
+                                LOG.debug("Starting download for " + link.getHref() + " after scroll");
+
+                                lastLoadedUrl = link.getHref();
+                                loadURL(nextEntry, link.getHref(), false, false, ResultType.APPEND);
+                            }
+                        }
+                    }
                 }
             }
-
         }
 
         private void loadThumbnails( final int firstVisibleItem, final int visibleItemCount, int totalItemCount ) {
@@ -546,12 +538,16 @@ public class CatalogFragment extends RoboSherlockFragment implements
 
             updater = () -> {
                 for ( int i=0; i < visibleItemCount; i++ ) {
-                    Entry entry = adapter.getItem( firstVisibleItem + i );
-                    if ( entry != null ) {
-                        Link imageLink = Catalog.getImageLink(entry.getFeed(), entry);
+                    Option<Entry> entry = adapter.getItem( firstVisibleItem + i );
 
-                        if ( imageLink != null && !thumbnailCache.containsKey(imageLink.getHref() ) ) {
-                            queueImageLoading( entry.getBaseURL(), imageLink );
+                    if (! isEmpty(entry) ) {
+                        Option<Feed> feed = entry.unsafeGet().getFeed();
+                        if ( ! isEmpty( feed ) ) {
+                            Option<Link> imageLink = Catalog.getImageLink( feed.unsafeGet(), entry.unsafeGet() );
+                            if ( ! isEmpty( imageLink ) &&
+                                    ! thumbnailCache.containsKey( imageLink.unsafeGet().getHref() ) ) {
+                                queueImageLoading( entry.unsafeGet().getBaseURL(), imageLink.unsafeGet() );
+                            }
                         }
                     }
                 }

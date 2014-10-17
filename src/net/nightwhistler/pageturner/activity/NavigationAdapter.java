@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.view.NavigationCallback;
@@ -14,6 +15,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
 
 /**
  * Created with IntelliJ IDEA.
@@ -130,15 +134,15 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public NavigationCallback getChild(int i, int i2) {
+    public Option<NavigationCallback> getChild(int i, int i2) {
 
         if ( children.containsKey(i) ) {
             if ( children.get(i).size() > i2 ) {
-                return children.get(i).get(i2);
+                return option(children.get(i).get(i2));
             }
         }
 
-        return null;
+        return none();
     }
 
     @Override

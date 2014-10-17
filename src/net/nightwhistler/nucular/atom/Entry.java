@@ -18,9 +18,16 @@
  */
 package net.nightwhistler.nucular.atom;
 
+import jedi.option.Option;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import static jedi.functional.FunctionalPrimitives.firstOption;
+import static jedi.functional.FunctionalPrimitives.isEmpty;
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
+import static jedi.option.Options.some;
 import static net.nightwhistler.nucular.atom.AtomConstants.*;
 
 public class Entry extends AtomElement {
@@ -52,33 +59,24 @@ public class Entry extends AtomElement {
         this.feed = feed;
     }
 
-    public Feed getFeed() {
-        return feed;
+    public Option<Feed> getFeed() {
+        return option(feed);
     }
 
-    public Link getWebsiteLink() {
+    public Option<Link> getWebsiteLink() {
         return findByRel(AtomConstants.REL_WEBSITE);
     }
 
-	public Link getAlternateLink() {
-		Link atomLink = getAtomLink();
-		if ( atomLink != null && atomLink.getRel() != null && atomLink.getRel().equalsIgnoreCase(REL_ALTERNATE)) {
-			return atomLink;
-		}
-		
-		return null;
+	public Option<Link> getAlternateLink() {
+		Option<Link> atomLink = getAtomLink();
+
+        return atomLink.filter(l -> l.getRel() != null && l.getRel().equalsIgnoreCase(REL_ALTERNATE));
 	}
 	
-	public Link getAtomLink() {
+	public Option<Link> getAtomLink() {
 		List<Link> links = getLinks();
-		
-		for ( Link link: links ) {
-			if ( link.getType().startsWith(TYPE_ATOM)) {
-				return link;
-			}
-		}
-		
-		return null;
+
+        return firstOption( links, l -> l.getType().startsWith(TYPE_ATOM));
 	}
 	
 	public String getSummary() {
@@ -89,9 +87,10 @@ public class Entry extends AtomElement {
 		this.summary = summary;
 	}
 	
-	private Link findByRel(String... items) {
-		Link link = null;
-		for ( int i=0; i < items.length && link == null; i++ ) {
+	private Option<Link> findByRel(String... items) {
+		Option<Link> link = none();
+
+		for ( int i=0; i < items.length && isEmpty(link); i++ ) {
 			link = findByRel( items[i] );
 		}
 		
@@ -116,25 +115,19 @@ public class Entry extends AtomElement {
 
     }
 
-	public Link getThumbnailLink() {		
+	public Option<Link> getThumbnailLink() {
 		return findByRel(REL_THUMBNAIL, REL_THUMBNAIL_ALT, REL_STANZA_THUMBNAIL_IMAGE);
 	}
 	
-	public Link getImageLink() {
+	public Option<Link> getImageLink() {
 		return findByRel(REL_IMAGE, REL_COVER, REL_STANZA_COVER_IMAGE );		
 	}
 	
-	public Link getBuyLink() {
+	public Option<Link> getBuyLink() {
 		return findByRel(REL_BUY, REL_STANZA_BUY);
 	}
 	
-	public Link getEpubLink() {
-		for ( Link link: getLinks() ) {
-			if (link.getType() != null && link.getType().equals(TYPE_EPUB)) {
-				return link;
-			}
-		}
-		
-		return null;
+	public Option<Link> getEpubLink() {
+        return firstOption( getLinks(), link -> link.getType() != null && link.getType().equals(TYPE_EPUB));
 	}
 }

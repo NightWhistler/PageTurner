@@ -43,6 +43,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import jedi.functional.Functor;
+import jedi.option.None;
+import jedi.option.Option;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.SpanStack;
@@ -80,6 +83,11 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static jedi.functional.FunctionalPrimitives.isEmpty;
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
+import static jedi.option.Options.some;
 
 public class BookView extends ScrollView {
 
@@ -225,28 +233,36 @@ public class BookView extends ScrollView {
 	}
 
 
-    public HighlightSpan[] getHighlightsAt( float x, float y ) {
+    public List<HighlightSpan> getHighlightsAt( float x, float y ) {
         return getSpansAt(x, y, HighlightSpan.class );
     }
 
-	public ClickableSpan[] getLinkAt(float x, float y) {
+	public List<ClickableSpan> getLinkAt(float x, float y) {
         return getSpansAt(x, y, ClickableSpan.class );
 	}
 
-    private <A> A[] getSpansAt( float x, float y, Class<A> spanClass) {
-        Integer offset = findOffsetForPosition(x, y);
+    /**
+     * Returns all the spans of a specific class at a specific location.
+     *
+     * @param x the X coordinate
+     * @param y the Y coordinate
+     * @param spanClass the class of span to filter for
+     * @param <A>
+     * @return a List of spans of type A, may be empty.
+     */
+    private <A> List<A> getSpansAt( float x, float y, Class<A> spanClass) {
+
+        Option<Integer> offsetOption = findOffsetForPosition(x, y);
 
         CharSequence text = childView.getText();
 
-        if (offset == null || ! (text instanceof Spanned)) {
-            return null;
+        if ( isEmpty(offsetOption) || ! (text instanceof Spanned) ) {
+            return new ArrayList<>();
         }
 
-        Spanned spannedText = (Spanned) text;
-        A[] spans = spannedText.getSpans(offset, offset,
-                spanClass);
+        int offset = offsetOption.getOrElse(0);
 
-        return spans;
+        return Arrays.asList( ((Spanned) text).getSpans(offset, offset, spanClass));
     }
 
     /**
@@ -513,16 +529,16 @@ public class BookView extends ScrollView {
 		return this.spine;
 	}
 
-	private Integer findOffsetForPosition(float x, float y) {
+	private Option<Integer> findOffsetForPosition(float x, float y) {
 
 		if (childView == null || childView.getLayout() == null) {
-			return null;
+			return none();
 		}
 
 		Layout layout = this.childView.getLayout();
 		int line = layout.getLineForVertical((int) y);
 
-		return layout.getOffsetForHorizontal(line, x);
+		return option(layout.getOffsetForHorizontal(line, x));
 	}
 
 	/**
@@ -532,7 +548,7 @@ public class BookView extends ScrollView {
 	 * @param y
 	 * @return
 	 */
-	public SelectedWord getWordAt(float x, float y) {
+	public Option<SelectedWord> getWordAt(float x, float y) {
 
 		if (childView == null) {
 			return null;
@@ -544,18 +560,16 @@ public class BookView extends ScrollView {
 			return null;
 		}
 
-		Integer offset = findOffsetForPosition(x, y);
+		Option<Integer> offsetOption = findOffsetForPosition(x, y);
 
-		if (offset == null) {
-			return null;
+		if ( isEmpty( offsetOption )) {
+			return none();
 		}
 
-		if (offset < 0 || offset > text.length() - 1) {
-			return null;
-		}
+        int offset = offsetOption.unsafeGet();
 
-		if (isBoundaryCharacter(text.charAt(offset))) {
-			return null;
+		if (offset < 0 || offset > text.length() - 1 || isBoundaryCharacter(text.charAt(offset))) {
+			return none();
 		}
 
 		int left = Math.max(0, offset - 1);
@@ -593,7 +607,7 @@ public class BookView extends ScrollView {
 		if (start > 0 && start < word.length() && end < word.length()) {
             word = word.subSequence(start, end);
 
-            return new SelectedWord( left, right, word );
+            return some(new SelectedWord( left, right, word ));
 		}
 
 		return null;

@@ -73,8 +73,7 @@ public class TextSelectionActions implements ActionMode.Callback {
                     react(mode, () -> PlatformUtil.copyTextToClipboard(context, bookView.getSelectedText())));
         }
 
-        //FIXME: menu.add(R.string.abs__share_action_provider_share_with)
-        menu.add("Share with...")
+        menu.add( R.string.abs__shareactionprovider_share_with )
                 .setOnMenuItemClickListener(
                         react( mode, () ->
                                 callBack.share(bookView.getSelectionStart(),

@@ -69,8 +69,6 @@ public class SearchTextTask extends AsyncTask<String, SearchResult, List<SearchR
 
 			PageTurnerSpine spine = new PageTurnerSpine(book);
 			
-			
-			
 			for ( int index=0; index < spine.size(); index++ ) {
 				
 				spine.navigateByIndex(index);

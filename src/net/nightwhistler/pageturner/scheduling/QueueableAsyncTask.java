@@ -20,6 +20,7 @@
 package net.nightwhistler.pageturner.scheduling;
 
 import android.os.AsyncTask;
+import com.google.common.base.Function;
 import net.nightwhistler.pageturner.UiUtils;
 
 import static java.lang.Integer.toHexString;
@@ -31,11 +32,16 @@ import static java.lang.Integer.toHexString;
  * @param <Progress>
  * @param <Result>
  */
-public abstract class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
+public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
 
     public static interface QueueCallback {
         void taskCompleted( QueueableAsyncTask<?,?,?> task, boolean wasCancelled );
     }
+
+    private UiUtils.Operation<Result> onPostExecuteOperation;
+    private UiUtils.Operation<Result> onCancelledOperation;
+
+    private Function<Params[], Result> doInBackgroundFunction;
 
     private QueueCallback callback;
 
@@ -86,7 +92,9 @@ public abstract class QueueableAsyncTask<Params, Progress, Result> extends Async
     }
 
     public void doOnCancelled(Result result) {
-
+        if ( this.onCancelledOperation != null ) {
+            this.onCancelledOperation.thenDo( result );
+        }
     }
 
     public void setCallback( QueueCallback callback ) {
@@ -100,11 +108,44 @@ public abstract class QueueableAsyncTask<Params, Progress, Result> extends Async
      *
      * @param result
      */
-    protected void doOnPostExecute(Result result) { }
+    protected void doOnPostExecute(Result result) {
+        if ( this.onPostExecuteOperation != null ) {
+            this.onPostExecuteOperation.thenDo( result );
+        }
+    }
+
+    @Override
+    protected Result doInBackground(Params... paramses) {
+        if ( this.doInBackgroundFunction != null ) {
+            return this.doInBackgroundFunction.apply( paramses );
+        }
+
+        return null;
+    }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + " (" + toHexString( hashCode() ) + ")";
     }
 
+    /**
+     * Sets the operation to be performed when this task is cancelled.
+     *
+     * @param onCancelledOperation
+     * @return this object
+     */
+    public QueueableAsyncTask setOnCancelled(UiUtils.Operation<Result> onCancelledOperation) {
+        this.onCancelledOperation = onCancelledOperation;
+        return this;
+    }
+
+    public QueueableAsyncTask setOnPostExecute(UiUtils.Operation<Result> onPostExecuteOperation) {
+        this.onPostExecuteOperation = onPostExecuteOperation;
+        return this;
+    }
+
+    public QueueableAsyncTask setDoInBackgroundFunction(Function<Params[], Result> doInBackgroundFunction) {
+        this.doInBackgroundFunction = doInBackgroundFunction;
+        return this;
+    }
 }

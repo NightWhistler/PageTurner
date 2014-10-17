@@ -1,5 +1,7 @@
 package net.nightwhistler.pageturner.view;
 
+import net.nightwhistler.pageturner.UiUtils;
+
 /**
  * Created with IntelliJ IDEA.
  * User: alex
@@ -7,14 +9,47 @@ package net.nightwhistler.pageturner.view;
  * Time: 9:12 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface NavigationCallback {
+public class NavigationCallback {
 
-    String getTitle();
+    private String title;
+    private String subtitle;
 
-    String getSubtitle();
+    private UiUtils.Action onClickAction;
+    private UiUtils.Action onLongClickAction;
 
-    void onClick();
+    public NavigationCallback( String title, String subtitle ) {
+        this.title = title;
+        this.subtitle = subtitle;
+    }
 
-    void onLongClick();
+    public NavigationCallback setOnClick(UiUtils.Action onClickAction) {
+        this.onClickAction = onClickAction;
+        return this;
+    }
+
+    public NavigationCallback setOnLongClick(UiUtils.Action onLongClickAction) {
+        this.onLongClickAction = onLongClickAction;
+        return this;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public void onClick() {
+        if ( this.onClickAction != null ) {
+            this.onClickAction.perform();
+        }
+    }
+
+    public void onLongClick() {
+        if ( this.onLongClickAction != null ) {
+            this.onLongClickAction.perform();
+        }
+    }
 
 }

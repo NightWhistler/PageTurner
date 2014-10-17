@@ -25,8 +25,6 @@ public class FastBitmapDrawable extends Drawable {
 	
 	private int width;
 	private int height;
-	
-	private Paint paint = new Paint();
 
     public FastBitmapDrawable(Bitmap b) {
         mBitmap = b;

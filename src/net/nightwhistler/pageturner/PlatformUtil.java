@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Looper;
 import android.view.LayoutInflater;
 
 import java.util.List;
@@ -40,6 +41,8 @@ public class PlatformUtil {
 			return (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 	}
+
+    public static boolean isRunningOnUiThread() { return Looper.getMainLooper().getThread() == Thread.currentThread(); }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static <A, B, C> void executeTask( AsyncTask<A, B, C> task, A... params ) {

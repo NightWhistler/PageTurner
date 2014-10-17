@@ -1,6 +1,5 @@
 package net.nightwhistler.pageturner.scheduling;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.LinkedList;
@@ -13,7 +12,7 @@ import java.util.LinkedList;
  *
  * @author Alex Kuiper
  */
-public class TaskQueue implements QueueableAsyncTask.QueueCallback {
+public class TaskQueue {
 
     public static interface TaskQueueListener {
         void queueEmpty();
@@ -28,7 +27,7 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
 
     public <A,B,C> void executeTask( QueueableAsyncTask<A,B,C> task, A... parameters ) {
 
-        task.setCallback(this);
+        task.setCallback(this::taskCompleted);
 
         this.taskQueue.add(new QueuedTask<>(task, parameters));
 
@@ -63,7 +62,7 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
             Log.d("TaskQueue", "Cancelling task of type " + top );
             top.cancel();
 
-            task.setCallback(this);
+            task.setCallback(this::taskCompleted);
 
             taskQueue.add( 0, new QueuedTask<A, B, C>(task, parameters));
 
@@ -121,7 +120,6 @@ public class TaskQueue implements QueueableAsyncTask.QueueCallback {
         return null;
     }
 
-    @Override
     public void taskCompleted(QueueableAsyncTask<?, ?, ?> task, boolean wasCancelled) {
 
         if ( ! wasCancelled ) {

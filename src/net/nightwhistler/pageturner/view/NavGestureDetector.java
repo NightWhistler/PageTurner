@@ -29,6 +29,7 @@ import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 import net.nightwhistler.pageturner.view.bookview.BookViewListener;
 import net.nightwhistler.pageturner.view.bookview.HighlightSpan;
+import net.nightwhistler.pageturner.view.bookview.SelectedWord;
 
 /**
  * Translates low-level touch and gesture events into more high-level
@@ -168,7 +169,7 @@ public class NavGestureDetector	extends GestureDetector.SimpleOnGestureListener 
 
 		//On older platforms we generate a popup-event.
 		if ( Build.VERSION.SDK_INT < Configuration.TEXT_SELECTION_PLATFORM_VERSION) {
-			BookView.SelectedWord word = bookView.getWordAt(e.getX(), e.getY() );
+			SelectedWord word = bookView.getWordAt(e.getX(), e.getY() );
 
 			if ( word != null ) {
 				bookViewListener.onWordLongPressed( word.getStartOffset(), word.getEndOffset(), word.getText() );

@@ -47,7 +47,8 @@ public class TTSPlaybackItem {
 
     public void setOnSpeechCompletedCallback( final SpeechCompletedCallback callback ) {
         this.mediaPlayer.setOnCompletionListener(
-                mediaPlayer -> callback.speechCompleted(TTSPlaybackItem.this, mediaPlayer) );
+                mediaPlayer -> callback.speechCompleted(TTSPlaybackItem.this, mediaPlayer)
+        );
     }
 
     public int getOffset() {

@@ -81,7 +81,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack {
+public class BookView extends ScrollView {
+
+    private static final Logger LOG = LoggerFactory.getLogger("BookView");
 
 	private int storedIndex;
 	private String storedAnchor;
@@ -108,8 +110,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 	private int lineSpacing = 0;
 
 	private Handler scrollHandler;
-
-	private static final Logger LOG = LoggerFactory.getLogger("BookView");
 
     @Inject
     private Configuration configuration;
@@ -160,7 +160,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         this.textLoader.registerTagNodeHandler("img", imgHandler);
         this.textLoader.registerTagNodeHandler("image", imgHandler);
 
-        this.textLoader.setLinkCallBack(this);
+        this.textLoader.setLinkCallBack(this::onLinkClicked);
 	}
 
 	private void onInnerViewResize() {
@@ -176,8 +176,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         return fileName;
     }
 
-    @Override
-    public void linkClicked(String href) {
+    public void onLinkClicked(String href) {
         navigateTo(spine.resolveHref(href));
     }
 
@@ -403,7 +402,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         if ( spine == null && ! textLoader.hasCachedBook( this.fileName ) ) {
             taskQueue.executeTask( new OpenFileTask() );
             taskQueue.executeTask( new LoadTextTask() );
-            taskQueue.executeTask( new PreLoadTask() );
+            taskQueue.executeTask( new PreLoadTask(spine, textLoader) );
             taskQueue.executeTask( new CalculatePageNumbersTask() );
         } else {
 
@@ -447,7 +446,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             taskQueue.executeTask(new LoadTextTask(), resource);
         }
 
-        taskQueue.executeTask( new PreLoadTask() );
+        taskQueue.executeTask( new PreLoadTask(spine, textLoader) );
 
         if ( needsPageNumberCalculation() ) {
             taskQueue.executeTask( new CalculatePageNumbersTask() );
@@ -917,7 +916,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 			
 			int[] sizes = calculateSize(options.outWidth, options.outHeight );
 			
-			ShapeDrawable draw = new ShapeDrawable(new RectShape());
+			ShapeDrawable draw = new ShapeDrawable( new RectShape() );
 			draw.setBounds(0, 0, sizes[0], sizes[1]);
 			
 			setImageSpan(builder, draw, start, end);
@@ -1419,37 +1418,6 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
         }
     }
 
-    private class PreLoadTask extends
-            QueueableAsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            if ( spine == null ) {
-                return null;
-            }
-
-            Resource resource = spine.getNextResource();
-            if ( resource == null ) {
-                return null;
-            }
-
-            Spannable cachedText = textLoader.getCachedTextForResource( resource );
-
-            if ( cachedText == null ) {
-                try {
-                    textLoader.getText( resource, new QueueableAsyncTaskCancellationCallback(this) );
-                } catch ( Exception | OutOfMemoryError e ) {
-                    //Ignore
-                }
-            }
-
-            return null;
-        }
-
-    }
-
-
 	private class LoadTextTask extends
 			QueueableAsyncTask<Resource, BookReadPhase, Spanned> {
 
@@ -1491,7 +1459,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
 
                 publishProgress(BookReadPhase.PARSE_TEXT);
 
-                Spannable result = textLoader.getText(resource, new QueueableAsyncTaskCancellationCallback(this) );
+                Spannable result = textLoader.getText(resource, this::isCancelled );
                 loader.load(); // Load all image resources.
 
                 //Clear any old highlighting spans
@@ -1602,10 +1570,8 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                 LOG.debug("Calculated offsets: " + offsets );
 				return offsets;
 
-			} catch ( OutOfMemoryError mem ) {
-                LOG.error("Could not read pagenumers", mem);
-            } catch ( Exception e ) {
-                LOG.error("Could not read pagenumers", e);
+			} catch ( OutOfMemoryError | Exception e ) {
+                LOG.error("Could not read page-numbers", e);
             }
 
 			return null;
@@ -1663,8 +1629,7 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
                     InputStream input = new ByteArrayInputStream(IOUtil.toByteArray(stream));
 
                     checkForCancellation();
-                    Spannable text = mySpanner.fromHtml(input,
-                            new QueueableAsyncTaskCancellationCallback(CalculatePageNumbersTask.this));
+                    Spannable text = mySpanner.fromHtml(input, this::isCancelled );
 
                     checkForCancellation();
                     imageLoader.load();
@@ -1767,34 +1732,5 @@ public class BookView extends ScrollView implements LinkTagHandler.LinkCallBack 
             }
 		}
 	}
-
-    public static class SelectedWord {
-        private int startOffset;
-        private int endOffset;
-        private CharSequence text;
-
-        public SelectedWord( int startOffset, int endOffset, CharSequence text ) {
-            this.startOffset = startOffset;
-            this.endOffset = endOffset;
-            this.text = text;
-        }
-
-        public int getStartOffset() {
-            return startOffset;
-        }
-
-        public int getEndOffset() {
-            return endOffset;
-        }
-
-        public CharSequence getText() {
-
-            if ( text == null ) {
-                return "";
-            }
-
-            return text;
-        }
-    }
 
 }

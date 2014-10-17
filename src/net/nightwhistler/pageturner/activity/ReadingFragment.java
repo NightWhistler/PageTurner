@@ -22,7 +22,6 @@ package net.nightwhistler.pageturner.activity;
 import android.annotation.TargetApi;
 import android.app.*;
 import android.content.*;
-import android.content.DialogInterface.OnClickListener;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -34,7 +33,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.*;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.TextToSpeech.OnUtteranceCompletedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
@@ -42,18 +40,15 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.DisplayMetrics;
 import android.view.*;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
-import com.google.common.base.Function;
 import com.google.inject.Inject;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -63,7 +58,6 @@ import net.nightwhistler.pageturner.Configuration.ReadingDirection;
 import net.nightwhistler.pageturner.Configuration.ScrollStyle;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.TextUtil;
-import net.nightwhistler.pageturner.UiUtils;
 import net.nightwhistler.pageturner.animation.*;
 import net.nightwhistler.pageturner.bookmark.Bookmark;
 import net.nightwhistler.pageturner.bookmark.BookmarkDatabaseHelper;
@@ -75,14 +69,10 @@ import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;
 import net.nightwhistler.pageturner.tasks.SearchTextTask;
-import net.nightwhistler.pageturner.tts.SpeechCompletedCallback;
 import net.nightwhistler.pageturner.tts.TTSPlaybackItem;
 import net.nightwhistler.pageturner.tts.TTSPlaybackQueue;
 import net.nightwhistler.pageturner.view.*;
-import net.nightwhistler.pageturner.view.bookview.BookView;
-import net.nightwhistler.pageturner.view.bookview.BookViewListener;
-import net.nightwhistler.pageturner.view.bookview.TextLoader;
-import net.nightwhistler.pageturner.view.bookview.TextSelectionCallback;
+import net.nightwhistler.pageturner.view.bookview.*;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 import org.slf4j.Logger;
@@ -98,8 +88,7 @@ import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
 import static net.nightwhistler.pageturner.UiUtils.onMenuPress;
 
 public class ReadingFragment extends RoboSherlockFragment implements
-		BookViewListener, TextSelectionCallback, OnUtteranceCompletedListener,
-        SpeechCompletedCallback, DialogFactory.SearchCallBack {
+		BookViewListener, TextSelectionCallback {
 
 	private static final String POS_KEY = "offset:";
 	private static final String IDX_KEY = "index:";
@@ -245,7 +234,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
 	private SavedConfigState savedConfigState = new SavedConfigState();
-	private BookView.SelectedWord selectedWord = null;
+	private SelectedWord selectedWord = null;
 
 	private Handler uiHandler;
 	private Handler backgroundHandler;
@@ -462,19 +451,15 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         if ( ttsIsRunning() ) {
             this.mediaLayout.setVisibility(View.VISIBLE);
-            this.ttsPlaybackItemQueue.updateSpeechCompletedCallbacks(this);
+            this.ttsPlaybackItemQueue.updateSpeechCompletedCallbacks( this::speechCompleted );
             uiHandler.post( progressBarUpdater );
         }
 
         activity.getSupportActionBar().addOnMenuVisibilityListener( isVisible -> {
 
             LOG.debug("Detected change of visibility in action-bar: visible=" + isVisible );
-
-            if (isVisible) {
-                titleBarLayout.setVisibility(View.VISIBLE);
-            } else {
-                titleBarLayout.setVisibility(View.GONE);
-            }
+            int visibility = isVisible ? View.VISIBLE : View.GONE;
+            titleBarLayout.setVisibility( visibility );
 
         });
 
@@ -609,71 +594,53 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
     private void streamTTSToDisk() {
-        new Thread( new StreamToDiskRunnable() ).start();
+        new Thread( this::doStreamTTSToDisk ).start();
     }
 
-    private class StreamToDiskRunnable implements Runnable {
-        @Override
-        public void run() {
+    /**
+     * Splits the text to be spoken into chunks and streams
+     * them to disk. This method should NOT be called on the
+     * UI thread!
+     */
+    private void doStreamTTSToDisk() {
+        CharSequence text = bookView.getStrategy().getText();
 
-            CharSequence text = bookView.getStrategy().getText();
+        if ( text == null || ! ttsIsRunning()) {
+            return;
+        }
 
-            if ( text == null || ! ttsIsRunning()) {
-                return;
+        File ttsFolder = new File( config.getTTSFolder() );
+        String textToSpeak = text.toString().substring( bookView.getStartOfCurrentPage() );
+
+        textToSpeak = TextUtil.splitOnPunctuation(textToSpeak);
+        String[] parts = textToSpeak.split("\n");
+
+        int offset = bookView.getStartOfCurrentPage();
+
+        try {
+            for ( int i=0; i < parts.length && ttsIsRunning(); i++ ) {
+
+                LOG.debug("Streaming part " + i + " to disk." );
+
+                String part = parts[i];
+
+                boolean lastPart = i == parts.length -1;
+
+                //Utterance ID doubles as the filename
+                String pageName = new File( ttsFolder, "tts_" + UUID.randomUUID() + ".wav").getAbsolutePath();
+                streamPartToDisk(pageName, part, offset, textToSpeak.length(), lastPart);
+
+                offset += part.length() +1;
+
+                Thread.yield();
             }
-
-            File ttsFolder = new File( config.getTTSFolder() );
-            String textToSpeak = text.toString().substring( bookView.getStartOfCurrentPage() );
-
-            textToSpeak = TextUtil.splitOnPunctuation(textToSpeak);
-            String[] parts = textToSpeak.split("\n");
-
-            int offset = bookView.getStartOfCurrentPage();
-
-            try {
-                for ( int i=0; i < parts.length && ttsIsRunning(); i++ ) {
-
-                    LOG.debug("Streaming part " + i + " to disk." );
-
-                    String part = parts[i];
-
-                    boolean lastPart = i == parts.length -1;
-
-                    //Utterance ID doubles as the filename
-                    String pageName = new File( ttsFolder, "tts_" + UUID.randomUUID() + ".wav").getAbsolutePath();
-                    streamPartToDisk(pageName, part, offset, textToSpeak.length(), lastPart);
-
-                    offset += part.length() +1;
-
-                    Thread.yield();
-                }
-            } catch (TTSFailedException e) {
-                //Just stop streaming
-            }
+        } catch (TTSFailedException e) {
+            //Just stop streaming
         }
     }
 
-    private void showTTSFailed(final String message) {
-        uiHandler.post( () -> {
-            stopTextToSpeech(true);
-            closeWaitDialog();
-
-            if ( isAdded() ) {
-                playBeep(true);
-
-                StringBuilder textBuilder = new StringBuilder( getString(R.string.tts_failed) );
-                textBuilder.append("\n").append(message);
-
-                Toast.makeText(context, textBuilder.toString(), Toast.LENGTH_SHORT).show();
-            }
-        } );
-    }
-
-    /** Checked exception to indicate TTS failure **/
-    private static class TTSFailedException extends Exception {}
-
     private void streamPartToDisk(String fileName, String part, int offset, int totalLength, boolean endOfPage )
-        throws TTSFailedException {
+            throws TTSFailedException {
 
         LOG.debug("Request to stream text to file " + fileName + " with text " + part );
 
@@ -705,9 +672,28 @@ public class ReadingFragment extends RoboSherlockFragment implements
             LOG.debug("Skipping part, since it's empty.");
         }
     }
-	
-	@Override
-	public void onUtteranceCompleted(final String wavFile) {
+
+    private void showTTSFailed(final String message) {
+        uiHandler.post( () -> {
+
+            stopTextToSpeech(true);
+            closeWaitDialog();
+
+            if ( isAdded() ) {
+                playBeep(true);
+
+                StringBuilder textBuilder = new StringBuilder( getString(R.string.tts_failed) );
+                textBuilder.append("\n").append(message);
+
+                Toast.makeText(context, textBuilder.toString(), Toast.LENGTH_SHORT).show();
+            }
+        } );
+    }
+
+    /** Checked exception to indicate TTS failure **/
+    private static class TTSFailedException extends Exception {}
+
+	public void onStreamingCompleted(final String wavFile) {
 		
         LOG.debug("TTS streaming completed for " + wavFile );
 
@@ -717,7 +703,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 
         if ( ! ttsItemPrep.containsKey(wavFile) ) {
-            LOG.error("Got onUtteranceCompleted for " + wavFile + " but there is no corresponding TTSPlaybackItem!");
+            LOG.error("Got onStreamingCompleted for " + wavFile + " but there is no corresponding TTSPlaybackItem!");
             return;
         }
 
@@ -838,11 +824,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 	}
 	
-	
 	private boolean ttsIsRunning() {
 		return ttsPlaybackItemQueue.isActive();
 	}
-	
+
+    /**
+     * Called when a speech fragment has finished being played.
+     *
+     * @param item
+     * @param mediaPlayer
+     */
 	public void speechCompleted( TTSPlaybackItem item, MediaPlayer mediaPlayer ) {
 		
         LOG.debug("Speech completed for " + item.getFileName() );       
@@ -882,10 +873,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			return;
 		}
 
-        item.setOnSpeechCompletedCallback(this);
+        item.setOnSpeechCompletedCallback( this::speechCompleted );
         uiHandler.post(progressBarUpdater);
 		item.getMediaPlayer().start();
-
 	}
 	
 	private void stopTextToSpeech(boolean unsubscribeMediaButtons) {
@@ -917,7 +907,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.ttsAvailable = (status == TextToSpeech.SUCCESS) && !Configuration.IS_NOOK_TOUCH;
 
         if ( this.ttsAvailable ) {
-            this.textToSpeech.setOnUtteranceCompletedListener(this);
+            this.textToSpeech.setOnUtteranceCompletedListener( this::onStreamingCompleted);
         }
 	}
 
@@ -1820,8 +1810,30 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		viewSwitcher.showNext();
 
-		uiHandler.post(new AutoScrollRunnable());
+		uiHandler.post( this::doAutoScroll );
 	}
+
+    /**
+     * Should be called from a background thread.
+     */
+    private void doAutoScroll() {
+        if (dummyView.getAnimator() == null) {
+            LOG.debug("BookView no longer has an animator. Aborting rolling blind.");
+            stopAnimating();
+        } else {
+
+            Animator anim = dummyView.getAnimator();
+
+            if (anim.isFinished()) {
+                startAutoScroll();
+            } else {
+                anim.advanceOneFrame();
+                dummyView.invalidate();
+
+                uiHandler.postDelayed(this::doAutoScroll, anim.getAnimationSpeed() * 2);
+            }
+        }
+    }
 
 	private void prepareRollingBlind() {
 
@@ -1895,65 +1907,44 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		this.viewSwitcher.showNext();
 
-		uiHandler.post(new PageCurlRunnable(animator));
+		uiHandler.post(() -> doPageCurl(animator) );
 
 		dummyView.invalidate();
 
 	}
 
-	private class PageCurlRunnable implements Runnable {
+    /**
+     * Does the actual page-curl animation.
+     *
+     * This method advances the animator by 1 frame,
+     * and then places itself back on the background
+     * queue, passing along the same animator.
+     *
+     * That was the animator is moved along until it's done.
+     *
+     * Should be called from a background thread.
+     *
+     * @param animator
+     */
+    private void doPageCurl( PageCurlAnimator animator ) {
+        if (animator.isFinished()) {
 
-		private PageCurlAnimator animator;
+            if (viewSwitcher.getCurrentView() == dummyView) {
+                viewSwitcher.showNext();
+            }
 
-		public PageCurlRunnable(PageCurlAnimator animator) {
-			this.animator = animator;
-		}
+            dummyView.setAnimator(null);
+            pageNumberView.setVisibility(View.VISIBLE);
 
-		@Override
-		public void run() {
+        } else {
+            animator.advanceOneFrame();
+            dummyView.invalidate();
 
-			if (this.animator.isFinished()) {
+            int delay = 1000 / animator.getAnimationSpeed();
 
-				if (viewSwitcher.getCurrentView() == dummyView) {
-					viewSwitcher.showNext();
-				}
-
-				dummyView.setAnimator(null);
-				pageNumberView.setVisibility(View.VISIBLE);
-
-			} else {
-				this.animator.advanceOneFrame();
-				dummyView.invalidate();
-
-				int delay = 1000 / this.animator.getAnimationSpeed();
-
-				uiHandler.postDelayed(this, delay);
-			}
-		}
-	}
-
-	private class AutoScrollRunnable implements Runnable {
-		@Override
-		public void run() {
-
-			if (dummyView.getAnimator() == null) {
-				LOG.debug("BookView no longer has an animator. Aborting rolling blind.");
-				stopAnimating();
-			} else {
-
-				Animator anim = dummyView.getAnimator();
-
-				if (anim.isFinished()) {
-					startAutoScroll();
-				} else {
-					anim.advanceOneFrame();
-					dummyView.invalidate();
-
-					uiHandler.postDelayed(this, anim.getAnimationSpeed() * 2);
-				}
-			}
-		}
-	}
+            uiHandler.postDelayed( () -> doPageCurl(animator), delay);
+        }
+    }
 
 	private void stopAnimating() {
 
@@ -2271,8 +2262,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         sendIntent.putExtra(Intent.EXTRA_TEXT, text );
         sendIntent.setType("text/plain");
 
-        //FIXME: Should use share text from ActionBarSherlock
-        startActivity(Intent.createChooser(sendIntent, "Share with..."));
+        startActivity(Intent.createChooser(sendIntent, getString(R.string.abs__shareactionprovider_share_with)));
     }
 
 	@Override
@@ -2574,7 +2564,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     @Override
     public void onWordLongPressed(int startOffset, int endOffset, CharSequence word) {
 
-        this.selectedWord = new BookView.SelectedWord( startOffset, endOffset, word );
+        this.selectedWord = new SelectedWord( startOffset, endOffset, word );
 
         Activity activity = getActivity();
 
@@ -2625,27 +2615,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             for ( final TocEntry tocEntry: tocEntries ) {
 
-                result.add(new NavigationCallback() {
-                    @Override
-                    public String getTitle() {
-                        return tocEntry.getTitle();
-                    }
+                NavigationCallback callback = new NavigationCallback(tocEntry.getTitle(), "")
+                        .setOnClick( () -> bookView.navigateTo(tocEntry.getHref()));
 
-                    @Override
-                    public String getSubtitle() {
-                        return "";
-                    }
-
-                    @Override
-                    public void onClick() {
-                        bookView.navigateTo( tocEntry.getHref() );
-                    }
-
-                    @Override
-                    public void onLongClick() {
-                        //Do nothing
-                    }
-                });
+                result.add( callback );
             }
 
         }
@@ -2678,7 +2651,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
         });
 	}
 
-    @Override
     public void performSearch(String query) {
 
         LOG.debug("Starting search for: " + query );
@@ -2785,7 +2757,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             this.searchMenuItem.expandActionView();
             this.searchMenuItem.getActionView().requestFocus();
         } else {
-            dialogFactory.showSearchDialog(R.string.search_text, R.string.enter_query, this);
+            dialogFactory.showSearchDialog( R.string.search_text, R.string.enter_query, this::performSearch );
         }
     }
 
@@ -2842,27 +2814,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 text = percentage + "%";
             }
 
-            result.add( new NavigationCallback() {
-                @Override
-                public String getTitle() {
-                    return searchResult.getDisplay();
-                }
+            NavigationCallback callback = new NavigationCallback( searchResult.getDisplay(), text )
+                    .setOnClick( () -> bookView.navigateBySearchResult( searchResult ));
 
-                @Override
-                public String getSubtitle() {
-                    return text;
-                }
-
-                @Override
-                public void onClick() {
-                    bookView.navigateBySearchResult( searchResult );
-                }
-
-                @Override
-                public void onLongClick() {
-                    //Do nothing
-                }
-            });
+            result.add( callback );
         }
 
         return result;
@@ -2888,7 +2843,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         final int totalNumberOfPages = bookView.getTotalNumberOfPages();
 
         int percentage = bookView.getPercentageFor( index, position );
-        int pageNumber = bookView.getPageNumberFor( index, position );
+        int pageNumber = bookView.getPageNumberFor(index, position);
 
         String result = percentage + "%";
 
@@ -2907,7 +2862,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     public List<NavigationCallback> getBookmarks() {
 
-        List<Bookmark> bookmarks = this.bookmarkDatabaseHelper.getBookmarksForFile( bookView.getFileName() );
+        List<Bookmark> bookmarks = this.bookmarkDatabaseHelper.getBookmarksForFile(bookView.getFileName());
 
         List<NavigationCallback> result = new ArrayList<>();
 
@@ -2916,28 +2871,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
             final String finalText = getHighlightLabel( bookmark.getIndex(),
                     bookmark.getPosition(), null );
 
-            result.add( new NavigationCallback() {
-                @Override
-                public String getTitle() {
-                    return bookmark.getName();
-                }
+            NavigationCallback callback = new NavigationCallback( bookmark.getName(), finalText )
+                    .setOnClick( () -> bookView.navigateTo( bookmark.getIndex(), bookmark.getPosition() ))
+                    .setOnLongClick( () -> onBookmarkClick(bookmark) );
 
-                @Override
-                public String getSubtitle() {
-                    return finalText;
-                }
-
-                @Override
-                public void onClick() {
-                    bookView.navigateTo( bookmark.getIndex(), bookmark.getPosition() );
-                }
-
-                @Override
-                public void onLongClick() {
-                    onBookmarkClick( bookmark );
-                }
-            });
-
+            result.add( callback );
         }
 
         return result;
@@ -2946,7 +2884,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     public List<NavigationCallback> getHighlights() {
 
-        List<HighLight> highLights = this.highlightManager.getHighLights( bookView.getFileName() );
+        List<HighLight> highLights = this.highlightManager.getHighLights(bookView.getFileName());
 
         List<NavigationCallback> result = new ArrayList<>();
 
@@ -2955,27 +2893,11 @@ public class ReadingFragment extends RoboSherlockFragment implements
             final String finalText = getHighlightLabel( highLight.getIndex(), highLight.getStart(),
                     highLight.getTextNote() );
 
-            result.add( new NavigationCallback() {
-                @Override
-                public String getTitle() {
-                    return highLight.getDisplayText();
-                }
+            NavigationCallback callback = new NavigationCallback( highLight.getDisplayText(), finalText )
+                    .setOnClick( () -> bookView.navigateTo( highLight.getIndex(), highLight.getStart() ))
+                    .setOnLongClick( () -> onHighLightClick( highLight) );
 
-                @Override
-                public String getSubtitle() {
-                    return finalText;
-                }
-
-                @Override
-                public void onClick() {
-                    bookView.navigateTo( highLight.getIndex(), highLight.getStart() );
-                }
-
-                @Override
-                public void onLongClick() {
-                    onHighLightClick( highLight );
-                }
-            });
+            result.add( callback );
 
         }
 

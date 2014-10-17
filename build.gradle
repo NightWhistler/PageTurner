@@ -24,6 +24,7 @@ buildscript {
 apply plugin: 'com.android.application' //or apply plugin: 'java'
 apply plugin: 'retrolambda'
 apply plugin: 'robolectric'
+apply plugin: 'idea'
 
 repositories {
     
@@ -103,6 +104,12 @@ dependencies {
         exclude module: 'wagon-provider-api'
     }
     androidTestCompile 'com.squareup:fest-android:1.0.+'
+}
+
+idea {
+    module {
+        downloadSources = true
+    }
 }
 
 

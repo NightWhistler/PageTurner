@@ -159,6 +159,24 @@ android {
           abortOnError false
     }
 
+    signingConfigs {
+        release {
+            if ( System.getenv("KEYSTORE") ) {
+                storeFile file(System.getenv("KEYSTORE"))
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if ( System.getenv("KEYSTORE") ) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
 }
 
 robolectric {

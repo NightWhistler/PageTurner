@@ -1,4 +1,4 @@
-package net.nightwhistler.pageturner;
+package net.nightwhistler.ui;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;

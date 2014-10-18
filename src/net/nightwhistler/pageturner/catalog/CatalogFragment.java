@@ -46,8 +46,8 @@ import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.UiUtils;
-import net.nightwhistler.pageturner.activity.DialogFactory;
+import net.nightwhistler.ui.UiUtils;
+import net.nightwhistler.ui.DialogFactory;
 import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
 import net.nightwhistler.pageturner.scheduling.TaskQueue;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
@@ -320,9 +320,9 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
 
         Option<Feed> feed = adapter.getFeed();
 
-        boolean searchEnabled = feed.match( f ->
-                        !isEmpty( f.getSearchLink() ),
-                () -> false );
+        boolean searchEnabled = feed.match(f ->
+                        !isEmpty(f.getSearchLink()),
+                () -> false);
 		
 		for ( int i=0; i < menu.size(); i++ ) {
 			MenuItem item = menu.getItem(i);
@@ -342,7 +342,7 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
 			item.setVisible(enabled);			
 		}
 
-        LOG.debug("Adapter has feed: " + adapter.getFeed() );
+        LOG.debug("Adapter has feed: " + adapter.getFeed());
 	}	
 
 	@Override

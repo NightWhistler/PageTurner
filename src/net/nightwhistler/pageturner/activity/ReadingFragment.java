@@ -50,6 +50,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
+import jedi.functional.Command;
 import jedi.option.Option;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -74,6 +75,8 @@ import net.nightwhistler.pageturner.tts.TTSPlaybackItem;
 import net.nightwhistler.pageturner.tts.TTSPlaybackQueue;
 import net.nightwhistler.pageturner.view.*;
 import net.nightwhistler.pageturner.view.bookview.*;
+import net.nightwhistler.ui.ActionModeBuilder;
+import net.nightwhistler.ui.DialogFactory;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 import org.slf4j.Logger;
@@ -85,9 +88,12 @@ import java.io.File;
 import java.net.URLEncoder;
 import java.util.*;
 
+import static jedi.functional.FunctionalPrimitives.isEmpty;
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
 import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
 import static net.nightwhistler.pageturner.PlatformUtil.verifyNotOnUiThread;
-import static net.nightwhistler.pageturner.UiUtils.onMenuPress;
+import static net.nightwhistler.ui.UiUtils.onMenuPress;
 
 public class ReadingFragment extends RoboSherlockFragment implements
 		BookViewListener, TextSelectionCallback {
@@ -1280,48 +1286,27 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     public void onBookmarkClick( final Bookmark bookmark ) {
 
-        getSherlockActivity().startActionMode( new ActionMode.Callback() {
+        new ActionModeBuilder(R.string.bookmark_options ).setOnCreateAction((actionMode, menu) -> {
+            MenuItem delete = menu.add(R.string.delete);
+            delete.setIcon(R.drawable.trash_can);
 
-            private MenuItem delete;
+            return true;
+        }).setOnActionItemClickedAction((actionMode, menuItem) -> {
 
-            @Override
-            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            boolean result = false;
 
-                this.delete = menu.add( R.string.delete );
-                this.delete.setIcon( R.drawable.trash_can );
-
-                return true;
+            if (menuItem.getTitle().equals(getString(R.string.delete))) {
+                bookmarkDatabaseHelper.deleteBookmark(bookmark);
+                Toast.makeText(context, R.string.bookmark_deleted, Toast.LENGTH_SHORT).show();
+                result = true;
             }
 
-            @Override
-            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                actionMode.setTitle( R.string.bookmark_options );
-                return true;
+            if (result) {
+                actionMode.finish();
             }
 
-            @Override
-            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-
-                boolean result = false;
-
-                if ( menuItem == delete ) {
-                    bookmarkDatabaseHelper.deleteBookmark( bookmark );
-                    Toast.makeText( context,R.string.bookmark_deleted, Toast.LENGTH_SHORT ).show();
-                    result = true;
-                }
-
-                if ( result ) {
-                    actionMode.finish();
-                }
-
-                return result;
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode actionMode) {
-
-            }
-        });
+            return result;
+        }).build(getSherlockActivity());
     }
 
     @Override
@@ -1329,61 +1314,29 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         LOG.debug( "onHighLightClick" );
 
-        getSherlockActivity().startActionMode( new ActionMode.Callback() {
+        Map<String, Command<HighLight>> commands = new HashMap<>();
+        commands.put( getString(R.string.edit), this::showHighlightEditDialog );
+        commands.put( getString(R.string.delete), this::deleteHightlight );
+        commands.put( getString(R.string.set_colour), this::showHighlightColourDialog );
 
-            private MenuItem edit;
-            private MenuItem delete;
-            private MenuItem colour;
+        new ActionModeBuilder(R.string.highlight_options).setOnCreateAction( (actionMode, menu) -> {
+            menu.add( R.string.edit ).setIcon( R.drawable.edit );
+            menu.add( R.string.set_colour ).setIcon( R.drawable.color );
+            menu.add( R.string.delete ).setIcon( R.drawable.trash_can );
+            return true;
+        }).setOnActionItemClickedAction( (actionMode, menuItem) -> {
 
-            @Override
-            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            Command<HighLight> cmd = commands.get( menuItem.getTitle() );
 
-                this.edit = menu.add( R.string.edit );
-                this.edit.setIcon( R.drawable.edit );
-
-                this.colour = menu.add( R.string.set_colour );
-                this.colour.setIcon( R.drawable.color );
-
-                this.delete = menu.add( R.string.delete );
-                this.delete.setIcon( R.drawable.trash_can );
-
+            if ( cmd != null ) {
+                cmd.execute( highLight );
+                actionMode.finish();
                 return true;
             }
 
-            @Override
-            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                actionMode.setTitle( R.string.highlight_options );
-                return true;
-            }
+            return false;
 
-            @Override
-            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-
-                boolean result = false;
-
-                if ( menuItem == edit ) {
-                    showHighlightEditDialog( highLight );
-                    result = true;
-                } else if ( menuItem == delete ) {
-                    deleteHightlight( highLight);
-                    result = true;
-                } else if ( menuItem == colour ) {
-                    showHighlightColourDialog( highLight );
-                    result = true;
-                }
-
-                if ( result ) {
-                    actionMode.finish();
-                }
-
-                return result;
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode actionMode) {
-
-            }
-        });
+        }).build( getSherlockActivity() );
 
     }
 
@@ -1491,7 +1444,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void errorOnBookOpening(String errorMessage) {
 
-        LOG.error( errorMessage );
+        LOG.error(errorMessage);
 
 		closeWaitDialog();
 
@@ -1582,14 +1535,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	@Override
 	public void readingFile() {
         if ( isAdded() ) {
-            this.getWaitDialog().setMessage(getString( R.string.opening_file) );
+            this.getWaitDialog().setMessage(getString(R.string.opening_file));
         }
 	}
 
 	@Override
 	public void renderingText() {
         if ( isAdded() ) {
-            this.getWaitDialog().setMessage(getString( R.string.loading_text) );
+            this.getWaitDialog().setMessage(getString(R.string.loading_text));
         }
 	}
 
@@ -1695,7 +1648,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         int action = event.getAction();
         int keyCode = event.getKeyCode();
 
-        LOG.debug("Got key event: " + keyCode + " with action " + action );
+        LOG.debug("Got key event: " + keyCode + " with action " + action);
 
         if ( searchMenuItem != null && searchMenuItem.isActionViewExpanded() ) {
             boolean result = searchMenuItem.getActionView().dispatchKeyEvent(event);
@@ -1804,15 +1757,19 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		ScrollStyle style = config.getAutoScrollStyle();
 
-		if (style == ScrollStyle.ROLLING_BLIND) {
-			prepareRollingBlind();
-		} else {
-			preparePageTimer();
-		}
+        try {
+            if (style == ScrollStyle.ROLLING_BLIND) {
+                prepareRollingBlind();
+            } else {
+                preparePageTimer();
+            }
 
-		viewSwitcher.showNext();
+            viewSwitcher.showNext();
 
-		uiHandler.post( this::doAutoScroll );
+            uiHandler.post(this::doAutoScroll);
+        } catch ( IllegalStateException is ) {
+            LOG.error( "Failed to start autoscroll", is );
+        }
 	}
 
     /**
@@ -1842,29 +1799,39 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	private void prepareRollingBlind() {
 
-		Bitmap before = getBookViewSnapshot();
+		Option<Bitmap> before = getBookViewSnapshot();
 
 		bookView.pageDown();
-		Bitmap after = getBookViewSnapshot();
+		Option<Bitmap> after = getBookViewSnapshot();
+
+        if ( isEmpty(before) || isEmpty( after ) ) {
+            throw new IllegalStateException("Could not initialize images");
+        }
 
 		RollingBlindAnimator anim = new RollingBlindAnimator();
 		anim.setAnimationSpeed(config.getScrollSpeed());
 
-		anim.setBackgroundBitmap(before);
-		anim.setForegroundBitmap(after);
+        before.forEach( b -> anim.setBackgroundBitmap(b) );
+        after.forEach( b -> anim.setForegroundBitmap(b) );
 
 		dummyView.setAnimator(anim);
 	}
 
 	private void preparePageTimer() {
 		bookView.pageDown();
-		Bitmap after = getBookViewSnapshot();
+		Option<Bitmap> after = getBookViewSnapshot();
 
-		PageTimer timer = new PageTimer(after, pageNumberView.getHeight());
+        if ( isEmpty( after ) ) {
+            throw new IllegalStateException( "Could not initialize view" );
+        }
 
-		timer.setSpeed(config.getScrollSpeed());
+        after.forEach( img -> {
+            PageTimer timer = new PageTimer(img, pageNumberView.getHeight());
 
-		dummyView.setAnimator(timer);
+            timer.setSpeed(config.getScrollSpeed());
+
+            dummyView.setAnimator(timer);
+        });
 	}
 
 	private void doPageCurl(boolean flipRight, boolean pageDown) {
@@ -1880,7 +1847,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			viewSwitcher.showNext();
 		}
 
-		Bitmap before = getBookViewSnapshot();
+		Option<Bitmap> before = getBookViewSnapshot();
 
 		this.pageNumberView.setVisibility(View.GONE);
 
@@ -1898,18 +1865,19 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			bookView.pageUp();			
 		}
 		
-		Bitmap after = getBookViewSnapshot();
-		
+		Option<Bitmap> after = getBookViewSnapshot();
+
+        //The animator knows how to handle nulls, so
+        //we can use unsafeGet() here.
 		if ( flipRight ) {
-			animator.setBackgroundBitmap(after);
-			animator.setForegroundBitmap(before);
+			animator.setBackgroundBitmap(after.unsafeGet());
+			animator.setForegroundBitmap(before.unsafeGet());
 		} else {
-			animator.setBackgroundBitmap(before);
-			animator.setForegroundBitmap(after);		
+			animator.setBackgroundBitmap(before.unsafeGet());
+			animator.setForegroundBitmap(after.unsafeGet());
 		}
 
 		dummyView.setAnimator(animator);
-
 		this.viewSwitcher.showNext();
 
 		uiHandler.post(() -> doPageCurl(animator) );
@@ -1969,7 +1937,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		bookView.setKeepScreenOn(false);
 	}
 
-	private Bitmap getBookViewSnapshot() {
+	private Option<Bitmap> getBookViewSnapshot() {
 
 		try {
 			Bitmap bitmap = Bitmap.createBitmap(viewSwitcher.getWidth(),
@@ -2005,18 +1973,22 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 			}
 
-			return bitmap;
+			return option(bitmap);
 		} catch (OutOfMemoryError out) {
 			viewSwitcher.setBackgroundColor(config.getBackgroundColor());
 		}
 
-		return null;
+		return none();
 	}
 
 	private void prepareSlide(Animation inAnim, Animation outAnim) {
 
-		Bitmap bitmap = getBookViewSnapshot();
-		dummyView.setImageBitmap(bitmap);
+		Option<Bitmap> bitmap = getBookViewSnapshot();
+		/*
+		TODO: is this OK?
+        We don't set anything when we get None instead of Some.
+        */
+        bitmap.forEach( b -> dummyView.setImageBitmap(b) );
 
 		this.pageNumberView.setVisibility(View.GONE);
 
@@ -2033,9 +2005,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		});
 		
 		viewSwitcher.layout(0, 0, viewSwitcher.getWidth(),
-				viewSwitcher.getHeight());
+                viewSwitcher.getHeight());
 		dummyView.layout(0, 0, viewSwitcher.getWidth(),
-				viewSwitcher.getHeight());
+                viewSwitcher.getHeight());
 
 		this.viewSwitcher.showNext();
 
@@ -2768,7 +2740,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             this.searchMenuItem.expandActionView();
             this.searchMenuItem.getActionView().requestFocus();
         } else {
-            dialogFactory.showSearchDialog( R.string.search_text, R.string.enter_query, this::performSearch );
+            dialogFactory.showSearchDialog(R.string.search_text, R.string.enter_query, this::performSearch);
         }
     }
 
@@ -2792,7 +2764,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		AlertDialog dialog = builder.create();
 		dialog.setOwnerActivity(getActivity());
-        dialog.setOnDismissListener( d -> isSearchResultsDialogShowing = false );
+        dialog.setOnDismissListener(d -> isSearchResultsDialogShowing = false);
 		dialog.show();
 	}
 
@@ -2916,7 +2888,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     }
 
 	private class ManualProgressSync extends
-			AsyncTask<Void, Integer, List<BookProgress>> {
+			AsyncTask<Void, Integer, Option<List<BookProgress>>> {
 
 		private boolean accessDenied = false;
 
@@ -2934,12 +2906,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 
 		@Override
-		protected List<BookProgress> doInBackground(Void... params) {
+		protected Option<List<BookProgress>> doInBackground(Void... params) {
 			try {
-				return progressService.getProgress(fileName);
+				return option(progressService.getProgress(fileName));
 			} catch (AccessException e) {
 				accessDenied = true;
-				return null;
+				return none();
 			}
 		}
 
@@ -2949,35 +2921,38 @@ public class ReadingFragment extends RoboSherlockFragment implements
         }
 
         @Override
-		protected void onPostExecute(List<BookProgress> progress) {
+		protected void onPostExecute(Option<List<BookProgress>> progress) {
 			closeWaitDialog();
 
-			if (progress == null) {
+            if ( isEmpty(progress) ) {
 
-				AlertDialog.Builder alertDialog = new AlertDialog.Builder(
-						getActivity());
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                        getActivity());
 
-				alertDialog.setTitle(R.string.sync_failed);
+                alertDialog.setTitle(R.string.sync_failed);
 
-				if (accessDenied) {
-					alertDialog.setMessage(R.string.access_denied);
-				} else {
-					alertDialog.setMessage(R.string.connection_fail);
-				}
+                if (accessDenied) {
+                    alertDialog.setMessage(R.string.access_denied);
+                } else {
+                    alertDialog.setMessage(R.string.connection_fail);
+                }
 
-				alertDialog.setNeutralButton(android.R.string.ok, (dialog, which) -> dialog.dismiss() );
-				alertDialog.show();
+                alertDialog.setNeutralButton(android.R.string.ok, (dialog, which) -> dialog.dismiss() );
+                alertDialog.show();
+            } else {
+                List<BookProgress> actualProgress = progress.unsafeGet();
 
-			} else if ( progress.isEmpty() ) {
-			    Toast.makeText(context, R.string.no_sync_points, Toast.LENGTH_LONG).show();
-			} else {
-                showPickProgressDialog(progress);
+                if ( ! actualProgress.isEmpty() ) {
+                    showPickProgressDialog(actualProgress);
+                } else {
+                    Toast.makeText(context, R.string.no_sync_points, Toast.LENGTH_LONG).show();
+                }
             }
 		}
 	}
 
 	private class DownloadProgressTask extends
-			AsyncTask<Void, Integer, BookProgress> {
+			AsyncTask<Void, Integer, Option<BookProgress>> {
 
 		@Override
 		protected void onPreExecute() {
@@ -3001,39 +2976,37 @@ public class ReadingFragment extends RoboSherlockFragment implements
         }
 
         @Override
-		protected BookProgress doInBackground(Void... params) {
+		protected Option<BookProgress> doInBackground(Void... params) {
 			try {
 				List<BookProgress> updates = progressService
 						.getProgress(fileName);
 
 				if (updates != null && updates.size() > 0) {
-					return updates.get(0);
+					return option(updates.get(0));
 				}
 			} catch (AccessException e) {
 			    //Ignore, since it's a background process
             }
 
-			return null;
+			return none();
 		}
 
 		@Override
-		protected void onPostExecute(BookProgress progress) {
+		protected void onPostExecute(Option<BookProgress> progress) {
 			closeWaitDialog();
 
-			int index = bookView.getIndex();
-			int pos = bookView.getProgressPosition();
+            progress.forEach( p -> {
+                int index = bookView.getIndex();
+                int pos = bookView.getProgressPosition();
 
-			if (progress != null) {
-
-				if (progress.getIndex() > index) {
-					bookView.setIndex(progress.getIndex());
-					bookView.setPosition(progress.getProgress());
-				} else if (progress.getIndex() == index) {
-					pos = Math.max(pos, progress.getProgress());
-					bookView.setPosition(pos);
-				}
-
-			}
+                if (p.getIndex() > index) {
+                    bookView.setIndex(p.getIndex());
+                    bookView.setPosition(p.getProgress());
+                } else if (p.getIndex() == index) {
+                    pos = Math.max(pos, p.getProgress());
+                    bookView.setPosition(pos);
+                }
+            });
 
 			bookView.restore();
 		}
@@ -3054,7 +3027,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 						intent.getIntExtra("keyCode", 0));
 				dispatchMediaKeyEvent(event);
 			}
-			
 		}
 	}	
 }

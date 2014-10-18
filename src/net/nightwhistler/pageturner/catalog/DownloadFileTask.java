@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner.catalog;
 import android.content.Context;
 import android.os.AsyncTask;
 import com.google.inject.Inject;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.library.LibraryService;
 import nl.siegmann.epublib.domain.Book;
@@ -38,7 +39,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 
-public class DownloadFileTask extends AsyncTask<String, Long, String> {
+import static jedi.option.Options.none;
+
+public class DownloadFileTask extends AsyncTask<String, Long, Void> {
 
 	private File destFile;
 	
@@ -82,7 +85,7 @@ public class DownloadFileTask extends AsyncTask<String, Long, String> {
 	}
 	
 	@Override
-	protected String doInBackground(String... params) {
+	protected Void doInBackground(String... params) {
 
 		try {
 
@@ -122,7 +125,7 @@ public class DownloadFileTask extends AsyncTask<String, Long, String> {
                 try {
                     destFile = new File(destFolder, URLDecoder.decode(fileName,charsetName));
                 } catch (UnsupportedEncodingException e) {
-                    // Won't ever reached here
+                    // Won't ever reach here
                     throw new AssertionError(e);
                 }
 
@@ -188,7 +191,7 @@ public class DownloadFileTask extends AsyncTask<String, Long, String> {
 	}
 
 	@Override
-	protected void onPostExecute(String unused) {	
+	protected void onPostExecute(Void unused) {
 		if (!isCancelled() && failure == null) {
 			callBack.downloadSuccess(destFile);			
 		} else if (failure != null) {

@@ -75,26 +75,24 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
 
         this.imageLink = entries[0];
 
-        if ( imageLink == null ) {
-            return null;
-        }
+        if ( imageLink != null ) {
 
-        String href = imageLink.getHref();
+            String href = imageLink.getHref();
 
+            try {
+                String target = new URL(new URL(baseUrl), href).toString();
 
-        try {
-            String target = new URL(new URL(baseUrl), href).toString();
+                Log.i("LoadThumbnailTask", "Downloading image: " + target);
 
-            Log.i("LoadThumbnailTask", "Downloading image: " + target);
+                HttpGet currentRequest = new HttpGet(target);
+                HttpResponse resp = httpClient.execute(currentRequest);
 
-            HttpGet currentRequest = new HttpGet(target);
-            HttpResponse resp = httpClient.execute(currentRequest);
+                Bitmap bitmap = BitmapFactory.decodeStream(resp.getEntity().getContent());
+                this.drawable = new FastBitmapDrawable(bitmap);
 
-            Bitmap bitmap = BitmapFactory.decodeStream(resp.getEntity().getContent());
-            this.drawable = new FastBitmapDrawable( bitmap );
-
-        } catch (Exception | OutOfMemoryError e) {
-            //Ignore and exit.
+            } catch (Exception | OutOfMemoryError e) {
+                //Ignore and exit.
+            }
         }
 
         return null;

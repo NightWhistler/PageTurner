@@ -18,6 +18,7 @@
  */
 package net.nightwhistler.pageturner.dto;
 
+import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,6 +26,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
 
 /**
  * This class allows page-offsets to be read from and stored as JSON.
@@ -94,52 +98,42 @@ public class PageOffsets {
 		
 		return result;
 	}
-	
-	
-	public static PageOffsets fromJSON( String json ) {
-		try {
-			
-			JSONObject offsetsObject = new JSONObject( json );
-			PageOffsets result = new PageOffsets();
-			
-			result.fontFamily = offsetsObject.getString(Fields.fontFamily.name());
-			result.fontSize = offsetsObject.getInt(Fields.fontSize.name());
-			result.vMargin = offsetsObject.getInt(Fields.vMargin.name());
-			result.hMargin = offsetsObject.getInt(Fields.hMargin.name());
-			result.lineSpacing = offsetsObject.getInt(Fields.lineSpacing.name());
-			result.fullScreen = offsetsObject.getBoolean(Fields.fullScreen.name() );
-            result.algorithmVersion = offsetsObject.optInt(Fields.algorithmVersion.name(), -1);
-            result.allowStyling = offsetsObject.optBoolean(Fields.allowStyling.name(), true);
-			
-			result.offsets = readOffsets(offsetsObject.getJSONArray(Fields.offsets.name()));
 
-			return result;
 
-		} catch (JSONException j) {
-			return null;
-		}
-	}
-	
-	public String toJSON() {
-		try {
-			JSONObject jsonObject = new JSONObject();
-			
-			jsonObject.put(Fields.fontFamily.name(), this.fontFamily );
-			jsonObject.put(Fields.fontSize.name(), this.fontSize );
-			jsonObject.put(Fields.vMargin.name(), this.vMargin );
-			jsonObject.put(Fields.hMargin.name(), this.hMargin );
-			jsonObject.put(Fields.lineSpacing.name(), this.lineSpacing );
-			jsonObject.put(Fields.fullScreen.name(), this.fullScreen );
-            jsonObject.put(Fields.allowStyling.name(), this.allowStyling );
-            jsonObject.put(Fields.algorithmVersion.name(), this.algorithmVersion );
-			
-			jsonObject.put(Fields.offsets.name(), new JSONArray( this.offsets ) );
-			
-			return jsonObject.toString();
-		} catch (JSONException e) {
-			return null;
-		}
-	}
+    public static PageOffsets fromJSON( String json ) throws JSONException {
+        JSONObject offsetsObject = new JSONObject( json );
+        PageOffsets result = new PageOffsets();
+
+        result.fontFamily = offsetsObject.getString(Fields.fontFamily.name());
+        result.fontSize = offsetsObject.getInt(Fields.fontSize.name());
+        result.vMargin = offsetsObject.getInt(Fields.vMargin.name());
+        result.hMargin = offsetsObject.getInt(Fields.hMargin.name());
+        result.lineSpacing = offsetsObject.getInt(Fields.lineSpacing.name());
+        result.fullScreen = offsetsObject.getBoolean(Fields.fullScreen.name() );
+        result.algorithmVersion = offsetsObject.optInt(Fields.algorithmVersion.name(), -1);
+        result.allowStyling = offsetsObject.optBoolean(Fields.allowStyling.name(), true);
+
+        result.offsets = readOffsets(offsetsObject.getJSONArray(Fields.offsets.name()));
+
+        return result;
+    }
+
+    public String toJSON() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put(Fields.fontFamily.name(), this.fontFamily );
+        jsonObject.put(Fields.fontSize.name(), this.fontSize );
+        jsonObject.put(Fields.vMargin.name(), this.vMargin );
+        jsonObject.put(Fields.hMargin.name(), this.hMargin );
+        jsonObject.put(Fields.lineSpacing.name(), this.lineSpacing );
+        jsonObject.put(Fields.fullScreen.name(), this.fullScreen );
+        jsonObject.put(Fields.allowStyling.name(), this.allowStyling );
+        jsonObject.put(Fields.algorithmVersion.name(), this.algorithmVersion );
+
+        jsonObject.put(Fields.offsets.name(), new JSONArray( this.offsets ) );
+
+        return jsonObject.toString();
+    }
 	
 	private static List<List<Integer>> readOffsets( JSONArray jsonArray ) throws JSONException {
 		

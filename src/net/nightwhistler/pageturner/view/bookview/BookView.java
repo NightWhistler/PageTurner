@@ -494,16 +494,14 @@ public class BookView extends ScrollView {
 
         if (configuration.isShowPageNumbers()) {
 
-            List<List<Integer>> offsets = configuration
+            Option<List<List<Integer>>> offsets = configuration
                     .getPageOffsets(fileName);
 
-            if (offsets != null && offsets.size() > 0) {
-                spine.setPageOffsets(offsets);
-            }
+            offsets.filter( o -> o.size() > 0 ).forEach(
+                    o -> spine.setPageOffsets( o ) );
         }
 
         return book;
-
     }
 
     public void setFontFamily(FontFamily family) {
@@ -1282,15 +1280,11 @@ public class BookView extends ScrollView {
             return false;
         }
 
-        List<List<Integer>> offsets = configuration
+        Option<List<List<Integer>>> offsets = configuration
                 .getPageOffsets(fileName);
 
-        //Check if we need to calculate at all, if not exit.
-        if (offsets != null && offsets.size() > 0 ) {
-            return false;
-        }
-
-        return true;
+        return isEmpty( offsets ) ||
+                offsets.unsafeGet().size() == 0;
     }
 
 	public void setEnableScrolling(boolean enableScrolling) {
@@ -1384,7 +1378,6 @@ public class BookView extends ScrollView {
 
         }
     }
-
 
 	private static enum BookReadPhase {
 		START, OPEN_FILE, PARSE_TEXT, DONE

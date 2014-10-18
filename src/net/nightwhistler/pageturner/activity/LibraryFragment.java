@@ -36,7 +36,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -52,7 +51,8 @@ import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.Configuration.LibraryView;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.UiUtils;
+import net.nightwhistler.ui.DialogFactory;
+import net.nightwhistler.ui.UiUtils;
 import net.nightwhistler.pageturner.library.*;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import net.nightwhistler.pageturner.scheduling.TaskQueue;
@@ -69,7 +69,7 @@ import java.util.*;
 import static java.lang.Character.toUpperCase;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
-import static net.nightwhistler.pageturner.UiUtils.onMenuPress;
+import static net.nightwhistler.ui.UiUtils.onMenuPress;
 import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
 
 public class LibraryFragment extends RoboSherlockFragment implements ImportCallback {

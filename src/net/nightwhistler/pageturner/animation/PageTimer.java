@@ -63,7 +63,6 @@ public class PageTimer implements Animator {
 		timer.right = width;
 		paint.setStyle(Style.FILL);
 		canvas.drawRect(timer, paint);
-		
 	}
 	
 	@Override

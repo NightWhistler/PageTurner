@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
-package net.nightwhistler.pageturner.activity;
+package net.nightwhistler.ui;
 
 import android.app.AlertDialog;
 import android.content.Context;

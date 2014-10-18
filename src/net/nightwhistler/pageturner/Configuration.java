@@ -29,6 +29,7 @@ import android.os.Debug;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import com.google.inject.Inject;
+import jedi.option.Option;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.pageturner.activity.PageTurnerActivity;
 import net.nightwhistler.pageturner.activity.ReadingActivity;
@@ -37,9 +38,15 @@ import net.nightwhistler.pageturner.dto.PageOffsets;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import roboguice.inject.ContextSingleton;
 
 import java.util.*;
+
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
+import static net.nightwhistler.pageturner.CustomOPDSSite.fromJSON;
 
 /**
  * Application configuration class which provides a friendly API to the various
@@ -193,7 +200,8 @@ public class Configuration {
     //Which platform version to start text selection on.
     public static final int TEXT_SELECTION_PLATFORM_VERSION = Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 
-
+    private static final Logger LOG = LoggerFactory
+            .getLogger("Configuration");
 
     private String defaultSerifFont;
     private String defaultSansFont;
@@ -350,23 +358,34 @@ public class Configuration {
         SharedPreferences bookPrefs = getPrefsForBook(fileName);
 
 		PageOffsets offsetsObject = PageOffsets.fromValues(this, offsets);
-		String json = offsetsObject.toJSON();
-		updateValue(bookPrefs, KEY_OFFSETS, json);
+
+        try {
+            String json = offsetsObject.toJSON();
+            updateValue(bookPrefs, KEY_OFFSETS, json);
+        } catch ( JSONException js ) {
+            LOG.error( "Error storing page offsets", js );
+        }
 	}
 
-	public List<List<Integer>> getPageOffsets(String fileName) {
+	public Option<List<List<Integer>>> getPageOffsets(String fileName) {
 
         SharedPreferences bookPrefs = getPrefsForBook(fileName);
 
 		String data = bookPrefs.getString(KEY_OFFSETS, "");
 
-		PageOffsets offsets = PageOffsets.fromJSON(data);
+        try {
+            PageOffsets offsets = PageOffsets.fromJSON(data);
 
-		if (offsets == null || !offsets.isValid(this)) {
-			return null;
-		}
+            if (offsets == null || !offsets.isValid(this)) {
+                return none();
+            }
 
-		return offsets.getOffsets();
+            return option(offsets.getOffsets());
+
+        } catch ( JSONException js ) {
+            LOG.error( "Could not retrieve page offsets", js );
+            return none();
+        }
 	}
 
     public List<HighLight> getHightLights( String fileName ) {
@@ -435,13 +454,11 @@ public class Configuration {
 			JSONArray array = new JSONArray(sites);
 			for (int i = 0; i < array.length(); i++) {
 				JSONObject obj = array.getJSONObject(i);
-				CustomOPDSSite site = CustomOPDSSite.fromJSON(obj);
-
-				if (site != null) {
-					result.add(site);
-				}
+				CustomOPDSSite site = fromJSON(obj);
+                result.add(site);
 			}
 		} catch (JSONException js) {
+            LOG.error( "Could not retrieve custom opds sites", js );
 		}
 
 		importOldCalibreSite(result);
@@ -469,12 +486,16 @@ public class Configuration {
 
 	public void storeCustomOPDSSites(List<CustomOPDSSite> sites) {
 
-		JSONArray array = new JSONArray();
-		for (CustomOPDSSite site : sites) {
-			array.put(site.toJSON());
-		}
+        try {
+            JSONArray array = new JSONArray();
+            for (CustomOPDSSite site : sites) {
+                array.put(site.toJSON());
+            }
 
-		updateValue(KEY_OPDS_SITES, array.toString());
+            updateValue(KEY_OPDS_SITES, array.toString());
+        } catch ( JSONException js ) {
+            LOG.error( "Error storing custom sites", js );
+        }
 	}
 
 	public void setLastIndex(String fileName, int index) {

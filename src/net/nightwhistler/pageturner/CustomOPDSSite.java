@@ -19,8 +19,12 @@
 
 package net.nightwhistler.pageturner;
 
+import jedi.option.Option;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import static jedi.option.Options.none;
+import static jedi.option.Options.some;
 
 public class CustomOPDSSite {
 
@@ -61,39 +65,29 @@ public class CustomOPDSSite {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
-	public JSONObject toJSON() {
-		
-		try {
-			JSONObject obj = new JSONObject();
-			obj.put("url", url);
-			obj.put("name", name);
-			obj.put("description", description);
-						
-			obj.put("userName", userName);
-			obj.put("password", password);
-			
-			return obj;
-			
-		} catch (JSONException json) {
-			return null;
-		}		
-	}
-	
-	public static CustomOPDSSite fromJSON(JSONObject json) {
-		try {
-			CustomOPDSSite site = new CustomOPDSSite();
-			site.setUrl(json.getString("url"));
-			site.setName(json.getString("name"));
-			
-			site.setDescription(json.optString("description"));			
-			site.setUserName( json.optString("userName") );
-			site.setPassword( json.optString("password"));
-			
-			return site;
-		} catch (JSONException js) {
-			return null;
-		}
-	}
-	
+
+    public JSONObject toJSON() throws JSONException {
+        JSONObject obj = new JSONObject();
+        obj.put("url", url);
+        obj.put("name", name);
+        obj.put("description", description);
+
+        obj.put("userName", userName);
+        obj.put("password", password);
+
+        return obj;
+    }
+
+    public static CustomOPDSSite fromJSON(JSONObject json) throws JSONException {
+        CustomOPDSSite site = new CustomOPDSSite();
+        site.setUrl(json.getString("url"));
+        site.setName(json.getString("name"));
+
+        site.setDescription(json.optString("description"));
+        site.setUserName( json.optString("userName") );
+        site.setPassword( json.optString("password"));
+
+        return site;
+    }
+
 }

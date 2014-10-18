@@ -28,7 +28,7 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.UiUtils;
+import net.nightwhistler.ui.UiUtils;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class TextSelectionActions implements ActionMode.Callback {
@@ -75,11 +75,11 @@ public class TextSelectionActions implements ActionMode.Callback {
 
         menu.add( R.string.abs__shareactionprovider_share_with )
                 .setOnMenuItemClickListener(
-                        react( mode, () ->
-                                callBack.share(bookView.getSelectionStart(),
-                                bookView.getSelectionEnd(), bookView.getSelectedText())
+                        react(mode, () ->
+                                        callBack.share(bookView.getSelectionStart(),
+                                                bookView.getSelectionEnd(), bookView.getSelectedText())
                         )
-                 ).setIcon(R.drawable.abs__ic_menu_share_holo_dark);
+                ).setIcon(R.drawable.abs__ic_menu_share_holo_dark);
 
         menu.add(R.string.highlight)
                 .setOnMenuItemClickListener(

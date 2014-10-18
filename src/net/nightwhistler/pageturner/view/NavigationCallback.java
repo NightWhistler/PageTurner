@@ -1,6 +1,6 @@
 package net.nightwhistler.pageturner.view;
 
-import net.nightwhistler.pageturner.UiUtils;
+import net.nightwhistler.ui.UiUtils;
 
 /**
  * Created with IntelliJ IDEA.

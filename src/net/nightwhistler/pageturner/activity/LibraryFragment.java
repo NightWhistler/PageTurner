@@ -235,9 +235,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			long id) {
 
         if ( config.getLongShortPressBehaviour() == Configuration.LongShortPressBehaviour.NORMAL ) {
-            showBookDetails(this.bookAdapter.getResultAt(position));
+            this.bookAdapter.getResultAt( position ).forEach( this::showBookDetails );
         } else {
-            openBook(this.bookAdapter.getResultAt(position));
+            this.bookAdapter.getResultAt( position ).forEach( this::openBook );
         }
 	}	
 
@@ -245,9 +245,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			int position, long id) {
 
         if ( config.getLongShortPressBehaviour() == Configuration.LongShortPressBehaviour.NORMAL ) {
-            openBook(this.bookAdapter.getResultAt(position));
+            this.bookAdapter.getResultAt( position ).forEach(this::openBook);
         } else {
-            showBookDetails(this.bookAdapter.getResultAt(position));
+            this.bookAdapter.getResultAt( position ).forEach( this::showBookDetails );
         }
 
 		return true;
@@ -814,7 +814,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			imageView.setImageDrawable(backupCover);
 			
 			if ( book.getCoverImage() != null ) {				
-				callbacks.add( new CoverCallback(book, index, imageView ) );	
+				callbacks.add( new CoverCallback(book, index, imageView ) );
 			}
 		}
 	}	
@@ -850,31 +850,30 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
                 if ( bookAdapter.isKeyed() ) {
 
-                    String key = bookAdapter.getKey( firstVisibleItem );
-                    Character keyChar = null;
+                    String key = bookAdapter.getKey(firstVisibleItem).getOrElse("");
 
-                    if (key != null && key.length() > 0 ) {
-                        keyChar = toUpperCase(key.charAt(0));
-                    }
+                    if (key.length() > 0) {
+                        Character keyChar = toUpperCase(key.charAt(0));
 
-                    if (keyChar != null && ! keyChar.equals(lastCharacter)) {
+                        if (keyChar.equals(lastCharacter)) {
 
-                        lastCharacter = keyChar;
-                        List<Character> alphabet = bookAdapter.getAlphabet();
+                            lastCharacter = keyChar;
+                            List<Character> alphabet = bookAdapter.getAlphabet();
 
-                        //If the highlight-char is already set, this means the
-                        //user clicked the bar, so don't scroll it.
-                        if (alphabetAdapter != null && ! keyChar.equals( alphabetAdapter.getHighlightChar() ) ) {
-                            alphabetAdapter.setHighlightChar(keyChar);
-                            alphabetBar.setSelection( alphabet.indexOf(keyChar) );
-                        }
+                            //If the highlight-char is already set, this means the
+                            //user clicked the bar, so don't scroll it.
+                            if (alphabetAdapter != null && !keyChar.equals(alphabetAdapter.getHighlightChar())) {
+                                alphabetAdapter.setHighlightChar(keyChar);
+                                alphabetBar.setSelection(alphabet.indexOf(keyChar));
+                            }
 
-                        for ( int i=0; i < alphabetBar.getChildCount(); i++ ) {
-                            View child = alphabetBar.getChildAt(i);
-                            if ( child.getTag().equals(keyChar) ) {
-                                child.setBackgroundDrawable( holoDrawable );
-                            } else {
-                                child.setBackgroundDrawable(null);
+                            for (int i = 0; i < alphabetBar.getChildCount(); i++) {
+                                View child = alphabetBar.getChildAt(i);
+                                if (child.getTag().equals(keyChar)) {
+                                    child.setBackgroundDrawable(holoDrawable);
+                                } else {
+                                    child.setBackgroundDrawable(null);
+                                }
                             }
                         }
                     }
@@ -902,21 +901,21 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
 					
 		}
-		
+
 	}
-	
+
 	private class CoverCallback {
 		protected LibraryBook book;
 		protected int viewIndex;
-		protected ImageView view;	
-		
+		protected ImageView view;
+
 		public CoverCallback(LibraryBook book, int viewIndex, ImageView view) {
 			this.book = book;
 			this.view = view;
-			this.viewIndex = viewIndex;			
+			this.viewIndex = viewIndex;
 		}
-		
-		public void run() {			
+
+		public void run() {
 			try {
 
                 getCover(book).forEach( drawable -> view.setImageDrawable(drawable) );
@@ -926,8 +925,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             }
 		}
 	}
-	
-	
+
+
 	private class BookCaseAdapter extends KeyedResultAdapter {
 				
 		@Override

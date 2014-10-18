@@ -23,6 +23,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import com.google.inject.Inject;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.library.LibraryDatabaseHelper.Order;
 import nl.siegmann.epublib.domain.Book;
@@ -33,6 +34,9 @@ import roboguice.inject.ContextSingleton;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
+
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
 
 @ContextSingleton
 public class SqlLiteLibraryService implements LibraryService {
@@ -175,16 +179,16 @@ public class SqlLiteLibraryService implements LibraryService {
 	}
 
     @Override
-	public LibraryBook getBook(String fileName) {
+	public Option<LibraryBook> getBook(String fileName) {
 		QueryResult<LibraryBook> booksByFile = 
 			helper.findByField(LibraryDatabaseHelper.Field.file_name,
 					fileName, null, Order.ASC, null);
 
 		switch ( booksByFile.getSize() ) {
 		case 0:
-			return null;
+			return none();
 		case 1:
-			return booksByFile.getItemAt(0);
+			return option(booksByFile.getItemAt(0));
 		default:
 			throw new IllegalStateException("Non unique file-name: " + fileName );
 		}

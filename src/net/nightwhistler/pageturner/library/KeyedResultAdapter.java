@@ -20,8 +20,12 @@
 package net.nightwhistler.pageturner.library;
 
 import android.widget.SectionIndexer;
+import jedi.option.Option;
 
 import java.util.List;
+
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
 
 /**
  * Abstract adapter super-class for KeyedQueryResults
@@ -49,14 +53,14 @@ public abstract class KeyedResultAdapter extends QueryResultAdapter<LibraryBook>
 		return this.keyedResult != null;
 	}
 	
-	public String getKey(int position) {
+	public Option<String> getKey(int position) {
 		List<String> keys = keyedResult.getKeys();
 		
 		if ( keys == null || position >= keys.size() ) {
-			return null;
+			return none();
 		}
 		
-		return keys.get(position);
+		return option(keys.get(position));
 	}
 	
 	public List<Character> getAlphabet() {
@@ -91,13 +95,11 @@ public abstract class KeyedResultAdapter extends QueryResultAdapter<LibraryBook>
 			return 0;
 		}
 		
-		Character c = this.keyedResult.getCharacterFor(position);
-		
-		if ( c == null ) { 
-			return 0;
-		}
-		
-		return this.keyedResult.getAlphabet().indexOf(c);
+		Option<Character> characterFor = this.keyedResult.getCharacterFor(position);
+
+        return characterFor.match(
+                c -> this.keyedResult.getAlphabet().indexOf(c),
+                () -> 0 );
 	}
 
 	@Override

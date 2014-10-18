@@ -439,7 +439,8 @@ public class BookView extends ScrollView {
                 }
             }
 
-            loadText( spine.getCurrentResource() );
+            //TODO: what if the resource is None?
+            spine.getCurrentResource().forEach( this::loadText );
         }
 	}
 
@@ -447,15 +448,15 @@ public class BookView extends ScrollView {
 
         LOG.debug( "Trying to load text for resource " + resource );
 
-        Spannable cachedText = textLoader.getCachedTextForResource( resource );
+        Option<Spannable> cachedText = textLoader.getCachedTextForResource( resource );
 
         //Start by clearing the queue
         taskQueue.clear();
 
-        if ( cachedText != null && getInnerView().getWidth() > 0  ) {
+        if ( ! isEmpty(cachedText) && getInnerView().getWidth() > 0  ) {
 
             LOG.debug( "Text is cached, loading on UI Thread.");
-            loadText(cachedText);
+            loadText(cachedText.unsafeGet());
         } else {
 
             LOG.debug( "Text is NOT cached, loading in background.");
@@ -476,11 +477,12 @@ public class BookView extends ScrollView {
         restorePosition();
         strategy.updateGUI();
         progressUpdate();
-        parseEntryComplete( spine.getCurrentTitle() );
+        parseEntryComplete( spine.getCurrentTitle().getOrElse("") );
     }
 
 	private void loadText( String searchTerm ) {
-        this.taskQueue.jumpQueueExecuteTask(new LoadTextTask(searchTerm), spine.getCurrentResource() );
+        spine.getCurrentResource().forEach( res ->
+                this.taskQueue.jumpQueueExecuteTask(new LoadTextTask(searchTerm), res ));
 	}
 
     private Book initBookAndSpine() throws IOException {
@@ -866,13 +868,15 @@ public class BookView extends ScrollView {
 
         if (this.storedAnchor != null  ) {
 
-            Integer anchorValue = this.textLoader.getAnchor(
-                    spine.getCurrentHref(), storedAnchor );
+            spine.getCurrentHref().forEach( href -> {
+                Option<Integer> anchorValue = this.textLoader.getAnchor(
+                        href, storedAnchor );
 
-            if ( anchorValue != null ) {
-                strategy.setPosition(anchorValue);
-			    this.storedAnchor = null;
-            }
+                if ( !isEmpty(anchorValue) ) {
+                    strategy.setPosition(anchorValue.getOrElse(0));
+                    this.storedAnchor = null;
+                }
+            });
 		}
 
 		this.strategy.updatePosition();
@@ -1454,14 +1458,14 @@ public class BookView extends ScrollView {
 
             try {
 
-                this.name = spine.getCurrentTitle();
+                this.name = spine.getCurrentTitle().getOrElse("");
 
                 Resource resource;
 
-                if ( resources == null || resources.length == 0 ) {
-                    resource = spine.getCurrentResource();
-                } else {
+                if ( resources != null && resources.length > 0 ) {
                     resource = resources[0];
+                } else {
+                    resource = spine.getCurrentResource().getOrElse( new Resource("") );
                 }
 
                 publishProgress(BookReadPhase.PARSE_TEXT);
@@ -1653,20 +1657,21 @@ public class BookView extends ScrollView {
             };
 
             //Do first pass: grab either cached text, or schedule a callback
-            for (int i = 0; i < spine.size(); i++) {
+            for ( PageTurnerSpine.SpineEntry spineEntry: spine ) {
 
                 checkForCancellation();
-                Resource res = spine.getResourceForIndex(i);
+                Resource res = spineEntry.getResource();
 
-                Spannable cachedText = textLoader.getCachedTextForResource( res );
+                Option<Spannable> cachedText = textLoader.getCachedTextForResource( res );
 
-                if ( cachedText != null ) {
+                if ( ! isEmpty(cachedText) ) {
                     LOG.debug("CalculatePageNumbersTask: Got cached text for href: " + res.getHref() );
 
                     FixedPagesStrategy fixedPagesStrategy = getFixedPagesStrategy();
                     fixedPagesStrategy.setBookView(BookView.this);
 
-                    offsetsPerSection.put(res.getHref(), fixedPagesStrategy.getPageOffsets(cachedText, true));
+                    offsetsPerSection.put(res.getHref(), fixedPagesStrategy.getPageOffsets(
+                            cachedText.unsafeGet(), true));
 
                 } else {
                     LOG.debug("CalculatePageNumbersTask: Registering callback for href: " + res.getHref() );
@@ -1679,11 +1684,11 @@ public class BookView extends ScrollView {
             imageLoader.load();
 
             //Do a second pass and order the offsets correctly
-            for (int i = 0; i < spine.size(); i++) {
+            for (PageTurnerSpine.SpineEntry spineEntry: spine ) {
 
                 checkForCancellation();
 
-                Resource res = spine.getResourceForIndex(i);
+                Resource res = spineEntry.getResource();
 
                 List<Integer> offsets = null;
 

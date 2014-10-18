@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 import com.osbcp.cssparser.CSSParser;
 import com.osbcp.cssparser.PropertyValue;
 import com.osbcp.cssparser.Rule;
+import jedi.option.Option;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
@@ -43,6 +44,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.ref.SoftReference;
 import java.util.*;
+
+import static jedi.functional.FunctionalPrimitives.isEmpty;
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
 
 /**
  * Singleton storage for opened book and rendered text.
@@ -263,13 +268,13 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
 
     }
 
-    public Integer getAnchor( String href, String anchor ) {
+    public Option<Integer> getAnchor( String href, String anchor ) {
         if ( this.anchors.containsKey(href) ) {
             Map<String, Integer> nestedMap = this.anchors.get( href );
-            return nestedMap.get(anchor);
+            return option(nestedMap.get(anchor));
         }
 
-        return null;
+        return none();
     }
 
     public Book getCurrentBook() {
@@ -320,21 +325,20 @@ public class TextLoader implements LinkTagHandler.LinkCallBack {
         anchors.get(href).put(anchor, position);
     }
 
-    public Spannable getCachedTextForResource( Resource resource ) {
+    public Option<Spannable> getCachedTextForResource( Resource resource ) {
 
         LOG.debug( "Checking for cached resource: " + resource );
 
-        Spannable result = renderedText.get( resource.getHref() );
-        return result;
+        return option(renderedText.get(resource.getHref()));
     }
 
     public Spannable getText( final Resource resource,
                               HtmlSpanner.CancellationCallback cancellationCallback ) throws IOException {
 
-        Spannable cached = getCachedTextForResource( resource );
+        Option<Spannable> cached = getCachedTextForResource( resource );
 
-        if ( cached != null ) {
-            return cached;
+        if ( ! isEmpty(cached) ) {
+            return cached.unsafeGet();
         }
 
         for ( AnchorHandler handler: this.anchorHandlers ) {

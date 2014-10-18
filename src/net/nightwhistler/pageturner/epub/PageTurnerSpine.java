@@ -19,6 +19,7 @@
 package net.nightwhistler.pageturner.epub;
 
 import android.util.Log;
+import jedi.option.Option;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Resource;
@@ -26,7 +27,13 @@ import nl.siegmann.epublib.domain.Resource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import static jedi.functional.FunctionalPrimitives.isEmpty;
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
+import static jedi.option.Options.some;
 
 /**
  * Special spine class which handles navigation
@@ -35,7 +42,7 @@ import java.util.List;
  * @author Alex Kuiper
  *
  */
-public class PageTurnerSpine {
+public class PageTurnerSpine implements Iterable<PageTurnerSpine.SpineEntry> {
 
 	private List<SpineEntry> entries;
 	
@@ -96,8 +103,13 @@ public class PageTurnerSpine {
 		
 		return Math.max(0, total - 1);
 	}
-	
-	public List<List<Integer>> getPageOffsets() {
+
+    @Override
+    public Iterator<SpineEntry> iterator() {
+        return this.entries.iterator();
+    }
+
+    public List<List<Integer>> getPageOffsets() {
 		return pageOffsets;
 	}
 	
@@ -171,12 +183,12 @@ public class PageTurnerSpine {
 	 * 
 	 * @return
 	 */
-	public String getCurrentTitle() {
-		if ( entries.isEmpty() ) {
-			return null;
-		}
-		
-		return entries.get(position).title;
+	public Option<String> getCurrentTitle() {
+        if ( entries.size() > 0 ) {
+            return option(entries.get(position).title);
+        } else {
+            return none();
+        }
 	}
 	
 	/**
@@ -185,7 +197,7 @@ public class PageTurnerSpine {
 	 * 
 	 * @return
 	 */
-	public Resource getCurrentResource() {
+	public Option<Resource> getCurrentResource() {
 		return getResourceForIndex(position);
 	}
 
@@ -193,16 +205,16 @@ public class PageTurnerSpine {
      * Returns the resource after the current one
      * @return
      */
-    public Resource getNextResource() {
+    public Option<Resource> getNextResource() {
         return getResourceForIndex(position + 1);
     }
 	
-	public Resource getResourceForIndex( int index ) {
+	public Option<Resource> getResourceForIndex( int index ) {
 		if ( entries.isEmpty() || index < 0 || index >= entries.size() ) {
-			return null;
+			return none();
 		}
 		
-		return entries.get(index).resource;
+		return option(entries.get(index).resource);
 	}
 	
 	/**
@@ -213,13 +225,17 @@ public class PageTurnerSpine {
 	 */
 	public String resolveHref( String href ) {		
 		
-		Resource res = getCurrentResource();
-		
-		if ( res == null || res.getHref() == null ) {
-			return href;
-		}
-		
-		return resolveHref(href, res.getHref());			
+		Option<Resource> res = getCurrentResource();
+
+        if (! isEmpty(res) ) {
+            Resource actualResource = res.unsafeGet();
+
+            if ( actualResource.getHref() != null ) {
+                return resolveHref(href, actualResource.getHref());
+            }
+        }
+
+        return href;
 	}
 	
 	/**
@@ -285,12 +301,12 @@ public class PageTurnerSpine {
 	 * Returns the href of the current resource.
 	 * @return
 	 */
-	public String getCurrentHref() {
-		if ( entries.isEmpty() ) {
-			return null;
-		}
-		
-		return entries.get(position).href;
+	public Option<String> getCurrentHref() {
+		if ( entries.size() > 0 ) {
+            return option(entries.get(position).href);
+		} else {
+            return none();
+        }
 	}
 	
 	/**
@@ -456,14 +472,29 @@ public class PageTurnerSpine {
 		return "<html><body>" + centerpiece + "</body></html>";
 	}
 	
-	private class SpineEntry {
+	public class SpineEntry {
 		
 		private String title;
 		private Resource resource;		
 		private String href;
 		
 		private int size;
-		
-	}
+
+        public String getTitle() {
+            return title;
+        }
+
+        public int getSize() {
+            return size;
+        }
+
+        public Resource getResource() {
+            return resource;
+        }
+
+        public String getHref() {
+            return href;
+        }
+    }
 
 }

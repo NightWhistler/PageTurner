@@ -19,8 +19,19 @@
 package net.nightwhistler.pageturner.library;
 
 import android.database.Cursor;
+import jedi.functional.Filter;
+import jedi.functional.FunctionalPrimitives;
+import jedi.option.Option;
 
 import java.util.*;
+
+import static java.util.Collections.unmodifiableList;
+import static jedi.functional.Comparables.sort;
+import static jedi.functional.FunctionalPrimitives.collect;
+import static jedi.functional.FunctionalPrimitives.map;
+import static jedi.functional.FunctionalPrimitives.select;
+import static jedi.option.Options.none;
+import static jedi.option.Options.some;
 
 /**
  * Special QueryResult which buffers the keys,
@@ -47,28 +58,24 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 	}
 	
 	private List<Character> calculateAlphaBet() {
-		SortedSet<Character> result = new TreeSet<>();
-		
-		for ( String key: keys ) {
-			if ( key.length() > 0 ) {
-				result.add( Character.toUpperCase(key.charAt(0)) );
-			}
-		}
-		
-		return Collections.unmodifiableList( new ArrayList<>(result) );
+
+        SortedSet<Character> firstLetters = new TreeSet<Character>(
+                collect(select(keys, (Filter<String>) k -> k.length() > 0), key -> key.charAt(0)) );
+
+        return unmodifiableList( new ArrayList<>(firstLetters) );
 	}
 	
 	public List<Character> getAlphabet() {
 		return this.alphabet;
 	}
 	
-	public Character getCharacterFor( int position ) {
+	public Option<Character> getCharacterFor( int position ) {
 		String key = keys.get(position);
 		
 		if ( key.length() > 0 ) {
-			return Character.toUpperCase(key.charAt(0));
+			return some(Character.toUpperCase(key.charAt(0)));
 		} else {
-			return null;
+			return none();
 		}
 	}
 	

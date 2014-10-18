@@ -18,6 +18,7 @@
  */
 package net.nightwhistler.pageturner.library;
 
+import jedi.option.Option;
 import nl.siegmann.epublib.domain.Book;
 
 import java.io.IOException;
@@ -49,7 +50,7 @@ public interface LibraryService {
 	
 	public QueryResult<LibraryBook> findUnread(String filter);
 	
-	public LibraryBook getBook( String fileName );
+	public Option<LibraryBook> getBook( String fileName );
 	
 	public boolean hasBook( String fileName );
 	

@@ -30,6 +30,7 @@ import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.pageturner.dto.SearchResult;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.Resource;
 import org.htmlcleaner.TagNode;
 
 import java.io.IOException;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static jedi.functional.FunctionalPrimitives.isEmpty;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
 
@@ -58,45 +60,52 @@ public class SearchTextTask extends AsyncTask<String, SearchResult, Option<List<
         spanner.registerHandler("image", dummy );
         
         spanner.registerHandler("table", new TableHandler() );
-	}	
-	
+	}
+
 
 	@Override
 	protected Option<List<SearchResult>> doInBackground(String... params) {
-		
+
 		String searchTerm = params[0];
 		Pattern pattern = Pattern.compile(Pattern.quote((searchTerm)),Pattern.CASE_INSENSITIVE);
-		
+
 		List<SearchResult> result = new ArrayList<>();
-		
+
 		try {
 
 			PageTurnerSpine spine = new PageTurnerSpine(book);
-			
+
 			for ( int index=0; index < spine.size(); index++ ) {
-				
+
 				spine.navigateByIndex(index);
 
 				publishProgress( new SearchResult(null, null, index, 0, 0) );
-				
-				Spanned spanned = spanner.fromHtml(spine.getCurrentResource().getReader());				
-				Matcher matcher = pattern.matcher(spanned);
-				
-				while ( matcher.find() ) {
-					int from = Math.max(0, matcher.start() - 20 );
-					int to = Math.min(spanned.length() -1, matcher.end() + 20 );
-					
-					if ( isCancelled() ) {
-						return none();
-					}
-					
-					String text = "…" + spanned.subSequence(from, to).toString().trim() + "…";
-					SearchResult res = new SearchResult(searchTerm, text, index, matcher.start(), matcher.end());
-					
-					this.publishProgress( res );
-					result.add(res);
-				}
-				
+
+                Option<Resource> currentResource = spine.getCurrentResource();
+
+                if ( ! isEmpty(currentResource) ) {
+
+                    Spanned spanned = spanner.fromHtml( currentResource.unsafeGet().getReader());
+                    Matcher matcher = pattern.matcher(spanned);
+
+                    while (matcher.find()) {
+                        int from = Math.max(0, matcher.start() - 20);
+                        int to = Math.min(spanned.length() - 1, matcher.end() + 20);
+
+                        if (isCancelled()) {
+                            return none();
+                        }
+
+                        String text = "…" + spanned.subSequence(from, to).toString().trim() + "…";
+                        SearchResult res = new SearchResult(searchTerm, text, index, matcher.start(), matcher.end());
+
+                        this.publishProgress(res);
+                        result.add(res);
+                    }
+                } else {
+                    return none();
+                }
+
 			}
 		} catch (IOException io) {
 			return none();

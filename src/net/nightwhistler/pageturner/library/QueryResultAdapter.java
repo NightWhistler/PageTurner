@@ -21,6 +21,10 @@ package net.nightwhistler.pageturner.library;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import jedi.option.Option;
+
+import static jedi.option.Options.none;
+import static jedi.option.Options.option;
 
 /**
  * A ListAdapter which uses QueryResult objects.
@@ -63,12 +67,7 @@ public abstract class QueryResultAdapter<T> extends BaseAdapter {
 	
 	@Override
 	public Object getItem(int position) {
-		
-		if ( result == null ) {
-			return null;
-		}
-		
-		return result.getItemAt(position);
+		return getResultAt(position).unsafeGet();
 	}
 	
 	@Override
@@ -81,13 +80,13 @@ public abstract class QueryResultAdapter<T> extends BaseAdapter {
 		return getView(position, result.getItemAt(position), convertView, parent);
 	}
 	
-	public T getResultAt(int position) {
+	public Option<T> getResultAt(int position) {
 		
 		if ( result == null ) {
-			return null;
+			return none();
 		}
 		
-		return result.getItemAt(position);
+		return option(result.getItemAt(position));
 	}
 	
 	public abstract View getView( int index, T object, View convertView, ViewGroup parent );

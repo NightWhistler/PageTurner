@@ -40,10 +40,7 @@ public class ActionModeBuilder {
      * @param title
      */
     public ActionModeBuilder( String title ) {
-        this.prepareAction = (actionMode, menu ) -> {
-            actionMode.setTitle( title );
-            return true;
-        };
+        setTitle( title );
     }
 
     /**
@@ -53,10 +50,25 @@ public class ActionModeBuilder {
      * @param titleResourceId
      */
     public ActionModeBuilder( int titleResourceId ) {
+        setTitle( titleResourceId );
+    }
+
+    public ActionModeBuilder setTitle( String title ) {
+        this.prepareAction = (actionMode, menu ) -> {
+            actionMode.setTitle( title );
+            return true;
+        };
+
+        return this;
+    }
+
+    public ActionModeBuilder setTitle( int titleResourceId ) {
         this.prepareAction = (actionMode, menu ) -> {
             actionMode.setTitle( titleResourceId );
             return true;
         };
+
+        return this;
     }
 
     public ActionModeBuilder setOnActionItemClickedAction(ActionModeAction<MenuItem> clickedAction) {

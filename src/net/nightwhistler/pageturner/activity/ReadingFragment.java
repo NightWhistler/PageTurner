@@ -50,6 +50,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import jedi.functional.Command;
 import jedi.option.Option;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
@@ -113,7 +114,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	private static final Logger LOG = LoggerFactory
 			.getLogger("ReadingFragment");
 
-	@Inject
+    @Inject
+    Provider<ActionModeBuilder> actionModeBuilderProvider;
+
+  	@Inject
 	private ProgressService progressService;
 
 	@Inject
@@ -1236,7 +1240,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     }
 
     private void showHighlightEditDialog( final HighLight highLight ) {
-        final AlertDialog.Builder editalert = new AlertDialog.Builder(context);
+        final AlertDialog.Builder editalert = new AlertDialog.Builder( context );
 
         editalert.setTitle(R.string.text_note);
         final EditText input = new EditText(context);
@@ -1286,12 +1290,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     public void onBookmarkClick( final Bookmark bookmark ) {
 
-        new ActionModeBuilder(R.string.bookmark_options ).setOnCreateAction((actionMode, menu) -> {
-            MenuItem delete = menu.add(R.string.delete);
-            delete.setIcon(R.drawable.trash_can);
+        actionModeBuilderProvider.get()
+                .setTitle(R.string.bookmark_options)
+                .setOnCreateAction((actionMode, menu) -> {
+                    MenuItem delete = menu.add(R.string.delete);
+                    delete.setIcon(R.drawable.trash_can);
 
-            return true;
-        }).setOnActionItemClickedAction((actionMode, menuItem) -> {
+                    return true;
+                }).setOnActionItemClickedAction((actionMode, menuItem) -> {
 
             boolean result = false;
 
@@ -1319,12 +1325,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
         commands.put( getString(R.string.delete), this::deleteHightlight );
         commands.put( getString(R.string.set_colour), this::showHighlightColourDialog );
 
-        new ActionModeBuilder(R.string.highlight_options).setOnCreateAction( (actionMode, menu) -> {
-            menu.add( R.string.edit ).setIcon( R.drawable.edit );
-            menu.add( R.string.set_colour ).setIcon( R.drawable.color );
-            menu.add( R.string.delete ).setIcon( R.drawable.trash_can );
-            return true;
-        }).setOnActionItemClickedAction( (actionMode, menuItem) -> {
+        actionModeBuilderProvider.get()
+                .setTitle(R.string.highlight_options)
+                .setOnCreateAction((actionMode, menu) -> {
+                    menu.add(R.string.edit).setIcon(R.drawable.edit);
+                    menu.add(R.string.set_colour).setIcon(R.drawable.color);
+                    menu.add(R.string.delete).setIcon(R.drawable.trash_can);
+                    return true;
+                }).setOnActionItemClickedAction( (actionMode, menuItem) -> {
 
             Command<HighLight> cmd = commands.get( menuItem.getTitle() );
 
@@ -1336,7 +1344,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             return false;
 
-        }).build( getSherlockActivity() );
+        }).build(getSherlockActivity());
 
     }
 
@@ -1345,7 +1353,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
         if ( highLight.getTextNote() != null && highLight.getTextNote().length() > 0 ) {
             new AlertDialog.Builder(context)
                     .setMessage( R.string.notes_attached )
-                    .setNegativeButton( android.R.string.no, (a,b) -> {} )
+                    .setNegativeButton(android.R.string.no, (a, b) -> {
+                    })
                     .setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
                         highlightManager.removeHighLight(highLight);
                         Toast.makeText( context,R.string.highlight_deleted, Toast.LENGTH_SHORT ).show();
@@ -2926,8 +2935,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             if ( isEmpty(progress) ) {
 
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(
-                        getActivity());
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
 
                 alertDialog.setTitle(R.string.sync_failed);
 

@@ -19,6 +19,7 @@
 package net.nightwhistler.pageturner.view.bookview;
 
 import android.text.Spanned;
+import jedi.option.Option;
 
 public interface PageChangeStrategy {
 
@@ -125,14 +126,14 @@ public interface PageChangeStrategy {
 	 * 
 	 * @return
 	 */
-	public CharSequence getNextPageText();
+	public Option<CharSequence> getNextPageText();
 	
 	/**
 	 * Gets the text for the previous page to be displayed, or null if we've reached the start.
 	 * 
 	 * @return
 	 */
-	public CharSequence getPreviousPageText();
+	public Option<CharSequence> getPreviousPageText();
 
     public void setBookView(BookView bookView);
 	

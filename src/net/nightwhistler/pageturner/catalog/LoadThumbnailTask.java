@@ -23,6 +23,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import com.google.inject.Inject;
+import jedi.option.None;
+import jedi.option.Option;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
@@ -35,6 +37,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+
+import static jedi.option.Options.none;
 
 public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
 
@@ -71,7 +75,7 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Link... entries) {
+    protected Option<Void> doInBackground(Link... entries) {
 
         this.imageLink = entries[0];
 
@@ -95,11 +99,11 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
             }
         }
 
-        return null;
+        return none();
     }
 
     @Override
-    protected void doOnPostExecute(Void nothing) {
+    protected void doOnPostExecute(Option<Void> nothing) {
         callBack.notifyLinkUpdated(imageLink, drawable);
     }
 }

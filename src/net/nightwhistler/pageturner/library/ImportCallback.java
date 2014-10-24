@@ -23,8 +23,6 @@ import java.util.List;
 
 public interface ImportCallback {
 
-    void booksDeleted(int numberOfDeletedBooks);
-
 	void importComplete( int booksImported, List<String> failures, boolean emptyLibrary, boolean silent );
 	
 	void importStatusUpdate( String update, boolean silent );

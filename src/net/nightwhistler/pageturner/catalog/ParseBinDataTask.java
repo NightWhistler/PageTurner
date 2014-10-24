@@ -24,9 +24,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Base64;
+import jedi.option.None;
+import jedi.option.Option;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
+
+import static jedi.option.Options.none;
 
 /**
  * Loads images for links that have the image-data embedded as Base64 data.
@@ -49,7 +53,7 @@ public class ParseBinDataTask extends QueueableAsyncTask<Link, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Link... links) {
+    protected Option<Void> doInBackground(Link... links) {
 
         this.imageLink = links[0];
         String href = imageLink.getHref();
@@ -61,11 +65,11 @@ public class ParseBinDataTask extends QueueableAsyncTask<Link, Void, Void> {
 
         this.drawable = new FastBitmapDrawable(bitmap);
 
-        return null;
+        return none();
     }
 
     @Override
-    protected void doOnPostExecute(Void aVoid) {
+    protected void doOnPostExecute(Option<Void> none) {
         callBack.notifyLinkUpdated(imageLink, drawable);
     }
 }

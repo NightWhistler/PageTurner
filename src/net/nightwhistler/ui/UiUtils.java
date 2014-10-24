@@ -50,4 +50,20 @@ public class UiUtils {
         };
     }
 
+    public static MenuItem.OnActionExpandListener onActionExpandListener( Action onExpand, Action onCollapse ) {
+        return new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                onExpand.perform();
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                onCollapse.perform();
+                return false;
+            }
+        };
+    }
+
 }

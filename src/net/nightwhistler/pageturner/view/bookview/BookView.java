@@ -43,7 +43,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import jedi.functional.Functor;
 import jedi.option.None;
 import jedi.option.Option;
 import net.nightwhistler.htmlspanner.FontFamily;
@@ -84,10 +83,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static jedi.functional.FunctionalPrimitives.isEmpty;
-import static jedi.option.Options.none;
-import static jedi.option.Options.option;
-import static jedi.option.Options.some;
+import static jedi.functional.FunctionalPrimitives.*;
+import static jedi.option.Options.*;
 
 public class BookView extends ScrollView {
 
@@ -551,13 +548,13 @@ public class BookView extends ScrollView {
 	public Option<SelectedWord> getWordAt(float x, float y) {
 
 		if (childView == null) {
-			return null;
+			return none();
 		}
 
 		CharSequence text = this.childView.getText();
 
 		if (text.length() == 0) {
-			return null;
+			return none();
 		}
 
 		Option<Integer> offsetOption = findOffsetForPosition(x, y);
@@ -582,7 +579,7 @@ public class BookView extends ScrollView {
 		}
 
 		if (word.length() == 0) {
-			return null;
+			return none();
 		}
 
 		while (right < text.length()
@@ -610,7 +607,7 @@ public class BookView extends ScrollView {
             return some(new SelectedWord( left, right, word ));
 		}
 
-		return null;
+		return none();
 	}
 
 	private static boolean isBoundaryCharacter(char c) {
@@ -625,6 +622,10 @@ public class BookView extends ScrollView {
 
 		return false;
 	}
+
+    public void navigateTo( TocEntry tocEntry ) {
+        navigateTo( tocEntry.getHref() );
+    }
 
 	public void navigateTo(String rawHref) {
 
@@ -767,16 +768,17 @@ public class BookView extends ScrollView {
 		doNavigation(index);
 	}
 
-	public List<TocEntry> getTableOfContents() {
-		if (this.book == null) {
-			return null;
-		}
+	public Option<List<TocEntry>> getTableOfContents() {
 
-		List<TocEntry> result = new ArrayList<TocEntry>();
+        if ( this.book != null ) {
+            List<TocEntry> result = new ArrayList<TocEntry>();
 
-		flatten(book.getTableOfContents().getTocReferences(), result, 0);
+            flatten(book.getTableOfContents().getTocReferences(), result, 0);
 
-		return result;
+            return some(result);
+        } else {
+            return none();
+        }
 	}
 
 	private void flatten(List<TOCReference> refs, List<TocEntry> entries,
@@ -1270,9 +1272,7 @@ public class BookView extends ScrollView {
 
         StringBuilder stringBuilder = new StringBuilder("[ ");
 
-        for ( int i=0; i < offsets.size(); i++ ) {
-            stringBuilder.append( offsets.get( i ) + " " );
-        }
+        forEach( offsets, o -> stringBuilder.append( o + " ") );
 
         stringBuilder.append(" ]");
 
@@ -1379,13 +1379,12 @@ public class BookView extends ScrollView {
                 clearFocus();
                 return null;
             }
-
         }
     }
 
 	private static enum BookReadPhase {
 		START, OPEN_FILE, PARSE_TEXT, DONE
-	};
+	}
 
     private static class SearchResultSpan extends BackgroundColorSpan {
         public SearchResultSpan() {
@@ -1394,7 +1393,7 @@ public class BookView extends ScrollView {
     }
 
     private class OpenFileTask extends
-            QueueableAsyncTask<Void, BookReadPhase, Book> {
+            QueueableAsyncTask<None, BookReadPhase, Book> {
 
         private String error;
 
@@ -1404,28 +1403,25 @@ public class BookView extends ScrollView {
         }
 
         @Override
-        protected Book doInBackground(Void... args) {
+        protected Option<Book> doInBackground(None... args) {
             try {
-                return initBookAndSpine();
+                return some(initBookAndSpine());
             } catch ( IOException io ) {
                 this.error = io.getLocalizedMessage();
             } catch ( OutOfMemoryError e ) {
                 this.error = getContext().getString( R.string.out_of_memory );
             }
 
-            return null;
+            return none();
         }
 
         @Override
-        protected void doOnPostExecute(Book book) {
+        protected void doOnPostExecute(Option<Book> book) {
 
-            if (book != null) {
-                bookOpened(book);
-            } else {
-                errorOnBookOpening(this.error);
-                return;
-            }
-
+            book.match(
+                    BookView.this::bookOpened,
+                    () -> errorOnBookOpening( this.error)
+            );
         }
     }
 
@@ -1448,7 +1444,7 @@ public class BookView extends ScrollView {
 		protected void onPreExecute() {
 		}
 
-        protected Spanned doInBackground(Resource... resources) {
+        protected Option<Spanned> doInBackground(Resource... resources) {
 
             publishProgress(BookReadPhase.START);
 
@@ -1499,22 +1495,18 @@ public class BookView extends ScrollView {
 
                 strategy.loadText(result);
 
-                return result;
-            } catch (Exception io) {
+                return option(result);
+            } catch (Exception | OutOfMemoryError io ) {
                 LOG.error( "Error loading text", io );
 
                 //FIXME: actually use this error
                 //this.error = String.format( getContext().getString(R.string.could_not_load),
                   //      io.getMessage());
 
-            } catch (OutOfMemoryError io) {
-                LOG.error( "Error loading text", io );
-
-                //FIXME: actually use this error
                 //this.error = getContext().getString(R.string.out_of_memory);
             }
 
-            return null;
+            return none();
         }
 
 		@Override
@@ -1536,7 +1528,7 @@ public class BookView extends ScrollView {
 		}
 
         @Override
-        protected void doOnPostExecute(Spanned result) {
+        protected void doOnPostExecute(Option<Spanned> result) {
 
 			restorePosition();
 			strategy.updateGUI();
@@ -1565,18 +1557,16 @@ public class BookView extends ScrollView {
         }
 
         @Override
-		protected List<List<Integer>> doInBackground(Object... params) {
+		protected Option<List<List<Integer>>> doInBackground(Object... params) {
 
             if ( ! needsPageNumberCalculation() ) {
-                return null;
+                return none();
             }
 
 			try {
-				List<List<Integer>> offsets = getOffsets();
 
-                if ( offsets != null ) {
-				    configuration.setPageOffsets(fileName, offsets);
-                }
+				Option<List<List<Integer>>> offsets = getOffsets();
+                offsets.forEach( o -> configuration.setPageOffsets( fileName, o) );
 
                 LOG.debug("Calculated offsets: " + offsets );
 				return offsets;
@@ -1585,7 +1575,7 @@ public class BookView extends ScrollView {
                 LOG.error("Could not read page-numbers", e);
             }
 
-			return null;
+			return none();
 		}
 
         private void checkForCancellation() {
@@ -1601,7 +1591,7 @@ public class BookView extends ScrollView {
          * @return
          * @throws IOException
          */
-        private List<List<Integer>> getOffsets()
+        private Option<List<List<Integer>>> getOffsets()
                 throws IOException {
 
             List<List<Integer>> result = new ArrayList<>();
@@ -1690,25 +1680,25 @@ public class BookView extends ScrollView {
 
                 Resource res = spineEntry.getResource();
 
-                List<Integer> offsets = null;
+                Option<List<Integer>> offsets = none();
 
                 //Scan for the full href
                 for ( String href: offsetsPerSection.keySet() ) {
                     if ( href.endsWith( res.getHref() )) {
-                        offsets = offsetsPerSection.get(href);
+                        offsets = some(offsetsPerSection.get(href));
                         break;
                     }
                 }
 
-                if ( offsets == null ) {
+                if ( isEmpty(offsets) ) {
                     LOG.error( "CalculatePageNumbersTask: Missing text for href " + res.getHref() );
-                    return null;
+                    return none();
                 }
 
-                result.add(offsets);
+                result.add( offsets.getOrElse( new ArrayList<Integer>() ) );
             }
 
-            return result;
+            return some(result);
         }
 
         //Injection doesn't work from inner classes, so we construct it ourselves.
@@ -1721,7 +1711,7 @@ public class BookView extends ScrollView {
         }
 
         @Override
-        public void doOnCancelled(List<List<Integer>> lists) {
+        public void doOnCancelled(Option<List<List<Integer>>> lists) {
             if ( taskQueue.isEmpty() ) {
                 for ( BookViewListener listener: listeners ) {
                     listener.onCalculatePageNumbersComplete();
@@ -1730,7 +1720,7 @@ public class BookView extends ScrollView {
         }
 
         @Override
-        protected void doOnPostExecute(List<List<Integer>> result) {
+        protected void doOnPostExecute(Option<List<List<Integer>>> result) {
 
             LOG.debug("Pagenumber calculation completed.");
 
@@ -1738,10 +1728,10 @@ public class BookView extends ScrollView {
                 listener.onCalculatePageNumbersComplete();
             }
 
-            if ( result != null && result.size() > 0 ) {
-    			spine.setPageOffsets(result);
-	    		progressUpdate();
-            }
+            result.filter( r -> r.size() > 0 ).forEach(r -> {
+                spine.setPageOffsets(r);
+                progressUpdate();
+            });
 		}
 	}
 

@@ -21,6 +21,7 @@ package net.nightwhistler.pageturner.catalog;
 import android.content.Context;
 import android.os.AsyncTask;
 import com.google.inject.Inject;
+import jedi.option.None;
 import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.library.LibraryService;
@@ -41,7 +42,7 @@ import java.nio.charset.Charset;
 
 import static jedi.option.Options.none;
 
-public class DownloadFileTask extends AsyncTask<String, Long, Void> {
+public class DownloadFileTask extends AsyncTask<String, Long, None> {
 
 	private File destFile;
 	
@@ -85,7 +86,7 @@ public class DownloadFileTask extends AsyncTask<String, Long, Void> {
 	}
 	
 	@Override
-	protected Void doInBackground(String... params) {
+	protected None doInBackground(String... params) {
 
 		try {
 
@@ -153,7 +154,7 @@ public class DownloadFileTask extends AsyncTask<String, Long, Void> {
 
 						// Make sure the user can cancel the download.
 						if (isCancelled()) {
-							return null;
+							return new None();
 						}
 
 						total += len1;						
@@ -182,7 +183,7 @@ public class DownloadFileTask extends AsyncTask<String, Long, Void> {
 			this.failure = e;
 		}
 
-		return null;
+		return new None();
 	}
 
 	@Override
@@ -191,7 +192,7 @@ public class DownloadFileTask extends AsyncTask<String, Long, Void> {
 	}
 
 	@Override
-	protected void onPostExecute(Void unused) {
+	protected void onPostExecute(None unused) {
 		if (!isCancelled() && failure == null) {
 			callBack.downloadSuccess(destFile);			
 		} else if (failure != null) {

@@ -52,6 +52,7 @@ import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragmen
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import jedi.functional.Command;
+import jedi.option.None;
 import jedi.option.Option;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
 import net.nightwhistler.pageturner.Configuration;
@@ -89,6 +90,9 @@ import java.io.File;
 import java.net.URLEncoder;
 import java.util.*;
 
+import static jedi.functional.Coercions.map;
+import static jedi.functional.FunctionalPrimitives.collect;
+import static jedi.functional.FunctionalPrimitives.firstOption;
 import static jedi.functional.FunctionalPrimitives.isEmpty;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
@@ -2591,28 +2595,19 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
     public boolean hasTableOfContents() {
-        List<TocEntry> toc = this.bookView.getTableOfContents();
-        return toc != null && ! toc.isEmpty();
+        Option<List<TocEntry>> toc = this.bookView.getTableOfContents();
+
+        return !isEmpty(toc.getOrElse(new ArrayList<>()));
     }
 
     public List<NavigationCallback> getTableOfContents() {
 
-        List<NavigationCallback> result = new ArrayList<>();
-        List<TocEntry> tocEntries = this.bookView.getTableOfContents();
+        List<TocEntry> tocEntries = this.bookView.getTableOfContents().getOrElse( new ArrayList<>() );
 
-        if ( tocEntries != null ) {
-
-            for ( final TocEntry tocEntry: tocEntries ) {
-
-                NavigationCallback callback = new NavigationCallback(tocEntry.getTitle(), "")
-                        .setOnClick( () -> bookView.navigateTo(tocEntry.getHref()));
-
-                result.add( callback );
-            }
-
-        }
-
-        return result;
+        return collect( tocEntries, tocEntry -> new NavigationCallback(
+                        tocEntry.getTitle(), "",
+                        () -> bookView.navigateTo(tocEntry) )
+        );
     }
 
 	@Override
@@ -2897,7 +2892,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
     }
 
 	private class ManualProgressSync extends
-			AsyncTask<Void, Integer, Option<List<BookProgress>>> {
+			AsyncTask<None, Integer, Option<List<BookProgress>>> {
 
 		private boolean accessDenied = false;
 
@@ -2915,9 +2910,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		}
 
 		@Override
-		protected Option<List<BookProgress>> doInBackground(Void... params) {
+		protected Option<List<BookProgress>> doInBackground(None... params) {
 			try {
-				return option(progressService.getProgress(fileName));
+				return progressService.getProgress(fileName);
 			} catch (AccessException e) {
 				accessDenied = true;
 				return none();
@@ -2960,7 +2955,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
 	private class DownloadProgressTask extends
-			AsyncTask<Void, Integer, Option<BookProgress>> {
+			AsyncTask<None, Integer, Option<BookProgress>> {
 
 		@Override
 		protected void onPreExecute() {
@@ -2984,14 +2979,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
         }
 
         @Override
-		protected Option<BookProgress> doInBackground(Void... params) {
+		protected Option<BookProgress> doInBackground(None... params) {
 			try {
-				List<BookProgress> updates = progressService
+				Option<List<BookProgress>> updates = progressService
 						.getProgress(fileName);
 
-				if (updates != null && updates.size() > 0) {
-					return option(updates.get(0));
-				}
+                return firstOption( updates.getOrElse( new ArrayList<>() ) );
+
 			} catch (AccessException e) {
 			    //Ignore, since it's a background process
             }

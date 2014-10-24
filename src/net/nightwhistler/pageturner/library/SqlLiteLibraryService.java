@@ -37,6 +37,7 @@ import java.nio.channels.FileChannel;
 
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
+import static jedi.option.Options.some;
 
 @ContextSingleton
 public class SqlLiteLibraryService implements LibraryService {
@@ -82,7 +83,7 @@ public class SqlLiteLibraryService implements LibraryService {
     		authorLastName = metaData.getAuthors().get(0).getLastname();
     	}
     	
-    	byte[] thumbNail = null;
+    	Option<byte[]> thumbNail = none();
     	
     	try {
     		if ( book.getCoverImage() != null && book.getCoverImage().getSize() < MAX_COVER_SIZE ) {    			
@@ -111,7 +112,8 @@ public class SqlLiteLibraryService implements LibraryService {
     	
 		this.helper.storeNewBook(bookFile.getAbsolutePath(),
 				authorFirstName, authorLastName, title,
-				description, thumbNail, updateLastRead);    	
+				description, thumbNail.unsafeGet(),
+                updateLastRead);
 		
 	}
 	
@@ -251,16 +253,16 @@ public class SqlLiteLibraryService implements LibraryService {
 		return helper.hasBook(fileName);
 	}
 	
-	private byte[] resizeImage( byte[] input ) {
+	private Option<byte[]> resizeImage( byte[] input ) {
 		
 		if ( input == null ) {
-			return null;
+			return none();
 		}
 				
 		Bitmap bitmapOrg = BitmapFactory.decodeByteArray(input, 0, input.length);
 
 		if ( bitmapOrg == null ) {
-			return null;
+			return none();
 		}
 		
 		int height = bitmapOrg.getHeight();
@@ -285,7 +287,7 @@ public class SqlLiteLibraryService implements LibraryService {
 
 		resizedBitmap.recycle();
 
-		return bos.toByteArray();            
+		return some(bos.toByteArray());
 
 	}
 	

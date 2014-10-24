@@ -19,12 +19,15 @@
 
 package net.nightwhistler.pageturner.library;
 
-import net.nightwhistler.pageturner.Configuration;
+import jedi.option.None;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static jedi.option.Options.none;
 
 /**
  * Task which deletes all files in the library that no longer exist.
@@ -33,17 +36,25 @@ public class CleanFilesTask extends QueueableAsyncTask<Void, Void, Void> {
 
     private LibraryService libraryService;
 
-    private ImportCallback callback;
+    private DeleteBooksCallback callback;
 
     private int deletedFiles = 0;
 
-    public CleanFilesTask(ImportCallback callback, LibraryService service) {
-        this.callback = callback;
+    public static interface DeleteBooksCallback {
+        void booksDeleted(int numberOfDeletedBooks);
+    }
+
+    public CleanFilesTask(LibraryService service) {
         this.libraryService = service;
     }
 
+    public CleanFilesTask(LibraryService service, DeleteBooksCallback callback ) {
+        this(service);
+        setCallback(callback);
+    }
+
     @Override
-    protected Void doInBackground(Void... voids) {
+    protected Option<Void> doInBackground(Void... voids) {
 
         QueryResult<LibraryBook> allBooks = libraryService.findAllByTitle(null);
         List<String> filesToDelete = new ArrayList<>();
@@ -66,11 +77,17 @@ public class CleanFilesTask extends QueueableAsyncTask<Void, Void, Void> {
             }
         }
 
-        return null;
+        return none();
     }
 
     @Override
-    protected void doOnPostExecute(Void aVoid) {
-        callback.booksDeleted(deletedFiles);
+    protected void doOnPostExecute(Option<Void> none)  {
+        if ( this.callback != null ) {
+            callback.booksDeleted(deletedFiles);
+        }
+    }
+
+    public void setCallback(DeleteBooksCallback callback) {
+        this.callback = callback;
     }
 }

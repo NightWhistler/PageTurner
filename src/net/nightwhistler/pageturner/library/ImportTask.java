@@ -22,6 +22,8 @@ package net.nightwhistler.pageturner.library;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import jedi.option.None;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
@@ -38,7 +40,7 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 	
 	private Context context;
 	private LibraryService libraryService;
-	private ImportCallback callBack;	
+	private ImportCallback callBack;
 	private Configuration config;
 	
 	private boolean copyToLibrary;
@@ -85,51 +87,54 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
     }
 
     @Override
-	protected Void doInBackground(File... params) {
+	protected Option<Void> doInBackground(File... params) {
 
+        doInBackground( params[0] );
+
+		return new None();
+	}
+
+    private void doInBackground(File parent) {
         /*
         Hack: don't run automated import on an empty database, since we explicitly ask
         the user to import.
          */
         if ( silent && libraryService.findAllByTitle(null).getSize() == 0 ) {
-            return null;
+            return;
         }
 
-		File parent = params[0];
-		
-		if ( ! parent.exists() ) {
-			importFailed = String.format( context.getString(R.string.no_such_folder), parent.getPath());			
-			return null;
-		}
+        if ( ! parent.exists() ) {
+            importFailed = String.format( context.getString(R.string.no_such_folder), parent.getPath());
+            return;
+        }
 
         this.emptyLibrary = this.libraryService.findAllByTitle(null).getSize() == 0;
-		
-		List<File> books = new ArrayList<File>();			
-		findEpubsInFolder(parent, books);
-		
-		int total = books.size();
-		int i = 0;			
-        
-		while ( i < books.size() && ! isCancelled() ) {
-			
-			File book = books.get(i);
-			
-			LOG.info("Importing: " + book.getAbsolutePath() );
-			try {
+
+        List<File> books = new ArrayList<>();
+        findEpubsInFolder(parent, books);
+
+        int total = books.size();
+        int i = 0;
+
+        while ( i < books.size() && ! isCancelled() ) {
+
+            File book = books.get(i);
+
+            LOG.info("Importing: " + book.getAbsolutePath() );
+            try {
                 if ( importBook( book ) ) {
                     booksImported++;
                 }
-			} catch (OutOfMemoryError oom ) {
-				errors.add(book.getName() + ": Out of memory.");
-				return null;
-			}
-			
-			i++;
-			publishProgress(UPDATE_IMPORT, i, total);
-		}
-		
-		return null;
-	}
+            } catch (OutOfMemoryError oom ) {
+                errors.add(book.getName() + ": Out of memory.");
+                return;
+            }
+
+            i++;
+            publishProgress(UPDATE_IMPORT, i, total);
+        }
+
+    }
 	
 	private void findEpubsInFolder( File folder, List<File> items) {
 		
@@ -233,12 +238,12 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 	}
 
     @Override
-    public void doOnCancelled(Void aVoid) {
+    public void doOnCancelled(Option<Void> none) {
         this.callBack.importCancelled( booksImported, errors, emptyLibrary, silent);
     }
 
     @Override
-    protected void doOnPostExecute(Void aVoid) {
+    protected void doOnPostExecute(Option<Void> none) {
 
         LOG.debug("Import task completed, imported " + booksImported  + " books.");
 

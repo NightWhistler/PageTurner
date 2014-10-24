@@ -18,6 +18,8 @@
  */
 package net.nightwhistler.pageturner.sync;
 
+import jedi.option.Option;
+
 import java.util.List;
 
 public interface ProgressService {
@@ -29,13 +31,13 @@ public interface ProgressService {
 	 * @param progress
 	 */
 	public void storeProgress( String fileName, int index, int progress, int percentage ) throws AccessException;
-	
+
 	/**
 	 * Returns the progress, or -1 of it wasn't found.
-	 * 
+	 *
 	 * @param fileName
 	 * @return
 	 */
-	public List<BookProgress> getProgress( String fileName ) throws AccessException;
+	public Option<List<BookProgress>> getProgress( String fileName ) throws AccessException;
 
 }

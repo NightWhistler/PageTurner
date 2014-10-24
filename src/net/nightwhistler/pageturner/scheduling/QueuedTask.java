@@ -20,6 +20,7 @@
 package net.nightwhistler.pageturner.scheduling;
 
 import android.os.AsyncTask;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.PlatformUtil;
 
 import static java.lang.Integer.toHexString;
@@ -40,7 +41,7 @@ public class QueuedTask<A, B, C> {
 
     private boolean executing = false;
 
-    public QueuedTask(QueueableAsyncTask<A,B,C> task, A[] params ) {
+    public QueuedTask(QueueableAsyncTask<A,B, C> task, A[] params ) {
         this.task = task;
         this.parameters = params;
     }
@@ -64,7 +65,7 @@ public class QueuedTask<A, B, C> {
         this.task.requestCancellation();
     }
 
-    public AsyncTask<A,B,C> getTask() {
+    public QueueableAsyncTask<A,B,C> getTask() {
         return task;
     }
 

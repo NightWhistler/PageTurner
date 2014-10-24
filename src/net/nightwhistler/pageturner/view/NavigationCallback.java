@@ -22,6 +22,12 @@ public class NavigationCallback {
         this.subtitle = subtitle;
     }
 
+    public NavigationCallback( String title, String subtitle, UiUtils.Action onClickAction ) {
+        this.title = title;
+        this.subtitle = subtitle;
+        this.onClickAction = onClickAction;
+    }
+
     public NavigationCallback setOnClick(UiUtils.Action onClickAction) {
         this.onClickAction = onClickAction;
         return this;

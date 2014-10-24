@@ -32,6 +32,7 @@ import android.view.View;
 
 import com.google.inject.Inject;
 
+import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.dto.HighLight;
@@ -42,6 +43,9 @@ import net.nightwhistler.pageturner.view.HighlightManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static jedi.option.Options.none;
+import static jedi.option.Options.some;
 
 
 public class FixedPagesStrategy implements PageChangeStrategy {
@@ -215,16 +219,19 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 			updatePageNumber();
 		}
 
-        CharSequence sequence = getTextForPage(this.pageNum);
+        CharSequence sequence = getTextForPage(this.pageNum).getOrElse( "" );
 
-        // #555 Remove \n at the end of sequence which get InnerView size changed
-        int endIndex = sequence.length();
-        while (sequence.charAt(endIndex-1) == '\n') {
-        	endIndex--;
+        if ( sequence.length() > 0 ) {
+
+            // #555 Remove \n at the end of sequence which get InnerView size changed
+            int endIndex = sequence.length();
+            while (sequence.charAt(endIndex - 1) == '\n') {
+                endIndex--;
+            }
+
+            sequence = sequence.subSequence(0, endIndex);
         }
-        
-        sequence = sequence.subSequence(0, endIndex);
-        
+
         try {
 		    this.childView.setText( sequence );
 
@@ -236,22 +243,22 @@ public class FixedPagesStrategy implements PageChangeStrategy {
         }
 	}
 	
-	private CharSequence getTextForPage( int page ) {
+	private Option<CharSequence> getTextForPage( int page ) {
 		
 		if ( pageOffsets.size() < 1 || page < 0 ) {
-			return null;
+			return none();
 		} else if ( page >= pageOffsets.size() -1 ) {
             int startOffset = pageOffsets.get(pageOffsets.size() -1);
 
             if ( startOffset >= 0 && startOffset <= text.length() -1 ) {
-			    return applySpans( this.text.subSequence(startOffset, text.length() ), startOffset );
+			    return some(applySpans(this.text.subSequence(startOffset, text.length()), startOffset));
             } else {
-                return applySpans(text, 0);
+                return some(applySpans(text, 0));
             }
 		} else {
 			int start = this.pageOffsets.get(page);
 			int end = this.pageOffsets.get(page +1 );
-			return applySpans( this.text.subSequence(start, end), start );
+			return some(applySpans( this.text.subSequence(start, end), start ));
 		}	
 	}
 
@@ -329,18 +336,19 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	}
 	
 	@Override
-	public CharSequence getNextPageText() {
-		if ( isAtEnd() ) {
-			return null;
+	public Option<CharSequence> getNextPageText() {
+
+        if ( isAtEnd() ) {
+			return none();
 		}
 		
 		return getTextForPage( this.pageNum + 1);
 	}
 	
 	@Override
-	public CharSequence getPreviousPageText() {
+	public Option<CharSequence> getPreviousPageText() {
 		if ( isAtStart() ) {
-			return null;
+			return none();
 		}
 		
 		return getTextForPage( this.pageNum - 1);

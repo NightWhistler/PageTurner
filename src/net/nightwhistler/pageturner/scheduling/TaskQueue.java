@@ -1,8 +1,12 @@
 package net.nightwhistler.pageturner.scheduling;
 
 import android.util.Log;
+import jedi.option.Option;
 
 import java.util.LinkedList;
+
+import static jedi.option.Options.none;
+import static jedi.option.Options.some;
 
 /**
  * Generic task scheduling queue.
@@ -110,14 +114,14 @@ public class TaskQueue {
         return builder.toString();
     }
 
-    private QueuedTask<?,?,?> findQueuedTaskFor( QueueableAsyncTask<?,?,?> task ) {
+    private Option<QueuedTask<?,?,?>> findQueuedTaskFor( QueueableAsyncTask<?,?,?> task ) {
         for ( QueuedTask<?,?,?> wrapper: this.taskQueue ) {
             if ( wrapper.getTask() == task ) {
-                return wrapper;
+                return some(wrapper);
             }
         }
 
-        return null;
+        return none();
     }
 
     public void taskCompleted(QueueableAsyncTask<?, ?, ?> task, boolean wasCancelled) {
@@ -140,11 +144,7 @@ public class TaskQueue {
         } else {
             Log.d("TaskQueue", "Got taskCompleted for task " + task + " which was cancelled.");
 
-            QueuedTask<?,?,?> wrapper = findQueuedTaskFor( task );
-
-            if ( wrapper != null ) {
-                this.taskQueue.remove( wrapper );
-            }
+            findQueuedTaskFor( task ).forEach( this.taskQueue::remove );
         }
 
         Log.d("TaskQueue", "Total tasks scheduled now: " + this.taskQueue.size()

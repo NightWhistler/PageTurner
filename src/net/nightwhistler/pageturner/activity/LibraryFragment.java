@@ -69,6 +69,8 @@ import java.util.*;
 import static java.lang.Character.toUpperCase;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
+import static jedi.option.Options.some;
+import static net.nightwhistler.ui.UiUtils.onActionExpandListener;
 import static net.nightwhistler.ui.UiUtils.onMenuPress;
 import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
 
@@ -98,6 +100,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	@InjectView(R.id.libHolder)
 	private ViewSwitcher switcher;
+
+    @Inject
+    private Context context;
 	
 	@Inject
 	private Configuration config;
@@ -205,9 +210,9 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		actionBar.setListNavigationCallbacks(adapter, this::onNavigationItemSelected );
 
         refreshView();
-        executeTask(new CleanFilesTask(this, libraryService));
+        executeTask(new CleanFilesTask(libraryService, this::booksDeleted) );
         executeTask(new ImportTask(getActivity(), libraryService, this, config, config.isCopyToLibrayEnabled(),
-                true), new File(config.getLibraryFolder()) );
+                true), new File(config.getLibraryFolder()));
 	}
 
     private <A,B,C> void executeTask( QueueableAsyncTask<A,B,C> task, A... parameters ) {
@@ -407,18 +412,10 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
                 searchView.setOnQueryTextListener( UiUtils.onQuery( this::performSearch ));
 
-                searchMenuItem.setOnActionExpandListener( new MenuItem.OnActionExpandListener() {
-                    @Override
-                    public boolean onMenuItemActionExpand(MenuItem item) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onMenuItemActionCollapse(MenuItem item) {
-                        performSearch(""); //reset the search
-                        return true;
-                    }
-                });
+                searchMenuItem.setOnActionExpandListener( onActionExpandListener(
+                        () ->{},
+                        () -> performSearch("")
+                ));
 
             } else {
                 searchMenuItem.setOnMenuItemClickListener( item -> {
@@ -455,7 +452,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
                 getActivity().startActivityIfNeeded(readingIntent, 99);
             }
-
         };
 
         try {
@@ -792,8 +788,11 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         loadView(config.getLastLibraryQuery(), "refreshView()");
     }
 
-    @Override
-    public void booksDeleted(int numberOfDeletedBooks) {
+    /**
+     * Called after books have been deleted.
+     * @param numberOfDeletedBooks
+     */
+    private void booksDeleted(int numberOfDeletedBooks) {
 
         LOG.debug("Got " + numberOfDeletedBooks + " deleted books.");
 
@@ -1053,7 +1052,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		}
 	}
 
-    private void loadQueryData(QueryResult<LibraryBook> result ) {
+    private void loadQueryData( QueryResult<LibraryBook> result ) {
         if ( !isAdded() || getActivity() == null ) {
             return;
         }
@@ -1104,7 +1103,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		}
 		
 		@Override
-		protected QueryResult<LibraryBook> doInBackground(String... params) {
+		protected Option<QueryResult<LibraryBook>> doInBackground(String... params) {
 			
 			Exception storedException = null;
 
@@ -1116,15 +1115,15 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
 					switch ( sel ) {			
 					case LAST_ADDED:
-						return libraryService.findAllByLastAdded(query);
+						return some(libraryService.findAllByLastAdded(query));
 					case UNREAD:
-						return libraryService.findUnread(query);
+						return some(libraryService.findUnread(query));
 					case BY_TITLE:
-						return libraryService.findAllByTitle(query);
+						return some(libraryService.findAllByTitle(query));
 					case BY_AUTHOR:
-						return libraryService.findAllByAuthor(query);
+						return some(libraryService.findAllByAuthor(query));
 					default:
-						return libraryService.findAllByLastRead(query);
+						return some(libraryService.findAllByLastRead(query));
 					}
 				} catch (SQLiteException sql) {
 					storedException = sql;
@@ -1135,18 +1134,25 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				}				
 			}
 			
-			throw new RuntimeException( "Failed after 3 attempts", storedException ); 
+			LOG.error( "Failed after 3 attempts", storedException );
+            return none();
 		}
 
         @Override
-        protected void doOnPostExecute(QueryResult<LibraryBook> result) {
-			 loadQueryData(result);
+        protected void doOnPostExecute(Option<QueryResult<LibraryBook>> result) {
 
-            if (filter == null && sel == Configuration.LibrarySelection.LAST_ADDED && result.getSize() == 0 && ! askedUserToImport ) {
-                askedUserToImport = true;
-                buildImportQuestionDialog();
-                importQuestion.show();
-            }
+            result.match( r -> {
+
+                loadQueryData(r);
+
+                if (filter == null && sel == Configuration.LibrarySelection.LAST_ADDED && r.getSize() == 0 && ! askedUserToImport ) {
+                    askedUserToImport = true;
+                    buildImportQuestionDialog();
+                    importQuestion.show();
+                }
+            }, () -> Toast.makeText( context, "Could not load library data.", Toast.LENGTH_SHORT ).show() );
+            //FIXME: Not internationalized text
+
 		}
 		
 	}

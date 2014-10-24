@@ -1,12 +1,14 @@
 package net.nightwhistler.pageturner.view.bookview;
 
 import android.text.Spannable;
+import jedi.option.None;
 import jedi.option.Option;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import nl.siegmann.epublib.domain.Resource;
 
 import static jedi.functional.FunctionalPrimitives.isEmpty;
+import static jedi.option.Options.none;
 
 /**
  * Created by alex on 10/14/14.
@@ -23,10 +25,15 @@ public class PreLoadTask extends
     }
 
     @Override
-    protected Void doInBackground(Void... voids) {
+    protected Option<Void> doInBackground(Void... voids) {
+        doInBackground();
 
+        return none();
+    }
+
+    private void doInBackground() {
         if ( spine == null ) {
-            return null;
+            return;
         }
 
         Option<Resource> resource = spine.getNextResource();
@@ -42,10 +49,7 @@ public class PreLoadTask extends
                 }
             }
         });
-
-        return null;
     }
-
 }
 
 

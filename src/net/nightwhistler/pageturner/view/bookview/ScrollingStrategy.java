@@ -19,7 +19,6 @@
 package net.nightwhistler.pageturner.view.bookview;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.Layout;
 import android.text.Layout.Alignment;
@@ -27,18 +26,20 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AlignmentSpan;
-import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.view.View;
 import android.widget.TextView;
 import com.google.inject.Inject;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.epub.PageTurnerSpine;
 import net.nightwhistler.pageturner.view.HighlightManager;
 
 import java.util.List;
+
+import static jedi.option.Options.none;
 
 
 public class ScrollingStrategy implements PageChangeStrategy {
@@ -64,14 +65,10 @@ public class ScrollingStrategy implements PageChangeStrategy {
 	}
 	
 	@Override
-	public Spanned getNextPageText() {		
-		return null;
-	}
+	public Option<CharSequence> getNextPageText() { return none(); }
 	
 	@Override
-	public Spanned getPreviousPageText() {		
-		return null;
-	}
+	public Option<CharSequence> getPreviousPageText() { return none(); }
 	
 	@Override
 	public int getTopLeftPosition() {
@@ -119,9 +116,7 @@ public class ScrollingStrategy implements PageChangeStrategy {
 
         try {
             childView.setText(this.text);
-        } catch ( ArrayIndexOutOfBoundsException a ) {
-            this.childView.setText( this.text.toString() );
-        } catch ( IndexOutOfBoundsException ie ) {
+        } catch ( IndexOutOfBoundsException i ) {
             this.childView.setText( this.text.toString() );
         }
 
@@ -299,8 +294,7 @@ public class ScrollingStrategy implements PageChangeStrategy {
 		int currentLine = layout.getLineForVertical(ypos);
 		
 		if ( currentLine > 0 ) {
-			int height = layout.getLineBottom(currentLine -1);
-			return height;
+			return layout.getLineBottom(currentLine -1);
 		} else {
 			return 0;
 		}		

@@ -20,6 +20,7 @@ package net.nightwhistler.pageturner.sync;
 
 import android.content.Context;
 import com.google.inject.Inject;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -45,6 +46,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static jedi.option.Options.none;
+import static jedi.option.Options.some;
 
 
 @ContextSingleton
@@ -75,14 +79,14 @@ public class PageTurnerWebProgressService implements ProgressService {
     }
 
 	@Override
-	public List<BookProgress> getProgress(String fileName) throws AccessException {
+	public Option<List<BookProgress>> getProgress(String fileName) throws AccessException {
 		
 		String userId = this.config.getSynchronizationEmail();
 		String accessKey = this.config.getSynchronizationAccessKey();
 		
 		if ( "".equals( userId ) || "".equals(fileName) ) {
 			LOG.debug( "Empty username or filename. Aborting sync. (" + userId + " / " + fileName + ")" );
-			return null;
+			return none();
 		}
 		
 		String key = computeKey(fileName);
@@ -103,11 +107,11 @@ public class PageTurnerWebProgressService implements ProgressService {
 			}
 
             if ( statusCode == HTTP_NOT_FOUND ) {
-                return new ArrayList<>();
+                return some(new ArrayList<>());
             }
 			
 			if ( statusCode != HTTP_SUCCESS ) {
-				return null;
+				return none();
 			}
 			
 			String responseString = EntityUtils.toString(response.getEntity());
@@ -131,22 +135,19 @@ public class PageTurnerWebProgressService implements ProgressService {
 				result.add( new BookProgress(fileName, index, progress, percentage, timeStamp, deviceName ) );
 			}
 			
-			return result;
+			return some(result);
 			
 		} catch (IOException e) {
 			LOG.error( "Got error while querying server", e );
-			return null;
 		} catch (JSONException json ) {
 			LOG.error( "Error reading response", json );
-			return null;
 		} catch (ParseException p ) {
 			LOG.error( "Invalid date", p );
-			return null;
 		} catch ( IllegalStateException s ) {
             LOG.error( "Tried query in illegal state", s );
-            return null;
         }
-		
+
+        return none();
 	}
 	
 	@Override

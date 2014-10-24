@@ -44,7 +44,7 @@ import static jedi.functional.FunctionalPrimitives.isEmpty;
 import static jedi.option.Options.none;
 import static jedi.option.Options.some;
 
-public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Option<Feed>> {
+public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger("LoadOPDSTask");
 

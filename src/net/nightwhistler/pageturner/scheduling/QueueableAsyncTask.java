@@ -22,8 +22,10 @@ package net.nightwhistler.pageturner.scheduling;
 import android.os.AsyncTask;
 import jedi.functional.Command;
 import jedi.functional.Functor;
+import jedi.option.Option;
 
 import static java.lang.Integer.toHexString;
+import static jedi.option.Options.none;
 
 /**
  * Subclass of AsyncTask which notifies the scheduler when it's done.
@@ -32,16 +34,16 @@ import static java.lang.Integer.toHexString;
  * @param <Progress>
  * @param <Result>
  */
-public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
+public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Option<Result>> {
 
     public static interface QueueCallback {
         void taskCompleted( QueueableAsyncTask<?,?,?> task, boolean wasCancelled );
     }
 
-    private Command<Result> onPostExecuteOperation;
-    private Command<Result> onCancelledOperation;
+    private Command<Option<Result>> onPostExecuteOperation;
+    private Command<Option<Result>> onCancelledOperation;
 
-    private Functor<Params[], Result> doInBackgroundFunction;
+    private Functor<Params[], Option<Result>> doInBackgroundFunction;
 
     private QueueCallback callback;
 
@@ -55,7 +57,7 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
      * @param result
      */
     @Override
-    protected final void onPostExecute(Result result) {
+    protected final void onPostExecute(Option<Result> result) {
         if ( callback != null ) {
             callback.taskCompleted( this, this.cancelRequested );
         }
@@ -78,7 +80,7 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
     }
 
     @Override
-    protected final void onCancelled(Result result) {
+    protected final void onCancelled(Option<Result> result) {
         if ( callback != null ) {
             callback.taskCompleted( this, this.cancelRequested );
         }
@@ -91,7 +93,7 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
         onCancelled(null);
     }
 
-    public void doOnCancelled(Result result) {
+    public void doOnCancelled(Option<Result> result) {
         if ( this.onCancelledOperation != null ) {
             this.onCancelledOperation.execute(result);
         }
@@ -108,19 +110,19 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
      *
      * @param result
      */
-    protected void doOnPostExecute(Result result) {
+    protected void doOnPostExecute(Option<Result> result) {
         if ( this.onPostExecuteOperation != null ) {
             this.onPostExecuteOperation.execute(result);
         }
     }
 
     @Override
-    protected Result doInBackground(Params... paramses) {
+    protected Option<Result> doInBackground(Params... paramses) {
         if ( this.doInBackgroundFunction != null ) {
             return this.doInBackgroundFunction.execute( paramses );
         }
 
-        return null;
+        return none();
     }
 
     @Override
@@ -134,17 +136,17 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
      * @param onCancelledOperation
      * @return this object
      */
-    public QueueableAsyncTask setOnCancelled(Command<Result> onCancelledOperation) {
+    public QueueableAsyncTask setOnCancelled(Command<Option<Result>> onCancelledOperation) {
         this.onCancelledOperation = onCancelledOperation;
         return this;
     }
 
-    public QueueableAsyncTask setOnPostExecute(Command<Result> onPostExecuteOperation) {
+    public QueueableAsyncTask setOnPostExecute(Command<Option<Result>> onPostExecuteOperation) {
         this.onPostExecuteOperation = onPostExecuteOperation;
         return this;
     }
 
-    public QueueableAsyncTask setDoInBackgroundFunction(Functor<Params[], Result> doInBackgroundFunction) {
+    public QueueableAsyncTask setDoInBackgroundFunction(Functor<Params[], Option<Result>> doInBackgroundFunction) {
         this.doInBackgroundFunction = doInBackgroundFunction;
         return this;
     }

@@ -37,5 +37,4 @@ public interface LoadFeedCallback {
 
     void onLoadingStart();
 
-    void onLoadingDone();
 }

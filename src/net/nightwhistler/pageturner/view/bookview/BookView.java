@@ -83,10 +83,11 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.Arrays.asList;
 import static jedi.functional.FunctionalPrimitives.*;
 import static jedi.option.Options.*;
 
-public class BookView extends ScrollView {
+public class BookView extends ScrollView implements TextSelectionActions.SelectedTextProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger("BookView");
 
@@ -259,7 +260,7 @@ public class BookView extends ScrollView {
 
         int offset = offsetOption.getOrElse(0);
 
-        return Arrays.asList( ((Spanned) text).getSpans(offset, offset, spanClass));
+        return asList( ((Spanned) text).getSpans(offset, offset, spanClass));
     }
 
     /**
@@ -343,10 +344,6 @@ public class BookView extends ScrollView {
 		}
 	}
 
-	public int getHorizontalMargin() {
-		return horizontalMargin;
-	}
-
 	public int getVerticalMargin() {
 		return verticalMargin;
 	}
@@ -359,9 +356,17 @@ public class BookView extends ScrollView {
 		return childView.getSelectionEnd();
 	}
 
-	public String getSelectedText() {
-		return childView.getText()
-				.subSequence(getSelectionStart(), getSelectionEnd()).toString();
+	public Option<String> getSelectedText() {
+
+        int start = getSelectionStart();
+        int end = getSelectionEnd();
+
+        if ( start > 0 && end > 0 && end > start ) {
+            return some(childView.getText()
+                    .subSequence(getSelectionStart(), getSelectionEnd()).toString());
+        } else {
+            return none();
+        }
 	}
 
 	public void goBackInHistory() {
@@ -1398,12 +1403,12 @@ public class BookView extends ScrollView {
         private String error;
 
         @Override
-        protected void onPreExecute() {
+        public void doOnPreExecute() {
             fireOpenFile();
         }
 
         @Override
-        protected Option<Book> doInBackground(None... args) {
+        public Option<Book> doInBackground(None... args) {
             try {
                 return some(initBookAndSpine());
             } catch ( IOException io ) {
@@ -1416,11 +1421,11 @@ public class BookView extends ScrollView {
         }
 
         @Override
-        protected void doOnPostExecute(Option<Book> book) {
+        public void doOnPostExecute(Option<Book> book) {
 
             book.match(
-                    BookView.this::bookOpened,
-                    () -> errorOnBookOpening( this.error)
+                    BookView.this::bookOpened, //some
+                    () -> errorOnBookOpening( this.error) //none
             );
         }
     }
@@ -1440,11 +1445,7 @@ public class BookView extends ScrollView {
 			this.searchTerm = searchTerm;
 		}
 
-		@Override
-		protected void onPreExecute() {
-		}
-
-        protected Option<Spanned> doInBackground(Resource... resources) {
+        public Option<Spanned> doInBackground(Resource... resources) {
 
             publishProgress(BookReadPhase.START);
 
@@ -1528,7 +1529,7 @@ public class BookView extends ScrollView {
 		}
 
         @Override
-        protected void doOnPostExecute(Option<Spanned> result) {
+        public void doOnPostExecute(Option<Spanned> result) {
 
 			restorePosition();
 			strategy.updateGUI();
@@ -1550,14 +1551,14 @@ public class BookView extends ScrollView {
 			QueueableAsyncTask<Object, Void, List<List<Integer>>> {
 
         @Override
-        protected void onPreExecute() {
+        public void doOnPreExecute() {
             for ( BookViewListener listener: listeners ) {
                 listener.onStartCalculatePageNumbers();
             }
         }
 
         @Override
-		protected Option<List<List<Integer>>> doInBackground(Object... params) {
+		public Option<List<List<Integer>>> doInBackground(Object... params) {
 
             if ( ! needsPageNumberCalculation() ) {
                 return none();
@@ -1566,7 +1567,7 @@ public class BookView extends ScrollView {
 			try {
 
 				Option<List<List<Integer>>> offsets = getOffsets();
-                offsets.forEach( o -> configuration.setPageOffsets( fileName, o) );
+                offsets.forEach(o -> configuration.setPageOffsets(fileName, o));
 
                 LOG.debug("Calculated offsets: " + offsets );
 				return offsets;
@@ -1695,7 +1696,7 @@ public class BookView extends ScrollView {
                     return none();
                 }
 
-                result.add( offsets.getOrElse( new ArrayList<Integer>() ) );
+                result.add( offsets.getOrElse( new ArrayList<>() ) );
             }
 
             return some(result);
@@ -1720,7 +1721,7 @@ public class BookView extends ScrollView {
         }
 
         @Override
-        protected void doOnPostExecute(Option<List<List<Integer>>> result) {
+        public void doOnPostExecute(Option<List<List<Integer>>> result) {
 
             LOG.debug("Pagenumber calculation completed.");
 

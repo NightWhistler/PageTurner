@@ -25,7 +25,7 @@ public class PreLoadTask extends
     }
 
     @Override
-    protected Option<Void> doInBackground(Void... voids) {
+    public Option<Void> doInBackground(Void... voids) {
         doInBackground();
 
         return none();

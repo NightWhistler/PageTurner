@@ -1093,17 +1093,16 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             this(selection);
             this.filter = filter;
         }
-		
-		@Override
-		protected void onPreExecute() {
 
+        @Override
+        public void doOnPreExecute() {
             if ( this.filter == null )  {
 			    coverCache.clear();
             }
 		}
 		
 		@Override
-		protected Option<QueryResult<LibraryBook>> doInBackground(String... params) {
+		public Option<QueryResult<LibraryBook>> doInBackground(String... params) {
 			
 			Exception storedException = null;
 
@@ -1139,18 +1138,18 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		}
 
         @Override
-        protected void doOnPostExecute(Option<QueryResult<LibraryBook>> result) {
+        public void doOnPostExecute(Option<QueryResult<LibraryBook>> result) {
 
-            result.match( r -> {
+            result.match(r -> {
 
                 loadQueryData(r);
 
-                if (filter == null && sel == Configuration.LibrarySelection.LAST_ADDED && r.getSize() == 0 && ! askedUserToImport ) {
+                if (filter == null && sel == Configuration.LibrarySelection.LAST_ADDED && r.getSize() == 0 && !askedUserToImport) {
                     askedUserToImport = true;
                     buildImportQuestionDialog();
                     importQuestion.show();
                 }
-            }, () -> Toast.makeText( context, "Could not load library data.", Toast.LENGTH_SHORT ).show() );
+            }, () -> Toast.makeText(context, "Could not load library data.", Toast.LENGTH_SHORT).show());
             //FIXME: Not internationalized text
 
 		}

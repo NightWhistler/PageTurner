@@ -54,7 +54,7 @@ public class CleanFilesTask extends QueueableAsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Option<Void> doInBackground(Void... voids) {
+    public Option<Void> doInBackground(Void... voids) {
 
         QueryResult<LibraryBook> allBooks = libraryService.findAllByTitle(null);
         List<String> filesToDelete = new ArrayList<>();
@@ -81,7 +81,7 @@ public class CleanFilesTask extends QueueableAsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected void doOnPostExecute(Option<Void> none)  {
+    public void doOnPostExecute(Option<Void> none)  {
         if ( this.callback != null ) {
             callback.booksDeleted(deletedFiles);
         }

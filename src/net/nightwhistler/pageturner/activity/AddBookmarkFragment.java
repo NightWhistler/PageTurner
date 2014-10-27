@@ -52,15 +52,6 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
     private static final Logger LOG = LoggerFactory
             .getLogger(AddBookmarkFragment.class);
 
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public void setBookmarkDatabaseHelper(BookmarkDatabaseHelper bookmarkDatabaseHelper) {
-        this.bookmarkDatabaseHelper = bookmarkDatabaseHelper;
-    }
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -71,8 +62,14 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
         this.inputField = (EditText) view.findViewById(R.id.bookmark_name);
         this.inputField.setText(this.initialText);
 
-        AddBookmarkHandler handler = new AddBookmarkHandler();
-        inputField.setOnEditorActionListener(handler);
+        inputField.setOnEditorActionListener( (v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                handleAction();
+                return true;
+            } else {
+                return false;
+            }
+        });
 
         return new AlertDialog.Builder(
                 getActivity())
@@ -81,6 +78,14 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
                 .setPositiveButton(R.string.add, (dialog, which) -> handleAction() )
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public void setBookmarkDatabaseHelper(BookmarkDatabaseHelper bookmarkDatabaseHelper) {
+        this.bookmarkDatabaseHelper = bookmarkDatabaseHelper;
     }
 
     public void setBookPosition(int bookPosition) {
@@ -105,20 +110,6 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
         bookmarkDatabaseHelper.addBookmark(
                 new Bookmark( filename, inputField.getText().toString(),
                         bookIndex, bookPosition));
-    }
-
-    private class AddBookmarkHandler
-            implements TextView.OnEditorActionListener {
-
-        @Override
-        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                handleAction();
-                return true;
-            }
-            return false;
-        }
-
     }
 
 }

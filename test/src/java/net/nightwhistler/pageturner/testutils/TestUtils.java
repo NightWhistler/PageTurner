@@ -1,4 +1,4 @@
-package net.nightwhistler.pageturner.activity;
+package net.nightwhistler.pageturner.testutils;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;

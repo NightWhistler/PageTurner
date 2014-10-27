@@ -23,6 +23,7 @@ import android.os.AsyncTask;
 import jedi.functional.Command;
 import jedi.functional.Functor;
 import jedi.option.Option;
+import net.nightwhistler.ui.UiUtils;
 
 import static java.lang.Integer.toHexString;
 import static jedi.option.Options.none;
@@ -40,6 +41,7 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
         void taskCompleted( QueueableAsyncTask<?,?,?> task, boolean wasCancelled );
     }
 
+    private UiUtils.Action onPreExectionOperation;
     private Command<Option<Result>> onPostExecuteOperation;
     private Command<Option<Result>> onCancelledOperation;
 
@@ -48,6 +50,21 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
     private QueueCallback callback;
 
     private boolean cancelRequested = false;
+
+    @Override
+    protected final void onPreExecute() {
+        this.doOnPreExecute();
+    }
+
+    /**
+     * Called before execution.
+     *
+     */
+    public void doOnPreExecute() {
+        if ( this.onPostExecuteOperation != null ) {
+            this.onPreExectionOperation.perform();
+        }
+    }
 
     /**
      * Overridden and made final to implement notification.
@@ -110,14 +127,14 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
      *
      * @param result
      */
-    protected void doOnPostExecute(Option<Result> result) {
+    public void doOnPostExecute(Option<Result> result) {
         if ( this.onPostExecuteOperation != null ) {
             this.onPostExecuteOperation.execute(result);
         }
     }
 
     @Override
-    protected Option<Result> doInBackground(Params... paramses) {
+    public Option<Result> doInBackground(Params... paramses) {
         if ( this.doInBackgroundFunction != null ) {
             return this.doInBackgroundFunction.execute( paramses );
         }
@@ -146,8 +163,12 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
         return this;
     }
 
-    public QueueableAsyncTask setDoInBackgroundFunction(Functor<Params[], Option<Result>> doInBackgroundFunction) {
+    public QueueableAsyncTask setDoInBackground(Functor<Params[], Option<Result>> doInBackgroundFunction) {
         this.doInBackgroundFunction = doInBackgroundFunction;
         return this;
+    }
+
+    public void setOnPreExecte(UiUtils.Action onPreExectionOperation) {
+        this.onPreExectionOperation = onPreExectionOperation;
     }
 }

@@ -114,7 +114,6 @@ idea {
     }
 }
 
-
 android {
     buildToolsVersion "19.1.0"
     compileSdkVersion 19
@@ -143,6 +142,11 @@ android {
 
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
+        }
+
+        testLocal {
+            java.srcDir file('test/src/java')
+            resources.srcDir file('src/test/resources')
         }
 
        androidTest {
@@ -182,7 +186,6 @@ android {
 }
 
 robolectric {
-
     include '**/*Test.class'
     exclude '**/espresso/**/*.class'
 }

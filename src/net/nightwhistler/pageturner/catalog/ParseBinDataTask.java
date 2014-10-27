@@ -21,39 +21,36 @@ package net.nightwhistler.pageturner.catalog;
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Base64;
-import jedi.option.None;
 import jedi.option.Option;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 
-import static jedi.option.Options.none;
+import static jedi.option.Options.some;
 
 /**
  * Loads images for links that have the image-data embedded as Base64 data.
  */
 @TargetApi(Build.VERSION_CODES.FROYO)
-public class ParseBinDataTask extends QueueableAsyncTask<Link, Void, Void> {
+public class ParseBinDataTask extends QueueableAsyncTask<Link, Void, FastBitmapDrawable> {
 
     private LoadFeedCallback callBack;
 
     private Link imageLink;
-    private Drawable drawable;
 
     public void setLoadFeedCallback( LoadFeedCallback callBack ) {
         this.callBack = callBack;
     }
 
     @Override
-    protected void onPreExecute() {
+    public void doOnPreExecute() {
         this.callBack.onLoadingStart();
     }
 
     @Override
-    protected Option<Void> doInBackground(Link... links) {
+    public Option<FastBitmapDrawable> doInBackground(Link... links) {
 
         this.imageLink = links[0];
         String href = imageLink.getHref();
@@ -63,13 +60,12 @@ public class ParseBinDataTask extends QueueableAsyncTask<Link, Void, Void> {
 
         Bitmap bitmap = BitmapFactory.decodeByteArray( data, 0, data.length );
 
-        this.drawable = new FastBitmapDrawable(bitmap);
-
-        return none();
+        return some( new FastBitmapDrawable(bitmap) );
     }
 
     @Override
-    protected void doOnPostExecute(Option<Void> none) {
-        callBack.notifyLinkUpdated(imageLink, drawable);
+    public void doOnPostExecute(Option<FastBitmapDrawable> result) {
+        result.forEach( r -> callBack.notifyLinkUpdated(imageLink, r) );
     }
+
 }

@@ -68,8 +68,8 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 		this.httpClient = httpClient;
 	}
 
-	@Override
-	protected void onPreExecute() {
+    @Override
+    public void doOnPreExecute() {
         callBack.onLoadingStart();
 	}
 
@@ -80,7 +80,7 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
     }
 
     @Override
-	protected Option<Feed> doInBackground(String... params) {
+	public Option<Feed> doInBackground(String... params) {
 
 		String baseUrl = params[0];
 
@@ -200,7 +200,7 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
     }
 
     @Override
-    protected void doOnPostExecute(Option<Feed> result) {
+    public void doOnPostExecute(Option<Feed> result) {
 
         result.match( f -> {
             if ( f.getSize() == 0 ) {

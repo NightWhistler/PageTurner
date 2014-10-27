@@ -176,7 +176,6 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
 
         CatalogFragment newCatalogFragment = fragmentProvider.get();
 
-
         Feed customSites = new Feed();
         customSites.setURL(Catalog.CUSTOM_SITES_ID);
         customSites.setTitle(getString(R.string.custom_site));

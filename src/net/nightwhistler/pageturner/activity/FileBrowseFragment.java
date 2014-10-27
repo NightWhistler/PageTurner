@@ -62,11 +62,12 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 			file = new File("/");
 		}
 		
-		this.adapter = new FileAdapter();
+		this.adapter = new FileAdapter(this.getActivity());
+        this.adapter.setItemSelectionListener( this::returnFile );
+
 		adapter.setFolder(file);
 		getActivity().setTitle(adapter.getCurrentFolder());
 	}
-	
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -74,16 +75,14 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 		setListAdapter(adapter);
 	}
 
-
-
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		FileItem fileItem = this.adapter.getItem(position);
 
-        if ( fileItem.importOnClick ) {
-            returnFile(fileItem.file);
-        } else if ( fileItem.file.isDirectory() && fileItem.file.exists() ) {
-            this.adapter.setFolder(fileItem.file);
+        if ( fileItem.isImportOnClick() ) {
+            returnFile(fileItem.getFile());
+        } else if ( fileItem.getFile().isDirectory() && fileItem.getFile().exists() ) {
+            this.adapter.setFolder(fileItem.getFile());
             getActivity().setTitle(adapter.getCurrentFolder());
         }
 
@@ -96,124 +95,4 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
         getActivity().finish();
     }
 
-	private class FileAdapter extends BaseAdapter {
-		
-		private File currentFolder;
-		private List<FileItem> items = new ArrayList<>();
-		
-		public void setFolder( File folder ) {
-			
-			this.currentFolder = folder;
-			items = new ArrayList<>();
-			File[] listing = folder.listFiles();
-			
-			if ( listing != null ) {
-				for ( File childFile: listing ) {					
-					if ( childFile.isDirectory() || childFile.getName().toLowerCase(Locale.US).endsWith(".epub")) {
-						items.add(new FileItem(childFile.getName(), childFile, ! childFile.isDirectory() ));
-					}
-				}
-			}
-			
-			Collections.sort(items, new FileSorter() );
-
-            items.add( 0, new FileItem( "[" + getString(R.string.import_this) + "]", folder, true));
-
-			if ( folder.getParentFile() != null ) {
-				items.add(0, new FileItem( "[..]", folder.getParentFile(), false ));
-			}
-			
-			notifyDataSetChanged();
-		}
-		
-		public String getCurrentFolder() {
-			return this.currentFolder.getAbsolutePath();
-		}
-		
-		@Override
-		public int getCount() {
-			return items.size();
-		}
-		
-		@Override
-		public FileItem getItem(int position) {
-			return items.get(position);
-		}
-		
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-		
-		@Override
-		public View getView(final int position, View convertView, ViewGroup parent) {
-			View rowView;		
-			final FileItem fileItem = getItem(position);
-
-            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-						
-			if ( convertView == null ) {				
-				rowView = inflater.inflate(R.layout.folder_line, parent, false);
-			} else {
-				rowView = convertView;
-			}
-			
-			ImageView img = (ImageView) rowView.findViewById(R.id.folderIcon);
-			CheckBox selectBox = (CheckBox) rowView.findViewById(R.id.selectBox);
-
-            if ( fileItem.file.isDirectory() ) {
-			    img.setImageDrawable(getResources().getDrawable(R.drawable.folder));
-			    selectBox.setVisibility(View.VISIBLE);
-            } else {
-                img.setImageDrawable(getResources().getDrawable(R.drawable.file));
-                selectBox.setVisibility(View.GONE);
-            }
-
-            selectBox.setOnCheckedChangeListener( (buttonView, isChecked) -> {
-                if ( isChecked ) { returnFile( fileItem.file );  }
-            });
-
-			selectBox.setFocusable(false);
-			
-			TextView label = (TextView) rowView.findViewById(R.id.folderName);
-
-			label.setText( fileItem.label );
-			
-			return rowView;
-		}
-		
-	}
-
-    private static class FileItem {
-
-        private CharSequence label;
-        private File file;
-
-        private boolean importOnClick;
-
-        public FileItem( CharSequence label, File file, boolean importOnClick ) {
-            this.label = label;
-            this.file = file;
-            this.importOnClick = importOnClick;
-        }
-    }
-	
-	private static class FileSorter implements Comparator<FileItem> {
-		@Override
-		public int compare(FileItem lhs, FileItem rhs) {
-			
-			if ( (lhs.file.isDirectory() && rhs.file.isDirectory()) ||
-					(!lhs.file.isDirectory() && !rhs.file.isDirectory())) {
-				return lhs.file.getName().compareTo(rhs.file.getName());
-			}
-			
-			if ( lhs.file.isDirectory() ) {
-				return -1;
-			} else {
-				return 1;
-			}
-						
-		}
-	}
-	
 }

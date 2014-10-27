@@ -110,15 +110,11 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
         DisplayMetrics metrics = metricsProvider.get();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        this.taskQueue.setTaskQueueListener( this::onTaskQueueEmpty);
+        this.taskQueue.setTaskQueueListener( this::onLoadingDone );
 	}
 
     public void setBaseURL(  String baseURL ) {
         this.baseURL = baseURL;
-    }
-
-    private void onTaskQueueEmpty() {
-        onLoadingDone();
     }
 
     @Override

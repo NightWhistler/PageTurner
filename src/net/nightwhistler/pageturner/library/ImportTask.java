@@ -87,7 +87,7 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
     }
 
     @Override
-	protected Option<Void> doInBackground(File... params) {
+	public Option<Void> doInBackground(File... params) {
 
         doInBackground( params[0] );
 
@@ -243,7 +243,7 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
     }
 
     @Override
-    protected void doOnPostExecute(Option<Void> none) {
+    public void doOnPostExecute(Option<Void> none) {
 
         LOG.debug("Import task completed, imported " + booksImported  + " books.");
 

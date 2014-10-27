@@ -25,6 +25,7 @@ import jedi.option.None;
 import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.library.LibraryService;
+import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 import org.apache.http.HttpResponse;
@@ -42,7 +43,7 @@ import java.nio.charset.Charset;
 
 import static jedi.option.Options.none;
 
-public class DownloadFileTask extends AsyncTask<String, Long, None> {
+public class DownloadFileTask extends QueueableAsyncTask<String, Long, Void> {
 
 	private File destFile;
 	
@@ -81,12 +82,12 @@ public class DownloadFileTask extends AsyncTask<String, Long, None> {
 	}
 	
 	@Override
-	protected void onPreExecute() {
+	public void doOnPreExecute() {
 		callBack.onDownloadStart();
 	}
 	
 	@Override
-	protected None doInBackground(String... params) {
+	public Option<Void> doInBackground(String... params) {
 
 		try {
 
@@ -192,7 +193,7 @@ public class DownloadFileTask extends AsyncTask<String, Long, None> {
 	}
 
 	@Override
-	protected void onPostExecute(None unused) {
+	public void doOnPostExecute(Option<Void> unused) {
 		if (!isCancelled() && failure == null) {
 			callBack.downloadSuccess(destFile);			
 		} else if (failure != null) {

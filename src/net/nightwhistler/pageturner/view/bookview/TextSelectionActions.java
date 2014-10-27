@@ -19,13 +19,14 @@
 
 package net.nightwhistler.pageturner.view.bookview;
 
-import android.content.Context;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.Build;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.ui.UiUtils;
@@ -34,15 +35,22 @@ import net.nightwhistler.ui.UiUtils;
 public class TextSelectionActions implements ActionMode.Callback {
 
     private TextSelectionCallback callBack;
-    private BookView bookView;
+    private SelectedTextProvider selectedTextProvider;
 
     private Context context;
 
+    public static interface SelectedTextProvider {
+        Option<String> getSelectedText();
+
+        int getSelectionStart();
+        int getSelectionEnd();
+    }
+
     public TextSelectionActions(Context context, TextSelectionCallback callBack,
-                                BookView bookView) {
+                                SelectedTextProvider selectedTextProvider) {
         this.callBack = callBack;
-        this.bookView = bookView;
         this.context = context;
+        this.selectedTextProvider = selectedTextProvider;
     }
 
     @Override
@@ -70,45 +78,46 @@ public class TextSelectionActions implements ActionMode.Callback {
 
         if ( copyItem != null ) {
             copyItem.setOnMenuItemClickListener(
-                    react(mode, () -> PlatformUtil.copyTextToClipboard(context, bookView.getSelectedText())));
+                    react(mode, () -> selectedTextProvider.getSelectedText().forEach(t ->
+                            PlatformUtil.copyTextToClipboard(context, t))));
         }
 
         menu.add( R.string.abs__shareactionprovider_share_with )
                 .setOnMenuItemClickListener(
-                        react(mode, () ->
-                                        callBack.share(bookView.getSelectionStart(),
-                                                bookView.getSelectionEnd(), bookView.getSelectedText())
+                        react(mode, () -> selectedTextProvider.getSelectedText().forEach(t ->
+                                                callBack.share(
+                                                        selectedTextProvider.getSelectionStart(),
+                                                        selectedTextProvider.getSelectionEnd(),
+                                                        t
+                                                )
+                                )
                         )
                 ).setIcon(R.drawable.abs__ic_menu_share_holo_dark);
 
         menu.add(R.string.highlight)
                 .setOnMenuItemClickListener(
-                        react( mode, () ->
-                                callBack.highLight(bookView.getSelectionStart(),
-                                    bookView.getSelectionEnd(), bookView.getSelectedText())
-                        ));
+                        react( mode, () -> selectedTextProvider.getSelectedText().forEach( t ->
+                                callBack.highLight(selectedTextProvider.getSelectionStart(),
+                                    selectedTextProvider.getSelectionEnd(), t)
+                        )));
 
         if (callBack.isDictionaryAvailable()) {
             menu.add(R.string.dictionary_lookup)
                     .setOnMenuItemClickListener( react( mode, () ->
-                            callBack.lookupDictionary(bookView.getSelectedText())
-                    ));
+                            selectedTextProvider.getSelectedText().forEach( callBack::lookupDictionary )));
         }
 
         menu.add(R.string.lookup_wiktionary)
                 .setOnMenuItemClickListener( react(mode, () ->
-                    callBack.lookupWiktionary(bookView.getSelectedText())
-                ));
+                        selectedTextProvider.getSelectedText().forEach(callBack::lookupWiktionary)));
 
         menu.add(R.string.wikipedia_lookup)
                 .setOnMenuItemClickListener( react( mode, () ->
-                    callBack.lookupWikipedia(bookView.getSelectedText())
-                ));
+                        selectedTextProvider.getSelectedText().forEach(callBack::lookupWikipedia)));
 
         menu.add(R.string.google_lookup)
                 .setOnMenuItemClickListener( react( mode, () ->
-                    callBack.lookupGoogle(bookView.getSelectedText())
-                ));
+                        selectedTextProvider.getSelectedText().forEach(callBack::lookupGoogle)));
 
         return true;
     }

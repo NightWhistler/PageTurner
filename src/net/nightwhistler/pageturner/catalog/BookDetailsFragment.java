@@ -226,8 +226,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         setSupportProgressBarIndeterminateVisibility(true);
     }
 
-    @Override
-    public void onLoadingDone() {
+    private void onLoadingDone() {
         setSupportProgressBarIndeterminateVisibility(false);
     }
 

@@ -467,8 +467,7 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
         }
     }
 
-    @Override
-    public void onLoadingDone() {
+    private void onLoadingDone() {
         LOG.debug("Done loading.");
         setSupportProgressBarIndeterminateVisibility(false);
     }

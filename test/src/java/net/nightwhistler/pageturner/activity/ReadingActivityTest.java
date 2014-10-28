@@ -48,6 +48,10 @@ public class ReadingActivityTest {
         injector.injectMembersWithoutViews(this);
     }
 
+    @Test
+    public void testNothing() {
+
+    }
 
 
     private class MyTestModule extends AbstractModule {

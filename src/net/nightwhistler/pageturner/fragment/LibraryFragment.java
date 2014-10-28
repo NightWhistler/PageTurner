@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
-package net.nightwhistler.pageturner.activity;
+package net.nightwhistler.pageturner.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -51,6 +51,7 @@ import net.nightwhistler.pageturner.Configuration.LibrarySelection;
 import net.nightwhistler.pageturner.Configuration.LibraryView;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.activity.*;
 import net.nightwhistler.ui.DialogFactory;
 import net.nightwhistler.ui.UiUtils;
 import net.nightwhistler.pageturner.library.*;
@@ -481,7 +482,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	
 	private void switchToColourProfile( ColourProfile profile ) {
 		config.setColourProfile(profile);
-		Intent intent = new Intent(getActivity(), LibraryActivity.class);		
+		Intent intent = new Intent(getActivity(), LibraryActivity.class);
 		startActivity(intent);
 		onStop();
 		getActivity().finish();

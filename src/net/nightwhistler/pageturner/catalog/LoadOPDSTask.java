@@ -182,7 +182,7 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
 
 	}
 
-    void setResultType(LoadFeedCallback.ResultType type) {
+    public void setResultType(LoadFeedCallback.ResultType type) {
         this.resultType = type;
     }
 

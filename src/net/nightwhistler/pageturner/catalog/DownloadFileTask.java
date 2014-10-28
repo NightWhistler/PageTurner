@@ -184,11 +184,11 @@ public class DownloadFileTask extends QueueableAsyncTask<String, Long, Void> {
 			this.failure = e;
 		}
 
-		return new None();
+		return none();
 	}
 
-	@Override
-	protected void onProgressUpdate(Long... values) {
+    @Override
+    public void doOnProgressUpdate(Long... values) {
 		callBack.progressUpdate(values[0], values[1], values[2].intValue() );
 	}
 

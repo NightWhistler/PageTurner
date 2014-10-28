@@ -16,19 +16,15 @@
  * limitations under the License.
  */
 
-package net.nightwhistler.pageturner.activity;
+package net.nightwhistler.pageturner.fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockDialogFragment;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.bookmark.Bookmark;

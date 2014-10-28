@@ -41,9 +41,10 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
         void taskCompleted( QueueableAsyncTask<?,?,?> task, boolean wasCancelled );
     }
 
-    private UiUtils.Action onPreExectionOperation;
+    private UiUtils.Action onPreExecutionOperation;
     private Command<Option<Result>> onPostExecuteOperation;
     private Command<Option<Result>> onCancelledOperation;
+    private Command<Progress[]> onProgressUpdateOperation;
 
     private Functor<Params[], Option<Result>> doInBackgroundFunction;
 
@@ -62,7 +63,18 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
      */
     public void doOnPreExecute() {
         if ( this.onPostExecuteOperation != null ) {
-            this.onPreExectionOperation.perform();
+            this.onPreExecutionOperation.perform();
+        }
+    }
+
+    @Override
+    protected final void onProgressUpdate(Progress... values) {
+        this.doOnProgressUpdate( values );
+    }
+
+    public void doOnProgressUpdate( Progress... values ) {
+        if ( this.onProgressUpdateOperation != null ) {
+            this.onProgressUpdateOperation.execute( values );
         }
     }
 
@@ -168,7 +180,11 @@ public class QueueableAsyncTask<Params, Progress, Result> extends AsyncTask<Para
         return this;
     }
 
-    public void setOnPreExecte(UiUtils.Action onPreExectionOperation) {
-        this.onPreExectionOperation = onPreExectionOperation;
+    public void setOnPreExecute(UiUtils.Action onPreExecutionOperation) {
+        this.onPreExecutionOperation = onPreExecutionOperation;
+    }
+
+    public void setOnProgressUpdate(Command<Progress[]> onProgressUpdateOperation) {
+        this.onProgressUpdateOperation = onProgressUpdateOperation;
     }
 }

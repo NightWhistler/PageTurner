@@ -57,7 +57,7 @@ public class CatalogListAdapter extends BaseAdapter {
 		this.context = context;
 	}
 
-    void setImageLoader( CatalogImageLoader imageLoader ) {
+    public void setImageLoader( CatalogImageLoader imageLoader ) {
         this.imageLoader = imageLoader;
     }
 

@@ -24,7 +24,7 @@ android:layout_height="match_parent">
                 />
 
         <fragment
-                class="net.nightwhistler.pageturner.catalog.BookDetailsFragment"
+                class="net.nightwhistler.pageturner.fragment.BookDetailsFragment"
                 android:id="@+id/fragment_book_details"
                 android:layout_height="match_parent"
                 android:layout_width="0dp"

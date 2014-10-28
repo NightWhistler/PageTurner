@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
-package net.nightwhistler.pageturner.catalog;
+package net.nightwhistler.pageturner.fragment;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -48,6 +48,10 @@ import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.activity.ReadingActivity;
+import net.nightwhistler.pageturner.catalog.Catalog;
+import net.nightwhistler.pageturner.catalog.DownloadFileTask;
+import net.nightwhistler.pageturner.catalog.LoadFeedCallback;
+import net.nightwhistler.pageturner.catalog.LoadThumbnailTask;
 import roboguice.inject.InjectView;
 
 import javax.annotation.Nullable;

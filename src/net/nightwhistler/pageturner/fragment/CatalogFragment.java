@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
-package net.nightwhistler.pageturner.catalog;
+package net.nightwhistler.pageturner.fragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -46,6 +46,7 @@ import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.catalog.*;
 import net.nightwhistler.ui.UiUtils;
 import net.nightwhistler.ui.DialogFactory;
 import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;

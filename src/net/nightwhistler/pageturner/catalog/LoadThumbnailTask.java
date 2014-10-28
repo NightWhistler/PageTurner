@@ -34,8 +34,9 @@ import org.apache.http.client.methods.HttpGet;
 import java.net.URL;
 
 import static jedi.option.Options.none;
+import static jedi.option.Options.some;
 
-public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
+public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, FastBitmapDrawable> {
 
     private HttpClient httpClient;
     private LoadFeedCallback callBack;
@@ -43,7 +44,6 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
     private String baseUrl;
 
     private Link imageLink;
-    private Drawable drawable;
 
     @Inject
     public LoadThumbnailTask(HttpClient httpClient ) {
@@ -70,7 +70,7 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
     }
 
     @Override
-    public Option<Void> doInBackground(Link... entries) {
+    public Option<FastBitmapDrawable> doInBackground(Link... entries) {
 
         this.imageLink = entries[0];
 
@@ -87,7 +87,7 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
                 HttpResponse resp = httpClient.execute(currentRequest);
 
                 Bitmap bitmap = BitmapFactory.decodeStream(resp.getEntity().getContent());
-                this.drawable = new FastBitmapDrawable(bitmap);
+                return some(new FastBitmapDrawable(bitmap));
 
             } catch (Exception | OutOfMemoryError e) {
                 //Ignore and exit.
@@ -98,7 +98,7 @@ public class LoadThumbnailTask extends QueueableAsyncTask<Link, Void, Void> {
     }
 
     @Override
-    public void doOnPostExecute(Option<Void> nothing) {
-        callBack.notifyLinkUpdated(imageLink, drawable);
+    public void doOnPostExecute(Option<FastBitmapDrawable> drawable) {
+        drawable.forEach( d -> callBack.notifyLinkUpdated(imageLink, d) );
     }
 }

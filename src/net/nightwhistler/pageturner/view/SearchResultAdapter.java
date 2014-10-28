@@ -31,7 +31,6 @@ import android.widget.TextView;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.dto.SearchResult;
-import net.nightwhistler.pageturner.tasks.SearchTextTask;
 import net.nightwhistler.pageturner.view.bookview.BookView;
 
 import java.util.List;

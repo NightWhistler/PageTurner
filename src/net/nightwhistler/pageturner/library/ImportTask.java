@@ -223,9 +223,10 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
         return false;
     }
 
+
     @Override
-	protected void onProgressUpdate(Integer... values) {
-		
+    public void doOnProgressUpdate(Integer... values) {
+
 		String message;
 		
 		if ( values[0] == UPDATE_IMPORT ) {

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
-package net.nightwhistler.pageturner.activity;
+package net.nightwhistler.pageturner.fragment;
 
 import android.app.Activity;
 import android.content.Context;
@@ -31,13 +31,15 @@ import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockListFra
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.activity.FileAdapter;
+import net.nightwhistler.pageturner.activity.FileItem;
 
 import java.io.File;
 import java.util.*;
 
 public class FileBrowseFragment extends RoboSherlockListFragment {
 
-	private FileAdapter adapter;	
+	private FileAdapter adapter;
 	
 	@Inject
 	private Configuration config;

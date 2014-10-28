@@ -17,7 +17,7 @@
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
 
-package net.nightwhistler.pageturner.activity;
+package net.nightwhistler.pageturner.fragment;
 
 import android.annotation.TargetApi;
 import android.app.*;
@@ -44,7 +44,6 @@ import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -62,6 +61,10 @@ import net.nightwhistler.pageturner.Configuration.ReadingDirection;
 import net.nightwhistler.pageturner.Configuration.ScrollStyle;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.TextUtil;
+import net.nightwhistler.pageturner.activity.LibraryActivity;
+import net.nightwhistler.pageturner.activity.MediaButtonReceiver;
+import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
+import net.nightwhistler.pageturner.activity.ReadingActivity;
 import net.nightwhistler.pageturner.animation.*;
 import net.nightwhistler.pageturner.bookmark.Bookmark;
 import net.nightwhistler.pageturner.bookmark.BookmarkDatabaseHelper;
@@ -72,7 +75,7 @@ import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;
-import net.nightwhistler.pageturner.tasks.SearchTextTask;
+import net.nightwhistler.pageturner.epub.SearchTextTask;
 import net.nightwhistler.pageturner.tts.TTSPlaybackItem;
 import net.nightwhistler.pageturner.tts.TTSPlaybackQueue;
 import net.nightwhistler.pageturner.view.*;
@@ -90,12 +93,12 @@ import java.io.File;
 import java.net.URLEncoder;
 import java.util.*;
 
-import static jedi.functional.Coercions.map;
 import static jedi.functional.FunctionalPrimitives.collect;
 import static jedi.functional.FunctionalPrimitives.firstOption;
 import static jedi.functional.FunctionalPrimitives.isEmpty;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
+import static net.nightwhistler.pageturner.PlatformUtil.executeTask;
 import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
 import static net.nightwhistler.pageturner.PlatformUtil.verifyNotOnUiThread;
 import static net.nightwhistler.ui.UiUtils.onMenuPress;
@@ -2645,31 +2648,25 @@ public class ReadingFragment extends RoboSherlockFragment implements
         searchProgress.setMax(100);
         searchProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 
-        final SearchTextTask task = new SearchTextTask(bookView.getBook()) {
 
-            int i = 0;
+        final int[] counter = { 0 }; //Yes, this is essentially a pointer to an int :P
 
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
+        final SearchTextTask task = new SearchTextTask(bookView.getBook());
 
-                searchProgress.setMessage(getString(R.string.search_wait));
-                searchProgress.show();
+        task.setOnPreExecute( () -> {
 
-                // Hide on-screen keyboard if it is showing
-                InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+            searchProgress.setMessage(getString(R.string.search_wait));
+            searchProgress.show();
 
-            }
+            // Hide on-screen keyboard if it is showing
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 
-            @Override
-            protected void onProgressUpdate(SearchResult... values) {
+        });
 
-                if ( ! isAdded() ) {
-                    return;
-                }
+        task.setOnProgressUpdate( (values) -> {
 
-                super.onProgressUpdate(values);
+            if ( isAdded() ) {
 
                 LOG.debug("Found match at index=" + values[0].getIndex()
                         + ", offset=" + values[0].getStart() + " with context "
@@ -2677,45 +2674,44 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 SearchResult res = values[0];
 
                 if (res.getDisplay() != null) {
-                    i++;
+                    counter[0] = counter[0] + 1;
                     String update = String.format(
-                            getString(R.string.search_hits), i);
+                            getString(R.string.search_hits), counter[0]);
                     searchProgress.setMessage(update);
                 }
 
-                searchProgress.setProgress( bookView.getPercentageFor(res.getIndex(), res.getStart() ));
+                searchProgress.setProgress(bookView.getPercentageFor(res.getIndex(), res.getStart()));
             }
+        });
 
-            @Override
-            protected void onCancelled() {
-                if ( isAdded() ) {
-                    Toast.makeText(context, R.string.search_cancelled,
+        task.setOnCancelled( (result) -> {
+            if ( isAdded() ) {
+                Toast.makeText(context, R.string.search_cancelled,
                         Toast.LENGTH_LONG).show();
+            }
+        });
+
+        task.setOnPostExecute( (result) -> {
+            searchProgress.dismiss();
+
+            if (!task.isCancelled() && isAdded() ) {
+
+                List<SearchResult> resultList = result.getOrElse( new ArrayList<>() );
+
+                if (resultList.size() > 0) {
+                    searchResults = resultList;
+                    showSearchResultDialog(resultList);
+                } else {
+                    Toast.makeText(context,
+                            R.string.search_no_matches, Toast.LENGTH_LONG)
+                            .show();
                 }
             }
+        });
 
-            protected void onPostExecute(Option<List<SearchResult>> result) {
-
-                searchProgress.dismiss();
-
-                if (!isCancelled() && isAdded() ) {
-
-                    List<SearchResult> resultList = result.getOrElse( new ArrayList<>() );
-
-                    if (resultList.size() > 0) {
-                        searchResults = resultList;
-                        showSearchResultDialog(resultList);
-                    } else {
-                        Toast.makeText(context,
-                                R.string.search_no_matches, Toast.LENGTH_LONG)
-                                .show();
-                    }
-                }
-            };
-        };
 
         searchProgress.setOnCancelListener( dialog -> task.cancel(true) );
-        task.execute(query);
+        executeTask( task, query );
     }
 
     private void setSupportProgressBarIndeterminateVisibility(boolean enable) {

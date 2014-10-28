@@ -17,9 +17,8 @@
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  */
 
-package net.nightwhistler.pageturner.tasks;
+package net.nightwhistler.pageturner.epub;
 
-import android.os.AsyncTask;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import jedi.option.Option;
@@ -28,7 +27,7 @@ import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 import net.nightwhistler.htmlspanner.handlers.TableHandler;
 import net.nightwhistler.pageturner.dto.SearchResult;
-import net.nightwhistler.pageturner.epub.PageTurnerSpine;
+import net.nightwhistler.pageturner.scheduling.QueueableAsyncTask;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Resource;
 import org.htmlcleaner.TagNode;
@@ -43,7 +42,7 @@ import static jedi.functional.FunctionalPrimitives.isEmpty;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
 
-public class SearchTextTask extends AsyncTask<String, SearchResult, Option<List<SearchResult>>> {
+public class SearchTextTask extends QueueableAsyncTask<String, SearchResult, List<SearchResult>> {
 	
 	private Book book;
 	
@@ -64,7 +63,7 @@ public class SearchTextTask extends AsyncTask<String, SearchResult, Option<List<
 
 
 	@Override
-	protected Option<List<SearchResult>> doInBackground(String... params) {
+	public Option<List<SearchResult>> doInBackground(String... params) {
 
 		String searchTerm = params[0];
 		Pattern pattern = Pattern.compile(Pattern.quote((searchTerm)),Pattern.CASE_INSENSITIVE);

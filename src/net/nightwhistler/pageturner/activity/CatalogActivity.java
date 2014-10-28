@@ -24,12 +24,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
-import com.actionbarsherlock.view.MenuItem;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import jedi.functional.FunctionalPrimitives;
 import jedi.option.Option;
-import jedi.option.OptionMatcher;
 import net.nightwhistler.nucular.atom.AtomConstants;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
@@ -38,6 +35,8 @@ import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.CustomOPDSSite;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.catalog.*;
+import net.nightwhistler.pageturner.fragment.BookDetailsFragment;
+import net.nightwhistler.pageturner.fragment.CatalogFragment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import roboguice.inject.InjectFragment;
@@ -49,8 +48,7 @@ import static jedi.functional.FunctionalPrimitives.isEmpty;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
 
-public class CatalogActivity extends PageTurnerActivity implements CatalogParent,
-        FragmentManager.OnBackStackChangedListener {
+public class CatalogActivity extends PageTurnerActivity implements CatalogParent {
 
     private static final Logger LOG = LoggerFactory
             .getLogger("CatalogActivity");
@@ -75,7 +73,7 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
         hideDetailsView();
 
         loadFeed( null, config.getBaseOPDSFeed(), null, false );
-        fragmentManager.addOnBackStackChangedListener( this );
+        fragmentManager.addOnBackStackChangedListener( this::onBackStackChanged );
     }
 
     @Override
@@ -123,8 +121,7 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
         }
     }
 
-    @Override
-    public void onBackStackChanged() {
+    private void onBackStackChanged() {
 
         LOG.debug( "Backstack change detected." );
 

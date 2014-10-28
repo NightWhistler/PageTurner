@@ -1510,8 +1510,8 @@ public class BookView extends ScrollView implements TextSelectionActions.Selecte
             return none();
         }
 
-		@Override
-		protected void onProgressUpdate(BookReadPhase... values) {
+        @Override
+        public void doOnProgressUpdate(BookReadPhase... values) {
 
 			BookReadPhase phase = values[0];
 

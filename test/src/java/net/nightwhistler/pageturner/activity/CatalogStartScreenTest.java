@@ -1,16 +1,11 @@
 package net.nightwhistler.pageturner.activity;
 
-import net.nightwhistler.pageturner.R;
-
-import net.nightwhistler.pageturner.catalog.CatalogFragment;
+import net.nightwhistler.pageturner.fragment.CatalogFragment;
 
 import org.robolectric.RobolectricTestRunner;
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.widget.ListView;
 import org.robolectric.annotation.Config;
 
 @Config(emulateSdk = 18)

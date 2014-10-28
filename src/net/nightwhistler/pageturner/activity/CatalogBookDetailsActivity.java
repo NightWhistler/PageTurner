@@ -21,17 +21,11 @@ package net.nightwhistler.pageturner.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import com.actionbarsherlock.view.Window;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
-import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.catalog.BookDetailsFragment;
+import net.nightwhistler.pageturner.fragment.BookDetailsFragment;
 import net.nightwhistler.pageturner.catalog.CatalogParent;
-import roboguice.RoboGuice;
-import roboguice.inject.InjectFragment;
 
 import java.io.Serializable;
 

@@ -27,8 +27,7 @@ import java.io.File;
 /**
  * Superclass for all PageTurner activity classes.
  */
-public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
-        implements ExpandableListView.OnGroupClickListener, ExpandableListView.OnChildClickListener {
+public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout mDrawer;
@@ -82,7 +81,6 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
 
         mToggle.setDrawerIndicatorEnabled(true);
         mDrawer.setDrawerListener(mToggle);
-        //mDrawer.setDrawerLockMode( DrawerLayout.LOCK_MODE_LOCKED_CLOSED );
 
         onCreatePageTurnerActivity(savedInstanceState);
     }
@@ -115,8 +113,8 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
             this.adapter = new NavigationAdapter( this, getMenuItems(config) );
 
             expandableListView.setAdapter( this.adapter );
-            expandableListView.setOnGroupClickListener(this);
-            expandableListView.setOnChildClickListener(this);
+            expandableListView.setOnGroupClickListener(this::onGroupClick);
+            expandableListView.setOnChildClickListener(this::onChildClick);
 
             expandableListView.setGroupIndicator(null);
         }
@@ -194,7 +192,6 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         finish();
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -207,8 +204,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+    protected boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
 
         if ( i == 0 ) {
             launchActivity( LibraryActivity.class );
@@ -222,8 +218,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity
         return true;
     }
 
-    @Override
-    public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
+    protected boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
         closeNavigationDrawer();
         return false;
     }

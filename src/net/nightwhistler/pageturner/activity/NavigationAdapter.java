@@ -10,14 +10,16 @@ import jedi.option.Option;
 import net.nightwhistler.pageturner.PlatformUtil;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.view.NavigationCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static jedi.option.Options.none;
-import static jedi.option.Options.option;
+import static jedi.functional.FunctionalPrimitives.*;
+import static net.nightwhistler.pageturner.CollectionUtil.listElement;
+import static net.nightwhistler.ui.UiUtils.getImageView;
+import static net.nightwhistler.ui.UiUtils.getTextView;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,23 +30,22 @@ import static jedi.option.Options.option;
  */
 public class NavigationAdapter extends BaseExpandableListAdapter {
 
-    private List<String> groups;
-    private Map<Integer, List<NavigationCallback>> children;
-
+    private List<NavigationCallback> items;
     private Context context;
 
-    public NavigationAdapter( Context context, String... items ) {
-        this.context = context;
-        this.groups = Arrays.asList(items);
-        this.children = new HashMap<>();
-    }
+    private static final Logger LOG = LoggerFactory.getLogger("NavigationAdapter");
 
-    public void setChildren( int groupId, List<NavigationCallback> childItems ) {
-        this.children.put( groupId, childItems );
+    public NavigationAdapter( Context context, List<NavigationCallback> items ) {
+        this.context = context;
+        this.items = new ArrayList<>(items);
+
+        LOG.debug( "Initialized new adapter with " + items.size() + " items");
     }
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean b, View view, ViewGroup viewGroup) {
+
+        LOG.debug("Looking for child-view for group " + groupPosition + " and child " + childPosition );
 
         View layout = view;
 
@@ -56,12 +57,12 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
         TextView titleTextView = (TextView) layout.findViewById( R.id.itemText );
         TextView subTitleView = (TextView) layout.findViewById( R.id.subtitleText );
 
-        if ( children.containsKey( groupPosition ) ) {
-            List<NavigationCallback> childItems = children.get( groupPosition );
+        Option<NavigationCallback> childItem = findChild( groupPosition, childPosition );
 
-            titleTextView.setText( childItems.get(childPosition).getTitle() );
-            subTitleView.setText( childItems.get(childPosition).getSubtitle() );
-        }
+        childItem.match( c -> {
+            titleTextView.setText( c.getTitle() );
+            subTitleView.setText( c.getSubtitle() );
+        }, () -> LOG.error("Could not find childView with index " + childPosition + " for group " + groupPosition ));
 
         return layout;
 
@@ -69,7 +70,8 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getGroupCount() {
-        return groups.size();
+        LOG.debug("Returning group count: " + items.size() );
+        return items.size();
     }
 
     @Override
@@ -80,21 +82,6 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int i, int i2) {
         return true;
-    }
-
-    private void onGroupStateChange( int groupPosition ) {
-
-
-    }
-
-    @Override
-    public void onGroupExpanded(int groupPosition) {
-        onGroupStateChange(groupPosition);
-    }
-
-    @Override
-    public void onGroupCollapsed(int groupPosition) {
-        onGroupStateChange(groupPosition);
     }
 
     @Override
@@ -109,45 +96,61 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
                     R.layout.drawer_list_item, null );
         }
 
-        TextView textView = (TextView) layout.findViewById(R.id.groupName);
-        ImageView indicator = (ImageView) layout.findViewById(R.id.explist_indicator);
+        Option<TextView> textView = getTextView( layout, R.id.groupName );
+        Option<ImageView> indicator = getImageView( layout, R.id.explist_indicator );
 
-        if ( getChildrenCount( i ) == 0 ) {
-            indicator.setVisibility( View.INVISIBLE );
-        } else {
-            indicator.setVisibility( View.VISIBLE );
-            indicator.setImageResource( isExpanded ? R.drawable.arrowhead_up : R.drawable.arrowhead_down );
-        }
+        indicator.forEach( ind -> {
+            if ( getChildrenCount( i ) == 0 ) {
+                ind.setVisibility( View.INVISIBLE );
+            } else {
+                ind.setVisibility( View.VISIBLE );
+                ind.setImageResource( isExpanded ? R.drawable.arrowhead_up : R.drawable.arrowhead_down );
+            }
+        });
 
-        textView.setText(groups.get(i));
+        NavigationCallback item = items.get(i);
+
+        LOG.debug( "Getting view for index " + i + " with title "
+                + item.getTitle() + " and subtitle " + item.getSubtitle() );
+        LOG.debug( "Is expanded? " + isExpanded );
+
+        textView.match(
+                t -> t.setText( item.getTitle() ),
+                () -> LOG.error("View for title not found!")
+        );
 
         return layout;
     }
 
     @Override
     public int getChildrenCount(int i) {
-        if ( children.containsKey(i) ) {
-            return children.get(i).size();
-        }
+        Option<Integer> count = listElement( items, i ).map(NavigationCallback::getChildCount);
 
-        return 0;
+        LOG.debug( "ChildrenCount for element " + i + " is " + count );
+
+        return count.getOrElse(0);
+    }
+
+    public Option<NavigationCallback> findGroup( int i ) {
+        return listElement(items, i);
+    }
+
+    public Option<NavigationCallback> findChild(int i, int i2) {
+
+        Option<Option<NavigationCallback>> childItem =
+                listElement(items, i).map(g -> g.getChild(i2));
+
+        return headOption( flatten(childItem) );
     }
 
     @Override
-    public Option<NavigationCallback> getChild(int i, int i2) {
-
-        if ( children.containsKey(i) ) {
-            if ( children.get(i).size() > i2 ) {
-                return option(children.get(i).get(i2));
-            }
-        }
-
-        return none();
+    public Object getChild(int i, int i1) {
+        return findChild(i,i1).unsafeGet();
     }
 
     @Override
-    public Object getGroup(int i) {
-        return groups.get( i );
+    public NavigationCallback getGroup(int i) {
+        return findGroup(i).unsafeGet();
     }
 
     @Override

@@ -128,7 +128,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	private boolean oldKeepScreenOn;
 	
 	private static final Logger LOG = LoggerFactory.getLogger("LibraryActivity");
-	
+
 	private IntentCallBack intentCallBack;
 	private List<CoverCallback> callbacks = new ArrayList<>();
 	private Map<String, FastBitmapDrawable> coverCache = new HashMap<>();
@@ -393,11 +393,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
         onMenuPress( menu, R.id.shelves_view ).thenDo( toggleListener );
         onMenuPress( menu, R.id.list_view ).thenDo( toggleListener );
-
-        onMenuPress( menu, R.id.preferences ).thenDo( () -> {
-            Intent intent = new Intent(getActivity(), PageTurnerPrefsActivity.class);
-            startActivity(intent);
-        });
 
         onMenuPress( menu, R.id.scan_books ).thenDo( this::showImportDialog );
         onMenuPress( menu, R.id.about ).thenDo( dialogFactory.buildAboutDialog()::show );

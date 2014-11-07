@@ -48,12 +48,6 @@
           android:title="@string/rolling_blind"
           android:icon="@drawable/play" />
 
-
-    <item android:id="@+id/preferences"
-          android:title="@string/prefs"
-          android:icon="@drawable/cog"
-            />
-          
     <item android:id="@+id/about"          
           android:title="@string/about"
           android:icon="@drawable/info" />  

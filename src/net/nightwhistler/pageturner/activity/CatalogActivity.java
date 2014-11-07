@@ -245,19 +245,19 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
     @Override
     public boolean onSearchRequested() {
 
-        Option<Fragment> fragmentOption = getCurrentVisibleFragment();
+        Option<Boolean> result = getCurrentVisibleFragment().map( fragment -> {
 
-        return fragmentOption.match( (fragment) -> {
+            if ( fragment instanceof CatalogFragment ) {
+                CatalogFragment catalogFragment = (CatalogFragment) fragment;
 
-           if ( fragment instanceof CatalogFragment ) {
-               CatalogFragment catalogFragment = (CatalogFragment) fragment;
+                catalogFragment.onSearchRequested();
+                return catalogFragment.supportsSearch();
+            }
 
-               catalogFragment.onSearchRequested();
-               return catalogFragment.supportsSearch();
-           }
+            return false;
+        });
 
-           return false;
-        }, () -> false );
+        return result.getOrElse(false);
     }
 
     @Override

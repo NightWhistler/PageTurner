@@ -484,7 +484,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 	}
 
-	private void saveConfigState() {
+	public void saveConfigState() {
 		// Cache old settings to check if we'll need a restart later
 		savedConfigState.brightness = config.isBrightnessControlEnabled();
 		savedConfigState.stripWhiteSpace = config.isStripWhiteSpaceEnabled();
@@ -2338,12 +2338,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
 		case R.id.search_text:
 			onSearchRequested();
-			return true;
-
-		case R.id.preferences:
-			saveConfigState();
-			Intent i = new Intent(context, PageTurnerPrefsActivity.class);
-			startActivity(i);
 			return true;
 
 		case R.id.open_file:

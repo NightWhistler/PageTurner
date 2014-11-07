@@ -1,6 +1,12 @@
 package net.nightwhistler.pageturner.view;
 
+import jedi.option.Option;
 import net.nightwhistler.ui.UiUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static net.nightwhistler.pageturner.CollectionUtil.listElement;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,6 +22,12 @@ public class NavigationCallback {
 
     private UiUtils.Action onClickAction;
     private UiUtils.Action onLongClickAction;
+
+    private List<NavigationCallback> children = new ArrayList<>();
+
+    public NavigationCallback( String title ) {
+        this( title, "" );
+    }
 
     public NavigationCallback( String title, String subtitle ) {
         this.title = title;
@@ -56,6 +68,22 @@ public class NavigationCallback {
         if ( this.onLongClickAction != null ) {
             this.onLongClickAction.perform();
         }
+    }
+
+    public void addChild( NavigationCallback child ) {
+        this.children.add( child );
+    }
+
+    public boolean hasChildren() {
+        return ! this.children.isEmpty();
+    }
+
+    public Option<NavigationCallback> getChild( int child ) {
+        return listElement( children, child );
+    }
+
+    public int getChildCount() {
+        return children.size();
     }
 
 }

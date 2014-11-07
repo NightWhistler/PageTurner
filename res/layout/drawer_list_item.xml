@@ -42,5 +42,15 @@
     android:minHeight="48dip"
     />
 
+<!--
+    <TextView
+        android:id="@+id/subtitleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#555555"
+        android:text="subTitle"
+        />
+-->
 </LinearLayout>
     <!-- android:background="?android:attr/activatedBackgroundIndicator" -->

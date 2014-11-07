@@ -16,13 +16,21 @@ import com.actionbarsherlock.view.Window;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 import com.google.inject.Inject;
 import com.limecreativelabs.sherlocksupport.ActionBarDrawerToggleCompat;
+import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.view.NavigationCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static net.nightwhistler.pageturner.CollectionUtil.listElement;
 
 /**
  * Superclass for all PageTurner activity classes.
@@ -45,6 +53,8 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
 
     @Inject
     private Configuration config;
+
+    private static Logger LOG = LoggerFactory.getLogger("PageTurnerActivity");
 
     @Override
     protected final void onCreate(Bundle savedInstanceState) {
@@ -115,6 +125,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
             expandableListView.setAdapter( this.adapter );
             expandableListView.setOnGroupClickListener(this::onGroupClick);
             expandableListView.setOnChildClickListener(this::onChildClick);
+            expandableListView.setOnItemLongClickListener( this::onItemLongClick );
 
             expandableListView.setGroupIndicator(null);
         }
@@ -134,13 +145,30 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
         return config.getTheme();
     }
 
-    protected String[] getMenuItems( Configuration config ) {
+    protected List<NavigationCallback> getMenuItems( Configuration config ) {
+
+        List result = new ArrayList<>();
+
+        result.add( navigate(getString(R.string.open_library), LibraryActivity.class) );
+        result.add( navigate(getString(R.string.download), CatalogActivity.class));
 
         if ( new File(config.getLastOpenedFile()).exists() ) {
-            return array(getString(R.string.open_library), getString(R.string.download), config.getLastReadTitle());
-        } else {
-            return array(getString(R.string.open_library), getString(R.string.download));
+            result.add( navigate(config.getLastReadTitle(), ReadingActivity.class));
         }
+
+        result.add( new NavigationCallback(getString(R.string.prefs)).setOnClick(this::startPreferences));
+
+        return result;
+    }
+
+    protected void startPreferences() {
+        Intent intent = new Intent(this, PageTurnerPrefsActivity.class);
+        startActivity(intent);
+    }
+
+    protected NavigationCallback navigate( String title, Class<? extends PageTurnerActivity> classToStart ) {
+        return new NavigationCallback( title ).setOnClick(
+                () -> launchActivity(classToStart));
     }
 
     public void onDrawerClosed(View view) {
@@ -166,10 +194,6 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         initDrawerItems( mDrawerOptions );
         return super.onPrepareOptionsMenu(menu);
-    }
-
-    protected static String[] array( String... items ) {
-        return items;
     }
 
     @Override
@@ -206,20 +230,52 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
 
     protected boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
 
-        if ( i == 0 ) {
-            launchActivity( LibraryActivity.class );
-        } else if ( i == 1 ) {
-            launchActivity( CatalogActivity.class );
-        } else if ( i == 2 ) {
-            launchActivity( ReadingActivity.class );
-        }
+        Option<Boolean> group = getAdapter().findGroup(i).map( g -> {
+            if ( g.hasChildren() ) {
+                return false; //Let the superclass handle it and expand the group
+            } else {
+                g.onClick();
+                closeNavigationDrawer();
+                return true;
+            }
+        });
 
-        closeNavigationDrawer();
-        return true;
+        return group.getOrElse( false );
     }
 
     protected boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
+
+        Option<NavigationCallback> childItem = getAdapter().findChild( i, i2 );
+        childItem.forEach(item -> item.onClick());
+
         closeNavigationDrawer();
         return false;
     }
+
+    protected boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+        LOG.debug("Got long click");
+
+        if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+            int groupPosition = ExpandableListView.getPackedPositionGroup(id);
+            int childPosition = getAdapter().getIndexForChildId( groupPosition,
+                    ExpandableListView.getPackedPositionChild(id) );
+
+            Option<NavigationCallback> childItem = getAdapter().findChild( groupPosition, childPosition );
+
+            LOG.debug("Long-click on " + groupPosition + ", " + childPosition );
+            LOG.debug("Child-item: " + childItem );
+
+            childItem.match(
+                    i -> i.onLongClick(),
+                    () -> LOG.error("Could not get child-item for " + position + " and id " + id )
+            );
+
+            closeNavigationDrawer();
+            return true;
+        }
+
+        return false;
+    }
+
 }

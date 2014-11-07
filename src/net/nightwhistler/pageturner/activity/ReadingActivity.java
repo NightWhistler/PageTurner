@@ -33,6 +33,7 @@ import com.google.inject.Inject;
 import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.catalog.Catalog;
 import net.nightwhistler.pageturner.fragment.ReadingFragment;
 import net.nightwhistler.pageturner.view.NavigationCallback;
 import org.slf4j.Logger;
@@ -42,7 +43,9 @@ import roboguice.inject.InjectFragment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReadingActivity extends PageTurnerActivity implements AdapterView.OnItemLongClickListener {
+import static jedi.functional.FunctionalPrimitives.forEach;
+
+public class ReadingActivity extends PageTurnerActivity {
 
     @InjectFragment(R.id.fragment_reading)
     private ReadingFragment readingFragment;
@@ -78,137 +81,101 @@ public class ReadingActivity extends PageTurnerActivity implements AdapterView.O
             return;
         }
 
-        expandableListView.setOnItemLongClickListener( this );
-
         if ( this.readingFragment != null ) {
 
-            List<NavigationCallback> tocCallbacks =
-                    this.readingFragment.getTableOfContents();
+            if ( readingFragment.hasTableOfContents() ) {
+                List<NavigationCallback> tocCallbacks =
+                        this.readingFragment.getTableOfContents();
 
-            if ( tocCallbacks != null && ! tocCallbacks.isEmpty() ) {
-                getAdapter().setChildren(this.tocIndex, tocCallbacks );
+                getAdapter().findGroup(this.tocIndex).match(
+                        t -> forEach(tocCallbacks, t::addChild),
+                        () -> LOG.error("Could not find TOC item!")
+                );
             }
 
-            List<NavigationCallback> highlightCallbacks =
-                    this.readingFragment.getHighlights();
+            if ( readingFragment.hasHighlights() ) {
+                List<NavigationCallback> highlightCallbacks =
+                        this.readingFragment.getHighlights();
 
-            if ( highlightCallbacks != null && ! highlightCallbacks.isEmpty() ) {
-                getAdapter().setChildren(this.highlightIndex, highlightCallbacks);
+                getAdapter().findGroup(this.highlightIndex).match(
+                        h -> forEach(highlightCallbacks, h::addChild),
+                        () -> LOG.error("Could not find Highlights drawer item!"));
+
             }
 
-            List<NavigationCallback> searchCallbacks =
-                    this.readingFragment.getSearchResults();
+            if ( readingFragment.hasSearchResults() ) {
+                List<NavigationCallback> searchCallbacks =
+                        this.readingFragment.getSearchResults();
 
-            if ( searchCallbacks != null && !searchCallbacks.isEmpty() ) {
-                getAdapter().setChildren(this.searchIndex, searchCallbacks);
+                getAdapter().findGroup(this.searchIndex).match(
+                        s -> forEach(searchCallbacks, s::addChild),
+                        () -> LOG.error("Could not find Search drawer item!"));
+
             }
 
+            if ( readingFragment.hasBookmarks() ) {
+                List<NavigationCallback> bookmarkCallbacks = this.readingFragment.getBookmarks();
 
-            List<NavigationCallback> bookmarkCallbacks = this.readingFragment.getBookmarks();
-
-            if ( bookmarkCallbacks != null && !bookmarkCallbacks.isEmpty() ) {
-                getAdapter().setChildren( this.bookmarksIndex, bookmarkCallbacks );
+                getAdapter().findGroup(this.bookmarksIndex).match(
+                        b -> forEach(bookmarkCallbacks, b::addChild),
+                        () -> LOG.error("Could not find Bookmarks drawer item!"));
             }
 
         }
 
     }
 
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+    protected List<NavigationCallback> getMenuItems( Configuration config ) {
 
-        LOG.debug("Got long click");
-
-        if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-            int groupPosition = ExpandableListView.getPackedPositionGroup(id);
-            int childPosition = getAdapter().getIndexForChildId( groupPosition,
-                    ExpandableListView.getPackedPositionChild(id) );
-
-            Option<NavigationCallback> childItem = getAdapter().getChild( groupPosition, childPosition );
-
-            LOG.debug("Long-click on " + groupPosition + ", " + childPosition );
-            LOG.debug("Child-item: " + childItem );
-
-            childItem.forEach( item -> item.onLongClick() );
-
-            closeNavigationDrawer();
-            return true;
-        }
-
-        return false;
-    }
-
-
-    protected String[] getMenuItems( Configuration config ) {
-
-        List<String> menuItems = new ArrayList<String>();
+        List<NavigationCallback> menuItems = new ArrayList<>();
 
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
-            menuItems.add("");
+            menuItems.add( new NavigationCallback("") );
         }
 
-        menuItems.add( getString(R.string.open_library));
-        menuItems.add( getString(R.string.download));
-        menuItems.add( config.getLastReadTitle() );
+        menuItems.add( new NavigationCallback(getString(R.string.open_library))
+                .setOnClick(() -> launchActivity(LibraryActivity.class)));
+
+        menuItems.add( new NavigationCallback(getString(R.string.download))
+                .setOnClick(() -> launchActivity(CatalogActivity.class)));
+
+        menuItems.add( new NavigationCallback(config.getLastReadTitle() ));
 
         if ( this.readingFragment != null ) {
 
             if ( this.readingFragment.hasTableOfContents() ) {
-                menuItems.add( getString(R.string.toc_label));
+                menuItems.add( new NavigationCallback(getString(R.string.toc_label)));
                 this.tocIndex = menuItems.size() - 1;
             }
 
             if ( this.readingFragment.hasHighlights() ) {
-                menuItems.add( getString(R.string.highlights));
+                menuItems.add( new NavigationCallback(getString(R.string.highlights)));
                 this.highlightIndex = menuItems.size() - 1;
             }
 
             if ( this.readingFragment.hasSearchResults() ) {
-                menuItems.add( getString(R.string.search_results));
+                menuItems.add( new NavigationCallback(getString(R.string.search_results)));
                 this.searchIndex = menuItems.size() - 1;
             }
 
             if ( this.readingFragment.hasBookmarks() ) {
-                menuItems.add( getString(R.string.bookmarks));
+                menuItems.add( new NavigationCallback(getString(R.string.bookmarks)));
                 this.bookmarksIndex = menuItems.size() - 1;
             }
-
         }
 
-        return menuItems.toArray(new String[menuItems.size()]);
+        menuItems.add( new NavigationCallback(getString(R.string.prefs)).setOnClick(this::startPreferences));
+
+        return menuItems;
     }
 
     @Override
-    public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
-
-        int correctedIndex = getCorrectIndex(i);
-
-        //FIXME: this is nasty and hacky!
-        if ( correctedIndex == 2 || i == tocIndex || i == highlightIndex  || i == searchIndex || i == bookmarksIndex ) {
-            return false;
+    protected void startPreferences() {
+        if ( readingFragment != null ) {
+            this.readingFragment.saveConfigState();
         }
 
-        return super.onGroupClick(expandableListView, view, correctedIndex, l);
-    }
-
-    private int getCorrectIndex( int i ) {
-
-        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
-            return i - 1;
-        } else {
-            return i;
-        }
-    }
-
-    @Override
-    public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
-
-        super.onChildClick(expandableListView, view, i, i2, l );
-
-        Option<NavigationCallback> childItem = getAdapter().getChild( i, i2 );
-        childItem.forEach( item -> item.onClick() );
-
-        return false;
+        super.startPreferences();
     }
 
     @Override

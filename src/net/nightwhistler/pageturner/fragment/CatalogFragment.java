@@ -340,20 +340,6 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
 		}
 
         LOG.debug("Adapter has feed: " + adapter.getFeed());
-	}	
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
-		switch (item.getItemId()) {
-
-		case R.id.prefs:
-			Intent prefsIntent = new Intent(getActivity(), PageTurnerPrefsActivity.class);
-			startActivity(prefsIntent);
-			break;
-        }
-		
-		return true;
 	}
 
     @Override

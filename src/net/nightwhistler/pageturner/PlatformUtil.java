@@ -74,7 +74,7 @@ public class PlatformUtil {
 
     public static void copyTextToClipboard(Context context, String text) {
 
-        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES. HONEYCOMB) {
+        if ( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES. HONEYCOMB ) {
             android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             android.content.ClipData clip = ClipData.newPlainText("PageTurner copied text", text);
             clipboard.setPrimaryClip(clip);

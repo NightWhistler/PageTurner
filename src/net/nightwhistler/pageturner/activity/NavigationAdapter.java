@@ -20,6 +20,7 @@ import net.nightwhistler.pageturner.view.NavigationCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +44,8 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
     private final int level;
 
     private Functor2<List<NavigationCallback>, Integer, ExpandableListView> subListProvider;
+
+    private static final int INDENT = 12;
 
     private static final Logger LOG = LoggerFactory.getLogger("NavigationAdapter");
 
@@ -72,20 +75,22 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
         View childView = childItem.map( c -> c.hasChildren() ? getChildNodeView(c,view): getChildLeafView(c, view ) )
                 .getOrElse(view);
 
-        /*
-        Resources r= context.getResources();
-        float px40=
-                TypedValue.applyDimension(
-                        TypedValue.COMPLEX_UNIT_DIP, 40, r.getDisplayMetrics());
+        int paddingValue = (int) getDipValue( INDENT ) * ( level + 2 );
 
-        childView.setPadding(
-                childView.getPaddingLeft() + (level * (int) px40),
-                childView.getPaddingTop(),
-                childView.getPaddingRight(),
-                childView.getPaddingBottom());
-                */
+        LOG.debug( "Applying padding of " + paddingValue + " for level " + level );
+        LOG.debug( "Old value was " + childView.getPaddingLeft() );
+
+        childView.setPadding( paddingValue, childView.getPaddingTop(),
+                childView.getPaddingRight(), childView.getPaddingBottom() );
 
         return childView;
+    }
+
+    private float getDipValue( int input ) {
+
+        Resources r = context.getResources();
+
+        return TypedValue.applyDimension( TypedValue.COMPLEX_UNIT_DIP, input, r.getDisplayMetrics() );
     }
 
     private View getChildNodeView( NavigationCallback childItem, View view ) {
@@ -166,6 +171,7 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
                 t -> t.setText(item.getTitle()),
                 () -> LOG.error("View for title not found!")
         );
+
 
         return layout;
     }

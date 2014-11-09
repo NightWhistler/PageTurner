@@ -132,7 +132,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
                 /*
                 * Adjust height
                 */
-                heightMeasureSpec = MeasureSpec.makeMeasureSpec(5000, MeasureSpec.AT_MOST);
+                heightMeasureSpec = MeasureSpec.makeMeasureSpec(10000, MeasureSpec.AT_MOST);
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             }
         };

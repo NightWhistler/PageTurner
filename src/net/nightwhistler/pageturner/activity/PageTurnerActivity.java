@@ -174,12 +174,13 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
 
         List result = new ArrayList<>();
 
+        if ( new File(config.getLastOpenedFile()).exists() ) {
+            String nowReading = getString( R.string.now_reading, config.getLastReadTitle() );
+            result.add( navigate(nowReading, ReadingActivity.class));
+        }
+
         result.add( navigate(getString(R.string.open_library), LibraryActivity.class) );
         result.add( navigate(getString(R.string.download), CatalogActivity.class));
-
-        if ( new File(config.getLastOpenedFile()).exists() ) {
-            result.add( navigate(config.getLastReadTitle(), ReadingActivity.class));
-        }
 
         result.add( new NavigationCallback(getString(R.string.prefs)).setOnClick(this::startPreferences));
 

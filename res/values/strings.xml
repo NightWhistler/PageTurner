@@ -189,6 +189,7 @@
     <string name="bookmark_options">Bookmark options</string>
     <string name="bookmark_deleted">Bookmark has been removed</string>
 
+    <string name="now_reading">Now reading: %s</string>
 
     <!-- Preferences -->
 

@@ -100,13 +100,8 @@ public class ReadingActivity extends PageTurnerActivity {
             menuItems.add( new NavigationCallback("") );
         }
 
-        menuItems.add( new NavigationCallback(getString(R.string.open_library))
-                .setOnClick(() -> launchActivity(LibraryActivity.class)));
-
-        menuItems.add( new NavigationCallback(getString(R.string.download))
-                .setOnClick(() -> launchActivity(CatalogActivity.class)));
-
-        NavigationCallback readingCallback = new NavigationCallback(config.getLastReadTitle());
+        String nowReading = getString( R.string.now_reading, config.getLastReadTitle() );
+        NavigationCallback readingCallback = new NavigationCallback(nowReading);
         menuItems.add( readingCallback );
 
         if ( this.readingFragment != null ) {
@@ -136,6 +131,12 @@ public class ReadingActivity extends PageTurnerActivity {
                 bookmarksCallback.addChildren( readingFragment.getBookmarks() );
             }
         }
+
+        menuItems.add( new NavigationCallback(getString(R.string.open_library))
+                .setOnClick(() -> launchActivity(LibraryActivity.class)));
+
+        menuItems.add( new NavigationCallback(getString(R.string.download))
+                .setOnClick(() -> launchActivity(CatalogActivity.class)));
 
         menuItems.add( new NavigationCallback(getString(R.string.prefs)).setOnClick(this::startPreferences));
 

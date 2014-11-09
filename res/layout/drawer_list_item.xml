@@ -16,41 +16,30 @@
 
 
 <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
- <ImageView android:src="@drawable/arrowhead_down"
+    <ImageView android:src="@drawable/arrowhead_down"
                android:id="@+id/explist_indicator"
                android:layout_width="wrap_content"
                android:layout_height="match_parent"
                android:paddingLeft="5dp"
                android:gravity="center_vertical"
-         />
-
- <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/groupName"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textAppearance="?android:attr/textAppearanceListItemSmall"
-    android:paddingLeft="5dp"
-    android:gravity="center_vertical"
-    android:paddingRight="16dp"
-    android:textColor="#fff"
-
-    android:minHeight="48dip"
-    />
-
-<!--
-    <TextView
-        android:id="@+id/subtitleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="#555555"
-        android:text="subTitle"
         />
--->
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/groupName"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:textAppearance="?android:attr/textAppearanceListItemSmall"
+              android:paddingLeft="5dp"
+              android:gravity="center_vertical"
+              android:paddingRight="16dp"
+              android:textColor="#fff"
+
+              android:minHeight="48dip"
+        />
+
 </LinearLayout>
-    <!-- android:background="?android:attr/activatedBackgroundIndicator" -->

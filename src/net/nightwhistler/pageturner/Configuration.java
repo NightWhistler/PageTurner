@@ -373,6 +373,10 @@ public class Configuration {
 
 		String data = bookPrefs.getString(KEY_OFFSETS, "");
 
+		if ( data.length() == 0 ) {
+			return none();
+		}
+
         try {
             PageOffsets offsets = PageOffsets.fromJSON(data);
 
@@ -447,9 +451,10 @@ public class Configuration {
 
 	public List<CustomOPDSSite> getCustomOPDSSites() {
 
-		String sites = settings.getString(KEY_OPDS_SITES, "");
+		String sites = settings.getString(KEY_OPDS_SITES, "[]");
 
 		List<CustomOPDSSite> result = new ArrayList<>();
+
 		try {
 			JSONArray array = new JSONArray(sites);
 			for (int i = 0; i < array.length(); i++) {

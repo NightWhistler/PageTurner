@@ -1,6 +1,7 @@
 package net.nightwhistler.pageturner.view;
 
 import jedi.option.Option;
+import net.nightwhistler.ui.TreeNode;
 import net.nightwhistler.ui.UiUtils;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import static net.nightwhistler.pageturner.CollectionUtil.listElement;
  * Time: 9:12 PM
  * To change this template use File | Settings | File Templates.
  */
-public class NavigationCallback {
+public class NavigationCallback extends TreeNode<NavigationCallback> {
 
     private String title;
     private String subtitle;
@@ -70,20 +71,5 @@ public class NavigationCallback {
         }
     }
 
-    public void addChild( NavigationCallback child ) {
-        this.children.add( child );
-    }
-
-    public boolean hasChildren() {
-        return ! this.children.isEmpty();
-    }
-
-    public Option<NavigationCallback> getChild( int child ) {
-        return listElement( children, child );
-    }
-
-    public int getChildCount() {
-        return children.size();
-    }
 
 }

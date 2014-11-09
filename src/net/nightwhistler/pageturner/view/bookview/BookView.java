@@ -776,10 +776,8 @@ public class BookView extends ScrollView implements TextSelectionActions.Selecte
 	public Option<List<TocEntry>> getTableOfContents() {
 
         if ( this.book != null ) {
-            List<TocEntry> result = new ArrayList<TocEntry>();
-
+			List<TocEntry> result = new ArrayList<>();
             flatten(book.getTableOfContents().getTocReferences(), result, 0);
-
             return some(result);
         } else {
             return none();
@@ -811,6 +809,7 @@ public class BookView extends ScrollView implements TextSelectionActions.Selecte
 			flatten(ref.getChildren(), entries, level + 1);
 		}
 	}
+
 
 	@Override
 	public void fling(int velocityY) {

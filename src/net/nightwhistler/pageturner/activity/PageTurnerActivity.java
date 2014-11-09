@@ -120,15 +120,40 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
     protected void initDrawerItems( ExpandableListView expandableListView ) {
         if ( expandableListView != null ) {
 
-            this.adapter = new NavigationAdapter( this, getMenuItems(config) );
+            this.adapter = new NavigationAdapter( this, getMenuItems(config), this::createExpandableListView, 0);
 
-            expandableListView.setAdapter( this.adapter );
-            expandableListView.setOnGroupClickListener(this::onGroupClick);
-            expandableListView.setOnChildClickListener(this::onChildClick);
-            expandableListView.setOnItemLongClickListener( this::onItemLongClick );
-
-            expandableListView.setGroupIndicator(null);
+            setClickListeners( expandableListView, this.adapter );
         }
+    }
+
+    private ExpandableListView createExpandableListView( List<NavigationCallback> items, int level ) {
+        ExpandableListView e = new ExpandableListView(this) {
+            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                /*
+                * Adjust height
+                */
+                heightMeasureSpec = MeasureSpec.makeMeasureSpec(5000, MeasureSpec.AT_MOST);
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            }
+        };
+        setClickListeners(e, new NavigationAdapter(this, items, this::createExpandableListView, level ));
+        return e;
+    }
+
+    private void setClickListeners( ExpandableListView expandableListView, NavigationAdapter adapter ) {
+
+        expandableListView.setAdapter( adapter );
+
+        expandableListView.setOnGroupClickListener(
+                (e, v, groupId, l) -> onGroupClick(adapter, groupId) );
+
+        expandableListView.setOnChildClickListener(
+                (e, v, groupId, childId, l) -> onChildClick(adapter, groupId, childId));
+
+        expandableListView.setOnItemClickListener(
+                (av, v, position, id) -> onItemLongClick(adapter, position, id ));
+
+        expandableListView.setGroupIndicator(null);
     }
 
     protected abstract int getMainLayoutResource();
@@ -163,6 +188,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
 
     protected void startPreferences() {
         Intent intent = new Intent(this, PageTurnerPrefsActivity.class);
+        beforeLaunchActivity();
         startActivity(intent);
     }
 
@@ -228,10 +254,12 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    protected boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+    protected boolean onGroupClick(NavigationAdapter adapter, int groupId ) {
 
-        Option<Boolean> group = getAdapter().findGroup(i).map( g -> {
-            if ( g.hasChildren() ) {
+        LOG.debug( "Got onGroupClick for group " + groupId + " on level " + adapter.getLevel() );
+
+        Option<Boolean> group =adapter.findGroup(groupId).map(g -> {
+            if (g.hasChildren()) {
                 return false; //Let the superclass handle it and expand the group
             } else {
                 g.onClick();
@@ -243,25 +271,33 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
         return group.getOrElse( false );
     }
 
-    protected boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
+    protected boolean onChildClick(NavigationAdapter adapter, int groupId, int childId) {
 
-        Option<NavigationCallback> childItem = getAdapter().findChild( i, i2 );
-        childItem.forEach(item -> item.onClick());
+        LOG.debug("Got onChildClick event for group " + groupId + " and child " + childId
+                + " on level " + adapter.getLevel() );
 
-        closeNavigationDrawer();
+        Option<NavigationCallback> childItem = adapter.findChild(groupId, childId);
+
+        childItem.forEach(item -> {
+            if ( ! item.hasChildren() ) {
+                item.onClick();
+                closeNavigationDrawer();
+            }
+        });
+
         return false;
     }
 
-    protected boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+    protected boolean onItemLongClick(NavigationAdapter adapter, int position, long id) {
 
-        LOG.debug("Got long click");
+        LOG.debug("Got long click on position" + position + " on level " + adapter.getLevel() );
 
         if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
             int groupPosition = ExpandableListView.getPackedPositionGroup(id);
             int childPosition = getAdapter().getIndexForChildId( groupPosition,
                     ExpandableListView.getPackedPositionChild(id) );
 
-            Option<NavigationCallback> childItem = getAdapter().findChild( groupPosition, childPosition );
+            Option<NavigationCallback> childItem = adapter.findChild(groupPosition, childPosition);
 
             LOG.debug("Long-click on " + groupPosition + ", " + childPosition );
             LOG.debug("Child-item: " + childItem );

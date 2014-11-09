@@ -93,9 +93,7 @@ import java.io.File;
 import java.net.URLEncoder;
 import java.util.*;
 
-import static jedi.functional.FunctionalPrimitives.collect;
-import static jedi.functional.FunctionalPrimitives.firstOption;
-import static jedi.functional.FunctionalPrimitives.isEmpty;
+import static jedi.functional.FunctionalPrimitives.*;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
 import static net.nightwhistler.pageturner.PlatformUtil.executeTask;
@@ -2599,12 +2597,15 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
     public List<NavigationCallback> getTableOfContents() {
 
-        List<TocEntry> tocEntries = this.bookView.getTableOfContents().getOrElse( new ArrayList<>() );
+		List<TocEntry> entries = this.bookView.getTableOfContents()
+				.getOrElse(	new ArrayList<>() );
 
-        return collect( tocEntries, tocEntry -> new NavigationCallback(
-                        tocEntry.getTitle(), "",
-                        () -> bookView.navigateTo(tocEntry) )
-        );
+		return map( entries, tocEntry ->
+				new NavigationCallback(
+						tocEntry.getTitle(), "",
+						() -> bookView.navigateTo(tocEntry))
+		);
+
     }
 
 	@Override
@@ -2613,7 +2614,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
 			outState.putInt(POS_KEY, this.bookView.getProgressPosition());
 			outState.putInt(IDX_KEY, this.bookView.getIndex());
 		}
-
 	}
 
 	private void sendProgressUpdateToServer(final int index, final int position) {

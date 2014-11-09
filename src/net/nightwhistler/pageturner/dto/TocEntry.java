@@ -20,4 +20,5 @@ public class TocEntry {
     public String getTitle() {
         return title;
     }
+
 }

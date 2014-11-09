@@ -56,11 +56,7 @@ public class ReadingActivity extends PageTurnerActivity {
     private static final Logger LOG = LoggerFactory
             .getLogger("ReadingActivity");
 
-
-    private int tocIndex = -1;
-    private int highlightIndex = -1;
     private int searchIndex = -1;
-    private int bookmarksIndex = -1;
 
     @Override
     protected int getMainLayoutResource() {
@@ -83,26 +79,6 @@ public class ReadingActivity extends PageTurnerActivity {
 
         if ( this.readingFragment != null ) {
 
-            if ( readingFragment.hasTableOfContents() ) {
-                List<NavigationCallback> tocCallbacks =
-                        this.readingFragment.getTableOfContents();
-
-                getAdapter().findGroup(this.tocIndex).match(
-                        t -> forEach(tocCallbacks, t::addChild),
-                        () -> LOG.error("Could not find TOC item!")
-                );
-            }
-
-            if ( readingFragment.hasHighlights() ) {
-                List<NavigationCallback> highlightCallbacks =
-                        this.readingFragment.getHighlights();
-
-                getAdapter().findGroup(this.highlightIndex).match(
-                        h -> forEach(highlightCallbacks, h::addChild),
-                        () -> LOG.error("Could not find Highlights drawer item!"));
-
-            }
-
             if ( readingFragment.hasSearchResults() ) {
                 List<NavigationCallback> searchCallbacks =
                         this.readingFragment.getSearchResults();
@@ -112,23 +88,14 @@ public class ReadingActivity extends PageTurnerActivity {
                         () -> LOG.error("Could not find Search drawer item!"));
 
             }
-
-            if ( readingFragment.hasBookmarks() ) {
-                List<NavigationCallback> bookmarkCallbacks = this.readingFragment.getBookmarks();
-
-                getAdapter().findGroup(this.bookmarksIndex).match(
-                        b -> forEach(bookmarkCallbacks, b::addChild),
-                        () -> LOG.error("Could not find Bookmarks drawer item!"));
-            }
-
         }
-
     }
 
     protected List<NavigationCallback> getMenuItems( Configuration config ) {
 
         List<NavigationCallback> menuItems = new ArrayList<>();
 
+        //Add in a blank item to get the spacing right
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
             menuItems.add( new NavigationCallback("") );
         }
@@ -139,18 +106,22 @@ public class ReadingActivity extends PageTurnerActivity {
         menuItems.add( new NavigationCallback(getString(R.string.download))
                 .setOnClick(() -> launchActivity(CatalogActivity.class)));
 
-        menuItems.add( new NavigationCallback(config.getLastReadTitle() ));
+        NavigationCallback readingCallback = new NavigationCallback(config.getLastReadTitle());
+        menuItems.add( readingCallback );
 
         if ( this.readingFragment != null ) {
 
             if ( this.readingFragment.hasTableOfContents() ) {
-                menuItems.add( new NavigationCallback(getString(R.string.toc_label)));
-                this.tocIndex = menuItems.size() - 1;
+
+                NavigationCallback tocCallback = new NavigationCallback(getString(R.string.toc_label));
+                readingCallback.addChild(tocCallback);
+                tocCallback.addChildren( readingFragment.getTableOfContents() );
             }
 
             if ( this.readingFragment.hasHighlights() ) {
-                menuItems.add( new NavigationCallback(getString(R.string.highlights)));
-                this.highlightIndex = menuItems.size() - 1;
+                NavigationCallback highlightsCallback = new NavigationCallback(getString(R.string.highlights));
+                readingCallback.addChild( highlightsCallback );
+                highlightsCallback.addChildren( readingFragment.getHighlights() );
             }
 
             if ( this.readingFragment.hasSearchResults() ) {
@@ -159,8 +130,10 @@ public class ReadingActivity extends PageTurnerActivity {
             }
 
             if ( this.readingFragment.hasBookmarks() ) {
-                menuItems.add( new NavigationCallback(getString(R.string.bookmarks)));
-                this.bookmarksIndex = menuItems.size() - 1;
+                NavigationCallback bookmarksCallback = new NavigationCallback(getString(R.string.bookmarks));
+                readingCallback.addChild( bookmarksCallback );
+
+                bookmarksCallback.addChildren( readingFragment.getBookmarks() );
             }
         }
 

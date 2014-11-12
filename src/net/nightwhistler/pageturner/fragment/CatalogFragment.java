@@ -488,28 +488,18 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
 
                 Option<Entry> lastEntry = adapter.getItem( adapter.getCount() -1 );
 
-                if ( ! isEmpty( lastEntry ) ) {
-                    Option<Feed> feed = lastEntry.unsafeGet().getFeed();
+                lastEntry.flatMap( Entry::getFeed ).forEach( feed -> feed.getNextLink().forEach( link -> {
+                    if (! link.getHref().equals(lastLoadedUrl)) {
+                        Entry nextEntry = new Entry();
+                        nextEntry.setFeed(feed);
+                        nextEntry.addLink(link);
 
-                    if ( ! isEmpty( feed ) ) {
-                        Option<Link> nextLink = feed.unsafeGet().getNextLink();
+                        LOG.debug("Starting download for " + link.getHref() + " after scroll");
 
-                        if ( ! isEmpty( nextLink ) ) {
-                            Link link = nextLink.unsafeGet();
-
-                            if (! link.getHref().equals(lastLoadedUrl)) {
-                                Entry nextEntry = new Entry();
-                                nextEntry.setFeed(feed.unsafeGet());
-                                nextEntry.addLink(link);
-
-                                LOG.debug("Starting download for " + link.getHref() + " after scroll");
-
-                                lastLoadedUrl = link.getHref();
-                                loadURL(nextEntry, link.getHref(), false, false, ResultType.APPEND);
-                            }
-                        }
+                        lastLoadedUrl = link.getHref();
+                        loadURL(nextEntry, link.getHref(), false, false, ResultType.APPEND);
                     }
-                }
+                }));
             }
         }
 

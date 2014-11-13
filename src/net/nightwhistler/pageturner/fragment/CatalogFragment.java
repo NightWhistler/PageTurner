@@ -317,10 +317,8 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
 
         Option<Feed> feed = adapter.getFeed();
 
-        boolean searchEnabled = feed.match(f ->
-                        !isEmpty(f.getSearchLink()),
-                () -> false);
-		
+        boolean searchEnabled = !isEmpty( (Option<Link>) feed.flatMap(Feed::getSearchLink) );
+
 		for ( int i=0; i < menu.size(); i++ ) {
 			MenuItem item = menu.getItem(i);
 			
@@ -488,7 +486,7 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
 
                 Option<Entry> lastEntry = adapter.getItem( adapter.getCount() -1 );
 
-                lastEntry.flatMap( Entry::getFeed ).forEach( feed -> feed.getNextLink().forEach( link -> {
+                lastEntry.flatMap(Entry::getFeed).forEach( feed -> feed.getNextLink().forEach( link -> {
                     if (! link.getHref().equals(lastLoadedUrl)) {
                         Entry nextEntry = new Entry();
                         nextEntry.setFeed(feed);
@@ -512,16 +510,13 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
                 for ( int i=0; i < visibleItemCount; i++ ) {
                     Option<Entry> entry = adapter.getItem( firstVisibleItem + i );
 
-                    if (! isEmpty(entry) ) {
-                        Option<Feed> feed = entry.unsafeGet().getFeed();
-                        if ( ! isEmpty( feed ) ) {
-                            Option<Link> imageLink = Catalog.getImageLink( feed.unsafeGet(), entry.unsafeGet() );
-                            if ( ! isEmpty( imageLink ) &&
-                                    ! thumbnailCache.containsKey( imageLink.unsafeGet().getHref() ) ) {
-                                queueImageLoading( entry.unsafeGet().getBaseURL(), imageLink.unsafeGet() );
+                    entry.forEach( e -> e.getFeed().forEach( feed -> {
+                        Catalog.getImageLink( feed, e).forEach( imageLink -> {
+                            if ( ! thumbnailCache.containsKey( imageLink.getHref() ) ) {
+                                queueImageLoading( e.getBaseURL(), imageLink );
                             }
-                        }
-                    }
+                        });
+                    }));
                 }
             };
 

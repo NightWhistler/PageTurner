@@ -71,7 +71,7 @@ import static java.lang.Character.toUpperCase;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
 import static jedi.option.Options.some;
-import static net.nightwhistler.ui.UiUtils.onActionExpandListener;
+import static net.nightwhistler.ui.UiUtils.onCollapse;
 import static net.nightwhistler.ui.UiUtils.onMenuPress;
 import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
 
@@ -401,17 +401,14 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         onMenuPress( menu, R.id.profile_night ).thenDo(() -> switchToColourProfile(ColourProfile.NIGHT) );
 
         this.searchMenuItem = menu.findItem(R.id.menu_search);
+
         if (searchMenuItem != null) {
             final SearchView searchView = (SearchView) searchMenuItem.getActionView();
 
             if (searchView != null) {
 
                 searchView.setOnQueryTextListener( UiUtils.onQuery( this::performSearch ));
-
-                searchMenuItem.setOnActionExpandListener( onActionExpandListener(
-                        () ->{},
-                        () -> performSearch("")
-                ));
+                searchMenuItem.setOnActionExpandListener( onCollapse(() -> performSearch("")));
 
             } else {
                 searchMenuItem.setOnMenuItemClickListener( item -> {

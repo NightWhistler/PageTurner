@@ -190,6 +190,8 @@
     <string name="bookmark_deleted">Bookmark has been removed</string>
 
     <string name="now_reading">Now reading: %s</string>
+    <string name="library_failed">Could not load library data.</string>
+
 
     <!-- Preferences -->
 

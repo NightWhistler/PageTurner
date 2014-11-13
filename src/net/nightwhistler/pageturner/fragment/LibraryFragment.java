@@ -43,6 +43,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.SearchView;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
+import jedi.functional.FunctionalPrimitives;
 import jedi.option.Option;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.pageturner.Configuration;
@@ -178,14 +179,14 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 				switcher.showNext();
 			}
 		} else {		
-			this.bookAdapter = new BookListAdapter(getActivity());
+			this.bookAdapter = new BookListAdapter(context);
 			this.listView.setAdapter(bookAdapter);
 		}
 
-		this.waitDialog = new ProgressDialog(getActivity());
+		this.waitDialog = new ProgressDialog(context);
 		this.waitDialog.setOwnerActivity(getActivity());
 		
-		this.importDialog = new ProgressDialog(getActivity());
+		this.importDialog = new ProgressDialog(context);
 		
 		this.importDialog.setOwnerActivity(getActivity());
 		importDialog.setTitle(R.string.importing_books);
@@ -353,7 +354,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	}
 		
 	private void startImport(File startFolder, boolean copy) {		
-		ImportTask importTask = new ImportTask(getActivity(), libraryService, this, config, copy, false);
+		ImportTask importTask = new ImportTask(context, libraryService, this, config, copy, false);
 		importDialog.setOnCancelListener(importTask);
 		importDialog.show();		
 				
@@ -909,9 +910,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
 		public void run() {
 			try {
-
-                getCover(book).forEach( drawable -> view.setImageDrawable(drawable) );
-
+                getCover(book).forEach( view::setImageDrawable );
             } catch (IllegalStateException i) {
                 //Do nothing, happens when we're no longer attached.
             }
@@ -1069,8 +1068,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             alphabetAdapter = null;
             setAlphabetBarVisible(false);
         }
-
-
     }
 
 	private class LoadBooksTask extends QueueableAsyncTask<String, Integer, QueryResult<LibraryBook>> {
@@ -1142,8 +1139,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
                     buildImportQuestionDialog();
                     importQuestion.show();
                 }
-            }, () -> Toast.makeText(context, "Could not load library data.", Toast.LENGTH_SHORT).show());
-            //FIXME: Not internationalized text
+            }, () -> Toast.makeText(context, R.string.library_failed, Toast.LENGTH_SHORT).show());
 
 		}
 		

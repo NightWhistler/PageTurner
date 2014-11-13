@@ -63,7 +63,6 @@ import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.TextUtil;
 import net.nightwhistler.pageturner.activity.LibraryActivity;
 import net.nightwhistler.pageturner.activity.MediaButtonReceiver;
-import net.nightwhistler.pageturner.activity.PageTurnerPrefsActivity;
 import net.nightwhistler.pageturner.activity.ReadingActivity;
 import net.nightwhistler.pageturner.animation.*;
 import net.nightwhistler.pageturner.bookmark.Bookmark;
@@ -71,11 +70,11 @@ import net.nightwhistler.pageturner.bookmark.BookmarkDatabaseHelper;
 import net.nightwhistler.pageturner.dto.HighLight;
 import net.nightwhistler.pageturner.dto.SearchResult;
 import net.nightwhistler.pageturner.dto.TocEntry;
+import net.nightwhistler.pageturner.epub.SearchTextTask;
 import net.nightwhistler.pageturner.library.LibraryService;
 import net.nightwhistler.pageturner.sync.AccessException;
 import net.nightwhistler.pageturner.sync.BookProgress;
 import net.nightwhistler.pageturner.sync.ProgressService;
-import net.nightwhistler.pageturner.epub.SearchTextTask;
 import net.nightwhistler.pageturner.tts.TTSPlaybackItem;
 import net.nightwhistler.pageturner.tts.TTSPlaybackQueue;
 import net.nightwhistler.pageturner.view.*;
@@ -96,9 +95,7 @@ import java.util.*;
 import static jedi.functional.FunctionalPrimitives.*;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
-import static net.nightwhistler.pageturner.PlatformUtil.executeTask;
-import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
-import static net.nightwhistler.pageturner.PlatformUtil.verifyNotOnUiThread;
+import static net.nightwhistler.pageturner.PlatformUtil.*;
 import static net.nightwhistler.ui.UiUtils.onMenuPress;
 
 public class ReadingFragment extends RoboSherlockFragment implements
@@ -1786,12 +1783,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         }
 	}
 
-    /**
-     * Should be called from a background thread.
-     */
     private void doAutoScroll() {
-
-        verifyNotOnUiThread();
 
         if (dummyView.getAnimator() == null) {
             LOG.debug("BookView no longer has an animator. Aborting rolling blind.");
@@ -1825,8 +1817,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		RollingBlindAnimator anim = new RollingBlindAnimator();
 		anim.setAnimationSpeed(config.getScrollSpeed());
 
-        before.forEach( b -> anim.setBackgroundBitmap(b) );
-        after.forEach( b -> anim.setForegroundBitmap(b) );
+        before.forEach( anim::setBackgroundBitmap );
+        after.forEach( anim::setForegroundBitmap );
 
 		dummyView.setAnimator(anim);
 	}
@@ -1914,8 +1906,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
      * @param animator
      */
     private void doPageCurl( PageCurlAnimator animator ) {
-
-        verifyNotOnUiThread();
 
         if (animator.isFinished()) {
 

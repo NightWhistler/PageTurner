@@ -149,7 +149,8 @@ public class ReadingActivity extends PageTurnerActivity {
             this.readingFragment.saveConfigState();
         }
 
-        super.startPreferences();
+        Intent intent = new Intent(this, PageTurnerPrefsActivity.class);
+        startActivity(intent);
     }
 
     @Override

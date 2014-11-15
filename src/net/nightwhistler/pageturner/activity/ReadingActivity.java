@@ -22,18 +22,13 @@ package net.nightwhistler.pageturner.activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-
-import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import com.google.inject.Inject;
-import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
-import net.nightwhistler.pageturner.catalog.Catalog;
 import net.nightwhistler.pageturner.fragment.ReadingFragment;
 import net.nightwhistler.pageturner.view.NavigationCallback;
 import org.slf4j.Logger;

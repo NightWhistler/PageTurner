@@ -1290,73 +1290,75 @@ public class ReadingFragment extends RoboSherlockFragment implements
         ambilWarnaDialog.show();
     }
 
-    public void onBookmarkClick( final Bookmark bookmark ) {
+	private void onBookmarkLongClick(final Bookmark bookmark) {
 
-        actionModeBuilderProvider.get()
-                .setTitle(R.string.bookmark_options)
-                .setOnCreateAction((actionMode, menu) -> {
-                    MenuItem delete = menu.add(R.string.delete);
-                    delete.setIcon(R.drawable.trash_can);
+		actionModeBuilderProvider.get()
+				.setTitle(R.string.bookmark_options)
+				.setOnCreateAction((actionMode, menu) -> {
+					MenuItem delete = menu.add(R.string.delete);
+					delete.setIcon(R.drawable.trash_can);
 
-                    return true;
-                }).setOnActionItemClickedAction((actionMode, menuItem) -> {
+					return true;
+				})
+				.setOnActionItemClickedAction((actionMode, menuItem) -> {
 
-            boolean result = false;
+					boolean result = false;
 
-            if (menuItem.getTitle().equals(getString(R.string.delete))) {
-                bookmarkDatabaseHelper.deleteBookmark(bookmark);
-                Toast.makeText(context, R.string.bookmark_deleted, Toast.LENGTH_SHORT).show();
-                result = true;
-            }
+					if (menuItem.getTitle().equals(getString(R.string.delete))) {
+						bookmarkDatabaseHelper.deleteBookmark(bookmark);
+						Toast.makeText(context, R.string.bookmark_deleted, Toast.LENGTH_SHORT).show();
+						result = true;
+					}
 
-            if (result) {
-                actionMode.finish();
-            }
+					if (result) {
+						actionMode.finish();
+					}
 
-            return result;
-        }).build(getSherlockActivity());
-    }
+					return result;
+				})
+				.build(getSherlockActivity());
+	}
 
-    @Override
-    public void onHighLightClick(final HighLight highLight) {
+	@Override
+	public void onHighLightClick(final HighLight highLight) {
 
-        LOG.debug( "onHighLightClick" );
+		LOG.debug( "onHighLightClick" );
 
-        Map<String, Command<HighLight>> commands = new HashMap<>();
-        commands.put( getString(R.string.edit), this::showHighlightEditDialog );
-        commands.put( getString(R.string.delete), this::deleteHightlight );
-        commands.put( getString(R.string.set_colour), this::showHighlightColourDialog );
+		Map<String, Command<HighLight>> commands = new HashMap<>();
+		commands.put( getString(R.string.edit), this::showHighlightEditDialog );
+		commands.put( getString(R.string.delete), this::deleteHightlight );
+		commands.put( getString(R.string.set_colour), this::showHighlightColourDialog );
 
-        actionModeBuilderProvider.get()
-                .setTitle(R.string.highlight_options)
-                .setOnCreateAction((actionMode, menu) -> {
-                    menu.add(R.string.edit).setIcon(R.drawable.edit);
-                    menu.add(R.string.set_colour).setIcon(R.drawable.color);
-                    menu.add(R.string.delete).setIcon(R.drawable.trash_can);
-                    return true;
-                }).setOnActionItemClickedAction( (actionMode, menuItem) -> {
+		actionModeBuilderProvider.get()
+				.setTitle(R.string.highlight_options)
+				.setOnCreateAction((actionMode, menu) -> {
+					menu.add(R.string.edit).setIcon(R.drawable.edit);
+					menu.add(R.string.set_colour).setIcon(R.drawable.color);
+					menu.add(R.string.delete).setIcon(R.drawable.trash_can);
+					return true;
+				})
+				.setOnActionItemClickedAction((actionMode, menuItem) -> {
 
-            Command<HighLight> cmd = commands.get( menuItem.getTitle() );
+					Command<HighLight> cmd = commands.get(menuItem.getTitle());
 
-            if ( cmd != null ) {
-                cmd.execute( highLight );
-                actionMode.finish();
-                return true;
-            }
+					if (cmd != null) {
+						cmd.execute(highLight);
+						actionMode.finish();
+						return true;
+					}
 
-            return false;
+					return false;
 
-        }).build(getSherlockActivity());
-
-    }
+				})
+				.build(getSherlockActivity());
+	}
 
     private void deleteHightlight( final HighLight highLight ) {
 
         if ( highLight.getTextNote() != null && highLight.getTextNote().length() > 0 ) {
             new AlertDialog.Builder(context)
                     .setMessage( R.string.notes_attached )
-                    .setNegativeButton(android.R.string.no, (a, b) -> {
-                    })
+                    .setNegativeButton(android.R.string.no, (a, b) -> {})
                     .setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
                         highlightManager.removeHighLight(highLight);
                         Toast.makeText( context,R.string.highlight_deleted, Toast.LENGTH_SHORT ).show();
@@ -1992,7 +1994,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		TODO: is this OK?
         We don't set anything when we get None instead of Some.
         */
-        bitmap.forEach( b -> dummyView.setImageBitmap(b) );
+        bitmap.forEach( dummyView::setImageBitmap );
 
 		this.pageNumberView.setVisibility(View.GONE);
 
@@ -2593,7 +2595,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		return map( entries, tocEntry ->
 				new NavigationCallback(
 						tocEntry.getTitle(), "",
-						() -> bookView.navigateTo(tocEntry))
+						() -> bookView.navigateTo(tocEntry)
+				)
 		);
 
     }
@@ -2692,7 +2695,6 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 }
             }
         });
-
 
         searchProgress.setOnCancelListener( dialog -> task.cancel(true) );
         executeTask( task, query );
@@ -2840,7 +2842,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             NavigationCallback callback = new NavigationCallback( bookmark.getName(), finalText )
                     .setOnClick( () -> bookView.navigateTo( bookmark.getIndex(), bookmark.getPosition() ))
-                    .setOnLongClick( () -> onBookmarkClick(bookmark) );
+                    .setOnLongClick( () -> onBookmarkLongClick(bookmark) );
 
             result.add( callback );
         }

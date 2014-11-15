@@ -196,6 +196,10 @@
     <string name="bookmark_options">Bladwijzer opties</string>
     <string name="bookmark_deleted">Bladwijzer is verwijderd</string>
 
+    <string name="now_reading">Nu aan het lezen: %s</string>
+    <string name="library_failed">Kon de bibliotheek niet openen.</string>
+
+
     <!-- Preferences -->
         
     <string name="pref_sync_settings">Synchronisatie instellingen</string>

@@ -35,6 +35,7 @@ import roboguice.inject.ContextSingleton;
 import java.io.*;
 import java.nio.channels.FileChannel;
 
+import static jedi.functional.FunctionalPrimitives.isEmpty;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
 import static jedi.option.Options.some;
@@ -106,8 +107,13 @@ public class SqlLiteLibraryService implements LibraryService {
 			title = fileName.substring( fileName.lastIndexOf('/') + 1 );
 		}		
     	
-		if ( copyFile ) {			
-			bookFile = copyToLibrary(fileName, authorLastName + ", " + authorFirstName, title );			
+		if ( copyFile ) {
+
+			Option<File> copiedFile = copyToLibrary(fileName, authorLastName + ", " + authorFirstName, title );
+
+			if ( ! isEmpty(copiedFile) ) {
+				bookFile = copiedFile.unsafeGet();
+			}
 		}
     	
 		this.helper.storeNewBook(bookFile.getAbsolutePath(),
@@ -120,7 +126,7 @@ public class SqlLiteLibraryService implements LibraryService {
 	private String cleanUp(String input) {
 		
 		char[] illegalChars = {
-				':', '/', '\\', '?', '<', '>', '\"', '*', '&'
+				':', '/', '\\', '?', '<', '>', '\"', '*', '&', '#', '(', ')'
 		};
 		
 		String output = input;
@@ -131,12 +137,18 @@ public class SqlLiteLibraryService implements LibraryService {
 		return output.trim();		
 	}
 	
-	private File copyToLibrary( String fileName, String author, String title) throws IOException {
+	private Option<File> copyToLibrary( String fileName, String author, String title) throws IOException {
+
+		Option<File> libraryFolder = config.getLibraryFolder();
+
+		if ( isEmpty(libraryFolder) ) {
+			return none();
+		}
 
 		File baseFile = new File(fileName);
 
-		File targetFolder = new File(config.getLibraryFolder()
-				+ "/" + cleanUp(author) + "/" + cleanUp(title) );
+		File targetFolder = new File( libraryFolder.unsafeGet(),
+					cleanUp(author) + "/" + cleanUp(title) );
 
 		targetFolder.mkdirs();				
 
@@ -146,7 +158,7 @@ public class SqlLiteLibraryService implements LibraryService {
 		File targetFile = new File(targetFolder, baseFile.getName());
 		
 		if ( baseFile.equals(targetFile) ) {
-			return baseFile;
+			return some(baseFile);
 		}
 		
 		LOG.debug("Copying to file: " + targetFile.getAbsolutePath() );
@@ -167,7 +179,7 @@ public class SqlLiteLibraryService implements LibraryService {
 			}
 		}
 
-		return targetFile;
+		return some(targetFile);
 	}
 
 
@@ -233,19 +245,21 @@ public class SqlLiteLibraryService implements LibraryService {
 	@Override
 	public void deleteBook(String fileName) {
 		this.helper.delete( fileName );	
-		
-		//Only delete files we manage
-		if ( fileName.startsWith(config.getLibraryFolder()) ) {
-			File bookFile = new File(fileName);
-			File parentFolder = bookFile.getParentFile();
-			
-			bookFile.delete();
-			
-			while (parentFolder.list() == null || parentFolder.list().length == 0 ) {
-				parentFolder.delete();
-				parentFolder = parentFolder.getParentFile();
-			}			
-		}
+
+		config.getLibraryFolder().forEach( libraryFolder -> {
+			//Only delete files we manage
+			if ( fileName.startsWith(libraryFolder.getAbsolutePath()) ) {
+				File bookFile = new File(fileName);
+				File parentFolder = bookFile.getParentFile();
+
+				bookFile.delete();
+
+				while (parentFolder.list() == null || parentFolder.list().length == 0 ) {
+					parentFolder.delete();
+					parentFolder = parentFolder.getParentFile();
+				}
+			}
+		});
 	}	
 	
 	@Override
@@ -271,7 +285,7 @@ public class SqlLiteLibraryService implements LibraryService {
 
 		float scaleHeight = ((float) newHeight) / height;
 
-		// createa matrix for the manipulation
+		// create a matrix for the manipulation
 		Matrix matrix = new Matrix();
 		// resize the bit map
 		matrix.postScale(scaleHeight, scaleHeight);

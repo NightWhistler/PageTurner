@@ -38,6 +38,7 @@ import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.util.DisplayMetrics;
 import android.view.*;
 import android.view.animation.Animation;
@@ -569,7 +570,14 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
         playBeep(false);
 
-		File fos = new File( config.getTTSFolder() );
+		Option<File> fosOption = config.getTTSFolder();
+
+		if ( isEmpty(fosOption) ) {
+			LOG.error("Could not get base folder for TTS");
+			showTTSFailed("Could not get base folder for TTS");
+		}
+
+		File fos = fosOption.unsafeGet();
 
         if ( fos.exists() && ! fos.isDirectory() ) {
             fos.delete();
@@ -608,7 +616,8 @@ public class ReadingFragment extends RoboSherlockFragment implements
 	}
 
     private void streamTTSToDisk() {
-        new Thread( this::doStreamTTSToDisk ).start();
+		//backgroundHandler.post( this::doStreamTTSToDisk );
+		new Thread( this::doStreamTTSToDisk ).start();
     }
 
     /**
@@ -617,14 +626,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
      * UI thread!
      */
     private void doStreamTTSToDisk() {
-        CharSequence text = bookView.getStrategy().getText();
 
-        if ( text == null || ! ttsIsRunning()) {
+		Option<Spanned> text = bookView.getStrategy().getText();
+
+        if ( isEmpty(text) || ! ttsIsRunning() ) {
             return;
         }
 
-        File ttsFolder = new File( config.getTTSFolder() );
-        String textToSpeak = text.toString().substring( bookView.getStartOfCurrentPage() );
+        String textToSpeak = text.map(
+				c -> c.toString().substring( bookView.getStartOfCurrentPage() )
+		).getOrElse("");
 
         textToSpeak = TextUtil.splitOnPunctuation(textToSpeak);
         String[] parts = textToSpeak.split("\n");
@@ -632,6 +643,15 @@ public class ReadingFragment extends RoboSherlockFragment implements
         int offset = bookView.getStartOfCurrentPage();
 
         try {
+
+			Option<File> ttsFolderOption = config.getTTSFolder();
+
+			if ( isEmpty(ttsFolderOption) ) {
+				throw new TTSFailedException();
+			}
+
+			File ttsFolder = ttsFolderOption.unsafeGet();
+
             for ( int i=0; i < parts.length && ttsIsRunning(); i++ ) {
 
                 LOG.debug("Streaming part " + i + " to disk." );
@@ -668,16 +688,18 @@ public class ReadingFragment extends RoboSherlockFragment implements
             ttsItemPrep.put(fileName, item);
 
             int result;
+			String errorMessage = "";
 
             try {
                 result = textToSpeech.synthesizeToFile(part, params, fileName);
             } catch ( Exception e ) {
                 LOG.error( "Failed to start TTS", e );
                 result = TextToSpeech.ERROR;
+				errorMessage = e.getMessage();
             }
 
             if ( result != TextToSpeech.SUCCESS ) {
-                String message = "synthesizeToFile failed with result " + result;
+                String message = "synthesizeToFile failed with error:\n" + errorMessage;
                 LOG.error(message);
                 showTTSFailed(message);
                 throw new TTSFailedException();
@@ -921,8 +943,10 @@ public class ReadingFragment extends RoboSherlockFragment implements
 		this.ttsAvailable = (status == TextToSpeech.SUCCESS) && !Configuration.IS_NOOK_TOUCH;
 
         if ( this.ttsAvailable ) {
-            this.textToSpeech.setOnUtteranceCompletedListener( this::onStreamingCompleted);
-        }
+            this.textToSpeech.setOnUtteranceCompletedListener( this::onStreamingCompleted );
+        } else {
+			LOG.info( "Failed to initialize TextToSpeech. Got status " + status );
+		}
 	}
 
 	private void updateFileName(Bundle savedInstanceState, String fileName) {

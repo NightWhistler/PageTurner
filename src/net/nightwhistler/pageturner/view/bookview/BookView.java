@@ -1194,13 +1194,16 @@ public class BookView extends ScrollView implements TextSelectionActions.Selecte
 
 	private void progressUpdate() {
 
-		if (this.spine != null && this.strategy.getText() != null
-				&& this.strategy.getText().length() > 0) {
+		if ( this.spine == null ) {
+			return;
+		}
+
+		this.strategy.getText().filter( t -> t.length() > 0 ).forEach( text -> {
 
 			double progressInPart = (double) this.getProgressPosition()
-					/ (double) this.strategy.getText().length();
+					/ (double) text.length();
 
-			if (strategy.getText().length() > 0 && strategy.isAtEnd()) {
+			if (text.length() > 0 && strategy.isAtEnd()) {
 				progressInPart = 1d;
 			}
 
@@ -1216,7 +1219,7 @@ public class BookView extends ScrollView implements TextSelectionActions.Selecte
 							spine.getTotalNumberOfPages());
 				}
 			}
-		}
+		});
 	}
 
 
@@ -1307,7 +1310,7 @@ public class BookView extends ScrollView implements TextSelectionActions.Selecte
 
 			if (this.strategy != null) {
 				pos = this.strategy.getTopLeftPosition();
-				text = this.strategy.getText();
+				text = this.strategy.getText().unsafeGet();
 				this.strategy.clearText();
 				wasNull = false;
 			}

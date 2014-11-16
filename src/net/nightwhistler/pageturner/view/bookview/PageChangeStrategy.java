@@ -119,7 +119,7 @@ public interface PageChangeStrategy {
 	 * 
 	 * @return the text
 	 */
-	public Spanned getText();
+	public Option<Spanned> getText();
 	
 	/**
 	 * Gets the text for the next page to be displayed, or null if we've reached the end.

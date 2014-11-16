@@ -28,7 +28,9 @@ import android.os.Build;
 import android.os.Debug;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import com.google.inject.Inject;
+import jedi.functional.FunctionalPrimitives;
 import jedi.option.Option;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.pageturner.activity.PageTurnerActivity;
@@ -42,11 +44,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import roboguice.inject.ContextSingleton;
 
+import java.io.File;
 import java.util.*;
 
+import static java.util.Arrays.asList;
+import static jedi.functional.FunctionalPrimitives.firstOption;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
+import static jedi.option.Options.some;
 import static net.nightwhistler.pageturner.CustomOPDSSite.fromJSON;
+import static net.nightwhistler.pageturner.PlatformUtil.isAtLeast;
 
 /**
  * Application configuration class which provides a friendly API to the various
@@ -840,20 +847,48 @@ public class Configuration {
 		return Environment.getExternalStorageDirectory().getAbsolutePath();
 	}
 
-	public String getPageTurnerFolder() {
+	private String getPageTurnerFolder() {
 		return getStorageBase() + "/PageTurner";
 	}
 
-	public String getDownloadsFolder() {
-		return getPageTurnerFolder() + "/Downloads";
+	public Option<File> getDownloadsFolder() {
+
+		if ( isAtLeast(Build.VERSION_CODES.KITKAT) ) {
+			return firstOption(
+					asList(
+							ContextCompat.getExternalFilesDirs( context, Environment.DIRECTORY_DOWNLOADS )
+					)
+			);
+		} else {
+			return some( new File( getPageTurnerFolder() + "/Download") );
+		}
 	}
 
-	public String getLibraryFolder() {
-		return getPageTurnerFolder() + "/Books";
+	public Option<File> getLibraryFolder() {
+
+		if ( isAtLeast(Build.VERSION_CODES.KITKAT) ) {
+			return firstOption(
+					asList(
+							ContextCompat.getExternalFilesDirs( context, "Books" )
+					)
+			);
+		} else {
+			return some( new File( getPageTurnerFolder() + "/Books") );
+		}
+
 	}
 
-    public String getTTSFolder() {
-        return getPageTurnerFolder() + "/tts";
+    public Option<File> getTTSFolder() {
+
+		if ( isAtLeast(Build.VERSION_CODES.KITKAT) ) {
+			return firstOption(
+					asList(
+							ContextCompat.getExternalCacheDirs( context )
+					)
+			);
+		} else {
+			return some( new File( getPageTurnerFolder() + "/tts") );
+		}
     }
 
 	/**

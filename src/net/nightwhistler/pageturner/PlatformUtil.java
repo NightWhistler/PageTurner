@@ -44,6 +44,10 @@ public class PlatformUtil {
 
     public static boolean isRunningOnUiThread() { return Looper.getMainLooper().getThread() == Thread.currentThread(); }
 
+    public static boolean isAtLeast( int versionCode ) {
+        return Build.VERSION.SDK_INT >= versionCode;
+    }
+
     public static void verifyNotOnUiThread() {
         if ( isRunningOnUiThread() ) {
             throw new IllegalStateException("This method should not be called from the UI Thread!");

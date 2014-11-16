@@ -212,9 +212,18 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		actionBar.setListNavigationCallbacks(adapter, this::onNavigationItemSelected );
 
         refreshView();
-        executeTask(new CleanFilesTask(libraryService, this::booksDeleted) );
-        executeTask(new ImportTask(getActivity(), libraryService, this, config, config.isCopyToLibrayEnabled(),
-                true), new File(config.getLibraryFolder()));
+
+		Option<File> libraryFolder = config.getLibraryFolder();
+
+		libraryFolder.match( folder -> {
+			executeTask(new CleanFilesTask(libraryService, this::booksDeleted) );
+			executeTask(new ImportTask(getActivity(), libraryService, this, config, config.isCopyToLibrayEnabled(),
+					true), folder );
+		}, () -> {
+			LOG.error("No library folder present!");
+			Toast.makeText( context, R.string.library_failed, Toast.LENGTH_LONG ).show();
+		});
+
 	}
 
     private <A,B,C> void executeTask( QueueableAsyncTask<A,B,C> task, A... parameters ) {

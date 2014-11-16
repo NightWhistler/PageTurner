@@ -41,6 +41,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 
+import static jedi.functional.FunctionalPrimitives.isEmpty;
 import static jedi.option.Options.none;
 
 public class DownloadFileTask extends QueueableAsyncTask<String, Long, Void> {
@@ -103,7 +104,14 @@ public class DownloadFileTask extends QueueableAsyncTask<String, Long, Void> {
 
 			if (response.getStatusLine().getStatusCode() == 200) {
 
-				File destFolder = new File(config.getDownloadsFolder());
+				Option<File> destFolderOption = config.getDownloadsFolder();
+
+				if ( isEmpty(destFolderOption) ) {
+					throw new IllegalStateException("Could not get download folder!");
+				}
+
+				File destFolder = destFolderOption.unsafeGet();
+
 				if (!destFolder.exists()) {
 					destFolder.mkdirs();
 				}

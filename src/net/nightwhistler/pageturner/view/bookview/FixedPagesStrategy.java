@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static jedi.option.Options.none;
+import static jedi.option.Options.option;
 import static jedi.option.Options.some;
 
 
@@ -319,8 +320,8 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		return getTopLeftPosition();
 	}
 	
-	public android.text.Spanned getText() {
-		return text;
+	public Option<android.text.Spanned> getText() {
+		return option(text);
 	}
 	
 	public boolean isAtEnd() {

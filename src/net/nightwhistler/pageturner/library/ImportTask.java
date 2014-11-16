@@ -22,6 +22,8 @@ package net.nightwhistler.pageturner.library;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import jedi.functional.Command;
+import jedi.functional.Command2;
 import jedi.option.None;
 import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
@@ -182,13 +184,26 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
         //Scan items
         if ( fileName.endsWith(".epub") ) {
             items.add(file);
-        } else if ( fileName.startsWith(config.getLibraryFolder())
-                || fileName.startsWith(config.getDownloadsFolder() )) {
+        } else {
 
-            if ( file.getName().indexOf(".") == -1 ) {
-                //Older versions downloaded files without an extension
-                items.add(file);
-            }
+            Command<File> add = f -> {
+                if ( f.getName().indexOf(".") == -1 ) {
+                    //Older versions downloaded files without an extension
+                    items.add(f);
+                }
+            };
+
+            config.getLibraryFolder().forEach( libraryFolder -> {
+                if ( fileName.startsWith(libraryFolder.getAbsolutePath() ) ) {
+                    add.execute( file );
+                }
+            });
+
+            config.getDownloadsFolder().forEach( downloadsFolder ->  {
+                if ( fileName.startsWith( downloadsFolder.getAbsolutePath() )) {
+                    add.execute( file );
+                }
+            });
         }
 
     }

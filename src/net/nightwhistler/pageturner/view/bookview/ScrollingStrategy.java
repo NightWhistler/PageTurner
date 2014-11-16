@@ -40,6 +40,7 @@ import net.nightwhistler.pageturner.view.HighlightManager;
 import java.util.List;
 
 import static jedi.option.Options.none;
+import static jedi.option.Options.option;
 
 
 public class ScrollingStrategy implements PageChangeStrategy {
@@ -229,8 +230,8 @@ public class ScrollingStrategy implements PageChangeStrategy {
 
 	
 	@Override
-	public Spanned getText() {
-		return text;
+	public Option<Spanned> getText() {
+		return option(text);
 	}
 	
 	@Override

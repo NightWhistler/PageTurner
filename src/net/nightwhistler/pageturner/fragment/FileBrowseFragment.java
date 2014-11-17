@@ -57,7 +57,7 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
 		}
 		
 		if (file == null || ! (file.exists() && file.isDirectory()) ) {
-			file = new File(config.getStorageBase());
+			file = config.getStorageBase().unsafeGet();
 		}
 		
 		if (file == null || ! (file.exists() && file.isDirectory()) ) {

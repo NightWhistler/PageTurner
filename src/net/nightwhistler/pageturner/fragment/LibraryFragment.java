@@ -69,6 +69,7 @@ import java.text.DateFormat;
 import java.util.*;
 
 import static java.lang.Character.toUpperCase;
+import static jedi.functional.FunctionalPrimitives.isEmpty;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
 import static jedi.option.Options.some;
@@ -509,8 +510,16 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		final TextView folder = (TextView) layout.findViewById(R.id.folderToScan);
 		final CheckBox copyToLibrary = (CheckBox) layout.findViewById(R.id.copyToLib);		
 		final Button browseButton = (Button) layout.findViewById(R.id.browseButton);
-		
-		folder.setText( config.getStorageBase() + "/eBooks" );
+
+		Option<File> storageBase = config.getStorageBase();
+
+		if ( isEmpty(storageBase) ) {
+			return;
+		}
+
+		File file = storageBase.unsafeGet();
+
+		folder.setText( file.getAbsolutePath() + "/eBooks" );
 		folder.setOnClickListener( v ->	scanSpecific.setChecked(true) );
 
 		//Copy default setting from the prefs
@@ -542,7 +551,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
             if ( scanSpecific.isChecked() ) {
                 folderToScan = new File(folder.getText().toString());
             } else {
-                folderToScan = new File(config.getStorageBase());
+                folderToScan = new File(file.getAbsolutePath());
             }
 
             startImport(folderToScan, copyToLibrary.isChecked());

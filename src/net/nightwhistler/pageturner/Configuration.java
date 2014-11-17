@@ -843,52 +843,34 @@ public class Configuration {
 		return settings.getString(CALIBRE_PASSWORD, "");
 	}
 
-	public String getStorageBase() {
-		return Environment.getExternalStorageDirectory().getAbsolutePath();
-	}
-
-	private String getPageTurnerFolder() {
-		return getStorageBase() + "/PageTurner";
+	public Option<File> getStorageBase() {
+		return option(Environment.getExternalStorageDirectory());
 	}
 
 	public Option<File> getDownloadsFolder() {
 
-		if ( isAtLeast(Build.VERSION_CODES.KITKAT) ) {
-			return firstOption(
-					asList(
-							ContextCompat.getExternalFilesDirs( context, Environment.DIRECTORY_DOWNLOADS )
-					)
-			);
-		} else {
-			return some( new File( getPageTurnerFolder() + "/Download") );
-		}
+		return firstOption(
+				asList(
+						ContextCompat.getExternalFilesDirs( context, "Downloads" )
+				)
+		);
 	}
 
 	public Option<File> getLibraryFolder() {
 
-		if ( isAtLeast(Build.VERSION_CODES.KITKAT) ) {
-			return firstOption(
-					asList(
-							ContextCompat.getExternalFilesDirs( context, "Books" )
-					)
-			);
-		} else {
-			return some( new File( getPageTurnerFolder() + "/Books") );
-		}
-
+		return firstOption(
+				asList(
+						ContextCompat.getExternalFilesDirs( context, "Books" )
+				)
+		);
 	}
 
     public Option<File> getTTSFolder() {
-
-		if ( isAtLeast(Build.VERSION_CODES.KITKAT) ) {
-			return firstOption(
-					asList(
-							ContextCompat.getExternalCacheDirs( context )
-					)
-			);
-		} else {
-			return some( new File( getPageTurnerFolder() + "/tts") );
-		}
+		return firstOption(
+				asList(
+						ContextCompat.getExternalCacheDirs( context )
+				)
+		);
     }
 
 	/**

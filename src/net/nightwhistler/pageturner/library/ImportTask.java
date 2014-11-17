@@ -97,6 +97,9 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 	}
 
     private void doInBackground(File parent) {
+
+        LOG.debug( "Starting import of folder " + parent.getAbsolutePath() );
+
         /*
         Hack: don't run automated import on an empty database, since we explicitly ask
         the user to import.
@@ -106,6 +109,7 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
         }
 
         if ( ! parent.exists() ) {
+            LOG.error("Bailing out because of missing parent folder: " + parent.getPath() );
             importFailed = String.format( context.getString(R.string.no_such_folder), parent.getPath());
             return;
         }

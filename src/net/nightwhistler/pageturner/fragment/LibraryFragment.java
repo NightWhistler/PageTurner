@@ -712,22 +712,18 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	}	
 	
 	public void onAlphabetBarClick( KeyedQueryResult<LibraryBook> result, Character c ) {
-		
-		int index = result.getOffsetFor(toUpperCase(c));
-		
-		if ( index == -1 ) {
-			return;
-		}
-		
-		if ( alphabetAdapter != null ) {		
-			alphabetAdapter.setHighlightChar(c);
-		}
-		
-		if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
-			this.bookCaseView.setSelection(index);
-		} else {			
-			this.listView.setSelection(index);				
-		}		
+
+		result.getOffsetFor(toUpperCase(c)).forEach( index -> {
+			if ( alphabetAdapter != null ) {
+				alphabetAdapter.setHighlightChar(c);
+			}
+
+			if ( config.getLibraryView() == LibraryView.BOOKCASE ) {
+				this.bookCaseView.setSelection(index);
+			} else {
+				this.listView.setSelection(index);
+			}
+		});
 	}	
 	
 	

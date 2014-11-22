@@ -84,7 +84,7 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 		}
 	}
 	
-	public int getOffsetFor( Character c ) {
+	public Option<Integer> getOffsetFor( Character c ) {
 		
 		Character input = toUpperCase(c);
 		
@@ -93,12 +93,12 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 			if ( key.length() > 0 ) {
 				Character keyStart = toUpperCase(key.charAt(0));
 				if ( keyStart.compareTo(input) >= 0 ) {
-					return i;
+					return some(i);
 				}
 			}			
 		}
 		
-		return -1;
+		return none();
 	}
 
 }

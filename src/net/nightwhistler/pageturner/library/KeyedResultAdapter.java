@@ -81,8 +81,8 @@ public abstract class KeyedResultAdapter extends QueryResultAdapter<LibraryBook>
 		}
 		
 		Character c = alphabet.get(section);
-		
-		return this.keyedResult.getOffsetFor(c);
+
+		return this.keyedResult.getOffsetFor(c).getOrElse( -1 );
 	}
 
 	@Override
@@ -99,7 +99,8 @@ public abstract class KeyedResultAdapter extends QueryResultAdapter<LibraryBook>
 
         return characterFor.match(
                 c -> this.keyedResult.getAlphabet().indexOf(c),
-                () -> 0 );
+                () -> 0
+		);
 	}
 
 	@Override

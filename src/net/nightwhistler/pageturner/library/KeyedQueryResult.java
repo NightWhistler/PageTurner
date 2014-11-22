@@ -25,6 +25,7 @@ import jedi.option.Option;
 
 import java.util.*;
 
+import static java.lang.Character.toUpperCase;
 import static java.util.Collections.unmodifiableList;
 import static jedi.functional.Comparables.sort;
 import static jedi.functional.FunctionalPrimitives.collect;
@@ -59,8 +60,12 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 	
 	private List<Character> calculateAlphaBet() {
 
-        SortedSet<Character> firstLetters = new TreeSet<Character>(
-                collect(select(keys, (Filter<String>) k -> k.length() > 0), key -> key.charAt(0)) );
+        SortedSet<Character> firstLetters = new TreeSet<>(
+                collect(
+						select(keys, k -> k.length() > 0),
+						key -> key.charAt(0)
+				)
+		);
 
         return unmodifiableList( new ArrayList<>(firstLetters) );
 	}
@@ -73,7 +78,7 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 		String key = keys.get(position);
 		
 		if ( key.length() > 0 ) {
-			return some(Character.toUpperCase(key.charAt(0)));
+			return some(toUpperCase(key.charAt(0)));
 		} else {
 			return none();
 		}
@@ -81,12 +86,12 @@ public abstract class KeyedQueryResult<T> extends QueryResult<T> {
 	
 	public int getOffsetFor( Character c ) {
 		
-		Character input = Character.toUpperCase(c);
+		Character input = toUpperCase(c);
 		
 		for ( int i=0; i < keys.size(); i++ ) {
 			String key = keys.get(i);
 			if ( key.length() > 0 ) {
-				Character keyStart = Character.toUpperCase(key.charAt(0));
+				Character keyStart = toUpperCase(key.charAt(0));
 				if ( keyStart.compareTo(input) >= 0 ) {
 					return i;
 				}

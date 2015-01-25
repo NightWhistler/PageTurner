@@ -1757,12 +1757,13 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             return false;
 
+
 		case KEYCODE_NOOK_TOUCH_BUTTON_LEFT_TOP:
 		case KEYCODE_NOOK_TOUCH_BUTTON_RIGHT_TOP:
                     nook_touch_up_press = true;
 		case KEYCODE_NOOK_TOUCH_BUTTON_LEFT_BOTTOM:
 		case KEYCODE_NOOK_TOUCH_BUTTON_RIGHT_BOTTOM:
-                    if(!Configuration.IS_NOOK_TOUCH || action == KeyEvent.ACTION_UP)
+                    if(action == KeyEvent.ACTION_UP)
                         return false;
                     if(nook_touch_up_press == config.isNookUpButtonForward())
                         pageDown(Orientation.HORIZONTAL);

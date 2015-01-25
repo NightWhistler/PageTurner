@@ -15,7 +15,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.13.2'
+        classpath 'com.android.tools.build:gradle:0.14.2'
         classpath 'org.robolectric:robolectric-gradle-plugin:0.13.+'
         classpath 'me.tatarka:gradle-retrolambda:2.4.0'
     }
@@ -51,8 +51,6 @@ dependencies {
 
         [group: 'org.slf4j', name: 'slf4j-android', version: '1.6.1-RC1'],
         [group: 'org.codehaus.jedi', name: 'jedi-core', version: '3.0.5']
-
-
     )
 
     compile( 'com.github.rtyley:roboguice-sherlock:1.5' ) {
@@ -106,6 +104,8 @@ dependencies {
         exclude module: 'wagon-provider-api'
     }
     androidTestCompile 'com.squareup:fest-android:1.0.+'
+
+    androidTestCompile( [group: 'com.actionbarsherlock', name:'actionbarsherlock', version:'4.4.0', ext: 'aar'] )
 }
 
 idea {
@@ -146,12 +146,14 @@ android {
 
         testLocal {
             java.srcDir file('test/src/java')
-            resources.srcDir file('src/test/resources')
+            res.srcDirs = ['res']
         }
 
        androidTest {
             setRoot('test/src')
             manifest.srcFile 'AndroidManifest.xml'
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
         } 
 
     }

@@ -6,10 +6,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ListView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
@@ -29,8 +26,6 @@ import roboguice.inject.InjectView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import static net.nightwhistler.pageturner.CollectionUtil.listElement;
 
 /**
  * Superclass for all PageTurner activity classes.
@@ -145,13 +140,13 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
         expandableListView.setAdapter( adapter );
 
         expandableListView.setOnGroupClickListener(
-                (e, v, groupId, l) -> onGroupClick(adapter, groupId) );
+                (e, v, groupId, l) -> this.onGroupClick(adapter, groupId) );
 
         expandableListView.setOnChildClickListener(
-                (e, v, groupId, childId, l) -> onChildClick(adapter, groupId, childId));
+                (e, v, groupId, childId, l) -> this.onChildClick(adapter, groupId, childId));
 
-        expandableListView.setOnItemClickListener(
-                (av, v, position, id) -> onItemLongClick(adapter, position, id ));
+        expandableListView.setOnItemLongClickListener(
+                (av, v, position, id) -> this.onItemLongClick(adapter, position, id));
 
         expandableListView.setGroupIndicator(null);
     }
@@ -304,8 +299,8 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
             LOG.debug("Child-item: " + childItem );
 
             childItem.match(
-                    i -> i.onLongClick(),
-                    () -> LOG.error("Could not get child-item for " + position + " and id " + id )
+                    NavigationCallback::onLongClick,
+                    () -> LOG.error( "Could not get child-item for " + position + " and id " + id )
             );
 
             closeNavigationDrawer();

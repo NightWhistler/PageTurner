@@ -90,3 +90,34 @@ Once everything is in place you can build PageTurner and install it on your devi
     gradlew build
     gradlew installDebug
 
+Eclipse
+-------
+
+*Note:* Building PageTurner in Eclipse is discouraged. We recommend using IntelliJ IDEA Community Edition instead, it imports Maven projects out of the box.
+
+To use PageTurner in Eclipse, there are 2 options:
+
+#The easy way
+=======
+
+The recommended way to build PageTurner in Eclipse is using the m2e-android plugin.
+
+There is a screencast here that shows how to set up your environment: http://www.youtube.com/watch?v=jhSvwpwPFoY
+
+#The hard way
+
+You can follow these steps to only use Maven for dependencies:
+
+1.   Download and unpack the sources        
+2.   Run    
+
+        mvn -DexcludeTransitive=true dependency:copy-dependencies
+        
+     inside the source folder
+3.   Create a libs folder
+4.   Copy all JAR files in target/dependency to the libs folder
+5.   There are also .apklib files in the target/dependency folder. 
+     Rename these to .zip, and unpack them. These are library projects,
+     and you can add them as a normal library project now.
+6.   In Eclipse, select "New Android Project" -> "From existing source" and
+     point it to the folder you unpacked PageTurner in.

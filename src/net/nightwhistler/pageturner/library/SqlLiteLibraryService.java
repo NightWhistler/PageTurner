@@ -196,7 +196,7 @@ public class SqlLiteLibraryService implements LibraryService {
 	public Option<LibraryBook> getBook(String fileName) {
 		QueryResult<LibraryBook> booksByFile = 
 			helper.findByField(LibraryDatabaseHelper.Field.file_name,
-					fileName, null, Order.ASC, null);
+					fileName, LibraryDatabaseHelper.Field.file_name, Order.ASC, null);
 
 		switch ( booksByFile.getSize() ) {
 		case 0:

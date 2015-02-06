@@ -39,6 +39,7 @@
         <item>serif</item>
         <item>sans</item>
         <item>mono</item>
+        <item>default</item>
     </string-array>
     
     <string-array name="fontLabels">
@@ -47,16 +48,19 @@
         <item>FrankRuehl</item>
         <item>Droid Serif</item>
         <item>Droid Sans</item>
-        <item>Droid Sans Mono</item>        
+        <item>Droid Sans Mono</item>
+        <item>System Default</item>
     </string-array>
 
     <string-array name="builtinFonts">
+        <item>default</item>
         <item>serif</item>
         <item>sans</item>
         <item>mono</item>
     </string-array>
 
     <string-array name="builtinFontLabels">
+        <item>System Default</item>
         <item>Droid Serif</item>
         <item>Droid Sans</item>
         <item>Droid Sans Mono</item>        

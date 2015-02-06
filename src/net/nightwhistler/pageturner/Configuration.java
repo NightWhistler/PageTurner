@@ -709,7 +709,9 @@ public class Configuration {
 					face = Typeface.SERIF;
 				} else if ("mono".equals(fontFace)) {
 					face = Typeface.MONOSPACE;
-				}
+				} else if ( "default".equals(fontFace) ) {
+                    face = Typeface.DEFAULT;
+                }
 
 				fontCache.put(fontFace, new FontFamily(fontFace, face));
 			}

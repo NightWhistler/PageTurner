@@ -15,7 +15,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.2'
+        classpath 'com.android.tools.build:gradle:1.0.0'
         classpath 'org.robolectric:robolectric-gradle-plugin:0.13.+'
         classpath 'me.tatarka:gradle-retrolambda:2.4.0'
     }
@@ -67,12 +67,10 @@ dependencies {
         exclude module: 'asm'
     }
 
-
     provided(
         [group: 'com.google.android', name: 'annotations', version: '4.1.1.4'],
         [group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1']
     )
-
 
     androidTestCompile 'com.squareup.dagger:dagger:1.1.0'
     androidTestCompile 'org.hamcrest:hamcrest-integration:1.1'

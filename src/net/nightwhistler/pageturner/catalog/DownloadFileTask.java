@@ -177,7 +177,7 @@ public class DownloadFileTask extends QueueableAsyncTask<String, Long, Void> {
                 if ( ! isCancelled() ) {
 				    //FIXME: This doesn't belong here really...
 				    Book book = new EpubReader().readEpubLazy( destFile.getAbsolutePath(), "UTF-8" );
-				    libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.isCopyToLibrayEnabled() );
+				    libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.getCopyToLibraryOnScan() );
                 }
 				
 			} else {

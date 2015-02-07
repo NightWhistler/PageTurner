@@ -366,7 +366,6 @@
     <string name="zero_percent" translatable="false">0%  </string>
     <string name="default_timestamp" translatable="false">01-01-2012 13:44</string>
     <string name="default_device_name_and_progress" translatable="false">Phone - 15%</string>
-    <string name="ebook_path" translatable="false">/sdcard/eBooks</string>
     <string name="folder_name" translatable="false">Folder Name</string>
     <string name="small_text" translatable="false">Small Text</string>
     <string name="large_text" translatable="false">Large Text</string>

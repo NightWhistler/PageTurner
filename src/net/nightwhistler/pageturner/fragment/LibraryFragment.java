@@ -218,7 +218,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 
 		libraryFolder.match( folder -> {
 			executeTask(new CleanFilesTask(libraryService, this::booksDeleted) );
-			executeTask(new ImportTask(getActivity(), libraryService, this, config, config.isCopyToLibrayEnabled(),
+			executeTask(new ImportTask(getActivity(), libraryService, this, config, config.getCopyToLibraryOnScan(),
 					true), folder );
 		}, () -> {
 			LOG.error("No library folder present!");
@@ -512,19 +512,17 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		final Button browseButton = (Button) layout.findViewById(R.id.browseButton);
 
 		Option<File> storageBase = config.getStorageBase();
-
 		if ( isEmpty(storageBase) ) {
 			return;
 		}
 
-		File file = storageBase.unsafeGet();
-
-		folder.setText( file.getAbsolutePath() + "/eBooks" );
 		folder.setOnClickListener( v ->	scanSpecific.setChecked(true) );
 
-		//Copy default setting from the prefs
-		copyToLibrary.setChecked( config.isCopyToLibrayEnabled() );
-		
+		// Copy scan settings from the prefs
+		copyToLibrary.setChecked( config.getCopyToLibraryOnScan() );
+		scanSpecific.setChecked( config.getUseCustomScanFolder() );
+		folder.setText( config.getScanFolder() );
+
 		builder = new AlertDialog.Builder(getActivity());
 		builder.setView(layout);
 
@@ -546,12 +544,18 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
             dialog.dismiss();
 
-            File folderToScan;
+	    /* Update settings */
+	    config.setUseCustomScanFolder( scanSpecific.isChecked() );
+	    config.setCopyToLibraryOnScan( copyToLibrary.isChecked() );
 
+            File folderToScan;
             if ( scanSpecific.isChecked() ) {
-                folderToScan = new File(folder.getText().toString());
+		String path = folder.getText().toString();
+                folderToScan = new File(path);
+		config.setScanFolder(path); /* update custom path only if used */
             } else {
-                folderToScan = new File(file.getAbsolutePath());
+                File default_storage = storageBase.unsafeGet();
+                folderToScan = new File(default_storage.getAbsolutePath());
             }
 
             startImport(folderToScan, copyToLibrary.isChecked());

@@ -215,6 +215,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         refreshView();
 
 		Option<File> libraryFolder = config.getLibraryFolder();
+        LOG.debug( "Got libraryFolder: " + libraryFolder );
 
 		libraryFolder.match( folder -> {
 			executeTask(new CleanFilesTask(libraryService, this::booksDeleted) );

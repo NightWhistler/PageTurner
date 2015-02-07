@@ -49,6 +49,8 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 import static jedi.functional.FunctionalPrimitives.firstOption;
+import static jedi.functional.FunctionalPrimitives.isEmpty;
+import static jedi.functional.FunctionalPrimitives.select;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
 import static jedi.option.Options.some;
@@ -419,13 +421,13 @@ public class Configuration {
 
     public LongShortPressBehaviour getLongShortPressBehaviour() {
         String value = settings.getString(KEY_LONG_SHORT,
-                LongShortPressBehaviour.NORMAL.name() );
+                LongShortPressBehaviour.NORMAL.name());
         return LongShortPressBehaviour.valueOf( value.toUpperCase(Locale.US) );
     }
 
 	public ReadingDirection getReadingDirection() {
 		String value = settings.getString(KEY_READING_DIRECTION,
-				ReadingDirection.LEFT_TO_RIGHT.name());
+                ReadingDirection.LEFT_TO_RIGHT.name());
 		return ReadingDirection.valueOf(value.toUpperCase(Locale.US));
 	}
 
@@ -639,7 +641,7 @@ public class Configuration {
 
 	public OrientationLock getScreenOrientation() {
 		String orientation = settings.getString(KEY_SCREEN_ORIENTATION,
-				OrientationLock.NO_LOCK.name().toLowerCase(Locale.US));
+                OrientationLock.NO_LOCK.name().toLowerCase(Locale.US));
 		return OrientationLock.valueOf(orientation.toUpperCase(Locale.US));
 	}
 
@@ -668,7 +670,7 @@ public class Configuration {
 
 	private FontFamily loadFamilyFromAssets(String key, String baseName) {
 		Typeface basic = Typeface.createFromAsset(context.getAssets(), baseName
-				+ ".otf");
+                + ".otf");
 		Typeface boldFace = Typeface.createFromAsset(context.getAssets(),
 				baseName + "-Bold.otf");
 		Typeface italicFace = Typeface.createFromAsset(context.getAssets(),
@@ -728,7 +730,7 @@ public class Configuration {
 	}
 
 	public FontFamily getDefaultFontFamily() {
-		return getFontFamily(KEY_FONT_FACE, defaultSerifFont );
+		return getFontFamily(KEY_FONT_FACE, defaultSerifFont);
 	}
 
 	public int getBrightNess() {
@@ -813,7 +815,7 @@ public class Configuration {
 
 	public LibraryView getLibraryView() {
 		String libView = settings.getString(KEY_LIB_VIEW, LibraryView.BOOKCASE
-				.name().toLowerCase(Locale.US));
+                .name().toLowerCase(Locale.US));
 		return LibraryView.valueOf(libView.toUpperCase(Locale.US));
 	}
 
@@ -858,6 +860,25 @@ public class Configuration {
 	}
 
 	public Option<File> getLibraryFolder() {
+
+        Option<File> libraryFolder = getStorageBase().map(
+                baseFolder -> new File(baseFolder.getAbsolutePath() + "/PageTurner/Books") );
+
+        //If the library-folder on external storage exists, return it
+        if ( ! isEmpty(select(libraryFolder, File::exists))) {
+            return libraryFolder;
+        }
+
+        if ( ! isEmpty(libraryFolder) ) {
+            try {
+                boolean result = libraryFolder.unsafeGet().mkdirs();
+
+                if ( result ) {
+                    return libraryFolder;
+                }
+
+            } catch ( Exception e ) {}
+        }
 
 		return firstOption(
 				asList(

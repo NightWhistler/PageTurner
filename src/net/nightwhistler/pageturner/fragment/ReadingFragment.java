@@ -1237,7 +1237,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         backgroundHandler.post( () -> {
             try {
                 libraryService.storeBook(fileName, book, true,
-                        config.isCopyToLibrayEnabled());
+                        config.getCopyToLibraryOnScan());
             } catch (Exception io) {
                 LOG.error("Copy to library failed.", io);
             }

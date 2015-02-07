@@ -193,6 +193,9 @@ public class Configuration {
 
     public static final String KEY_ALWAYS_OPEN_LAST_BOOK = "always_open_last_book";
 
+    public static final String KEY_SCAN_FOLDER = "scan_folder";
+    public static final String KEY_USE_SCAN_FOLDER = "use_scan_folder";
+    
 	// Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink
 	// based Android device
 	
@@ -552,10 +555,6 @@ public class Configuration {
 		return settings.getBoolean(KEY_FULL_SCREEN, false);
 	}
 
-	public boolean isCopyToLibrayEnabled() {
-		return settings.getBoolean(KEY_COPY_TO_LIB, true);
-	}
-
 	public boolean isStripWhiteSpaceEnabled() {
 		return settings.getBoolean(KEY_STRIP_WHITESPACE, false);
 	}
@@ -873,6 +872,57 @@ public class Configuration {
 						ContextCompat.getExternalCacheDirs( context )
 				)
 		);
+    }
+
+    public boolean getCopyToLibraryOnScan() {
+	return settings.getBoolean(KEY_COPY_TO_LIB, true);
+    }
+
+    public void setCopyToLibraryOnScan(boolean value) {
+	settings.edit()
+	    .putBoolean(KEY_COPY_TO_LIB, value)
+	    .commit();
+    }
+
+    public boolean getUseCustomScanFolder() {
+	return settings.getBoolean(KEY_USE_SCAN_FOLDER, false);
+    }
+
+    public void setUseCustomScanFolder(boolean value) {
+	settings.edit()
+	    .putBoolean(KEY_USE_SCAN_FOLDER, value)
+	    .commit();
+    }
+
+    /** Return the default folder path which is shown for the "scan for books" custom directory
+     */
+    private String getDefaultScanFolder() {
+	return Configuration.IS_NOOK_TOUCH ?
+	    "/media" : /* Nook's default internal content storage (accessible via USB) is under /media */
+	    getStorageBase().unsafeGet().getAbsolutePath() + "/eBooks";
+    }
+
+    /** Return the folder path to show for the "scan for books" custom directory
+     */
+    public String getScanFolder() {
+	return settings.getString(KEY_SCAN_FOLDER, getDefaultScanFolder());
+    }
+
+    /** Set the folder path to show for "scan for books" custom directory.
+	Will only save a setting if the default actually changed.
+    */
+    public void setScanFolder(String value) {
+	SharedPreferences.Editor editor = settings.edit();
+
+	if(value == null || value.equals(getDefaultScanFolder())) {
+	    if(!settings.contains(KEY_SCAN_FOLDER))
+		return;
+	    editor.remove(KEY_SCAN_FOLDER);
+	} else if(new File(value).isDirectory()) {
+	    editor.putString(KEY_SCAN_FOLDER, value);
+	}
+
+	editor.commit();
     }
 
 	/**

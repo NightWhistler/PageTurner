@@ -90,6 +90,7 @@ import roboguice.inject.InjectView;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -638,8 +639,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
                 c -> c.toString().substring( bookView.getStartOfCurrentPage() )
         ).getOrElse("");
 
-        textToSpeak = TextUtil.splitOnPunctuation(textToSpeak);
-        String[] parts = textToSpeak.split("\n");
+        List<String> parts = TextUtil.splitOnPunctuation(textToSpeak);
 
         int offset = bookView.getStartOfCurrentPage();
 
@@ -653,16 +653,27 @@ public class ReadingFragment extends RoboSherlockFragment implements
 
             File ttsFolder = ttsFolderOption.unsafeGet();
 
-            for ( int i=0; i < parts.length && ttsIsRunning(); i++ ) {
+            for ( int i=0; i < parts.size() && ttsIsRunning(); i++ ) {
 
                 LOG.debug("Streaming part " + i + " to disk." );
 
-                String part = parts[i];
+                String part = parts.get(i);
 
-                boolean lastPart = i == parts.length -1;
+                boolean lastPart = i == parts.size() -1;
 
                 //Utterance ID doubles as the filename
-                String pageName = new File( ttsFolder, "tts_" + UUID.randomUUID() + ".wav").getAbsolutePath();
+                String pageName = "";
+
+                try {
+                    File pageFile = new File( ttsFolder, "tts_" + UUID.randomUUID().getLeastSignificantBits() + ".wav");
+                    pageName = pageFile.getAbsolutePath();
+                    pageFile.createNewFile();
+                } catch ( IOException io ) {
+                    String message = "Can't write to file \n" + pageName + " because of error\n" + io.getMessage();
+                    LOG.error(message);
+                    showTTSFailed(message);
+                }
+
                 streamPartToDisk(pageName, part, offset, textToSpeak.length(), lastPart);
 
                 offset += part.length() +1;

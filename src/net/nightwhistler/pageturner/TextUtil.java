@@ -18,14 +18,20 @@
  */
 package net.nightwhistler.pageturner;
 
-import android.text.Spannable;
+import jedi.functional.FunctionalPrimitives;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.Arrays.asList;
+import static jedi.functional.FunctionalPrimitives.select;
+
 public class TextUtil {
 
-    private static final Pattern PUNCTUATION = Pattern.compile("\\.( ?\\.)*[\"'”]?|[\\?!] ?[\"'”]?|, ?[\"']|”");
+    private static final Pattern PUNCTUATION = Pattern.compile("\\.( ?\\.)*[\"'”’]?|[\\?!] ?[\"'”’]?|, ?[\"'”’]|”");
+
+    private static final String[] TITLES = { "mr", "mrs", "dr", "ms" };
 
     private TextUtil() {}
 
@@ -36,21 +42,48 @@ public class TextUtil {
      * @param input
      * @return
      */
-    public static String splitOnPunctuation(String input) {
+    public static List<String> splitOnPunctuation(String input) {
 
-        StringBuffer result = new StringBuffer();
+        StringBuffer stringBuffer = new StringBuffer();
 
         Matcher matcher = PUNCTUATION.matcher(input);
+
+        int previousMatch = 0;
 
         while (matcher.find()) {
 
             String match = matcher.group();
-            matcher.appendReplacement(result, match + "\n");
+            int startIndex = matcher.start();
+
+            String subString = input.substring(previousMatch, startIndex );
+
+            boolean shouldReplace = true;
+
+            for ( String title: TITLES ) {
+                if ( subString.toLowerCase().endsWith(title)) {
+                    shouldReplace = false;
+                }
+            }
+
+            if ( subString.trim().length() == 1 ) {
+                shouldReplace = false;
+            }
+
+            String replacement;
+
+            if ( shouldReplace ) {
+                replacement = match + "\n";
+            } else {
+                replacement = match;
+            }
+
+            matcher.appendReplacement(stringBuffer, replacement);
+            previousMatch = startIndex;
         }
 
-        matcher.appendTail(result);
-        return result.toString();
+        matcher.appendTail(stringBuffer);
 
+        return select(asList(stringBuffer.toString().split("\n")), s -> s.length() > 0 );
     }
 
     public static String shortenText( String original ) {

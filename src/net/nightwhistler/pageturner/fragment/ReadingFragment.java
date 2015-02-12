@@ -1118,6 +1118,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
             activity.getWindow().clearFlags(
                     WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
             activity.getSupportActionBar().hide();
+
         } else {
             activity.getWindow().addFlags(
                     WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -1125,8 +1126,16 @@ public class ReadingFragment extends RoboSherlockFragment implements
             activity.getSupportActionBar().show();
         }
 
-        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isDimSystemUI() ) {
-            activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+            if ( config.isFullScreenEnabled() ) {
+                bookView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+
+            }
+            if ( config.isDimSystemUI() ) {
+                activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+            }
         }
 
         if (config.isKeepScreenOn()) {

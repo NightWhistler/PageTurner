@@ -93,6 +93,7 @@ public class ReadingActivity extends PageTurnerActivity {
         //Add in a blank item to get the spacing right
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && config.isFullScreenEnabled() ) {
             menuItems.add( new NavigationCallback("") );
+            menuItems.add( new NavigationCallback("") );
         }
 
         String nowReading = getString( R.string.now_reading, config.getLastReadTitle() );

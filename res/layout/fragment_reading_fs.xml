@@ -50,9 +50,8 @@
         	android:layout_width="fill_parent" 
         	android:layout_height="wrap_content"
         	android:orientation="vertical"        
-        	android:layout_alignTop="@id/mainContainer"
+        	android:layout_alignBottom="@id/mainContainer"
         	android:visibility="gone"
-            android:layout_marginTop="?attr/actionBarSize"
         	>   
         	    
          <TextView
@@ -62,7 +61,8 @@
                 android:layout_alignParentTop="true"                             
                 android:background="@color/translucent_black"                
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/opaque_white" />
+                android:textColor="@color/opaque_white"
+                android:gravity="center"/>
         
           <TextView
                 android:id="@+id/authorField"
@@ -72,7 +72,8 @@
                 android:layout_below="@id/myTitleBarTextView"                              
                 android:background="@color/translucent_black"                
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                 />     
+                android:gravity="center"/>
+
          
            <TextView
                 android:id="@+id/percentageField"

@@ -45,6 +45,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import jedi.option.None;
 import jedi.option.Option;
+import jedi.tuple.Tuple2;
 import net.nightwhistler.htmlspanner.FontFamily;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.SpanStack;
@@ -936,10 +937,10 @@ public class BookView extends ScrollView implements TextSelectionActions.Selecte
 			options.inJustDecodeBounds = true;
 			BitmapFactory.decodeStream(input, null, options);
 			
-			int[] sizes = calculateSize(options.outWidth, options.outHeight );
+			Tuple2<Integer, Integer> sizes = calculateSize(options.outWidth, options.outHeight );
 			
 			ShapeDrawable draw = new ShapeDrawable( new RectShape() );
-			draw.setBounds(0, 0, sizes[0], sizes[1]);
+			draw.setBounds(0, 0, sizes.a(), sizes.b());
 			
 			setImageSpan(builder, draw, start, end);
 		}
@@ -992,9 +993,9 @@ public class BookView extends ScrollView implements TextSelectionActions.Selecte
 				int originalWidth = originalBitmap.getWidth();
 				int originalHeight = originalBitmap.getHeight();
 
-				int[] targetSizes = calculateSize(originalWidth, originalHeight);
-				int targetWidth = targetSizes[0];
-				int targetHeight = targetSizes[1];
+				Tuple2<Integer, Integer> targetSizes = calculateSize(originalWidth, originalHeight);
+				int targetWidth = targetSizes.a();
+				int targetHeight = targetSizes.b();
 				
 				if ( targetHeight != originalHeight || targetWidth != originalWidth ) {					
 					return Bitmap.createScaledBitmap(originalBitmap,
@@ -1006,9 +1007,8 @@ public class BookView extends ScrollView implements TextSelectionActions.Selecte
 		}
 	}
 	
-	private int[] calculateSize(int originalWidth, int originalHeight ) {
-		int[] result = new int[] { originalWidth, originalHeight };		
-		
+	private Tuple2<Integer,Integer> calculateSize(int originalWidth, int originalHeight ) {
+
 		int screenHeight = getHeight() - (verticalMargin * 2);
 		int screenWidth = getWidth() - (horizontalMargin * 2);
 		
@@ -1033,12 +1033,11 @@ public class BookView extends ScrollView implements TextSelectionActions.Selecte
 					+ targetHeight);
 
 			if (targetWidth > 0 || targetHeight > 0) {
-				result[0] = targetWidth;
-				result[1] = targetHeight;
+				return new Tuple2<>(targetWidth, targetHeight);
 			}
 		}
-		
-		return result;		
+
+        return new Tuple2<>(originalWidth, originalHeight);
 	}
 
 	private class ImageTagHandler extends TagNodeHandler {

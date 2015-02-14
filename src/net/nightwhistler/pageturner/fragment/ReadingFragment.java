@@ -208,7 +208,12 @@ public class ReadingFragment extends RoboSherlockFragment implements
     @Inject
     private BookmarkDatabaseHelper bookmarkDatabaseHelper;
 
-    private RemoteControlClient remoteControlClient;
+    /*
+    This is actually a RemoteControlClient, but we declare it
+    as an object, since the RemoteControlClient class is
+    only available in ICS and later.
+     */
+    private Object remoteControlClient;
 
     private MenuItem searchMenuItem;
 
@@ -873,17 +878,19 @@ public class ReadingFragment extends RoboSherlockFragment implements
         Intent remoteControlIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         remoteControlIntent.setComponent(componentName);
 
-        remoteControlClient = new RemoteControlClient(
+        RemoteControlClient localRemoteControlClient = new RemoteControlClient(
                 PendingIntent.getBroadcast(context, 0, remoteControlIntent, 0));
 
-        remoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE
+        localRemoteControlClient.setTransportControlFlags(RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE
                         | RemoteControlClient.FLAG_KEY_MEDIA_NEXT
                         | RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS
                         | RemoteControlClient.FLAG_KEY_MEDIA_PLAY
                         | RemoteControlClient.FLAG_KEY_MEDIA_PAUSE
         );
 
-        audioManager.registerRemoteControlClient(remoteControlClient);
+        audioManager.registerRemoteControlClient( localRemoteControlClient );
+
+        this.remoteControlClient = localRemoteControlClient;
     }
 
     @TargetApi(Build.VERSION_CODES.FROYO)
@@ -962,7 +969,9 @@ public class ReadingFragment extends RoboSherlockFragment implements
     @TargetApi(19)
     private void setMetaData() {
 
-        RemoteControlClient.MetadataEditor editor = remoteControlClient.editMetadata(true);
+        RemoteControlClient localRemoteControlClient = (RemoteControlClient) this.remoteControlClient;
+
+        RemoteControlClient.MetadataEditor editor = localRemoteControlClient.editMetadata(true);
 
         editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST, authorField.getText().toString() );
         editor.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, bookTitle );
@@ -970,7 +979,7 @@ public class ReadingFragment extends RoboSherlockFragment implements
         editor.apply();
         //Set cover too?
 
-        remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
+        localRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
 
         LOG.debug("Focus: updated meta-data");
     }

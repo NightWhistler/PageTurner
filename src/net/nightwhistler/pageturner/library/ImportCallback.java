@@ -23,11 +23,11 @@ import java.util.List;
 
 public interface ImportCallback {
 
-	void importComplete( int booksImported, List<String> failures, boolean emptyLibrary, boolean silent );
-	
-	void importStatusUpdate( String update, boolean silent );
-		
-	void importFailed( String reason, boolean silent );
+    void importComplete( int booksImported, List<String> failures, boolean emptyLibrary, boolean silent );
+
+    void importStatusUpdate( String update, boolean silent );
+
+    void importFailed( String reason, boolean silent );
 
     void importCancelled( int booksImported, List<String> failures, boolean emptyLibrary, boolean silent );
 

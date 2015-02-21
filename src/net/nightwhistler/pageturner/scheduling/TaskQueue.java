@@ -36,7 +36,7 @@ public class TaskQueue {
         this.taskQueue.add(new QueuedTask<>(task, parameters));
 
         Log.d("TaskQueue", "Scheduled task of type " + task
-                + " total tasks scheduled now: " + this.taskQueue.size() );
+            + " total tasks scheduled now: " + this.taskQueue.size() );
 
         if ( this.taskQueue.size() == 1 ) {
             Log.d("TaskQueue",  "Starting task " + taskQueue.peek() + " since task queue is 1.");
@@ -71,7 +71,7 @@ public class TaskQueue {
             taskQueue.add( 0, new QueuedTask<A, B, C>(task, parameters));
 
             Log.d("TaskQueue", "Starting task of type " + taskQueue.peek()
-                    + " with queue " + getQueueAsString() );
+                + " with queue " + getQueueAsString() );
 
             taskQueue.peek().execute();
         }
@@ -134,8 +134,8 @@ public class TaskQueue {
             if ( queuedTask.getTask() != task ) {
 
                 String errorMsg = "Tasks out of sync! Expected "+
-                        queuedTask.getTask() + " but got " + task +
-                        " with queue: " + getQueueAsString();
+                    queuedTask.getTask() + " but got " + task +
+                    " with queue: " + getQueueAsString();
                 Log.e("TaskQueue", errorMsg );
 
                 throw new RuntimeException(errorMsg);
@@ -148,7 +148,7 @@ public class TaskQueue {
         }
 
         Log.d("TaskQueue", "Total tasks scheduled now: " + this.taskQueue.size()
-                + " with queue: " + getQueueAsString() );
+            + " with queue: " + getQueueAsString() );
 
         if ( ! this.taskQueue.isEmpty() ) {
 

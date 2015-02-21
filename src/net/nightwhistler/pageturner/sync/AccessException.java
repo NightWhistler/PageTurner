@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -20,12 +20,12 @@ package net.nightwhistler.pageturner.sync;
 
 public class AccessException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4712242407202301724L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4712242407202301724L;
 
-	public AccessException(String message) {
-		super(message);
-	}
+    public AccessException(String message) {
+        super(message);
+    }
 }

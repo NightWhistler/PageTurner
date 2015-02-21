@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -51,7 +51,7 @@ import static jedi.option.Options.option;
 public class CatalogActivity extends PageTurnerActivity implements CatalogParent {
 
     private static final Logger LOG = LoggerFactory
-            .getLogger("CatalogActivity");
+        .getLogger("CatalogActivity");
 
     @Nullable
     @InjectFragment(R.id.fragment_book_details)
@@ -91,8 +91,8 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
 
     private boolean isTwoPaneView() {
         return  getResources().getConfiguration().orientation
-                == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-                && detailsFragment != null;
+            == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            && detailsFragment != null;
     }
 
 
@@ -100,7 +100,7 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
     public void onFeedLoaded(Feed feed) {
 
         if ( isTwoPaneView() && feed.getSize() == 1
-                && feed.getEntries().get(0).getEpubLink() != null ) {
+            && feed.getEntries().get(0).getEpubLink() != null ) {
             loadFakeFeed(feed);
         } else {
             hideDetailsView();
@@ -129,11 +129,11 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
 
             Option<Fragment> fragmentOption = getCurrentVisibleFragment();
             fragmentOption.forEach( (fragment) -> {
-                if ( fragment instanceof CatalogFragment ) {
-                    LOG.debug( "Notifying fragment.");
-                    ((CatalogFragment) fragment).onBecameVisible();
-                }
-            });
+                    if ( fragment instanceof CatalogFragment ) {
+                        LOG.debug( "Notifying fragment.");
+                        ((CatalogFragment) fragment).onBecameVisible();
+                    }
+                });
 
         } else if ( baseFeedTitle != null ) {
             supportInvalidateOptionsMenu();
@@ -229,7 +229,7 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
         }
 
         FragmentManager.BackStackEntry entry = fragmentManager.getBackStackEntryAt(
-                fragmentManager.getBackStackEntryCount() - 1 );
+            fragmentManager.getBackStackEntryCount() - 1 );
 
 
         Option<Fragment> result = option(fragmentManager.findFragmentByTag(entry.getName()));
@@ -247,15 +247,15 @@ public class CatalogActivity extends PageTurnerActivity implements CatalogParent
 
         Option<Boolean> result = getCurrentVisibleFragment().map( fragment -> {
 
-            if ( fragment instanceof CatalogFragment ) {
-                CatalogFragment catalogFragment = (CatalogFragment) fragment;
+                if ( fragment instanceof CatalogFragment ) {
+                    CatalogFragment catalogFragment = (CatalogFragment) fragment;
 
-                catalogFragment.onSearchRequested();
-                return catalogFragment.supportsSearch();
-            }
+                    catalogFragment.onSearchRequested();
+                    return catalogFragment.supportsSearch();
+                }
 
-            return false;
-        });
+                return false;
+            });
 
         return result.getOrElse(false);
     }

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -49,7 +49,7 @@ public class ReadingActivity extends PageTurnerActivity {
     private Configuration config;
 
     private static final Logger LOG = LoggerFactory
-            .getLogger("ReadingActivity");
+        .getLogger("ReadingActivity");
 
     private int searchIndex = -1;
 
@@ -76,11 +76,11 @@ public class ReadingActivity extends PageTurnerActivity {
 
             if ( readingFragment.hasSearchResults() ) {
                 List<NavigationCallback> searchCallbacks =
-                        this.readingFragment.getSearchResults();
+                    this.readingFragment.getSearchResults();
 
                 getAdapter().findGroup(this.searchIndex).match(
-                        s -> forEach(searchCallbacks, s::addChild),
-                        () -> LOG.error("Could not find Search drawer item!"));
+                    s -> forEach(searchCallbacks, s::addChild),
+                    () -> LOG.error("Could not find Search drawer item!"));
 
             }
         }
@@ -129,10 +129,10 @@ public class ReadingActivity extends PageTurnerActivity {
         }
 
         menuItems.add( new NavigationCallback(getString(R.string.open_library))
-                .setOnClick(() -> launchActivity(LibraryActivity.class)));
+            .setOnClick(() -> launchActivity(LibraryActivity.class)));
 
         menuItems.add( new NavigationCallback(getString(R.string.download))
-                .setOnClick(() -> launchActivity(CatalogActivity.class)));
+            .setOnClick(() -> launchActivity(CatalogActivity.class)));
 
         menuItems.add( new NavigationCallback(getString(R.string.prefs)).setOnClick(this::startPreferences));
 
@@ -170,8 +170,8 @@ public class ReadingActivity extends PageTurnerActivity {
         Class<? extends PageTurnerActivity> lastActivityClass = config.getLastActivity();
 
         if ( !config.isAlwaysOpenLastBook() && lastActivityClass != null
-                && lastActivityClass != ReadingActivity.class
-                && getIntent().getData() == null ) {
+            && lastActivityClass != ReadingActivity.class
+            && getIntent().getData() == null ) {
             Intent intent = new Intent(this, lastActivityClass);
 
             startActivity(intent);
@@ -186,22 +186,22 @@ public class ReadingActivity extends PageTurnerActivity {
         return true;
     }
 
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		readingFragment.onWindowFocusChanged(hasFocus);
-	}
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        readingFragment.onWindowFocusChanged(hasFocus);
+    }
 
-	public void onMediaButtonEvent(View view) {
-		this.readingFragment.onMediaButtonEvent(view.getId());
-	}
+    public void onMediaButtonEvent(View view) {
+        this.readingFragment.onMediaButtonEvent(view.getId());
+    }
 
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		return readingFragment.onTouchEvent(event);
-	}
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return readingFragment.onTouchEvent(event);
+    }
 
-	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
 
         int action = event.getAction();
         int keyCode = event.getKeyCode();
@@ -216,7 +216,7 @@ public class ReadingActivity extends PageTurnerActivity {
         }
 
         return super.dispatchKeyEvent(event);
-	}
+    }
 
     @Override
     protected void beforeLaunchActivity() {

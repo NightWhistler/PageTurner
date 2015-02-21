@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013 Alex Kuiper, Rob Hoelz
- * 
+ *
  * This file is part of PageTurner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,7 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
     private EditText inputField;
 
     private static final Logger LOG = LoggerFactory
-            .getLogger(AddBookmarkFragment.class);
+        .getLogger(AddBookmarkFragment.class);
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -59,21 +59,21 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
         this.inputField.setText(this.initialText);
 
         inputField.setOnEditorActionListener( (v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                handleAction();
-                return true;
-            } else {
-                return false;
-            }
-        });
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    handleAction();
+                    return true;
+                } else {
+                    return false;
+                }
+            });
 
         return new AlertDialog.Builder(
-                getActivity())
-                .setTitle(R.string.add_bookmark)
-                .setView( view )
-                .setPositiveButton(R.string.add, (dialog, which) -> handleAction() )
-                .setNegativeButton(android.R.string.cancel, null)
-                .create();
+            getActivity())
+            .setTitle(R.string.add_bookmark)
+            .setView( view )
+            .setPositiveButton(R.string.add, (dialog, which) -> handleAction() )
+            .setNegativeButton(android.R.string.cancel, null)
+            .create();
     }
 
     public void setFilename(String filename) {
@@ -104,8 +104,8 @@ public class AddBookmarkFragment extends RoboSherlockDialogFragment {
         LOG.debug("    >>> at position: " + bookPosition);
 
         bookmarkDatabaseHelper.addBookmark(
-                new Bookmark( filename, inputField.getText().toString(),
-                        bookIndex, bookPosition));
+            new Bookmark( filename, inputField.getText().toString(),
+                bookIndex, bookPosition));
     }
 
 }

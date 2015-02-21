@@ -32,6 +32,14 @@ Since PageTurner is dual-licensed, we can only accept contributions under the Ap
 
 Unless specifically stated to be otherwise, all contributions will be assumed to be licensed under the Apache 2.0 license.
 
+Code Style
+----------
+
+Relatively standard Java style:
+* Use 4 spaces for indenting, no tabs.
+* Opening braces at end of line not on new line.
+
+
 Building PageTurner
 -------------------
 

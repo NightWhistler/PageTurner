@@ -46,83 +46,83 @@ import static jedi.option.Options.none;
 
 public class DownloadFileTask extends QueueableAsyncTask<String, Long, Void> {
 
-	private File destFile;
-	
-	private Exception failure;
-		
-	private DownloadFileCallback callBack;
-	
-	@Inject
-	private Context context;
-	
-	@Inject
-	private Configuration config;
-	
-	@Inject
-	private LibraryService libraryService;
-	
-	@Inject
-	private HttpClient httpClient;
-	
-	private static final Logger LOG = LoggerFactory.getLogger("DownloadFileTask");
-	
-	public interface DownloadFileCallback {
-		
-		void onDownloadStart();
-		
-		void downloadSuccess(File destinationFile);
-		void downloadFailed();
-		
-		void progressUpdate( long progress, long total, int percentage );
-	}
-	
-	DownloadFileTask(){}
-	
-	public void setCallBack(DownloadFileCallback callBack) {
-		this.callBack = callBack;
-	}
-	
-	@Override
-	public void doOnPreExecute() {
-		callBack.onDownloadStart();
-	}
-	
-	@Override
-	public Option<Void> doInBackground(String... params) {
+    private File destFile;
 
-		try {
+    private Exception failure;
 
-			String url = params[0];
-			LOG.debug("Downloading: " + url);
+    private DownloadFileCallback callBack;
 
-			String fileName = url.substring(url.lastIndexOf('/') + 1);
-			fileName = fileName.replaceAll("\\?|&|=", "_");
-			
-			HttpGet get = new HttpGet(url);
+    @Inject
+    private Context context;
+
+    @Inject
+    private Configuration config;
+
+    @Inject
+    private LibraryService libraryService;
+
+    @Inject
+    private HttpClient httpClient;
+
+    private static final Logger LOG = LoggerFactory.getLogger("DownloadFileTask");
+
+    public interface DownloadFileCallback {
+
+        void onDownloadStart();
+
+        void downloadSuccess(File destinationFile);
+        void downloadFailed();
+
+        void progressUpdate( long progress, long total, int percentage );
+    }
+
+    DownloadFileTask(){}
+
+    public void setCallBack(DownloadFileCallback callBack) {
+        this.callBack = callBack;
+    }
+
+    @Override
+    public void doOnPreExecute() {
+        callBack.onDownloadStart();
+    }
+
+    @Override
+    public Option<Void> doInBackground(String... params) {
+
+        try {
+
+            String url = params[0];
+            LOG.debug("Downloading: " + url);
+
+            String fileName = url.substring(url.lastIndexOf('/') + 1);
+            fileName = fileName.replaceAll("\\?|&|=", "_");
+
+            HttpGet get = new HttpGet(url);
             get.setHeader("User-Agent", config.getUserAgent() );
-			HttpResponse response = httpClient.execute(get);
+            HttpResponse response = httpClient.execute(get);
 
-			if (response.getStatusLine().getStatusCode() == 200) {
+            if (response.getStatusLine().getStatusCode() == 200) {
 
-				Option<File> destFolderOption = config.getDownloadsFolder();
+                Option<File> destFolderOption = config.getDownloadsFolder();
 
-				if ( isEmpty(destFolderOption) ) {
-					throw new IllegalStateException("Could not get download folder!");
-				}
+                if ( isEmpty(destFolderOption) ) {
+                    throw new IllegalStateException("Could not get download folder!");
+                }
 
-				File destFolder = destFolderOption.unsafeGet();
+                File destFolder = destFolderOption.unsafeGet();
 
-				if (!destFolder.exists()) {
-					destFolder.mkdirs();
-				}
-				
-				/**
-				 * Make sure we always store downloaded files as .epub, 
-				 * so they show up in scans later on.
-				 */
-				if ( ! fileName.endsWith(".epub") ) {
-					fileName = fileName + ".epub";
-				}
+                if (!destFolder.exists()) {
+                    destFolder.mkdirs();
+                }
+
+                /**
+                 * Make sure we always store downloaded files as .epub,
+                 * so they show up in scans later on.
+                 */
+                if ( ! fileName.endsWith(".epub") ) {
+                    fileName = fileName + ".epub";
+                }
 
                 // Default Charset for android is UTF-8*
                 String charsetName = Charset.defaultCharset().name();
@@ -140,72 +140,72 @@ public class DownloadFileTask extends QueueableAsyncTask<String, Long, Void> {
                 }
 
 
-				if (destFile.exists()) {
-					destFile.delete();
-				}
+                if (destFile.exists()) {
+                    destFile.delete();
+                }
 
-				// lenghtOfFile is used for calculating download progress
-				long lenghtOfFile = response.getEntity().getContentLength();
+                // lenghtOfFile is used for calculating download progress
+                long lenghtOfFile = response.getEntity().getContentLength();
 
-				// this is where the file will be seen after the download
-				FileOutputStream f = new FileOutputStream(destFile);
-				
-				try {
-					// file input is from the url
-					InputStream in = response.getEntity().getContent();
+                // this is where the file will be seen after the download
+                FileOutputStream f = new FileOutputStream(destFile);
 
-					// here's the download code
-					byte[] buffer = new byte[1024];
-					int len1 = 0;
-					long total = 0;
+                try {
+                    // file input is from the url
+                    InputStream in = response.getEntity().getContent();
 
-					while ((len1 = in.read(buffer)) > 0 && ! isCancelled() ) {
+                    // here's the download code
+                    byte[] buffer = new byte[1024];
+                    int len1 = 0;
+                    long total = 0;
 
-						// Make sure the user can cancel the download.
-						if (isCancelled()) {
-							return new None();
-						}
+                    while ((len1 = in.read(buffer)) > 0 && ! isCancelled() ) {
 
-						total += len1;						
-						publishProgress(total, lenghtOfFile, (long) ((total * 100) / lenghtOfFile));
-						f.write(buffer, 0, len1);
-					}
-				} finally {
-					f.close();
-				}
+                        // Make sure the user can cancel the download.
+                        if (isCancelled()) {
+                            return new None();
+                        }
+
+                        total += len1;
+                        publishProgress(total, lenghtOfFile, (long) ((total * 100) / lenghtOfFile));
+                        f.write(buffer, 0, len1);
+                    }
+                } finally {
+                    f.close();
+                }
 
                 if ( ! isCancelled() ) {
-				    //FIXME: This doesn't belong here really...
-				    Book book = new EpubReader().readEpubLazy( destFile.getAbsolutePath(), "UTF-8" );
-				    libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.getCopyToLibraryOnScan() );
+                    //FIXME: This doesn't belong here really...
+                    Book book = new EpubReader().readEpubLazy( destFile.getAbsolutePath(), "UTF-8" );
+                    libraryService.storeBook(destFile.getAbsolutePath(), book, false, config.getCopyToLibraryOnScan() );
                 }
-				
-			} else {
-				this.failure = new RuntimeException(response
-						.getStatusLine().getReasonPhrase());
-				LOG.error("Download failed: "
-						+ response.getStatusLine().getReasonPhrase());
-			}
 
-		} catch (Exception e) {
-			LOG.error("Download failed.", e);
-			this.failure = e;
-		}
+            } else {
+                this.failure = new RuntimeException(response
+                    .getStatusLine().getReasonPhrase());
+                LOG.error("Download failed: "
+                    + response.getStatusLine().getReasonPhrase());
+            }
 
-		return none();
-	}
+        } catch (Exception e) {
+            LOG.error("Download failed.", e);
+            this.failure = e;
+        }
+
+        return none();
+    }
 
     @Override
     public void doOnProgressUpdate(Long... values) {
-		callBack.progressUpdate(values[0], values[1], values[2].intValue() );
-	}
+        callBack.progressUpdate(values[0], values[1], values[2].intValue() );
+    }
 
-	@Override
-	public void doOnPostExecute(Option<Void> unused) {
-		if (!isCancelled() && failure == null) {
-			callBack.downloadSuccess(destFile);			
-		} else if (failure != null) {
-			callBack.downloadFailed();
-		}
-	}
+    @Override
+    public void doOnPostExecute(Option<Void> unused) {
+        if (!isCancelled() && failure == null) {
+            callBack.downloadSuccess(destFile);
+        } else if (failure != null) {
+            callBack.downloadFailed();
+        }
+    }
 }

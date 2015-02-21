@@ -26,25 +26,25 @@ import android.widget.Toast;
 import net.nightwhistler.pageturner.R;
 
 public class LanguageSwitchPreference extends ListPreference {
-	
-	private Context context;	
 
-	private String oldValue;
+    private Context context;
 
-	public LanguageSwitchPreference(Context context, AttributeSet attributes) {
-		super(context, attributes);
-		this.context = context;				
-	}
-	
-	@Override
-	public void setValue(String value) {
-		super.setValue(value);
-		
-		if (oldValue != null && !value.equalsIgnoreCase(oldValue) ) {
-			Toast.makeText(context, R.string.language_switch_message, Toast.LENGTH_LONG).show();			
-		}
-		
-		this.oldValue = value;
-	}
-	
+    private String oldValue;
+
+    public LanguageSwitchPreference(Context context, AttributeSet attributes) {
+        super(context, attributes);
+        this.context = context;
+    }
+
+    @Override
+    public void setValue(String value) {
+        super.setValue(value);
+
+        if (oldValue != null && !value.equalsIgnoreCase(oldValue) ) {
+            Toast.makeText(context, R.string.language_switch_message, Toast.LENGTH_LONG).show();
+        }
+
+        this.oldValue = value;
+    }
+
 }

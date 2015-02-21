@@ -106,11 +106,11 @@ public class HighLight {
                 JSONObject json = jsonArray.getJSONObject(i);
 
                 HighLight highLight = new HighLight(
-                        json.getString(Fields.displayText.name()),
-                        json.getInt(Fields.index.name()),
-                        json.getInt(Fields.start.name()),
-                        json.getInt(Fields.end.name()),
-                        json.getInt(Fields.color.name()));
+                    json.getString(Fields.displayText.name()),
+                    json.getInt(Fields.index.name()),
+                    json.getInt(Fields.start.name()),
+                    json.getInt(Fields.end.name()),
+                    json.getInt(Fields.color.name()));
 
                 highLight.setTextNote( json.optString( Fields.textNote.name() ));
 

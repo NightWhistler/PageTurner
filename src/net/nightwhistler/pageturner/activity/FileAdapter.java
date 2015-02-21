@@ -49,17 +49,17 @@ public class FileAdapter extends BaseAdapter {
 
         Collections.sort(items, (lhs, rhs) -> {
 
-            if ((lhs.getFile().isDirectory() && rhs.getFile().isDirectory()) ||
+                if ((lhs.getFile().isDirectory() && rhs.getFile().isDirectory()) ||
                     (!lhs.getFile().isDirectory() && !rhs.getFile().isDirectory())) {
-                return lhs.getFile().getName().compareTo(rhs.getFile().getName());
-            }
+                    return lhs.getFile().getName().compareTo(rhs.getFile().getName());
+                }
 
-            if (lhs.getFile().isDirectory()) {
-                return -1;
-            } else {
-                return 1;
-            }
-        });
+                if (lhs.getFile().isDirectory()) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
 
         items.add( 0, new FileItem( "[" + context.getString(R.string.import_this) + "]", folder, true));
 
@@ -114,10 +114,10 @@ public class FileAdapter extends BaseAdapter {
         }
 
         selectBox.setOnCheckedChangeListener( (buttonView, isChecked) -> {
-            if ( isChecked && itemSelectionListener != null ) {
-                this.itemSelectionListener.fileSelected( fileItem.getFile() );
-            }
-        });
+                if ( isChecked && itemSelectionListener != null ) {
+                    this.itemSelectionListener.fileSelected( fileItem.getFile() );
+                }
+            });
 
         selectBox.setFocusable(false);
 
@@ -132,4 +132,3 @@ public class FileAdapter extends BaseAdapter {
         this.itemSelectionListener = itemSelectionListener;
     }
 }
-

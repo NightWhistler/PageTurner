@@ -50,8 +50,8 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
     private static final Logger LOG = LoggerFactory.getLogger("NavigationAdapter");
 
     public NavigationAdapter( Context context, List<NavigationCallback> items,
-                              Functor2<List<NavigationCallback>, Integer,
-                                      ExpandableListView> subListProvider, int level ) {
+        Functor2<List<NavigationCallback>, Integer,
+        ExpandableListView> subListProvider, int level ) {
         this.context = context;
         this.subListProvider = subListProvider;
 
@@ -73,7 +73,7 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
         }
 
         View childView = childItem.map( c -> c.hasChildren() ? getChildNodeView(c,view): getChildLeafView(c, view ) )
-                .getOrElse(view);
+            .getOrElse(view);
 
         int paddingValue = (int) getDipValue( INDENT ) * ( level + 2 );
 
@@ -81,7 +81,7 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
         LOG.debug( "Old value was " + childView.getPaddingLeft() );
 
         childView.setPadding( paddingValue, childView.getPaddingTop(),
-                childView.getPaddingRight(), childView.getPaddingBottom() );
+            childView.getPaddingRight(), childView.getPaddingBottom() );
 
         return childView;
     }
@@ -112,7 +112,7 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
 
         if ( layout == null ) {
             layout = PlatformUtil.getLayoutInflater(context).inflate(
-                    R.layout.drawer_list_subitem, null );
+                R.layout.drawer_list_subitem, null );
         }
 
         getTextView( layout, R.id.itemText ).forEach( t -> t.setText(childItem.getTitle() ) );
@@ -146,31 +146,31 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
             layout = view;
         } else {
             layout = PlatformUtil.getLayoutInflater(context).inflate(
-                    R.layout.drawer_list_item, null );
+                R.layout.drawer_list_item, null );
         }
 
         Option<TextView> textView = getTextView( layout, R.id.groupName );
         Option<ImageView> indicator = getImageView( layout, R.id.explist_indicator );
 
         indicator.forEach( ind -> {
-            if ( getChildrenCount( i ) == 0 ) {
-                ind.setVisibility( View.INVISIBLE );
-            } else {
-                ind.setVisibility( View.VISIBLE );
-                ind.setImageResource( isExpanded ? R.drawable.arrowhead_up : R.drawable.arrowhead_down );
-            }
-        });
+                if ( getChildrenCount( i ) == 0 ) {
+                    ind.setVisibility( View.INVISIBLE );
+                } else {
+                    ind.setVisibility( View.VISIBLE );
+                    ind.setImageResource( isExpanded ? R.drawable.arrowhead_up : R.drawable.arrowhead_down );
+                }
+            });
 
         NavigationCallback item = items.get(i);
 
         LOG.debug( "Getting view for index " + i + " with title "
-                + item.getTitle() + " and subtitle " + item.getSubtitle() );
+            + item.getTitle() + " and subtitle " + item.getSubtitle() );
         LOG.debug( "Is expanded? " + isExpanded );
 
         textView.match(
-                t -> t.setText(item.getTitle()),
-                () -> LOG.error("View for title not found!")
-        );
+            t -> t.setText(item.getTitle()),
+            () -> LOG.error("View for title not found!")
+                       );
 
 
         return layout;
@@ -192,7 +192,7 @@ public class NavigationAdapter extends BaseExpandableListAdapter {
     public Option<NavigationCallback> findChild(int groupId, int childId) {
 
         Option<Option<NavigationCallback>> childItem =
-                listElement(items, groupId).map(g -> g.getChild(childId));
+            listElement(items, groupId).map(g -> g.getChild(childId));
 
         return headOption( flatten(childItem) );
     }

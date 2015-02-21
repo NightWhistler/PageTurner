@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -20,8 +20,8 @@ package net.nightwhistler.nucular.parser;
 
 
 public class UnknownElementParser extends ElementParser {
-	
-	public UnknownElementParser(String name) {
-		super(name);	
-	}	
+
+    public UnknownElementParser(String name) {
+        super(name);
+    }
 }

@@ -34,13 +34,13 @@ import java.util.List;
 
 public class PlatformUtil {
 
-	public static LayoutInflater getLayoutInflater( Context context ) {
-		if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
-			return (LayoutInflater) context.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		} else {
-			return (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		}
-	}
+    public static LayoutInflater getLayoutInflater( Context context ) {
+        if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
+            return (LayoutInflater) context.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        } else {
+            return (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+    }
 
     public static boolean isRunningOnUiThread() { return Looper.getMainLooper().getThread() == Thread.currentThread(); }
 
@@ -72,7 +72,7 @@ public class PlatformUtil {
 
         final PackageManager packageManager = context.getPackageManager();
         List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
-                PackageManager.MATCH_DEFAULT_ONLY);
+            PackageManager.MATCH_DEFAULT_ONLY);
         return list.size() > 0;
     }
 

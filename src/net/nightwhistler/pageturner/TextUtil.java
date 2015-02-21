@@ -32,9 +32,9 @@ public class TextUtil {
     private static final Pattern PUNCTUATION = Pattern.compile("\\.( ?\\.)*[\"'”’]?|[\\?!] ?[\"'”’]?|, ?[\"'”’]|”");
 
     /*
-    These are titles like Mr. Mrs., etc that will often cause incorrect
-    breaks in English text. We filter them out.
-     */
+      These are titles like Mr. Mrs., etc that will often cause incorrect
+      breaks in English text. We filter them out.
+    */
     private static final String[] TITLES = { "mr", "mrs", "dr", "ms", "st" };
 
     private TextUtil() {}

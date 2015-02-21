@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -22,34 +22,34 @@ import java.io.Serializable;
 
 public class Author implements Serializable {
 
-	private String name;
-	private String email;
-	
-	private String uri;
+    private String name;
+    private String email;
 
-	public String getName() {
-		return name;
-	}
+    private String uri;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public String getUri() {
-		return uri;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public void setUri(String uri) {
-		this.uri = uri;
-	}
-	
-	
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+
 }

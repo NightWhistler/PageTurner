@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -40,9 +40,9 @@ import static jedi.option.Options.some;
 import static net.nightwhistler.pageturner.catalog.Catalog.getImageLink;
 
 public class CatalogListAdapter extends BaseAdapter {
-	
-	private Feed feed;	
-	private Context context;
+
+    private Feed feed;
+    private Context context;
 
     private Entry loadingEntry = new Entry();
 
@@ -52,10 +52,10 @@ public class CatalogListAdapter extends BaseAdapter {
         Option<Drawable> getThumbnailFor( String baseURL, Link link );
     }
 
-	@Inject
-	public CatalogListAdapter(Context context) {
-		this.context = context;
-	}
+    @Inject
+    public CatalogListAdapter(Context context) {
+        this.context = context;
+    }
 
     public void setImageLoader( CatalogImageLoader imageLoader ) {
         this.imageLoader = imageLoader;
@@ -88,44 +88,44 @@ public class CatalogListAdapter extends BaseAdapter {
         this.notifyDataSetChanged();
     }
 
-	public void setFeed( Feed feed ) {
-		this.feed = feed;
-		this.notifyDataSetChanged();		
-	}
-	
-	public Option<Feed> getFeed() {
-		return option(feed);
-	}
+    public void setFeed( Feed feed ) {
+        this.feed = feed;
+        this.notifyDataSetChanged();
+    }
 
-	@Override
-	public int getCount() {
-		
-		if ( feed == null ) {
-			return 0;
-		}
-		
-		return feed.getEntries().size();
-	}
-	
-	@Override
-	public Option<Entry> getItem(int position) {
+    public Option<Feed> getFeed() {
+        return option(feed);
+    }
+
+    @Override
+    public int getCount() {
+
+        if ( feed == null ) {
+            return 0;
+        }
+
+        return feed.getEntries().size();
+    }
+
+    @Override
+    public Option<Entry> getItem(int position) {
         if ( position >= 0 && position < feed.getEntries().size() ) {
-		    return some(feed.getEntries().get(position));
+            return some(feed.getEntries().get(position));
         }
 
         return none();
-	}
-	
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
+    }
 
-	
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		View rowView;
-		final Option<Entry> entry = getItem(position);
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View rowView;
+        final Option<Entry> entry = getItem(position);
 
         if ( entry.unsafeGet() == this.loadingEntry ) {
             ProgressBar bar = new ProgressBar(this.context);
@@ -134,7 +134,7 @@ public class CatalogListAdapter extends BaseAdapter {
         }
 
         if ( convertView == null || convertView instanceof  ProgressBar  ) {
-		    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             rowView = inflater.inflate(R.layout.catalog_item, parent, false);
         } else {
             rowView = convertView;
@@ -154,10 +154,10 @@ public class CatalogListAdapter extends BaseAdapter {
 
         icon.setImageDrawable( drawableOption.getOrElse(
                 context.getResources().getDrawable(R.drawable.unknown_cover)
-        ));
+                                                        ));
 
-		return rowView;
-	}
+        return rowView;
+    }
 
     private Option<Drawable> getThumbnail( Entry entry ) {
 
@@ -175,5 +175,5 @@ public class CatalogListAdapter extends BaseAdapter {
 
         return this.imageLoader.getThumbnailFor( entry.getBaseURL(), imgLink.unsafeGet() );
     }
-	
+
 }

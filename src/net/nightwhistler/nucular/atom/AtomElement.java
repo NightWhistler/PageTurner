@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -30,56 +30,56 @@ import static jedi.option.Options.some;
 
 public abstract class AtomElement implements Serializable {
 
-	private String title;
-	private String id;
-	private Content content;
-	
-	private Author author;
-	
-	private List<Link> links = new ArrayList<Link>();
+    private String title;
+    private String id;
+    private Content content;
 
-	public String getTitle() {
-		return title;
-	}
+    private Author author;
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    private List<Link> links = new ArrayList<Link>();
 
-	public String getId() {
-		return id;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public Content getContent() {
-		return content;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setContent(Content content) {
-		this.content = content;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public Author getAuthor() {
-		return author;
-	}
+    public Content getContent() {
+        return content;
+    }
 
-	public void setAuthor(Author author) {
-		this.author = author;
-	}
+    public void setContent(Content content) {
+        this.content = content;
+    }
 
-	public List<Link> getLinks() {
-		return Collections.unmodifiableList( links );
-	}		
-	
-	public void addLink( Link link ) {
-		this.links.add(link);
-	}	
-	
-	public Option<Link> findByRel(String rel) {
+    public Author getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
+
+    public List<Link> getLinks() {
+        return Collections.unmodifiableList( links );
+    }
+
+    public void addLink( Link link ) {
+        this.links.add(link);
+    }
+
+    public Option<Link> findByRel(String rel) {
         return firstOption( getLinks(),
-                link -> link.getRel() != null && link.getRel().equals(rel) );
-	}
+            link -> link.getRel() != null && link.getRel().equals(rel) );
+    }
 }

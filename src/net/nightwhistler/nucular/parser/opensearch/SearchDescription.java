@@ -30,13 +30,13 @@ import static jedi.functional.FunctionalPrimitives.firstOption;
 
 public class SearchDescription {
 
-	private List<Link> links = new ArrayList<Link>();
-	
-	public void addLink( Link link ) {
-		this.links.add(link);
-	}
-	
-	public Option<Link> getSearchLink() {
-		return firstOption( this.links, l -> AtomConstants.TYPE_ATOM.equals( l.getType() ) );
-	}
+    private List<Link> links = new ArrayList<Link>();
+
+    public void addLink( Link link ) {
+        this.links.add(link);
+    }
+
+    public Option<Link> getSearchLink() {
+        return firstOption( this.links, l -> AtomConstants.TYPE_ATOM.equals( l.getType() ) );
+    }
 }

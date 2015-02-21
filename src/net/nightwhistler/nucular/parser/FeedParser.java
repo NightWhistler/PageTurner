@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -24,43 +24,43 @@ import java.util.Map;
 
 
 public class FeedParser extends ElementParser {
-	
-	private Feed feed;
-	
-	public FeedParser() {
-		super("feed");
-		this.feed = new Feed();
-	}
-	
-	public Feed getFeed() {
-		return feed;
-	}
-	
-	@Override
-	public void startElement(String name, Map<String, String> attributes) {
-		if ( ! name.equals("feed") ) { //Minor bootstrapping hack
-			super.startElement(name, attributes);
-		}
-	}
-	
-	@Override
-	protected ElementParser createChildParser(String tagName) {
-		
-		if ( tagName.equals("link")) {
-			return new LinkParser(feed);
-		} else if ( tagName.equals("content")) {
-			return new ContentParser(feed);
-		} else if ( tagName.equals("title") ) {
-			return new TitleParser(feed);
-		} else if ( tagName.equals("entry")) {
-			return new EntryParser(feed);
-		} else if ( tagName.equals("author")) {
-			return new AuthorParser(feed);
-		} else if ( tagName.equals("id")) {
-			return new IDParser(feed);
-		}
-		
-		return super.createChildParser(tagName);
-	}
+
+    private Feed feed;
+
+    public FeedParser() {
+        super("feed");
+        this.feed = new Feed();
+    }
+
+    public Feed getFeed() {
+        return feed;
+    }
+
+    @Override
+    public void startElement(String name, Map<String, String> attributes) {
+        if ( ! name.equals("feed") ) { //Minor bootstrapping hack
+            super.startElement(name, attributes);
+        }
+    }
+
+    @Override
+    protected ElementParser createChildParser(String tagName) {
+
+        if ( tagName.equals("link")) {
+            return new LinkParser(feed);
+        } else if ( tagName.equals("content")) {
+            return new ContentParser(feed);
+        } else if ( tagName.equals("title") ) {
+            return new TitleParser(feed);
+        } else if ( tagName.equals("entry")) {
+            return new EntryParser(feed);
+        } else if ( tagName.equals("author")) {
+            return new AuthorParser(feed);
+        } else if ( tagName.equals("id")) {
+            return new IDParser(feed);
+        }
+
+        return super.createChildParser(tagName);
+    }
 
 }

@@ -1,7 +1,7 @@
 
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -22,58 +22,58 @@ package net.nightwhistler.nucular.parser;
 import java.util.Map;
 
 public abstract class ElementParser {
-	
-	private String elementName;
-	
-	private ElementParser childParser;
-	
-	private boolean finished;
-	
-	public ElementParser(String elementName) {
-		this.elementName = elementName;
-		this.finished = false;
-	}
 
-	public void startElement( String name, Map<String, String> attributes ) {
-		
-		if ( this.childParser != null ) {
-			childParser.startElement(name, attributes);
-		} else {
-			this.childParser = createChildParser(name);		
-			this.childParser.setAttributes(attributes);
-		}
-	}
-	
-	public boolean isFinished() {
-		return finished;
-	}
-	
-	public void endElement( String name ) {
-		
-		if ( this.childParser != null ) {
-			this.childParser.endElement(name);
-			
-			if ( childParser.isFinished() ) {
-				childParser = null;
-			}
-		} else {
-			if ( name.equals(this.elementName) ) {
-				this.finished = true;
-			}
-		}
-		
-	}
-	
-	public void setTextContent( String text ) {
-		if ( childParser != null ) {
-			childParser.setTextContent(text);
-		}
-	}
-	
-	public void setAttributes( Map<String, String> attributes ) {}
+    private String elementName;
 
-	protected ElementParser createChildParser(String tagName) {
-		return new UnknownElementParser(tagName);
-	}
+    private ElementParser childParser;
+
+    private boolean finished;
+
+    public ElementParser(String elementName) {
+        this.elementName = elementName;
+        this.finished = false;
+    }
+
+    public void startElement( String name, Map<String, String> attributes ) {
+
+        if ( this.childParser != null ) {
+            childParser.startElement(name, attributes);
+        } else {
+            this.childParser = createChildParser(name);
+            this.childParser.setAttributes(attributes);
+        }
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void endElement( String name ) {
+
+        if ( this.childParser != null ) {
+            this.childParser.endElement(name);
+
+            if ( childParser.isFinished() ) {
+                childParser = null;
+            }
+        } else {
+            if ( name.equals(this.elementName) ) {
+                this.finished = true;
+            }
+        }
+
+    }
+
+    public void setTextContent( String text ) {
+        if ( childParser != null ) {
+            childParser.setTextContent(text);
+        }
+    }
+
+    public void setAttributes( Map<String, String> attributes ) {}
+
+    protected ElementParser createChildParser(String tagName) {
+        return new UnknownElementParser(tagName);
+    }
 
 }

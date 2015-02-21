@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -25,36 +25,36 @@ import java.io.IOException;
 
 
 public interface LibraryService {
-	
-		
-	/**
-	 * Adds a new book to the library database, optionally copying it.
-	 * 
-	 * @param fileName
-	 * @param book
-	 * @param updateLastRead
-	 * @param copyFile
-	 * @throws IOException
-	 */
-	public void storeBook( String fileName, Book book, boolean updateLastRead, boolean copyFile ) throws IOException;
-	
-	public void updateReadingProgress( String fileName, int progress );
-	
-	public QueryResult<LibraryBook> findAllByLastRead(String filter);
-	
-	public QueryResult<LibraryBook> findAllByLastAdded(String filter);
-	
-	public QueryResult<LibraryBook> findAllByTitle(String filter);
-	
-	public QueryResult<LibraryBook> findAllByAuthor(String filter);
-	
-	public QueryResult<LibraryBook> findUnread(String filter);
-	
-	public Option<LibraryBook> getBook( String fileName );
-	
-	public boolean hasBook( String fileName );
-	
-	public void deleteBook( String fileName );
-	
-	public void close();
+
+
+    /**
+     * Adds a new book to the library database, optionally copying it.
+     *
+     * @param fileName
+     * @param book
+     * @param updateLastRead
+     * @param copyFile
+     * @throws IOException
+     */
+    public void storeBook( String fileName, Book book, boolean updateLastRead, boolean copyFile ) throws IOException;
+
+    public void updateReadingProgress( String fileName, int progress );
+
+    public QueryResult<LibraryBook> findAllByLastRead(String filter);
+
+    public QueryResult<LibraryBook> findAllByLastAdded(String filter);
+
+    public QueryResult<LibraryBook> findAllByTitle(String filter);
+
+    public QueryResult<LibraryBook> findAllByAuthor(String filter);
+
+    public QueryResult<LibraryBook> findUnread(String filter);
+
+    public Option<LibraryBook> getBook( String fileName );
+
+    public boolean hasBook( String fileName );
+
+    public void deleteBook( String fileName );
+
+    public void close();
 }

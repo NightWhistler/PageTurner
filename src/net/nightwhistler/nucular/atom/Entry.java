@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -32,16 +32,16 @@ import static net.nightwhistler.nucular.atom.AtomConstants.*;
 
 public class Entry extends AtomElement {
 
-	private String updated;
-	private String summary;
+    private String updated;
+    private String summary;
 
     private Feed feed;
 
     private String baseURL;
 
-	public String getUpdated() {
-		return updated;
-	}
+    public String getUpdated() {
+        return updated;
+    }
 
     public String getBaseURL() {
         return baseURL;
@@ -51,9 +51,9 @@ public class Entry extends AtomElement {
         this.baseURL = baseURL;
     }
 
-	public void setUpdated(String updated) {
-		this.updated = updated;
-	}
+    public void setUpdated(String updated) {
+        this.updated = updated;
+    }
 
     public void setFeed(Feed feed) {
         this.feed = feed;
@@ -67,35 +67,35 @@ public class Entry extends AtomElement {
         return findByRel(AtomConstants.REL_WEBSITE);
     }
 
-	public Option<Link> getAlternateLink() {
-		Option<Link> atomLink = getAtomLink();
+    public Option<Link> getAlternateLink() {
+        Option<Link> atomLink = getAtomLink();
 
         return atomLink.filter(l -> l.getRel() != null && l.getRel().equalsIgnoreCase(REL_ALTERNATE));
-	}
-	
-	public Option<Link> getAtomLink() {
-		List<Link> links = getLinks();
+    }
+
+    public Option<Link> getAtomLink() {
+        List<Link> links = getLinks();
 
         return firstOption( links, l -> l.getType().startsWith(TYPE_ATOM));
-	}
-	
-	public String getSummary() {
-		return summary;
-	}
-	
-	public void setSummary(String summary) {
-		this.summary = summary;
-	}
-	
-	private Option<Link> findByRel(String... items) {
-		Option<Link> link = none();
+    }
 
-		for ( int i=0; i < items.length && isEmpty(link); i++ ) {
-			link = findByRel( items[i] );
-		}
-		
-		return link;
-	}
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
+    private Option<Link> findByRel(String... items) {
+        Option<Link> link = none();
+
+        for ( int i=0; i < items.length && isEmpty(link); i++ ) {
+            link = findByRel( items[i] );
+        }
+
+        return link;
+    }
 
     public List<Link> getAlternateLinks() {
 
@@ -115,19 +115,19 @@ public class Entry extends AtomElement {
 
     }
 
-	public Option<Link> getThumbnailLink() {
-		return findByRel(REL_THUMBNAIL, REL_THUMBNAIL_ALT, REL_STANZA_THUMBNAIL_IMAGE);
-	}
-	
-	public Option<Link> getImageLink() {
-		return findByRel(REL_IMAGE, REL_COVER, REL_STANZA_COVER_IMAGE );		
-	}
-	
-	public Option<Link> getBuyLink() {
-		return findByRel(REL_BUY, REL_STANZA_BUY);
-	}
-	
-	public Option<Link> getEpubLink() {
+    public Option<Link> getThumbnailLink() {
+        return findByRel(REL_THUMBNAIL, REL_THUMBNAIL_ALT, REL_STANZA_THUMBNAIL_IMAGE);
+    }
+
+    public Option<Link> getImageLink() {
+        return findByRel(REL_IMAGE, REL_COVER, REL_STANZA_COVER_IMAGE );
+    }
+
+    public Option<Link> getBuyLink() {
+        return findByRel(REL_BUY, REL_STANZA_BUY);
+    }
+
+    public Option<Link> getEpubLink() {
         return firstOption( getLinks(), link -> link.getType() != null && link.getType().equals(TYPE_EPUB));
-	}
+    }
 }

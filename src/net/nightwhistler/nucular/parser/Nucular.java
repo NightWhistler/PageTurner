@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -33,34 +33,34 @@ import java.io.InputStream;
 
 public class Nucular {
 
-	public static Feed readAtomFeedFromStream(InputStream stream)
-			throws ParserConfigurationException, SAXException, IOException {
+    public static Feed readAtomFeedFromStream(InputStream stream)
+        throws ParserConfigurationException, SAXException, IOException {
 
-		FeedParser feedParser = new FeedParser();		
-		parseStream(feedParser, stream );
-		return feedParser.getFeed();
-	}
-	
-	public static SearchDescription readOpenSearchFromStream(InputStream stream ) 
-			throws ParserConfigurationException, SAXException, IOException {
-		OpenSearchParser search = new OpenSearchParser();
-		parseStream(search, stream);
-		
-		return search.getDesc();
-	}
-	
-	private static void parseStream( ElementParser rootElementsParser, InputStream stream ) 
-			throws ParserConfigurationException, SAXException, IOException {
-		
-		SAXParserFactory parseFactory = SAXParserFactory.newInstance();
-		SAXParser xmlParser = parseFactory.newSAXParser();
+        FeedParser feedParser = new FeedParser();
+        parseStream(feedParser, stream );
+        return feedParser.getFeed();
+    }
 
-		XMLReader xmlIn = xmlParser.getXMLReader();
-		
-		StreamParser catalogParser = new StreamParser( rootElementsParser );
-		xmlIn.setContentHandler(catalogParser);
+    public static SearchDescription readOpenSearchFromStream(InputStream stream )
+        throws ParserConfigurationException, SAXException, IOException {
+        OpenSearchParser search = new OpenSearchParser();
+        parseStream(search, stream);
 
-		xmlIn.parse(new InputSource(stream));
-	}
+        return search.getDesc();
+    }
+
+    private static void parseStream( ElementParser rootElementsParser, InputStream stream )
+        throws ParserConfigurationException, SAXException, IOException {
+
+        SAXParserFactory parseFactory = SAXParserFactory.newInstance();
+        SAXParser xmlParser = parseFactory.newSAXParser();
+
+        XMLReader xmlIn = xmlParser.getXMLReader();
+
+        StreamParser catalogParser = new StreamParser( rootElementsParser );
+        xmlIn.setContentHandler(catalogParser);
+
+        xmlIn.parse(new InputSource(stream));
+    }
 
 }

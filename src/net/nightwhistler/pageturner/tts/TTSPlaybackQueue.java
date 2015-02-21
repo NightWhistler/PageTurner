@@ -26,10 +26,10 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /*
-Playback queue which is thread-safe, so it can be a singleton.
+  Playback queue which is thread-safe, so it can be a singleton.
 
-It only accepts items when it has first been activated.
- */
+  It only accepts items when it has first been activated.
+*/
 public class TTSPlaybackQueue {
 
     private boolean active;

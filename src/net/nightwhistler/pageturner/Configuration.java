@@ -60,49 +60,49 @@ import static net.nightwhistler.pageturner.PlatformUtil.isAtLeast;
 /**
  * Application configuration class which provides a friendly API to the various
  * settings available.
- * 
+ *
  * @author Alex Kuiper
- * 
+ *
  */
 @ContextSingleton
 public class Configuration {
 
-	private SharedPreferences settings;
-	private Context context;
+    private SharedPreferences settings;
+    private Context context;
 
-	private Map<String, FontFamily> fontCache = new HashMap<>();
+    private Map<String, FontFamily> fontCache = new HashMap<>();
 
-	public static enum ScrollStyle {
-		ROLLING_BLIND, PAGE_TIMER
-	}
+    public static enum ScrollStyle {
+        ROLLING_BLIND, PAGE_TIMER
+    }
 
-	public static enum AnimationStyle {
-		CURL, SLIDE, NONE
-	}
+    public static enum AnimationStyle {
+        CURL, SLIDE, NONE
+    }
 
-	public static enum OrientationLock {
-		PORTRAIT, LANDSCAPE, REVERSE_PORTRAIT, REVERSE_LANDSCAPE, NO_LOCK
-	}
+    public static enum OrientationLock {
+        PORTRAIT, LANDSCAPE, REVERSE_PORTRAIT, REVERSE_LANDSCAPE, NO_LOCK
+    }
 
-	public static enum ColourProfile {
-		DAY, NIGHT
-	}
+    public static enum ColourProfile {
+        DAY, NIGHT
+    }
 
-	public static enum LibraryView {
-		BOOKCASE, LIST
-	}
+    public static enum LibraryView {
+        BOOKCASE, LIST
+    }
 
-	public static enum CoverLabelOption {
-		ALWAYS, NEVER, WITHOUT_COVER
-	}
+    public static enum CoverLabelOption {
+        ALWAYS, NEVER, WITHOUT_COVER
+    }
 
-	public static enum LibrarySelection {
-		BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
-	}
+    public static enum LibrarySelection {
+        BY_LAST_READ, LAST_ADDED, UNREAD, BY_TITLE, BY_AUTHOR;
+    }
 
-	public static enum ReadingDirection {
-		LEFT_TO_RIGHT, RIGHT_TO_LEFT;
-	}
+    public static enum ReadingDirection {
+        LEFT_TO_RIGHT, RIGHT_TO_LEFT;
+    }
 
     public static enum LongShortPressBehaviour {
         NORMAL, REVERSED
@@ -110,71 +110,71 @@ public class Configuration {
 
 
     public static final String BASE_OPDS_FEED = "http://www.pageturner-reader.org/opds/feeds.xml";
-	public static final String BASE_SYNC_URL = "http://api.pageturner-reader.org/progress/";
-	public static final String KEY_SYNC_SERVER = "sync_server";
+    public static final String BASE_SYNC_URL = "http://api.pageturner-reader.org/progress/";
+    public static final String KEY_SYNC_SERVER = "sync_server";
 
-	public static final String KEY_POS = "offset:";
-	public static final String KEY_IDX = "index:";
-	public static final String KEY_NAV_TAP_V = "nav_tap_v";
-	public static final String KEY_NAV_TAP_H = "nav_tap_h";
-	public static final String KEY_NAV_SWIPE_H = "nav_swipe_h";
-	public static final String KEY_NAV_SWIPE_V = "nav_swipe_v";
-	public static final String KEY_NAV_VOL = "nav_vol";
+    public static final String KEY_POS = "offset:";
+    public static final String KEY_IDX = "index:";
+    public static final String KEY_NAV_TAP_V = "nav_tap_v";
+    public static final String KEY_NAV_TAP_H = "nav_tap_h";
+    public static final String KEY_NAV_SWIPE_H = "nav_swipe_h";
+    public static final String KEY_NAV_SWIPE_V = "nav_swipe_v";
+    public static final String KEY_NAV_VOL = "nav_vol";
 
-	public static final String KEY_EMAIL = "email";
-	public static final String KEY_FULL_SCREEN = "full_screen";
-	public static final String KEY_COPY_TO_LIB = "copy_to_library";
-	public static final String KEY_STRIP_WHITESPACE = "strip_whitespace";
-	public static final String KEY_SCROLLING = "scrolling";
+    public static final String KEY_EMAIL = "email";
+    public static final String KEY_FULL_SCREEN = "full_screen";
+    public static final String KEY_COPY_TO_LIB = "copy_to_library";
+    public static final String KEY_STRIP_WHITESPACE = "strip_whitespace";
+    public static final String KEY_SCROLLING = "scrolling";
 
-	public static final String KEY_LAST_FILE = "last_file";
-	public static final String KEY_DEVICE_NAME = "device_name";
-	public static final String KEY_TEXT_SIZE = "itext_size";
+    public static final String KEY_LAST_FILE = "last_file";
+    public static final String KEY_DEVICE_NAME = "device_name";
+    public static final String KEY_TEXT_SIZE = "itext_size";
 
-	public static final String KEY_MARGIN_H = "margin_h";
-	public static final String KEY_MARGIN_V = "margin_v";
+    public static final String KEY_MARGIN_H = "margin_h";
+    public static final String KEY_MARGIN_V = "margin_v";
 
-	public static final String KEY_LINE_SPACING = "line_spacing";
+    public static final String KEY_LINE_SPACING = "line_spacing";
 
-	public static final String KEY_NIGHT_MODE = "night_mode";
-	public static final String KEY_SCREEN_ORIENTATION = "screen_orientation";
-	public static final String KEY_FONT_FACE = "font_face";
-	public static final String KEY_SERIF_FONT = "serif_font";
-	public static final String KEY_SANS_SERIF_FONT = "sans_serif_font";
+    public static final String KEY_NIGHT_MODE = "night_mode";
+    public static final String KEY_SCREEN_ORIENTATION = "screen_orientation";
+    public static final String KEY_FONT_FACE = "font_face";
+    public static final String KEY_SERIF_FONT = "serif_font";
+    public static final String KEY_SANS_SERIF_FONT = "sans_serif_font";
 
-	public static final String PREFIX_DAY = "day";
-	public static final String PREFIX_NIGHT = "night";
+    public static final String PREFIX_DAY = "day";
+    public static final String PREFIX_NIGHT = "night";
 
-	public static final String KEY_BRIGHTNESS = "bright";
-	public static final String KEY_BACKGROUND = "bg";
-	public static final String KEY_LINK = "link";
-	public static final String KEY_TEXT = "text";
+    public static final String KEY_BRIGHTNESS = "bright";
+    public static final String KEY_BACKGROUND = "bg";
+    public static final String KEY_LINK = "link";
+    public static final String KEY_TEXT = "text";
 
-	public static final String KEY_BRIGHTNESS_CTRL = "set_brightness";
-	public static final String KEY_SCROLL_STYLE = "scroll_style";
-	public static final String KEY_SCROLL_SPEED = "scroll_speed";
+    public static final String KEY_BRIGHTNESS_CTRL = "set_brightness";
+    public static final String KEY_SCROLL_STYLE = "scroll_style";
+    public static final String KEY_SCROLL_SPEED = "scroll_speed";
 
-	public static final String KEY_H_ANIMATION = "h_animation";
-	public static final String KEY_V_ANIMATION = "v_animation";
+    public static final String KEY_H_ANIMATION = "h_animation";
+    public static final String KEY_V_ANIMATION = "v_animation";
 
-	public static final String KEY_LIB_VIEW = "library_view";
-	public static final String KEY_LIB_SEL = "library_selection";
+    public static final String KEY_LIB_VIEW = "library_view";
+    public static final String KEY_LIB_SEL = "library_selection";
 
-	public static final String ACCESS_KEY = "access_key";
-	public static final String CALIBRE_SERVER = "calibre_server";
-	public static final String CALIBRE_USER = "calibre_user";
-	public static final String CALIBRE_PASSWORD = "calibre_password";
+    public static final String ACCESS_KEY = "access_key";
+    public static final String CALIBRE_SERVER = "calibre_server";
+    public static final String CALIBRE_USER = "calibre_user";
+    public static final String CALIBRE_PASSWORD = "calibre_password";
 
-	public static final String KEY_COVER_LABELS = "cover_labels";
+    public static final String KEY_COVER_LABELS = "cover_labels";
 
-	public static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
+    public static final String KEY_KEEP_SCREEN_ON = "keep_screen_on";
 
-	public static final String KEY_OFFSETS = "offsets";
-	public static final String KEY_SHOW_PAGENUM = "show_pagenum";
+    public static final String KEY_OFFSETS = "offsets";
+    public static final String KEY_SHOW_PAGENUM = "show_pagenum";
 
-	public static final String KEY_OPDS_SITES = "opds_sites";
+    public static final String KEY_OPDS_SITES = "opds_sites";
 
-	public static final String KEY_READING_DIRECTION = "reading_direction";
+    public static final String KEY_READING_DIRECTION = "reading_direction";
 
     public static final String KEY_DIM_SYSTEM_UI = "dim_system_ui";
 
@@ -182,7 +182,7 @@ public class Configuration {
 
     public static final String KEY_LONG_SHORT = "long_short";
 
-	public static final String KEY_NOOK_TOP_BUTTONS_DIRECTION = "nook_touch_top_buttons_direction";
+    public static final String KEY_NOOK_TOP_BUTTONS_DIRECTION = "nook_touch_top_buttons_direction";
 
     public static final String KEY_HIGHLIGHTS = "highlights";
 
@@ -197,31 +197,31 @@ public class Configuration {
 
     public static final String KEY_SCAN_FOLDER = "scan_folder";
     public static final String KEY_USE_SCAN_FOLDER = "use_scan_folder";
-    
-	// Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink
-	// based Android device
-	
-	// NB: Believe product/model field is "NOOK" on a Nook Touch and 'NookColor'
-	// on a Nook Color
-	public static final Boolean IS_NOOK_TOUCH = "NOOK".equals(Build.PRODUCT);
 
-	// Flag for any e-ink device. Currently only supports Nook Touch but could
-	// expand to other devices like the Sony PRS-T1
-	public static final Boolean IS_EINK_DEVICE = IS_NOOK_TOUCH;
+    // Flag for whether PageTurner is running on a Nook Simple Touch - an e-ink
+    // based Android device
+
+    // NB: Believe product/model field is "NOOK" on a Nook Touch and 'NookColor'
+    // on a Nook Color
+    public static final Boolean IS_NOOK_TOUCH = "NOOK".equals(Build.PRODUCT);
+
+    // Flag for any e-ink device. Currently only supports Nook Touch but could
+    // expand to other devices like the Sony PRS-T1
+    public static final Boolean IS_EINK_DEVICE = IS_NOOK_TOUCH;
 
     //Which platform version to start text selection on.
     public static final int TEXT_SELECTION_PLATFORM_VERSION = Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 
     private static final Logger LOG = LoggerFactory
-            .getLogger("Configuration");
+        .getLogger("Configuration");
 
     private String defaultSerifFont;
     private String defaultSansFont;
 
-	@Inject
-	public Configuration(Context context) {
-		this.settings = PreferenceManager.getDefaultSharedPreferences(context);
-		this.context = context;
+    @Inject
+    public Configuration(Context context) {
+        this.settings = PreferenceManager.getDefaultSharedPreferences(context);
+        this.context = context;
 
         if ( IS_NOOK_TOUCH ) {
             defaultSerifFont = "serif";
@@ -231,32 +231,32 @@ public class Configuration {
             defaultSansFont = "sans";
         }
 
-		// On Nook Touch, preset some different defaults on first load
-		// (these values work better w/ e-ink)
-		if (IS_NOOK_TOUCH && this.settings.getString(KEY_DEVICE_NAME, null) == null) {
-			SharedPreferences.Editor editor = this.settings.edit();
-			editor.putString(KEY_FONT_FACE, "sans");
-			editor.putString(KEY_SERIF_FONT, "serif");
+        // On Nook Touch, preset some different defaults on first load
+        // (these values work better w/ e-ink)
+        if (IS_NOOK_TOUCH && this.settings.getString(KEY_DEVICE_NAME, null) == null) {
+            SharedPreferences.Editor editor = this.settings.edit();
+            editor.putString(KEY_FONT_FACE, "sans");
+            editor.putString(KEY_SERIF_FONT, "serif");
 
-			editor.putInt(KEY_TEXT_SIZE, 32);
-			editor.putString(KEY_SCROLL_STYLE, "timer"); // enum is ScrollStyle.PAGE_TIMER
-			final String no_animation = AnimationStyle.NONE.name().toLowerCase(Locale.US);
-			editor.putString(KEY_H_ANIMATION, no_animation);
-			editor.putString(KEY_V_ANIMATION, no_animation);
-			editor.putInt(PREFIX_DAY + "_" + KEY_LINK,
-					Color.rgb(0x40, 0x40, 0x40));
-			editor.putInt(PREFIX_NIGHT + "_" + KEY_TEXT, Color.WHITE);
-			editor.putInt(PREFIX_NIGHT + "_" + KEY_LINK,
-					Color.rgb(0xb0, 0xb0, 0xb0));
-			editor.commit();
-		}
-	}
+            editor.putInt(KEY_TEXT_SIZE, 32);
+            editor.putString(KEY_SCROLL_STYLE, "timer"); // enum is ScrollStyle.PAGE_TIMER
+            final String no_animation = AnimationStyle.NONE.name().toLowerCase(Locale.US);
+            editor.putString(KEY_H_ANIMATION, no_animation);
+            editor.putString(KEY_V_ANIMATION, no_animation);
+            editor.putInt(PREFIX_DAY + "_" + KEY_LINK,
+                Color.rgb(0x40, 0x40, 0x40));
+            editor.putInt(PREFIX_NIGHT + "_" + KEY_TEXT, Color.WHITE);
+            editor.putInt(PREFIX_NIGHT + "_" + KEY_LINK,
+                Color.rgb(0xb0, 0xb0, 0xb0));
+            editor.commit();
+        }
+    }
 
     public String getAppVersion() {
         String version = "";
         try {
             version = context.getPackageManager().getPackageInfo(
-                    context.getPackageName(), 0).versionName;
+                context.getPackageName(), 0).versionName;
         } catch (PackageManager.NameNotFoundException e) {
             // Huh? Really?
         }
@@ -266,23 +266,23 @@ public class Configuration {
 
     public String getUserAgent() {
         return context.getString(R.string.app_name) + "-" + getAppVersion()
-                + "/" + Build.MODEL + ";Android-" + Build.VERSION.RELEASE;
+            + "/" + Build.MODEL + ";Android-" + Build.VERSION.RELEASE;
     }
-	
-	public Locale getLocale() {
-		
-		String languageSetting = settings.getString("custom_lang", "default");
-		
-		if ( "default".equalsIgnoreCase(languageSetting) ) {		
-			return Locale.getDefault();
-		}
-		
-		return new Locale(languageSetting);
-	}
+
+    public Locale getLocale() {
+
+        String languageSetting = settings.getString("custom_lang", "default");
+
+        if ( "default".equalsIgnoreCase(languageSetting) ) {
+            return Locale.getDefault();
+        }
+
+        return new Locale(languageSetting);
+    }
 
     public Class<? extends PageTurnerActivity> getLastActivity() {
         String lastActivityString = settings.getString( KEY_LAST_ACTIVITY,
-                "net.nightwhistler.pageturner.activity.ReadingActivity" );
+            "net.nightwhistler.pageturner.activity.ReadingActivity" );
 
         try {
             return (Class<? extends PageTurnerActivity>) Class.forName( lastActivityString );
@@ -296,37 +296,37 @@ public class Configuration {
         updateValue( KEY_LAST_ACTIVITY, activityClass.getCanonicalName() );
     }
 
-	public String getBaseOPDSFeed() {
-		return BASE_OPDS_FEED;
-	}
+    public String getBaseOPDSFeed() {
+        return BASE_OPDS_FEED;
+    }
 
-	public String getSyncServerURL() {
-		return settings.getString( KEY_SYNC_SERVER, BASE_SYNC_URL ).trim();
-	}
+    public String getSyncServerURL() {
+        return settings.getString( KEY_SYNC_SERVER, BASE_SYNC_URL ).trim();
+    }
 
     public boolean isAlwaysOpenLastBook() {
         return settings.getBoolean(KEY_ALWAYS_OPEN_LAST_BOOK, false);
     }
 
-	public boolean isVerticalTappingEnabled() {
-		return !isScrollingEnabled()
-				&& settings.getBoolean(KEY_NAV_TAP_V, true);
-	}
+    public boolean isVerticalTappingEnabled() {
+        return !isScrollingEnabled()
+            && settings.getBoolean(KEY_NAV_TAP_V, true);
+    }
 
-	public boolean isHorizontalTappingEnabled() {
-		return !isScrollingEnabled()
-				&& settings.getBoolean(KEY_NAV_TAP_H, true);
-	}
+    public boolean isHorizontalTappingEnabled() {
+        return !isScrollingEnabled()
+            && settings.getBoolean(KEY_NAV_TAP_H, true);
+    }
 
-	public boolean isHorizontalSwipeEnabled() {
-		return !isScrollingEnabled()
-				&& settings.getBoolean(KEY_NAV_SWIPE_H, true);
-	}
+    public boolean isHorizontalSwipeEnabled() {
+        return !isScrollingEnabled()
+            && settings.getBoolean(KEY_NAV_SWIPE_H, true);
+    }
 
-	public boolean isVerticalSwipeEnabled() {
-		return settings.getBoolean(KEY_NAV_SWIPE_V, true)
-				&& !isScrollingEnabled();
-	}
+    public boolean isVerticalSwipeEnabled() {
+        return settings.getBoolean(KEY_NAV_SWIPE_V, true)
+            && !isScrollingEnabled();
+    }
 
     public boolean isAcceptSelfSignedCertificates() {
         return settings.getBoolean(KEY_ACCEPT_SELF_SIGNED, false);
@@ -336,7 +336,7 @@ public class Configuration {
         return settings.getBoolean(KEY_ALLOW_STYLING, true);
     }
 
-	public int getLastPosition(String fileName) {
+    public int getLastPosition(String fileName) {
 
         SharedPreferences bookPrefs = getPrefsForBook(fileName);
 
@@ -347,17 +347,17 @@ public class Configuration {
         }
 
         //Fall-back to older settings
-		String bookHash = Integer.toHexString(fileName.hashCode());
+        String bookHash = Integer.toHexString(fileName.hashCode());
 
-		pos = settings.getInt(KEY_POS + bookHash, -1);
+        pos = settings.getInt(KEY_POS + bookHash, -1);
 
-		if (pos != -1) {
-			return pos;
-		}
+        if (pos != -1) {
+            return pos;
+        }
 
-		// Fall-back for even older settings.
-		return settings.getInt(KEY_POS + fileName, -1);
-	}
+        // Fall-back for even older settings.
+        return settings.getInt(KEY_POS + fileName, -1);
+    }
 
     private SharedPreferences getPrefsForBook( String fileName ) {
 
@@ -365,11 +365,11 @@ public class Configuration {
         return context.getSharedPreferences(bookHash, 0);
     }
 
-	public void setPageOffsets(String fileName, List<List<Integer>> offsets) {
+    public void setPageOffsets(String fileName, List<List<Integer>> offsets) {
 
         SharedPreferences bookPrefs = getPrefsForBook(fileName);
 
-		PageOffsets offsetsObject = PageOffsets.fromValues(this, offsets);
+        PageOffsets offsetsObject = PageOffsets.fromValues(this, offsets);
 
         try {
             String json = offsetsObject.toJSON();
@@ -377,17 +377,17 @@ public class Configuration {
         } catch ( JSONException js ) {
             LOG.error( "Error storing page offsets", js );
         }
-	}
+    }
 
-	public Option<List<List<Integer>>> getPageOffsets(String fileName) {
+    public Option<List<List<Integer>>> getPageOffsets(String fileName) {
 
         SharedPreferences bookPrefs = getPrefsForBook(fileName);
 
-		String data = bookPrefs.getString(KEY_OFFSETS, "");
+        String data = bookPrefs.getString(KEY_OFFSETS, "");
 
-		if ( data.length() == 0 ) {
-			return none();
-		}
+        if ( data.length() == 0 ) {
+            return none();
+        }
 
         try {
             PageOffsets offsets = PageOffsets.fromJSON(data);
@@ -402,7 +402,7 @@ public class Configuration {
             LOG.error( "Could not retrieve page offsets", js );
             return none();
         }
-	}
+    }
 
     public List<HighLight> getHightLights( String fileName ) {
         SharedPreferences prefs = getPrefsForBook(fileName);
@@ -421,24 +421,24 @@ public class Configuration {
 
     public LongShortPressBehaviour getLongShortPressBehaviour() {
         String value = settings.getString(KEY_LONG_SHORT,
-                LongShortPressBehaviour.NORMAL.name());
+            LongShortPressBehaviour.NORMAL.name());
         return LongShortPressBehaviour.valueOf( value.toUpperCase(Locale.US) );
     }
 
-	public ReadingDirection getReadingDirection() {
-		String value = settings.getString(KEY_READING_DIRECTION,
-                ReadingDirection.LEFT_TO_RIGHT.name());
-		return ReadingDirection.valueOf(value.toUpperCase(Locale.US));
-	}
+    public ReadingDirection getReadingDirection() {
+        String value = settings.getString(KEY_READING_DIRECTION,
+            ReadingDirection.LEFT_TO_RIGHT.name());
+        return ReadingDirection.valueOf(value.toUpperCase(Locale.US));
+    }
 
-	public void setLastPosition(String fileName, int position) {
+    public void setLastPosition(String fileName, int position) {
 
         SharedPreferences bookPrefs = getPrefsForBook(fileName);
 
-		updateValue(bookPrefs, KEY_POS, position);
-	}
+        updateValue(bookPrefs, KEY_POS, position);
+    }
 
-	public int getLastIndex(String fileName) {
+    public int getLastIndex(String fileName) {
 
         SharedPreferences bookPrefs = getPrefsForBook(fileName);
 
@@ -449,59 +449,59 @@ public class Configuration {
         }
 
         //Fall-backs to older setting in central file
-		String bookHash = Integer.toHexString(fileName.hashCode());
+        String bookHash = Integer.toHexString(fileName.hashCode());
 
-		pos = settings.getInt(KEY_IDX + bookHash, -1);
+        pos = settings.getInt(KEY_IDX + bookHash, -1);
 
-		if (pos != -1) {
-			return pos;
-		}
+        if (pos != -1) {
+            return pos;
+        }
 
-		// Fall-back for even older settings.
-		return settings.getInt(KEY_IDX + fileName, -1);
-	}
+        // Fall-back for even older settings.
+        return settings.getInt(KEY_IDX + fileName, -1);
+    }
 
-	public List<CustomOPDSSite> getCustomOPDSSites() {
+    public List<CustomOPDSSite> getCustomOPDSSites() {
 
-		String sites = settings.getString(KEY_OPDS_SITES, "[]");
+        String sites = settings.getString(KEY_OPDS_SITES, "[]");
 
-		List<CustomOPDSSite> result = new ArrayList<>();
+        List<CustomOPDSSite> result = new ArrayList<>();
 
-		try {
-			JSONArray array = new JSONArray(sites);
-			for (int i = 0; i < array.length(); i++) {
-				JSONObject obj = array.getJSONObject(i);
-				CustomOPDSSite site = fromJSON(obj);
+        try {
+            JSONArray array = new JSONArray(sites);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                CustomOPDSSite site = fromJSON(obj);
                 result.add(site);
-			}
-		} catch (JSONException js) {
+            }
+        } catch (JSONException js) {
             LOG.error( "Could not retrieve custom opds sites", js );
-		}
+        }
 
-		importOldCalibreSite(result);
-		return result;
-	}
+        importOldCalibreSite(result);
+        return result;
+    }
 
-	private void importOldCalibreSite(List<CustomOPDSSite> sites) {
+    private void importOldCalibreSite(List<CustomOPDSSite> sites) {
 
-		if (this.getCalibreServer() != null
-				&& this.getCalibreServer().length() > 0) {
-			CustomOPDSSite calibre = new CustomOPDSSite();
-			calibre.setName(context.getString(R.string.pref_calibre_server));
-			calibre.setUrl(getCalibreServer());
-			calibre.setUserName(getCalibreUser());
-			calibre.setPassword(getCalibrePassword());
+        if (this.getCalibreServer() != null
+            && this.getCalibreServer().length() > 0) {
+            CustomOPDSSite calibre = new CustomOPDSSite();
+            calibre.setName(context.getString(R.string.pref_calibre_server));
+            calibre.setUrl(getCalibreServer());
+            calibre.setUserName(getCalibreUser());
+            calibre.setPassword(getCalibrePassword());
 
-			sites.add(calibre);
+            sites.add(calibre);
 
-			updateValue(CALIBRE_SERVER, null);
+            updateValue(CALIBRE_SERVER, null);
 
-			storeCustomOPDSSites(sites);
-		}
+            storeCustomOPDSSites(sites);
+        }
 
-	}
+    }
 
-	public void storeCustomOPDSSites(List<CustomOPDSSite> sites) {
+    public void storeCustomOPDSSites(List<CustomOPDSSite> sites) {
 
         try {
             JSONArray array = new JSONArray();
@@ -513,57 +513,57 @@ public class Configuration {
         } catch ( JSONException js ) {
             LOG.error( "Error storing custom sites", js );
         }
-	}
+    }
 
-	public void setLastIndex(String fileName, int index) {
+    public void setLastIndex(String fileName, int index) {
 
         SharedPreferences bookPrefs = getPrefsForBook(fileName);
-		updateValue(bookPrefs, KEY_IDX, index);
-	}
+        updateValue(bookPrefs, KEY_IDX, index);
+    }
 
-	public boolean isVolumeKeyNavEnabled() {
-		return !isScrollingEnabled() && settings.getBoolean(KEY_NAV_VOL, false);
-	}
+    public boolean isVolumeKeyNavEnabled() {
+        return !isScrollingEnabled() && settings.getBoolean(KEY_NAV_VOL, false);
+    }
 
-	public boolean isNookUpButtonForward() {
-		return !isScrollingEnabled()
-				&& "forward".equals(settings.getString(
-						KEY_NOOK_TOP_BUTTONS_DIRECTION, "backward"));
-	}
+    public boolean isNookUpButtonForward() {
+        return !isScrollingEnabled()
+            && "forward".equals(settings.getString(
+                    KEY_NOOK_TOP_BUTTONS_DIRECTION, "backward"));
+    }
 
-	public String getSynchronizationEmail() {
-		return settings.getString(KEY_EMAIL, "").trim();
-	}
+    public String getSynchronizationEmail() {
+        return settings.getString(KEY_EMAIL, "").trim();
+    }
 
-	public boolean isShowPageNumbers() {
-		return settings.getBoolean(KEY_SHOW_PAGENUM, true);
-	}
+    public boolean isShowPageNumbers() {
+        return settings.getBoolean(KEY_SHOW_PAGENUM, true);
+    }
 
-	public String getSynchronizationAccessKey() {
-		return settings.getString(ACCESS_KEY, "").trim();
-	}
+    public String getSynchronizationAccessKey() {
+        return settings.getString(ACCESS_KEY, "").trim();
+    }
 
     public boolean isDimSystemUI() {
         return isFullScreenEnabled() && settings.getBoolean(KEY_DIM_SYSTEM_UI, false);
     }
 
-	public boolean isSyncEnabled() {
-		String email = getSynchronizationEmail();
+    public boolean isSyncEnabled() {
+        String email = getSynchronizationEmail();
 
-		return email.length() > 0;
-	}
+        return email.length() > 0;
+    }
 
-	public boolean isFullScreenEnabled() {
-		return settings.getBoolean(KEY_FULL_SCREEN, false);
-	}
+    public boolean isFullScreenEnabled() {
+        return settings.getBoolean(KEY_FULL_SCREEN, false);
+    }
 
-	public boolean isStripWhiteSpaceEnabled() {
-		return settings.getBoolean(KEY_STRIP_WHITESPACE, false);
-	}
+    public boolean isStripWhiteSpaceEnabled() {
+        return settings.getBoolean(KEY_STRIP_WHITESPACE, false);
+    }
 
-	public boolean isScrollingEnabled() {
-		return settings.getBoolean(KEY_SCROLLING, false);
-	}
+    public boolean isScrollingEnabled() {
+        return settings.getBoolean(KEY_SCROLLING, false);
+    }
 
     public String getLastReadTitle() {
         return settings.getString(KEY_LAST_TITLE, "");
@@ -573,77 +573,77 @@ public class Configuration {
         updateValue(KEY_LAST_TITLE, title);
     }
 
-	public String getLastOpenedFile() {
-		return settings.getString(KEY_LAST_FILE, "");
-	}
+    public String getLastOpenedFile() {
+        return settings.getString(KEY_LAST_FILE, "");
+    }
 
-	public void setLastOpenedFile(String fileName) {
-		updateValue(KEY_LAST_FILE, fileName);
-	}
+    public void setLastOpenedFile(String fileName) {
+        updateValue(KEY_LAST_FILE, fileName);
+    }
 
-	public String getDeviceName() {
-		return settings.getString(KEY_DEVICE_NAME, Build.MODEL);
-	}
+    public String getDeviceName() {
+        return settings.getString(KEY_DEVICE_NAME, Build.MODEL);
+    }
 
-	public int getTextSize() {
-		return settings.getInt(KEY_TEXT_SIZE, 18);
-	}
+    public int getTextSize() {
+        return settings.getInt(KEY_TEXT_SIZE, 18);
+    }
 
-	public void setTextSize(int textSize) {
-		updateValue(KEY_TEXT_SIZE, textSize);
-	}
+    public void setTextSize(int textSize) {
+        updateValue(KEY_TEXT_SIZE, textSize);
+    }
 
-	public int getHorizontalMargin() {
-		return settings.getInt(KEY_MARGIN_H, 30);
-	}
+    public int getHorizontalMargin() {
+        return settings.getInt(KEY_MARGIN_H, 30);
+    }
 
-	public int getVerticalMargin() {
-		return settings.getInt(KEY_MARGIN_V, 25);
-	}
+    public int getVerticalMargin() {
+        return settings.getInt(KEY_MARGIN_V, 25);
+    }
 
-	public int getLineSpacing() {
-		return settings.getInt(KEY_LINE_SPACING, 0);
-	}
+    public int getLineSpacing() {
+        return settings.getInt(KEY_LINE_SPACING, 0);
+    }
 
-	public boolean isKeepScreenOn() {
-		return settings.getBoolean(KEY_KEEP_SCREEN_ON, false);
-	}
+    public boolean isKeepScreenOn() {
+        return settings.getBoolean(KEY_KEEP_SCREEN_ON, false);
+    }
 
-	public int getTheme() {
-		if (getColourProfile() == ColourProfile.NIGHT) {
-			return R.style.Theme_Sherlock;
-		} else {
-			return R.style.Theme_Sherlock_Light_DarkActionBar;
-		}
+    public int getTheme() {
+        if (getColourProfile() == ColourProfile.NIGHT) {
+            return R.style.Theme_Sherlock;
+        } else {
+            return R.style.Theme_Sherlock_Light_DarkActionBar;
+        }
 
-	}
+    }
 
-	public void setColourProfile(ColourProfile profile) {
-		if (profile == ColourProfile.DAY) {
-			updateValue(KEY_NIGHT_MODE, false);
-		} else {
-			updateValue(KEY_NIGHT_MODE, true);
-		}
-	}
+    public void setColourProfile(ColourProfile profile) {
+        if (profile == ColourProfile.DAY) {
+            updateValue(KEY_NIGHT_MODE, false);
+        } else {
+            updateValue(KEY_NIGHT_MODE, true);
+        }
+    }
 
-	public CoverLabelOption getCoverLabelOption() {
-		return CoverLabelOption.valueOf(settings.getString(KEY_COVER_LABELS,
-				CoverLabelOption.ALWAYS.name().toLowerCase(Locale.US)));
-	}
+    public CoverLabelOption getCoverLabelOption() {
+        return CoverLabelOption.valueOf(settings.getString(KEY_COVER_LABELS,
+                CoverLabelOption.ALWAYS.name().toLowerCase(Locale.US)));
+    }
 
-	public ColourProfile getColourProfile() {
-		if (settings.getBoolean(KEY_NIGHT_MODE, false)) {
-			return ColourProfile.NIGHT;
-		} else {
-			return ColourProfile.DAY;
-		}
-	}
+    public ColourProfile getColourProfile() {
+        if (settings.getBoolean(KEY_NIGHT_MODE, false)) {
+            return ColourProfile.NIGHT;
+        } else {
+            return ColourProfile.DAY;
+        }
+    }
 
-	public OrientationLock getScreenOrientation() {
-		String orientation = settings.getString(KEY_SCREEN_ORIENTATION,
-                OrientationLock.NO_LOCK.name().toLowerCase(Locale.US));
-		return OrientationLock.valueOf(orientation.toUpperCase(Locale.US));
-	}
+    public OrientationLock getScreenOrientation() {
+        String orientation = settings.getString(KEY_SCREEN_ORIENTATION,
+            OrientationLock.NO_LOCK.name().toLowerCase(Locale.US));
+        return OrientationLock.valueOf(orientation.toUpperCase(Locale.US));
+    }
 
     private void updateValue( SharedPreferences prefs, String key, Object value ) {
         SharedPreferences.Editor editor = prefs.edit();
@@ -658,105 +658,105 @@ public class Configuration {
             editor.putBoolean(key, (Boolean) value);
         } else {
             throw new IllegalArgumentException("Unsupported type: "
-                    + value.getClass().getSimpleName());
+                + value.getClass().getSimpleName());
         }
 
         editor.commit();
     }
 
-	private void updateValue(String key, Object value) {
+    private void updateValue(String key, Object value) {
         updateValue(settings, key, value);
-	}
+    }
 
-	private FontFamily loadFamilyFromAssets(String key, String baseName) {
-		Typeface basic = Typeface.createFromAsset(context.getAssets(), baseName
-                + ".otf");
-		Typeface boldFace = Typeface.createFromAsset(context.getAssets(),
-				baseName + "-Bold.otf");
-		Typeface italicFace = Typeface.createFromAsset(context.getAssets(),
-				baseName + "-Italic.otf");
-		Typeface biFace = Typeface.createFromAsset(context.getAssets(),
-				baseName + "-BoldItalic.otf");
+    private FontFamily loadFamilyFromAssets(String key, String baseName) {
+        Typeface basic = Typeface.createFromAsset(context.getAssets(), baseName
+            + ".otf");
+        Typeface boldFace = Typeface.createFromAsset(context.getAssets(),
+            baseName + "-Bold.otf");
+        Typeface italicFace = Typeface.createFromAsset(context.getAssets(),
+            baseName + "-Italic.otf");
+        Typeface biFace = Typeface.createFromAsset(context.getAssets(),
+            baseName + "-BoldItalic.otf");
 
-		FontFamily fam = new FontFamily(key, basic);
-		fam.setBoldTypeface(boldFace);
-		fam.setItalicTypeface(italicFace);
-		fam.setBoldItalicTypeface(biFace);
+        FontFamily fam = new FontFamily(key, basic);
+        fam.setBoldTypeface(boldFace);
+        fam.setItalicTypeface(italicFace);
+        fam.setBoldItalicTypeface(biFace);
 
-		return fam;
-	}
+        return fam;
+    }
 
-	private FontFamily getFontFamily(String fontKey, String defaultVal) {
+    private FontFamily getFontFamily(String fontKey, String defaultVal) {
 
-		String fontFace = settings.getString(fontKey, defaultVal);
+        String fontFace = settings.getString(fontKey, defaultVal);
 
-		if (!fontCache.containsKey(fontFace)) {
+        if (!fontCache.containsKey(fontFace)) {
 
-			if ("gen_book_bas".equals(fontFace)) {
-				fontCache.put(fontFace,
-						loadFamilyFromAssets(fontFace, "GentiumBookBasic"));
-			} else if ("gen_bas".equals(fontFace)) {
-				fontCache.put(fontFace,
-						loadFamilyFromAssets(fontFace, "GentiumBasic"));
-			} else if ("frankruehl".equalsIgnoreCase(fontFace)) {
-				fontCache.put(fontFace,
-						loadFamilyFromAssets(fontFace, "FrankRuehl"));
-			} else {
+            if ("gen_book_bas".equals(fontFace)) {
+                fontCache.put(fontFace,
+                    loadFamilyFromAssets(fontFace, "GentiumBookBasic"));
+            } else if ("gen_bas".equals(fontFace)) {
+                fontCache.put(fontFace,
+                    loadFamilyFromAssets(fontFace, "GentiumBasic"));
+            } else if ("frankruehl".equalsIgnoreCase(fontFace)) {
+                fontCache.put(fontFace,
+                    loadFamilyFromAssets(fontFace, "FrankRuehl"));
+            } else {
 
-				Typeface face = Typeface.SANS_SERIF;
-				if ("sans".equals(fontFace)) {
-					face = Typeface.SANS_SERIF;
-				} else if ("serif".equals(fontFace)) {
-					face = Typeface.SERIF;
-				} else if ("mono".equals(fontFace)) {
-					face = Typeface.MONOSPACE;
-				} else if ( "default".equals(fontFace) ) {
+                Typeface face = Typeface.SANS_SERIF;
+                if ("sans".equals(fontFace)) {
+                    face = Typeface.SANS_SERIF;
+                } else if ("serif".equals(fontFace)) {
+                    face = Typeface.SERIF;
+                } else if ("mono".equals(fontFace)) {
+                    face = Typeface.MONOSPACE;
+                } else if ( "default".equals(fontFace) ) {
                     face = Typeface.DEFAULT;
                 }
 
-				fontCache.put(fontFace, new FontFamily(fontFace, face));
-			}
-		}
+                fontCache.put(fontFace, new FontFamily(fontFace, face));
+            }
+        }
 
-		return fontCache.get(fontFace);
-	}
+        return fontCache.get(fontFace);
+    }
 
-	public FontFamily getSerifFontFamily() {
-		return getFontFamily(KEY_SERIF_FONT, defaultSerifFont );
-	}
+    public FontFamily getSerifFontFamily() {
+        return getFontFamily(KEY_SERIF_FONT, defaultSerifFont );
+    }
 
-	public FontFamily getSansSerifFontFamily() {
-		return getFontFamily(KEY_SANS_SERIF_FONT, defaultSansFont );
-	}
+    public FontFamily getSansSerifFontFamily() {
+        return getFontFamily(KEY_SANS_SERIF_FONT, defaultSansFont );
+    }
 
-	public FontFamily getDefaultFontFamily() {
-		return getFontFamily(KEY_FONT_FACE, defaultSerifFont);
-	}
+    public FontFamily getDefaultFontFamily() {
+        return getFontFamily(KEY_FONT_FACE, defaultSerifFont);
+    }
 
-	public int getBrightNess() {
-		// Brightness 0 means black screen :)
-		return Math.max(1, getProfileSetting(KEY_BRIGHTNESS, 50, 50));
-	}
+    public int getBrightNess() {
+        // Brightness 0 means black screen :)
+        return Math.max(1, getProfileSetting(KEY_BRIGHTNESS, 50, 50));
+    }
 
-	public void setBrightness(int brightness) {
-		if (getColourProfile() == ColourProfile.DAY) {
-			updateValue("day_bright", brightness);
-		} else {
-			updateValue("night_bright", brightness);
-		}
-	}
+    public void setBrightness(int brightness) {
+        if (getColourProfile() == ColourProfile.DAY) {
+            updateValue("day_bright", brightness);
+        } else {
+            updateValue("night_bright", brightness);
+        }
+    }
 
-	public int getBackgroundColor() {
-		return getProfileSetting(KEY_BACKGROUND, Color.WHITE, Color.BLACK);
-	}
+    public int getBackgroundColor() {
+        return getProfileSetting(KEY_BACKGROUND, Color.WHITE, Color.BLACK);
+    }
 
-	public int getTextColor() {
-		return getProfileSetting(KEY_TEXT, Color.BLACK, Color.GRAY);
-	}
+    public int getTextColor() {
+        return getProfileSetting(KEY_TEXT, Color.BLACK, Color.GRAY);
+    }
 
-	public int getLinkColor() {
-		return getProfileSetting(KEY_LINK, Color.BLUE, Color.rgb(255, 165, 0));
-	}
+    public int getLinkColor() {
+        return getProfileSetting(KEY_LINK, Color.BLUE, Color.rgb(255, 165, 0));
+    }
 
     public boolean isUseColoursFromCSS() {
 
@@ -772,97 +772,97 @@ public class Configuration {
     }
 
 
-	private int getProfileSetting(String setting, int dayDefault,
-			int nightDefault) {
+    private int getProfileSetting(String setting, int dayDefault,
+        int nightDefault) {
 
-		if (getColourProfile() == ColourProfile.NIGHT) {
-			return settings.getInt(PREFIX_NIGHT + "_" + setting, nightDefault);
-		} else {
-			return settings.getInt(PREFIX_DAY + "_" + setting, dayDefault);
-		}
+        if (getColourProfile() == ColourProfile.NIGHT) {
+            return settings.getInt(PREFIX_NIGHT + "_" + setting, nightDefault);
+        } else {
+            return settings.getInt(PREFIX_DAY + "_" + setting, dayDefault);
+        }
 
-	}
+    }
 
-	public boolean isBrightnessControlEnabled() {
-		return settings.getBoolean(KEY_BRIGHTNESS_CTRL, false);
-	}
+    public boolean isBrightnessControlEnabled() {
+        return settings.getBoolean(KEY_BRIGHTNESS_CTRL, false);
+    }
 
-	public ScrollStyle getAutoScrollStyle() {
-		String style = settings.getString(KEY_SCROLL_STYLE,
-				ScrollStyle.ROLLING_BLIND.name().toLowerCase(Locale.US));
-		if ("rolling_blind".equals(style)) {
-			return ScrollStyle.ROLLING_BLIND;
-		} else {
-			return ScrollStyle.PAGE_TIMER;
-		}
-	}
+    public ScrollStyle getAutoScrollStyle() {
+        String style = settings.getString(KEY_SCROLL_STYLE,
+            ScrollStyle.ROLLING_BLIND.name().toLowerCase(Locale.US));
+        if ("rolling_blind".equals(style)) {
+            return ScrollStyle.ROLLING_BLIND;
+        } else {
+            return ScrollStyle.PAGE_TIMER;
+        }
+    }
 
-	public int getScrollSpeed() {
-		return settings.getInt(KEY_SCROLL_SPEED, 20);
-	}
+    public int getScrollSpeed() {
+        return settings.getInt(KEY_SCROLL_SPEED, 20);
+    }
 
-	public AnimationStyle getHorizontalAnim() {
-		String animH = settings.getString(KEY_H_ANIMATION, AnimationStyle.SLIDE
-				.name().toLowerCase(Locale.US));
-		return AnimationStyle.valueOf(animH.toUpperCase(Locale.US));
-	}
+    public AnimationStyle getHorizontalAnim() {
+        String animH = settings.getString(KEY_H_ANIMATION, AnimationStyle.SLIDE
+            .name().toLowerCase(Locale.US));
+        return AnimationStyle.valueOf(animH.toUpperCase(Locale.US));
+    }
 
-	public AnimationStyle getVerticalAnim() {
-		String animV = settings.getString(KEY_V_ANIMATION, AnimationStyle.SLIDE
-				.name().toLowerCase(Locale.US));
-		return AnimationStyle.valueOf(animV.toUpperCase(Locale.US));
-	}
+    public AnimationStyle getVerticalAnim() {
+        String animV = settings.getString(KEY_V_ANIMATION, AnimationStyle.SLIDE
+            .name().toLowerCase(Locale.US));
+        return AnimationStyle.valueOf(animV.toUpperCase(Locale.US));
+    }
 
-	public LibraryView getLibraryView() {
-		String libView = settings.getString(KEY_LIB_VIEW, LibraryView.BOOKCASE
-                .name().toLowerCase(Locale.US));
-		return LibraryView.valueOf(libView.toUpperCase(Locale.US));
-	}
+    public LibraryView getLibraryView() {
+        String libView = settings.getString(KEY_LIB_VIEW, LibraryView.BOOKCASE
+            .name().toLowerCase(Locale.US));
+        return LibraryView.valueOf(libView.toUpperCase(Locale.US));
+    }
 
-	public void setLibraryView(LibraryView viewStyle) {
-		String libView = viewStyle.name().toLowerCase(Locale.US);
-		updateValue(KEY_LIB_VIEW, libView);
-	}
+    public void setLibraryView(LibraryView viewStyle) {
+        String libView = viewStyle.name().toLowerCase(Locale.US);
+        updateValue(KEY_LIB_VIEW, libView);
+    }
 
-	public LibrarySelection getLastLibraryQuery() {
-		String query = settings.getString(KEY_LIB_SEL,
-				LibrarySelection.LAST_ADDED.name().toLowerCase(Locale.US));
-		return LibrarySelection.valueOf(query.toUpperCase(Locale.US));
-	}
+    public LibrarySelection getLastLibraryQuery() {
+        String query = settings.getString(KEY_LIB_SEL,
+            LibrarySelection.LAST_ADDED.name().toLowerCase(Locale.US));
+        return LibrarySelection.valueOf(query.toUpperCase(Locale.US));
+    }
 
-	public void setLastLibraryQuery(LibrarySelection sel) {
-		updateValue(KEY_LIB_SEL, sel.name().toLowerCase(Locale.US));
-	}
+    public void setLastLibraryQuery(LibrarySelection sel) {
+        updateValue(KEY_LIB_SEL, sel.name().toLowerCase(Locale.US));
+    }
 
-	public String getCalibreServer() {
-		return settings.getString(CALIBRE_SERVER, "");
-	}
+    public String getCalibreServer() {
+        return settings.getString(CALIBRE_SERVER, "");
+    }
 
-	public String getCalibreUser() {
-		return settings.getString(CALIBRE_USER, "");
-	}
+    public String getCalibreUser() {
+        return settings.getString(CALIBRE_USER, "");
+    }
 
-	public String getCalibrePassword() {
-		return settings.getString(CALIBRE_PASSWORD, "");
-	}
+    public String getCalibrePassword() {
+        return settings.getString(CALIBRE_PASSWORD, "");
+    }
 
-	public Option<File> getStorageBase() {
-		return option(Environment.getExternalStorageDirectory());
-	}
+    public Option<File> getStorageBase() {
+        return option(Environment.getExternalStorageDirectory());
+    }
 
-	public Option<File> getDownloadsFolder() {
+    public Option<File> getDownloadsFolder() {
 
-		return firstOption(
-				asList(
-						ContextCompat.getExternalFilesDirs( context, "Downloads" )
-				)
-		);
-	}
+        return firstOption(
+            asList(
+                ContextCompat.getExternalFilesDirs( context, "Downloads" )
+                   )
+                           );
+    }
 
-	public Option<File> getLibraryFolder() {
+    public Option<File> getLibraryFolder() {
 
         Option<File> libraryFolder = getStorageBase().map(
-                baseFolder -> new File(baseFolder.getAbsolutePath() + "/PageTurner/Books") );
+            baseFolder -> new File(baseFolder.getAbsolutePath() + "/PageTurner/Books") );
 
         //If the library-folder on external storage exists, return it
         if ( ! isEmpty(select(libraryFolder, File::exists))) {
@@ -880,88 +880,88 @@ public class Configuration {
             } catch ( Exception e ) {}
         }
 
-		return firstOption(
-				asList(
-						ContextCompat.getExternalFilesDirs( context, "Books" )
-				)
-		);
-	}
+        return firstOption(
+            asList(
+                ContextCompat.getExternalFilesDirs( context, "Books" )
+                   )
+                           );
+    }
 
     public Option<File> getTTSFolder() {
-		return firstOption(
-				asList(
-						ContextCompat.getExternalCacheDirs( context )
-				)
-		);
+        return firstOption(
+            asList(
+                ContextCompat.getExternalCacheDirs( context )
+                   )
+                           );
     }
 
     public boolean getCopyToLibraryOnScan() {
-	return settings.getBoolean(KEY_COPY_TO_LIB, true);
+        return settings.getBoolean(KEY_COPY_TO_LIB, true);
     }
 
     public void setCopyToLibraryOnScan(boolean value) {
-	settings.edit()
-	    .putBoolean(KEY_COPY_TO_LIB, value)
-	    .commit();
+        settings.edit()
+            .putBoolean(KEY_COPY_TO_LIB, value)
+            .commit();
     }
 
     public boolean getUseCustomScanFolder() {
-	return settings.getBoolean(KEY_USE_SCAN_FOLDER, false);
+        return settings.getBoolean(KEY_USE_SCAN_FOLDER, false);
     }
 
     public void setUseCustomScanFolder(boolean value) {
-	settings.edit()
-	    .putBoolean(KEY_USE_SCAN_FOLDER, value)
-	    .commit();
+        settings.edit()
+            .putBoolean(KEY_USE_SCAN_FOLDER, value)
+            .commit();
     }
 
     /** Return the default folder path which is shown for the "scan for books" custom directory
      */
     private String getDefaultScanFolder() {
-	return Configuration.IS_NOOK_TOUCH ?
-	    "/media" : /* Nook's default internal content storage (accessible via USB) is under /media */
-	    getStorageBase().unsafeGet().getAbsolutePath() + "/eBooks";
+        return Configuration.IS_NOOK_TOUCH ?
+            "/media" : /* Nook's default internal content storage (accessible via USB) is under /media */
+            getStorageBase().unsafeGet().getAbsolutePath() + "/eBooks";
     }
 
     /** Return the folder path to show for the "scan for books" custom directory
      */
     public String getScanFolder() {
-	return settings.getString(KEY_SCAN_FOLDER, getDefaultScanFolder());
+        return settings.getString(KEY_SCAN_FOLDER, getDefaultScanFolder());
     }
 
     /** Set the folder path to show for "scan for books" custom directory.
-	Will only save a setting if the default actually changed.
+        Will only save a setting if the default actually changed.
     */
     public void setScanFolder(String value) {
-	SharedPreferences.Editor editor = settings.edit();
+        SharedPreferences.Editor editor = settings.edit();
 
-	if(value == null || value.equals(getDefaultScanFolder())) {
-	    if(!settings.contains(KEY_SCAN_FOLDER))
-		return;
-	    editor.remove(KEY_SCAN_FOLDER);
-	} else if(new File(value).isDirectory()) {
-	    editor.putString(KEY_SCAN_FOLDER, value);
-	}
+        if(value == null || value.equals(getDefaultScanFolder())) {
+            if(!settings.contains(KEY_SCAN_FOLDER))
+                return;
+            editor.remove(KEY_SCAN_FOLDER);
+        } else if(new File(value).isDirectory()) {
+            editor.putString(KEY_SCAN_FOLDER, value);
+        }
 
-	editor.commit();
+        editor.commit();
     }
 
-	/**
-	 * Returns the bytes of available memory left on the heap. Not totally sure
-	 * if it works reliably.
-	 */
-	public static double getMemoryUsage() {
-	 long max = Runtime.getRuntime().maxMemory();
+    /**
+     * Returns the bytes of available memory left on the heap. Not totally sure
+     * if it works reliably.
+     */
+    public static double getMemoryUsage() {
+        long max = Runtime.getRuntime().maxMemory();
         long used = Runtime.getRuntime().totalMemory();
 
         return (double) used / (double) max;
-	}
+    }
 
     /*
-        Returns the available bitmap memory.
-        On newer Android versions this is the same as the normaL
-        heap memory.
-     */
+      Returns the available bitmap memory.
+      On newer Android versions this is the same as the normaL
+      heap memory.
+    */
     public static double getBitmapMemoryUsage() {
 
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {

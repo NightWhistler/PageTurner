@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -30,93 +30,93 @@ import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 
 public class ColourChooserPref extends DialogPreference implements OnAmbilWarnaListener {
 
-	private static final String androidns="http://schemas.android.com/apk/res/android";
-	
-	int defaultColour;	
-	
-	public ColourChooserPref(Context context, AttributeSet attributes) {
-		super(context, attributes);		
-		this.defaultColour = attributes.getAttributeIntValue(androidns,"defaultValue", Color.BLACK);		
-	}
-	
-	@Override
-	public void setDefaultValue(Object defaultValue) {		
-		super.setDefaultValue(defaultValue);
-		
-		this.defaultColour = (Integer) defaultValue;
-	}
-	
-	@Override
-	public void onCancel(AmbilWarnaDialog dialog) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public void onOk(AmbilWarnaDialog dialog, int color) {
-		persistInt(color);		
-	}
-	
-	@Override
-	protected void onClick() {
-		getDialog().show();
-	}
-	
-	@Override
-	public Dialog getDialog() {		
-		
-		int colour = this.getPersistedInt( this.defaultColour );
-		
-		return new AmbilWarnaDialog(this.getContext(), colour, this ).getDialog();
-		
-	}
-	
-	public class Square extends Drawable
-	{
-	    private final Paint mPaint;
-	    private final RectF mRect;
+    private static final String androidns="http://schemas.android.com/apk/res/android";
 
-	    public Square()
-	    {
-	        mPaint = new Paint();
-	        mRect = new RectF();
-	    }
+    int defaultColour;
 
-	    @Override
-	    public void draw(Canvas canvas)
-	    {
-	        // Set the correct values in the Paint
-	        mPaint.setColor( getPersistedInt(defaultColour) );
-	    	
-	        mPaint.setStrokeWidth(2);
-	        mPaint.setStyle(Style.FILL);
+    public ColourChooserPref(Context context, AttributeSet attributes) {
+        super(context, attributes);
+        this.defaultColour = attributes.getAttributeIntValue(androidns,"defaultValue", Color.BLACK);
+    }
 
-	        // Adjust the rect
-	        mRect.left = 15.0f;
-	        mRect.top = 50.0f;
-	        mRect.right = 55.0f;
-	        mRect.bottom = 75.0f;
+    @Override
+    public void setDefaultValue(Object defaultValue) {
+        super.setDefaultValue(defaultValue);
 
-	        // Draw it
-	        canvas.drawRoundRect(mRect, 0.5f, 0.5f, mPaint);
-	    }
+        this.defaultColour = (Integer) defaultValue;
+    }
 
-	    @Override
-	    public int getOpacity()
-	    {
-	        return PixelFormat.OPAQUE;
-	    }
+    @Override
+    public void onCancel(AmbilWarnaDialog dialog) {
+        // TODO Auto-generated method stub
 
-	    @Override
-	    public void setAlpha(int arg0)
-	    {
-	    }
+    }
 
-	    @Override
-	    public void setColorFilter(ColorFilter arg0)
-	    {
-	    }
-	}
+    @Override
+    public void onOk(AmbilWarnaDialog dialog, int color) {
+        persistInt(color);
+    }
 
-	
+    @Override
+    protected void onClick() {
+        getDialog().show();
+    }
+
+    @Override
+    public Dialog getDialog() {
+
+        int colour = this.getPersistedInt( this.defaultColour );
+
+        return new AmbilWarnaDialog(this.getContext(), colour, this ).getDialog();
+
+    }
+
+    public class Square extends Drawable
+    {
+        private final Paint mPaint;
+        private final RectF mRect;
+
+        public Square()
+        {
+            mPaint = new Paint();
+            mRect = new RectF();
+        }
+
+        @Override
+        public void draw(Canvas canvas)
+        {
+            // Set the correct values in the Paint
+            mPaint.setColor( getPersistedInt(defaultColour) );
+
+            mPaint.setStrokeWidth(2);
+            mPaint.setStyle(Style.FILL);
+
+            // Adjust the rect
+            mRect.left = 15.0f;
+            mRect.top = 50.0f;
+            mRect.right = 55.0f;
+            mRect.bottom = 75.0f;
+
+            // Draw it
+            canvas.drawRoundRect(mRect, 0.5f, 0.5f, mPaint);
+        }
+
+        @Override
+        public int getOpacity()
+        {
+            return PixelFormat.OPAQUE;
+        }
+
+        @Override
+        public void setAlpha(int arg0)
+        {
+        }
+
+        @Override
+        public void setColorFilter(ColorFilter arg0)
+        {
+        }
+    }
+
+
 }

@@ -78,7 +78,7 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(getCreateTableString());
         db.execSQL("CREATE UNIQUE INDEX fn_name_index ON " + TABLE_NAME + "(" + Field.file_name + ", "
-                + Field.book_index + ", " + Field.book_position + ");");
+            + Field.book_index + ", " + Field.book_position + ");");
 
 
         for ( int i=0; i < 10000; i++ ) {
@@ -96,13 +96,13 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteBookmark( Bookmark bookmark ) {
         getDataBase().delete( TABLE_NAME,
-                "file_name = ? and book_index = ? and book_position = ?",
-                array(
-                        bookmark.getFileName(),
-                        Integer.toString(bookmark.getIndex()),
-                        Integer.toString(bookmark.getPosition() )
-                )
-        );
+            "file_name = ? and book_index = ? and book_position = ?",
+            array(
+                bookmark.getFileName(),
+                Integer.toString(bookmark.getIndex()),
+                Integer.toString(bookmark.getPosition() )
+                  )
+                              );
     }
 
     @Override
@@ -138,8 +138,8 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
 
         List<Bookmark> bookmarks = new ArrayList<>();
         Cursor cursor = getDataBase().query(false, TABLE_NAME, null,
-                "file_name = ?", new String[]{fileName}, null, null,
-                "book_index, book_position ASC", null);
+            "file_name = ?", new String[]{fileName}, null, null,
+            "book_index, book_position ASC", null);
 
         int fileNameIndex = cursor.getColumnIndex(Field.file_name.name());
         int nameIndex = cursor.getColumnIndex(Field.name.name());

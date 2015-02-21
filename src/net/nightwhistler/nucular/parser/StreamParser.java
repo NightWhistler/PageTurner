@@ -28,49 +28,49 @@ import java.util.Map;
 
 public class StreamParser extends DefaultHandler {
 
-	private ElementParser rootParser;
-	
-	public StreamParser( ElementParser rootElementParser ) {
-		this.rootParser = rootElementParser;
-	}
+    private ElementParser rootParser;
 
-	private String pickName( String qName, String localName ) {
-		if ( localName.length() == 0 ) {
-			return qName;
-		} else {
-			return localName;
-		}
-	}
-	
-	@Override
-	public void startElement(String uri, String localName, String qName,
-			Attributes attributes) throws SAXException {
+    public StreamParser( ElementParser rootElementParser ) {
+        this.rootParser = rootElementParser;
+    }
 
-		Map<String, String> attrMap = new HashMap<String, String>();
-		for (int i = 0; i < attributes.getLength(); i++) {
-			String value = attributes.getValue(i);
-			String key = attributes.getLocalName(i);
-			attrMap.put(key, value);
-		}
+    private String pickName( String qName, String localName ) {
+        if ( localName.length() == 0 ) {
+            return qName;
+        } else {
+            return localName;
+        }
+    }
 
-		this.rootParser.startElement(pickName(qName, localName), attrMap);
-	}
+    @Override
+    public void startElement(String uri, String localName, String qName,
+        Attributes attributes) throws SAXException {
 
-	@Override
-	public void characters(char[] ch, int start, int length)
-			throws SAXException {
+        Map<String, String> attrMap = new HashMap<String, String>();
+        for (int i = 0; i < attributes.getLength(); i++) {
+            String value = attributes.getValue(i);
+            String key = attributes.getLocalName(i);
+            attrMap.put(key, value);
+        }
 
-		StringBuffer buff = new StringBuffer();
-		buff.append(ch, start, length);
+        this.rootParser.startElement(pickName(qName, localName), attrMap);
+    }
 
-		this.rootParser.setTextContent(buff.toString());
-	}
+    @Override
+    public void characters(char[] ch, int start, int length)
+        throws SAXException {
 
-	@Override
-	public void endElement(String uri, String localName, String qName)
-			throws SAXException {
-		this.rootParser.endElement(pickName(qName,localName));
-	}
+        StringBuffer buff = new StringBuffer();
+        buff.append(ch, start, length);
 
-	
+        this.rootParser.setTextContent(buff.toString());
+    }
+
+    @Override
+    public void endElement(String uri, String localName, String qName)
+        throws SAXException {
+        this.rootParser.endElement(pickName(qName,localName));
+    }
+
+
 }

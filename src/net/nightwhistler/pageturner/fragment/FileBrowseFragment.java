@@ -39,47 +39,47 @@ import java.util.*;
 
 public class FileBrowseFragment extends RoboSherlockListFragment {
 
-	private FileAdapter adapter;
-	
-	@Inject
-	private Configuration config;
+    private FileAdapter adapter;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {	
-		super.onCreate(savedInstanceState);
-		
-		Uri data = getActivity().getIntent().getData();		
-		
-		File file = null;
-		
-		if ( data != null && data.getPath() != null ) {
-			file = new File(data.getPath());
-		}
-		
-		if (file == null || ! (file.exists() && file.isDirectory()) ) {
-			file = config.getStorageBase().unsafeGet();
-		}
-		
-		if (file == null || ! (file.exists() && file.isDirectory()) ) {
-			file = new File("/");
-		}
-		
-		this.adapter = new FileAdapter(this.getActivity());
+    @Inject
+    private Configuration config;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Uri data = getActivity().getIntent().getData();
+
+        File file = null;
+
+        if ( data != null && data.getPath() != null ) {
+            file = new File(data.getPath());
+        }
+
+        if (file == null || ! (file.exists() && file.isDirectory()) ) {
+            file = config.getStorageBase().unsafeGet();
+        }
+
+        if (file == null || ! (file.exists() && file.isDirectory()) ) {
+            file = new File("/");
+        }
+
+        this.adapter = new FileAdapter(this.getActivity());
         this.adapter.setItemSelectionListener( this::returnFile );
 
-		adapter.setFolder(file);
-		getActivity().setTitle(adapter.getCurrentFolder());
-	}
+        adapter.setFolder(file);
+        getActivity().setTitle(adapter.getCurrentFolder());
+    }
 
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		setListAdapter(adapter);
-	}
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setListAdapter(adapter);
+    }
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		FileItem fileItem = this.adapter.getItem(position);
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        FileItem fileItem = this.adapter.getItem(position);
 
         if ( fileItem.isImportOnClick() ) {
             returnFile(fileItem.getFile());
@@ -88,7 +88,7 @@ public class FileBrowseFragment extends RoboSherlockListFragment {
             getActivity().setTitle(adapter.getCurrentFolder());
         }
 
-	}
+    }
 
     private void returnFile( File file ) {
         Intent intent = getActivity().getIntent();

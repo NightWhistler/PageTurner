@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package com.limecreativelabs.sherlocksupport;/*
+package com.limecreativelabs.sherlocksupport;
+/*
  * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,7 +69,7 @@ public class ActionBarDrawerToggleCompat implements DrawerLayout.DrawerListener 
         Drawable getThemeUpIndicator(Activity activity);
 
         Object setActionBarUpIndicator(Object info, Activity activity,
-                                       Drawable themeImage, int contentDescRes);
+                Drawable themeImage, int contentDescRes);
 
         Object setActionBarDescription(Object info, Activity activity, int contentDescRes);
     }
@@ -81,7 +82,7 @@ public class ActionBarDrawerToggleCompat implements DrawerLayout.DrawerListener 
 
         @Override
         public Object setActionBarUpIndicator(Object info, Activity activity,
-                                              Drawable themeImage, int contentDescRes) {
+                Drawable themeImage, int contentDescRes) {
             // No action bar to set.
             return info;
         }
@@ -101,7 +102,7 @@ public class ActionBarDrawerToggleCompat implements DrawerLayout.DrawerListener 
 
         @Override
         public Object setActionBarUpIndicator(Object info, Activity activity,
-                                              Drawable themeImage, int contentDescRes) {
+                Drawable themeImage, int contentDescRes) {
             return ActionBarDrawerToggleSherlock.setActionBarUpIndicator(info, activity,
                     themeImage, contentDescRes);
         }
@@ -151,7 +152,7 @@ public class ActionBarDrawerToggleCompat implements DrawerLayout.DrawerListener 
      *                                  for accessibility
      */
     public ActionBarDrawerToggleCompat(Activity activity, DrawerLayout drawerLayout,
-                                       int drawerImageRes, int openDrawerContentDescRes, int closeDrawerContentDescRes) {
+            int drawerImageRes, int openDrawerContentDescRes, int closeDrawerContentDescRes) {
         mActivity = activity;
         mDrawerLayout = drawerLayout;
         mDrawerImageResource = drawerImageRes;

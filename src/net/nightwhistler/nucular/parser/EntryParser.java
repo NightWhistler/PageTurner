@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -22,32 +22,32 @@ import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 
 public class EntryParser extends ElementParser {
-				
-	private Entry entry;
-	
-	public EntryParser(Feed parent) {
-		super("entry");
-		this.entry = new Entry();
-		parent.addEntry(entry);
-	}	
 
-	@Override
-	protected ElementParser createChildParser(String tagName) {
-		
-		if ( tagName.equals("link")) {
-			return new LinkParser(entry);
-		} else if ( tagName.equals("content")) {
-			return new ContentParser(entry);
-		} else if ( tagName.equals("title") ) {
-			return new TitleParser(entry);
-		} else if ( tagName.equals("author")) {
-			return new AuthorParser(entry);
-		} else if ( tagName.equals("id")) {
-			return new IDParser(entry);
-		} else if ( tagName.equals("summary")) {
-			return new SummaryParser(entry);
-		}
-		
-		return super.createChildParser(tagName);
-	}
+    private Entry entry;
+
+    public EntryParser(Feed parent) {
+        super("entry");
+        this.entry = new Entry();
+        parent.addEntry(entry);
+    }
+
+    @Override
+    protected ElementParser createChildParser(String tagName) {
+
+        if ( tagName.equals("link")) {
+            return new LinkParser(entry);
+        } else if ( tagName.equals("content")) {
+            return new ContentParser(entry);
+        } else if ( tagName.equals("title") ) {
+            return new TitleParser(entry);
+        } else if ( tagName.equals("author")) {
+            return new AuthorParser(entry);
+        } else if ( tagName.equals("id")) {
+            return new IDParser(entry);
+        } else if ( tagName.equals("summary")) {
+            return new SummaryParser(entry);
+        }
+
+        return super.createChildParser(tagName);
+    }
 }

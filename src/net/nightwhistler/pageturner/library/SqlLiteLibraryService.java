@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -42,267 +42,267 @@ import static jedi.option.Options.some;
 
 @ContextSingleton
 public class SqlLiteLibraryService implements LibraryService {
-	
-	private static final int THUMBNAIL_HEIGHT = 250;
-	
-	private static final long MAX_COVER_SIZE = 1024 * 1024; //Max 1Mb
 
-	@Inject
-	private LibraryDatabaseHelper helper;	
-	
-	private static final Logger LOG = LoggerFactory.getLogger(SqlLiteLibraryService.class);
-	
-	@Inject
-	private Configuration config;
-		
-	@Override
-	public void updateReadingProgress(String fileName, int progress) {
-		helper.updateLastRead(new File(fileName).getName(), progress);		
-	}
-	
-	@Override
-	public void storeBook(String fileName, Book book, boolean updateLastRead, boolean copyFile) throws IOException {
-		
-		File bookFile = new File(fileName);
-		
-		boolean hasBook = hasBook(bookFile.getName());
-		
-		if ( hasBook && !updateLastRead ) {
-			return;
-		} else if ( hasBook ) {
-			helper.updateLastRead(bookFile.getName(), -1);
-			return;
-		}				
-		
-		Metadata metaData = book.getMetadata();
-    	
-    	String authorFirstName = "Unknown author";
-    	String authorLastName = "";
-    	
-    	if ( metaData.getAuthors().size() > 0 ) {
-    		authorFirstName = metaData.getAuthors().get(0).getFirstname();
-    		authorLastName = metaData.getAuthors().get(0).getLastname();
-    	}
-    	
-    	Option<byte[]> thumbNail = none();
-    	
-    	try {
-    		if ( book.getCoverImage() != null && book.getCoverImage().getSize() < MAX_COVER_SIZE ) {    			
-    			thumbNail = resizeImage(book.getCoverImage().getData());
-    			book.getCoverImage().close();
-    		}
-    	} catch (IOException | OutOfMemoryError e) {
-    		//If the image resource is too big, just import without a cover.
-    	}
-		
-    	String description = "";
-    	
-    	if ( ! metaData.getDescriptions().isEmpty() ) {
-    		description = metaData.getDescriptions().get(0);
-    	}
-    	
-    	String title = book.getTitle();
-    	
-    	if ( title.trim().length() == 0 ) {    		
-			title = fileName.substring( fileName.lastIndexOf('/') + 1 );
-		}		
-    	
-		if ( copyFile ) {
+    private static final int THUMBNAIL_HEIGHT = 250;
 
-			Option<File> copiedFile = copyToLibrary(fileName, authorLastName + ", " + authorFirstName, title );
+    private static final long MAX_COVER_SIZE = 1024 * 1024; //Max 1Mb
 
-			if ( ! isEmpty(copiedFile) ) {
-				bookFile = copiedFile.unsafeGet();
-			}
-		}
-    	
-		this.helper.storeNewBook(bookFile.getAbsolutePath(),
-				authorFirstName, authorLastName, title,
-				description, thumbNail.unsafeGet(),
-                updateLastRead);
-		
-	}
-	
-	private String cleanUp(String input) {
-		
-		char[] illegalChars = {
-				':', '/', '\\', '?', '<', '>', '\"', '*', '&', '#', '(', ')'
-		};
-		
-		String output = input;
-		for ( char c: illegalChars ) {
-			output = output.replace(c, '_');
-		}
-		
-		return output.trim();		
-	}
-	
-	private Option<File> copyToLibrary( String fileName, String author, String title) throws IOException {
+    @Inject
+    private LibraryDatabaseHelper helper;
 
-		Option<File> libraryFolder = config.getLibraryFolder();
+    private static final Logger LOG = LoggerFactory.getLogger(SqlLiteLibraryService.class);
 
-		if ( isEmpty(libraryFolder) ) {
-			return none();
-		}
-
-		File baseFile = new File(fileName);
-
-		File targetFolder = new File( libraryFolder.unsafeGet(),
-					cleanUp(author) + "/" + cleanUp(title) );
-
-		targetFolder.mkdirs();				
-
-		FileChannel source = null;
-		FileChannel destination = null;
-		
-		File targetFile = new File(targetFolder, baseFile.getName());
-		
-		if ( baseFile.equals(targetFile) ) {
-			return some(baseFile);
-		}
-		
-		LOG.debug("Copying to file: " + targetFile.getAbsolutePath() );
-		
-		targetFile.createNewFile();
-				
-		try {
-			source = new FileInputStream(baseFile).getChannel();
-			destination = new FileOutputStream(targetFile).getChannel();
-			destination.transferFrom(source, 0, source.size());
-		}
-		finally {
-			if(source != null) {
-				source.close();
-			}
-			if(destination != null) {
-				destination.close();
-			}
-		}
-
-		return some(targetFile);
-	}
-
-
-	@Override
-	public QueryResult<LibraryBook> findUnread(String filter) {
-		return helper.findByField(
-				LibraryDatabaseHelper.Field.date_last_read,
-				null, LibraryDatabaseHelper.Field.title, 
-				LibraryDatabaseHelper.Order.ASC, filter);
-				
-	}
+    @Inject
+    private Configuration config;
 
     @Override
-	public Option<LibraryBook> getBook(String fileName) {
-		QueryResult<LibraryBook> booksByFile = 
-			helper.findByField(LibraryDatabaseHelper.Field.file_name,
-					fileName, LibraryDatabaseHelper.Field.file_name, Order.ASC, null);
+    public void updateReadingProgress(String fileName, int progress) {
+        helper.updateLastRead(new File(fileName).getName(), progress);
+    }
 
-		switch ( booksByFile.getSize() ) {
-		case 0:
-			return none();
-		case 1:
-			return option(booksByFile.getItemAt(0));
-		default:
-			throw new IllegalStateException("Non unique file-name: " + fileName );
-		}
+    @Override
+    public void storeBook(String fileName, Book book, boolean updateLastRead, boolean copyFile) throws IOException {
 
-	}
-	
-	@Override
-	public QueryResult<LibraryBook> findAllByLastRead(String filter) {
-		return helper.findAllOrderedBy(
-				LibraryDatabaseHelper.Field.date_last_read,
-				LibraryDatabaseHelper.Order.DESC, filter );
-	}
-	
-	@Override
-	public QueryResult<LibraryBook> findAllByAuthor(String filter) {
-		return helper.findAllKeyedBy(
-				LibraryDatabaseHelper.Field.a_last_name,
-				LibraryDatabaseHelper.Order.ASC, filter );
-	
-	}
-	
-	@Override
-	public QueryResult<LibraryBook> findAllByLastAdded(String filter) {
-		return helper.findAllOrderedBy(
-				LibraryDatabaseHelper.Field.date_added,
-				LibraryDatabaseHelper.Order.DESC, filter );
-	}
-	
-	@Override
-	public KeyedQueryResult<LibraryBook> findAllByTitle(String filter) {
-		return helper.findAllKeyedBy(
-				LibraryDatabaseHelper.Field.title,
-				LibraryDatabaseHelper.Order.ASC, filter );
-	}
-	
-	public void close() {
-		helper.close();
-	}
-	
-	@Override
-	public void deleteBook(String fileName) {
-		this.helper.delete( fileName );	
+        File bookFile = new File(fileName);
 
-		config.getLibraryFolder().forEach( libraryFolder -> {
-			//Only delete files we manage
-			if ( fileName.startsWith(libraryFolder.getAbsolutePath()) ) {
-				File bookFile = new File(fileName);
-				File parentFolder = bookFile.getParentFile();
+        boolean hasBook = hasBook(bookFile.getName());
 
-				bookFile.delete();
+        if ( hasBook && !updateLastRead ) {
+            return;
+        } else if ( hasBook ) {
+            helper.updateLastRead(bookFile.getName(), -1);
+            return;
+        }
 
-				while (parentFolder.list() == null || parentFolder.list().length == 0 ) {
-					parentFolder.delete();
-					parentFolder = parentFolder.getParentFile();
-				}
-			}
-		});
-	}	
-	
-	@Override
-	public boolean hasBook(String fileName) {
-		return helper.hasBook(fileName);
-	}
-	
-	private Option<byte[]> resizeImage( byte[] input ) {
-		
-		if ( input == null ) {
-			return none();
-		}
-				
-		Bitmap bitmapOrg = BitmapFactory.decodeByteArray(input, 0, input.length);
+        Metadata metaData = book.getMetadata();
 
-		if ( bitmapOrg == null ) {
-			return none();
-		}
-		
-		int height = bitmapOrg.getHeight();
-		int width = bitmapOrg.getWidth();
-		int newHeight = THUMBNAIL_HEIGHT;
+        String authorFirstName = "Unknown author";
+        String authorLastName = "";
 
-		float scaleHeight = ((float) newHeight) / height;
+        if ( metaData.getAuthors().size() > 0 ) {
+            authorFirstName = metaData.getAuthors().get(0).getFirstname();
+            authorLastName = metaData.getAuthors().get(0).getLastname();
+        }
 
-		// create a matrix for the manipulation
-		Matrix matrix = new Matrix();
-		// resize the bit map
-		matrix.postScale(scaleHeight, scaleHeight);
+        Option<byte[]> thumbNail = none();
 
-		// recreate the new Bitmap
-		Bitmap resizedBitmap = Bitmap.createBitmap(bitmapOrg, 0, 0,
-				width, height, matrix, true);
+        try {
+            if ( book.getCoverImage() != null && book.getCoverImage().getSize() < MAX_COVER_SIZE ) {
+                thumbNail = resizeImage(book.getCoverImage().getData());
+                book.getCoverImage().close();
+            }
+        } catch (IOException | OutOfMemoryError e) {
+            //If the image resource is too big, just import without a cover.
+        }
 
-		bitmapOrg.recycle();
+        String description = "";
 
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		resizedBitmap.compress(CompressFormat.PNG, 0 /*ignored for PNG*/, bos);            
+        if ( ! metaData.getDescriptions().isEmpty() ) {
+            description = metaData.getDescriptions().get(0);
+        }
 
-		resizedBitmap.recycle();
+        String title = book.getTitle();
 
-		return some(bos.toByteArray());
+        if ( title.trim().length() == 0 ) {
+            title = fileName.substring( fileName.lastIndexOf('/') + 1 );
+        }
 
-	}
-	
+        if ( copyFile ) {
+
+            Option<File> copiedFile = copyToLibrary(fileName, authorLastName + ", " + authorFirstName, title );
+
+            if ( ! isEmpty(copiedFile) ) {
+                bookFile = copiedFile.unsafeGet();
+            }
+        }
+
+        this.helper.storeNewBook(bookFile.getAbsolutePath(),
+            authorFirstName, authorLastName, title,
+            description, thumbNail.unsafeGet(),
+            updateLastRead);
+
+    }
+
+    private String cleanUp(String input) {
+
+        char[] illegalChars = {
+            ':', '/', '\\', '?', '<', '>', '\"', '*', '&', '#', '(', ')'
+        };
+
+        String output = input;
+        for ( char c: illegalChars ) {
+            output = output.replace(c, '_');
+        }
+
+        return output.trim();
+    }
+
+    private Option<File> copyToLibrary( String fileName, String author, String title) throws IOException {
+
+        Option<File> libraryFolder = config.getLibraryFolder();
+
+        if ( isEmpty(libraryFolder) ) {
+            return none();
+        }
+
+        File baseFile = new File(fileName);
+
+        File targetFolder = new File( libraryFolder.unsafeGet(),
+            cleanUp(author) + "/" + cleanUp(title) );
+
+        targetFolder.mkdirs();
+
+        FileChannel source = null;
+        FileChannel destination = null;
+
+        File targetFile = new File(targetFolder, baseFile.getName());
+
+        if ( baseFile.equals(targetFile) ) {
+            return some(baseFile);
+        }
+
+        LOG.debug("Copying to file: " + targetFile.getAbsolutePath() );
+
+        targetFile.createNewFile();
+
+        try {
+            source = new FileInputStream(baseFile).getChannel();
+            destination = new FileOutputStream(targetFile).getChannel();
+            destination.transferFrom(source, 0, source.size());
+        }
+        finally {
+            if(source != null) {
+                source.close();
+            }
+            if(destination != null) {
+                destination.close();
+            }
+        }
+
+        return some(targetFile);
+    }
+
+
+    @Override
+    public QueryResult<LibraryBook> findUnread(String filter) {
+        return helper.findByField(
+            LibraryDatabaseHelper.Field.date_last_read,
+            null, LibraryDatabaseHelper.Field.title,
+            LibraryDatabaseHelper.Order.ASC, filter);
+
+    }
+
+    @Override
+    public Option<LibraryBook> getBook(String fileName) {
+        QueryResult<LibraryBook> booksByFile =
+            helper.findByField(LibraryDatabaseHelper.Field.file_name,
+                fileName, LibraryDatabaseHelper.Field.file_name, Order.ASC, null);
+
+        switch ( booksByFile.getSize() ) {
+        case 0:
+            return none();
+        case 1:
+            return option(booksByFile.getItemAt(0));
+        default:
+            throw new IllegalStateException("Non unique file-name: " + fileName );
+        }
+
+    }
+
+    @Override
+    public QueryResult<LibraryBook> findAllByLastRead(String filter) {
+        return helper.findAllOrderedBy(
+            LibraryDatabaseHelper.Field.date_last_read,
+            LibraryDatabaseHelper.Order.DESC, filter );
+    }
+
+    @Override
+    public QueryResult<LibraryBook> findAllByAuthor(String filter) {
+        return helper.findAllKeyedBy(
+            LibraryDatabaseHelper.Field.a_last_name,
+            LibraryDatabaseHelper.Order.ASC, filter );
+
+    }
+
+    @Override
+    public QueryResult<LibraryBook> findAllByLastAdded(String filter) {
+        return helper.findAllOrderedBy(
+            LibraryDatabaseHelper.Field.date_added,
+            LibraryDatabaseHelper.Order.DESC, filter );
+    }
+
+    @Override
+    public KeyedQueryResult<LibraryBook> findAllByTitle(String filter) {
+        return helper.findAllKeyedBy(
+            LibraryDatabaseHelper.Field.title,
+            LibraryDatabaseHelper.Order.ASC, filter );
+    }
+
+    public void close() {
+        helper.close();
+    }
+
+    @Override
+    public void deleteBook(String fileName) {
+        this.helper.delete( fileName );
+
+        config.getLibraryFolder().forEach( libraryFolder -> {
+                //Only delete files we manage
+                if ( fileName.startsWith(libraryFolder.getAbsolutePath()) ) {
+                    File bookFile = new File(fileName);
+                    File parentFolder = bookFile.getParentFile();
+
+                    bookFile.delete();
+
+                    while (parentFolder.list() == null || parentFolder.list().length == 0 ) {
+                        parentFolder.delete();
+                        parentFolder = parentFolder.getParentFile();
+                    }
+                }
+            });
+    }
+
+    @Override
+    public boolean hasBook(String fileName) {
+        return helper.hasBook(fileName);
+    }
+
+    private Option<byte[]> resizeImage( byte[] input ) {
+
+        if ( input == null ) {
+            return none();
+        }
+
+        Bitmap bitmapOrg = BitmapFactory.decodeByteArray(input, 0, input.length);
+
+        if ( bitmapOrg == null ) {
+            return none();
+        }
+
+        int height = bitmapOrg.getHeight();
+        int width = bitmapOrg.getWidth();
+        int newHeight = THUMBNAIL_HEIGHT;
+
+        float scaleHeight = ((float) newHeight) / height;
+
+        // create a matrix for the manipulation
+        Matrix matrix = new Matrix();
+        // resize the bit map
+        matrix.postScale(scaleHeight, scaleHeight);
+
+        // recreate the new Bitmap
+        Bitmap resizedBitmap = Bitmap.createBitmap(bitmapOrg, 0, 0,
+            width, height, matrix, true);
+
+        bitmapOrg.recycle();
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        resizedBitmap.compress(CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
+
+        resizedBitmap.recycle();
+
+        return some(bos.toByteArray());
+
+    }
+
 }

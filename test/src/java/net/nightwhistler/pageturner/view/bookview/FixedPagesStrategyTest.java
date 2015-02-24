@@ -92,7 +92,7 @@ public class FixedPagesStrategyTest {
 		 * The BookView is 50px high, meaning it will fit 5 lines,
 		 * which means 50 characters. 
 		 */
-		when(this.mockBookView.getHeight()).thenReturn(50);		
+		when(this.mockBookView.getMeasuredHeight()).thenReturn(50);
 				
 		List<Integer> offsets = this.strategy.getPageOffsets(text, false);
 		
@@ -118,7 +118,7 @@ public class FixedPagesStrategyTest {
 		/*
 		 * The BookView is 55px high, meaning it will fit 5 lines, but not 6.
 		 */
-		when(this.mockBookView.getHeight()).thenReturn(55);		
+		when(this.mockBookView.getMeasuredHeight()).thenReturn(55);
 
 		List<Integer> offsets = this.strategy.getPageOffsets(text, false);
 
@@ -146,7 +146,7 @@ public class FixedPagesStrategyTest {
 		/*
 		 * The BookView is 100px high
 		 */
-		when(this.mockBookView.getHeight()).thenReturn(100);
+		when(this.mockBookView.getMeasuredHeight()).thenReturn(100);
 		List<Integer> offsets = this.strategy.getPageOffsets(text, false);
 
 		//Each line should be a page
@@ -184,7 +184,7 @@ public class FixedPagesStrategyTest {
         /*
 		 * The BookView is 100px high
 		 */
-        when(this.mockBookView.getHeight()).thenReturn(100);
+        when(this.mockBookView.getMeasuredHeight()).thenReturn(100);
         List<Integer> offsets = this.strategy.getPageOffsets(text, false);
 
         //We should have a single page
@@ -206,7 +206,7 @@ public class FixedPagesStrategyTest {
 		/*
 		 * The BookView is 50px high, meaning it will fit 5 lines.
 		 */
-		when(this.mockBookView.getHeight()).thenReturn(50);
+		when(this.mockBookView.getMeasuredHeight()).thenReturn(50);
 
         List<Integer> offsets = this.strategy.getPageOffsets(text, false);
         assertEquals(3, offsets.size() );

@@ -20,6 +20,7 @@
 package net.nightwhistler.pageturner.view.bookview;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
@@ -44,6 +45,7 @@ import net.nightwhistler.pageturner.view.HighlightManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Collections.emptyList;
 import static jedi.option.Options.none;
 import static jedi.option.Options.option;
 import static jedi.option.Options.some;
@@ -74,6 +76,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
     public void setBookView(BookView bookView) {
         this.bookView = bookView;
         this.childView = bookView.getInnerView();
+
     }
 
     @Inject
@@ -120,20 +123,20 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 	public List<Integer> getPageOffsets(CharSequence text, boolean includePageNumbers ) {
 		
 		if ( text == null ) {
-			return new ArrayList<>();
-		}
+			return emptyList();
+        }
 		
 		List<Integer> pageOffsets = new ArrayList<Integer>();
 		
 		TextPaint textPaint = bookView.getInnerView().getPaint();
-		int boundedWidth = bookView.getInnerView().getWidth();
+		int boundedWidth = bookView.getInnerView().getMeasuredWidth();
 
         LOG.debug( "Page width: " + boundedWidth );
 
 		StaticLayout layout = layoutFactory.create(text, textPaint, boundedWidth, bookView.getLineSpacing() );
 
         if ( layout == null ) {
-            return new ArrayList<>();
+            return emptyList();
         }
 
         LOG.debug( "Layout height: " + layout.getHeight() );
@@ -141,7 +144,7 @@ public class FixedPagesStrategy implements PageChangeStrategy {
 		layout.draw(new Canvas());
 
         //Subtract the height of the top margin
-		int pageHeight = bookView.getHeight() - bookView.getVerticalMargin();
+		int pageHeight = bookView.getMeasuredHeight() - bookView.getVerticalMargin();
 
 		if ( includePageNumbers ) {
 			String bottomSpace = "0\n";

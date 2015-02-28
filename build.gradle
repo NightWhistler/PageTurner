@@ -198,3 +198,15 @@ robolectric {
     exclude '**/espresso/**/*.class'
 }
 
+apply plugin: 'sonar-runner'
+
+sonarRunner {
+    sonarProperties {
+        property "sonar.sourceEncoding", "UTF-8"
+//        property "sonar.profile", "Android Lint"
+        property "sonar.sources", "src"
+        property "sonar.binaries", file("${project.buildDir}/intermediates/classes/debug") 
+       // property "sonar.libraries", "android.sourceSets.main.runtimeClasspath"
+    }
+}
+

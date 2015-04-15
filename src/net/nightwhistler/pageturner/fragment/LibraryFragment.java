@@ -410,7 +410,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         onMenuPress( menu, R.id.about ).thenDo( dialogFactory.buildAboutDialog()::show );
 
         onMenuPress( menu, R.id.profile_day ).thenDo(() -> switchToColourProfile(ColourProfile.DAY) );
-        onMenuPress( menu, R.id.profile_night ).thenDo(() -> switchToColourProfile(ColourProfile.NIGHT) );
+        onMenuPress( menu, R.id.profile_night ).thenDo(() -> switchToColourProfile(ColourProfile.NIGHT));
 
         this.searchMenuItem = menu.findItem(R.id.menu_search);
 
@@ -508,6 +508,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		LayoutInflater inflater = PlatformUtil.getLayoutInflater(getActivity());
 		final View layout = inflater.inflate(R.layout.import_dialog, null);
 		final RadioButton scanSpecific = (RadioButton) layout.findViewById(R.id.radioScanFolder);
+		final RadioGroup scanRadioGroup = (RadioGroup) layout.findViewById(R.id.radioScanGroup);
 		final TextView folder = (TextView) layout.findViewById(R.id.folderToScan);
 		final CheckBox copyToLibrary = (CheckBox) layout.findViewById(R.id.copyToLib);		
 		final Button browseButton = (Button) layout.findViewById(R.id.browseButton);
@@ -517,7 +518,18 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 			return;
 		}
 
-		folder.setOnClickListener( v ->	scanSpecific.setChecked(true) );
+		folder.setEnabled(false);
+		browseButton.setEnabled(false);
+
+		scanRadioGroup.setOnCheckedChangeListener((RadioGroup group, int checkedId) -> {
+			if (scanSpecific.isChecked()){
+				folder.setEnabled(true);
+				browseButton.setEnabled(true);
+			} else {
+				folder.setEnabled(false);
+				browseButton.setEnabled(false);
+			}
+		});
 
 		// Copy scan settings from the prefs
 		copyToLibrary.setChecked( config.getCopyToLibraryOnScan() );
@@ -534,7 +546,6 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         };
 		
 		browseButton.setOnClickListener(v -> {
-            scanSpecific.setChecked(true);
             Intent intent = new Intent(getActivity(), FileBrowseActivity.class);
             intent.setData( Uri.parse(folder.getText().toString() ));
             startActivityForResult(intent, 0);

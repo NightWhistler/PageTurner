@@ -23,7 +23,7 @@
     <string name="google_lookup">Search on Google</string>
     <string name="word_select">"You selected '%s'</string>
     <string name="loading_wait">Loading, please wait</string>
-    <string name="install_oi">Please install OI File Manager from the Android Market.</string>
+    <string name="install_oi">Please install OI File Manager from the Google Play Store.</string>
     <string name="cloud_bm">Cloud bookmarks</string>
     <string name="toc_label">Table of contents</string>
     <string name="syncing">"Syncing progress…"</string>

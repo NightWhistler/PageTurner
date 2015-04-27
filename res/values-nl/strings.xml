@@ -2,7 +2,7 @@
 <resources>
     
     <string name="title">Titel</string>
-    <string name="app_desc">PageTurner is een synchroniserende e-book reader waarmee je je voortgang op meerdere apparaten synchoon kan houden.</string>
+    <string name="app_desc">PageTurner is een synchroniserende e-book reader waarmee je je voortgang op meerdere apparaten synchroon kan houden.</string>
     <string name="browse">Bladeren…</string>
     <string name="open_file">Open ePub-bestand</string>
     <string name="open_library">Mijn boeken</string>
@@ -107,7 +107,7 @@
      <string name="search_books">Boeken zoeken</string>
     <string name="enter_query">Voer a.u.b. een zoek-term in</string>
     <string name="buy_now">Nu kopen</string>
-    <string name="enter_email">Cloud-syncronisatie is momenteel uitgeschakeld. Voer a.u.b. een e-mailadres in bij voorkeuren om het in te schakelen.</string>
+    <string name="enter_email">Cloud-synchronisatie is momenteel uitgeschakeld. Voer a.u.b. een e-mailadres in bij voorkeuren om het in te schakelen.</string>
     <string name="add_to_library">Toevoegen aan mijn boeken</string>
     
      <string name="search_wait">Bezig met zoeken… Even geduld a.u.b.</string>

@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
 
      
      <item android:id="@+id/manual_sync"          
           android:title="@string/manual_sync"
           android:icon="@drawable/cloud_refresh"
-          android:showAsAction="ifRoom" />
+          app:showAsAction="ifRoom" />
 
     <item android:id="@+id/add_bookmark"
           android:title="@string/add_bookmark"
           android:icon="@drawable/bookmark_add"
-          android:showAsAction="ifRoom" />
+          app:showAsAction="ifRoom" />
     
     <item android:id="@+id/profile_day"          
           android:title="@string/profile_day"
           android:icon="@drawable/sun"
-          android:showAsAction="ifRoom"
+          app:showAsAction="ifRoom"
           />
           
     <item android:id="@+id/profile_night"          
           android:title="@string/profile_night"
           android:icon="@drawable/moon"
-          android:showAsAction="ifRoom"
+          app:showAsAction="ifRoom"
           />                 
     
     <item android:id="@+id/open_file"          
@@ -33,10 +33,8 @@
           android:title="@string/search_text"
           android:icon="@drawable/zoom"
           android:orderInCategory="0"
-          android:actionViewClass="com.actionbarsherlock.widget.SearchView"
-          android:showAsAction="always|collapseActionView" />
-
-
+          app:actionViewClass="android.support.v7.widget.SearchView"
+          app:showAsAction="always|collapseActionView" />
 
 	<item android:id="@+id/text_to_speech"          
           android:title="@string/text_to_speech"

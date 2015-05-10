@@ -31,17 +31,10 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.view.*;
 import android.widget.*;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
-import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 import jedi.functional.FunctionalPrimitives;
 import jedi.option.Option;
@@ -62,7 +55,9 @@ import net.nightwhistler.pageturner.view.BookCaseView;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
+import android.support.v7.widget.SearchView;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -77,7 +72,7 @@ import static net.nightwhistler.ui.UiUtils.onCollapse;
 import static net.nightwhistler.ui.UiUtils.onMenuPress;
 import static net.nightwhistler.pageturner.PlatformUtil.isIntentAvailable;
 
-public class LibraryFragment extends RoboSherlockFragment implements ImportCallback {
+public class LibraryFragment extends RoboFragment implements ImportCallback {
 
     protected static final int REQUEST_CODE_GET_CONTENT = 2;
 	
@@ -203,27 +198,27 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
+		ActionBar actionBar = ((RoboActionBarActivity) getActivity()).getSupportActionBar();
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		ArrayAdapter<String> adapter = new ArrayAdapter<>(actionBar.getThemedContext(),
 				android.R.layout.simple_list_item_1,
 				android.R.id.text1, getResources().getStringArray(R.array.libraryQueries));
 
-		actionBar.setListNavigationCallbacks(adapter, this::onNavigationItemSelected );
+		actionBar.setListNavigationCallbacks(adapter, this::onNavigationItemSelected);
 
         refreshView();
 
 		Option<File> libraryFolder = config.getLibraryFolder();
-        LOG.debug( "Got libraryFolder: " + libraryFolder );
+        LOG.debug("Got libraryFolder: " + libraryFolder);
 
-		libraryFolder.match( folder -> {
-			executeTask(new CleanFilesTask(libraryService, this::booksDeleted) );
+		libraryFolder.match(folder -> {
+			executeTask(new CleanFilesTask(libraryService, this::booksDeleted));
 			executeTask(new ImportTask(getActivity(), libraryService, this, config, config.getCopyToLibraryOnScan(),
-					true), folder );
+					true), folder);
 		}, () -> {
 			LOG.error("No library folder present!");
-			Toast.makeText( context, R.string.library_failed, Toast.LENGTH_LONG ).show();
+			Toast.makeText(context, R.string.library_failed, Toast.LENGTH_LONG).show();
 		});
 
 	}
@@ -237,7 +232,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
      * Triggered by the TaskQueue when all tasks are finished.
      */
     private void onTaskQueueEmpty() {
-        LOG.debug( "Got onTaskQueueEmpty()" );
+        LOG.debug("Got onTaskQueueEmpty()");
         setSupportProgressBarIndeterminateVisibility(false);
     }
 
@@ -384,7 +379,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	}
 	
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {		
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.library_menu, menu);
 
         UiUtils.Action toggleListener = () -> {
@@ -415,12 +410,12 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         this.searchMenuItem = menu.findItem(R.id.menu_search);
 
         if (searchMenuItem != null) {
-            final SearchView searchView = (SearchView) searchMenuItem.getActionView();
+			final SearchView searchView = (SearchView)MenuItemCompat.getActionView(searchMenuItem);
 
             if (searchView != null) {
 
-                searchView.setOnQueryTextListener( UiUtils.onQuery( this::performSearch ));
-                searchMenuItem.setOnActionExpandListener( onCollapse(() -> performSearch("")));
+                searchView.setOnQueryTextListener(UiUtils.onQuery(this::performSearch));
+				MenuItemCompat.setOnActionExpandListener(searchMenuItem, onCollapse((() -> performSearch(""))));
 
             } else {
                 searchMenuItem.setOnMenuItemClickListener( item -> {
@@ -603,7 +598,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 		
 		LibrarySelection lastSelection = config.getLastLibraryQuery();
 		
-		ActionBar actionBar = getSherlockActivity().getSupportActionBar();
+		ActionBar actionBar = ( (RoboActionBarActivity) getActivity()).getSupportActionBar();
 		
 		if (actionBar.getSelectedNavigationIndex() != lastSelection.ordinal() ) {
 			actionBar.setSelectedNavigationItem(lastSelection.ordinal());
@@ -622,6 +617,10 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	public void importComplete(int booksImported, List<String> errors, boolean emptyLibrary, boolean silent) {
         LOG.debug("Got importComplete() ");
         afterImport(booksImported, errors, emptyLibrary, silent, false);
+	}
+
+	private ActionBar getActionBar() {
+		return ((RoboActionBarActivity) getActivity()).getSupportActionBar();
 	}
 
     private void afterImport(int booksImported, List<String> errors, boolean emptyLibrary, boolean silent,
@@ -658,10 +657,10 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
         if ( booksImported > 0 ) {
 
             //Switch to the "recently added" view.
-            if (getSherlockActivity().getSupportActionBar().getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
+            if ( getActionBar().getSelectedNavigationIndex() == LibrarySelection.LAST_ADDED.ordinal() ) {
                 loadView(LibrarySelection.LAST_ADDED, "importComplete()");
             } else {
-                getSherlockActivity().getSupportActionBar().setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
+                getActionBar().setSelectedNavigationItem(LibrarySelection.LAST_ADDED.ordinal());
             }
         } else if ( ! cancelledByUser ) {
 
@@ -673,7 +672,7 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
                 builder.setMessage( getString(R.string.no_bks_fnd_text2) );
 
                 builder.setPositiveButton( android.R.string.yes, (dialogInterface, i) ->
-                    ( (PageTurnerActivity) getSherlockActivity() ).launchActivity( CatalogActivity.class ));
+                    ( (PageTurnerActivity) getActivity() ).launchActivity( CatalogActivity.class ));
 
                 builder.setNegativeButton( android.R.string.no, null );
 
@@ -1004,7 +1003,8 @@ public class LibraryFragment extends RoboSherlockFragment implements ImportCallb
 	}
 
     private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
-        SherlockFragmentActivity activity = getSherlockActivity();
+        RoboActionBarActivity activity = (RoboActionBarActivity) getActivity();
+
         if ( activity != null) {
             LOG.debug("Setting progress bar to " + enable );
             activity.setSupportProgressBarIndeterminateVisibility(enable);

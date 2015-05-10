@@ -25,19 +25,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.Toast;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
-import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import jedi.option.Option;
@@ -46,6 +40,7 @@ import net.nightwhistler.nucular.atom.Entry;
 import net.nightwhistler.nucular.atom.Feed;
 import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.R;
+import net.nightwhistler.pageturner.activity.RoboActionBarActivity;
 import net.nightwhistler.pageturner.catalog.*;
 import net.nightwhistler.ui.UiUtils;
 import net.nightwhistler.ui.DialogFactory;
@@ -54,6 +49,7 @@ import net.nightwhistler.pageturner.scheduling.TaskQueue;
 import net.nightwhistler.pageturner.view.FastBitmapDrawable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
 import javax.annotation.Nullable;
@@ -66,7 +62,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static jedi.functional.FunctionalPrimitives.isEmpty;
 import static jedi.option.Options.option;
 
-public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCallback {
+public class CatalogFragment extends RoboFragment implements LoadFeedCallback {
 	
 	private static final Logger LOG = LoggerFactory
 			.getLogger("CatalogFragment");
@@ -286,7 +282,8 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-        SherlockFragmentActivity activity = getSherlockActivity();
+//        SherlockFragmentActivity activity = getSherlockActivity();
+        RoboActionBarActivity activity = (RoboActionBarActivity) getActivity();
 
         if ( activity == null ) {
             return;
@@ -297,7 +294,7 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
 
         this.searchMenuItem = menu.findItem(R.id.search);
         if (searchMenuItem != null) {
-            final SearchView searchView = (SearchView) searchMenuItem.getActionView();
+            final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 
             if (searchView != null) {
                 searchView.setSubmitButtonEnabled(true);
@@ -443,7 +440,9 @@ public class CatalogFragment extends RoboSherlockFragment implements LoadFeedCal
     }
 
     private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
-        SherlockFragmentActivity activity = getSherlockActivity();
+
+        RoboActionBarActivity activity = (RoboActionBarActivity) getActivity();
+
         if ( activity != null) {
             LOG.debug("Setting progress bar to " + enable );
             activity.setSupportProgressBarIndeterminateVisibility(enable);

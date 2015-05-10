@@ -27,14 +27,14 @@ apply plugin: 'robolectric'
 apply plugin: 'idea'
 
 repositories {
-    
+
     mavenLocal()
 
     maven { url 'http://repo.pageturner-reader.org' }
     maven { url 'http://acra.googlecode.com/svn/repository/releases' }
 
     mavenCentral()
-    
+
     maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
     }
@@ -43,22 +43,19 @@ repositories {
 
 dependencies {
     compile(
-        [group: 'com.actionbarsherlock', name:'actionbarsherlock', version:'4.4.0', ext: 'aar'],
-        [group: 'com.android.support', name: 'support-v4', version: '19.0+'],
-        [group: 'com.google.code.findbugs', name: 'jsr305', version: '1.3.9'],
-        [group: 'ch.acra', name: 'acra', version: '4.4.0'],
+            [group: 'com.android.support', name: 'support-v4', version: '19.0+'],
+            [group: 'com.android.support', name: 'appcompat-v7', version: '19.+'],
 
-        [group: 'org.slf4j', name: 'slf4j-android', version: '1.6.1-RC1'],
-        [group: 'org.codehaus.jedi', name: 'jedi-core', version: '3.0.5']
+            [group: 'com.google.code.findbugs', name: 'jsr305', version: '1.3.9'],
+            [group: 'ch.acra', name: 'acra', version: '4.4.0'],
+
+            [group: 'org.slf4j', name: 'slf4j-android', version: '1.6.1-RC1'],
+            [group: 'org.codehaus.jedi', name: 'jedi-core', version: '3.0.5']
     )
 
-    compile( 'net.nightwhistler.htmlspanner:htmlspanner:0.5-SNAPSHOT') {
+    compile('net.nightwhistler.htmlspanner:htmlspanner:0.5-SNAPSHOT') {
         exclude module: 'ant'
         exclude module: 'commons-io'
-    }
-
-    compile( 'com.github.rtyley:roboguice-sherlock:1.5' ) {
-        transitive = false
     }
 
     compile('nl.siegmann.epublib:epublib-core:3.1') {
@@ -67,13 +64,13 @@ dependencies {
         exclude group: 'net.sf.kxml'
     }
 
-    compile ('org.roboguice:roboguice:2.0') {
+    compile('org.roboguice:roboguice:2.0') {
         exclude module: 'asm'
     }
 
     provided(
-        [group: 'com.google.android', name: 'annotations', version: '4.1.1.4'],
-        [group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1']
+            [group: 'com.google.android', name: 'annotations', version: '4.1.1.4'],
+            [group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1']
     )
 
     androidTestCompile 'com.squareup.dagger:dagger:1.1.0'
@@ -106,8 +103,6 @@ dependencies {
         exclude module: 'wagon-provider-api'
     }
     androidTestCompile 'com.squareup:fest-android:1.0.+'
-
-    androidTestCompile( [group: 'com.actionbarsherlock', name:'actionbarsherlock', version:'4.4.0', ext: 'aar'] )
 }
 
 idea {
@@ -131,7 +126,7 @@ android {
 
         targetSdkVersion 19
     }
-    
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -151,27 +146,27 @@ android {
             res.srcDirs = ['res']
         }
 
-       androidTest {
+        androidTest {
             setRoot('test/src')
             manifest.srcFile 'AndroidManifest.xml'
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
-        } 
+        }
 
     }
 
     packagingOptions {
-	    exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
-	}
+    }
 
     lintOptions {
-          abortOnError false
+        abortOnError false
     }
 
     signingConfigs {
         release {
-            if ( System.getenv("KEYSTORE") ) {
+            if (System.getenv("KEYSTORE")) {
                 storeFile file(System.getenv("KEYSTORE"))
                 storePassword System.getenv("KEYSTORE_PASSWORD")
                 keyAlias System.getenv("KEY_ALIAS")
@@ -182,7 +177,7 @@ android {
 
     buildTypes {
         release {
-            if ( System.getenv("KEYSTORE") ) {
+            if (System.getenv("KEYSTORE")) {
                 signingConfig signingConfigs.release
             }
         }
@@ -205,8 +200,8 @@ sonarRunner {
         property "sonar.sourceEncoding", "UTF-8"
 //        property "sonar.profile", "Android Lint"
         property "sonar.sources", "src"
-        property "sonar.binaries", file("${project.buildDir}/intermediates/classes/debug") 
-       // property "sonar.libraries", "android.sourceSets.main.runtimeClasspath"
+        property "sonar.binaries", file("${project.buildDir}/intermediates/classes/debug")
+        // property "sonar.libraries", "android.sourceSets.main.runtimeClasspath"
     }
 }
 

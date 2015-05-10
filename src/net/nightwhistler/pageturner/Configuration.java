@@ -611,9 +611,9 @@ public class Configuration {
 
 	public int getTheme() {
 		if (getColourProfile() == ColourProfile.NIGHT) {
-			return R.style.Theme_Sherlock;
+			return R.style.Theme_AppCompat;
 		} else {
-			return R.style.Theme_Sherlock_Light_DarkActionBar;
+			return R.style.Theme_AppCompat_Light_DarkActionBar;
 		}
 
 	}

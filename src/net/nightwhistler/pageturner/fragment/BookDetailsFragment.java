@@ -37,8 +37,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import jedi.option.Option;
@@ -48,10 +46,12 @@ import net.nightwhistler.nucular.atom.Link;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.activity.ReadingActivity;
+import net.nightwhistler.pageturner.activity.RoboActionBarActivity;
 import net.nightwhistler.pageturner.catalog.Catalog;
 import net.nightwhistler.pageturner.catalog.DownloadFileTask;
 import net.nightwhistler.pageturner.catalog.LoadFeedCallback;
 import net.nightwhistler.pageturner.catalog.LoadThumbnailTask;
+import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
 import javax.annotation.Nullable;
@@ -65,7 +65,7 @@ import static jedi.functional.FunctionalPrimitives.isEmpty;
 /**
  * Fragment which shows the details of the book to be downloaded.
  */
-public class BookDetailsFragment extends RoboSherlockFragment implements LoadFeedCallback {
+public class BookDetailsFragment extends RoboFragment implements LoadFeedCallback {
 
 
     @Inject
@@ -210,7 +210,9 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     }
 
     private void setSupportProgressBarIndeterminateVisibility(boolean enable) {
-        SherlockFragmentActivity activity = getSherlockActivity();
+
+        RoboActionBarActivity activity = (RoboActionBarActivity) getActivity();
+
         if ( activity != null) {
             activity.setSupportProgressBarIndeterminateVisibility(enable);
         }

@@ -1,11 +1,12 @@
 package net.nightwhistler.ui;
 
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.widget.SearchView;
 import jedi.option.Option;
 
 import static jedi.option.Options.option;
@@ -15,11 +16,11 @@ import static jedi.option.Options.option;
  */
 public class UiUtils {
 
-    public static interface Operation<A> {
+    public interface Operation<A> {
         void thenDo(A arg);
     }
 
-    public static interface Action {
+    public interface Action {
         void perform();
     }
 
@@ -29,13 +30,6 @@ public class UiUtils {
 
     public static Operation<Action> onMenuPress( MenuItem menuItem ) {
         return action -> menuItem.setOnMenuItemClickListener(item -> {
-            action.perform();
-            return true;
-        });
-    }
-
-    public static Operation<Action> onMenuPress( android.view.MenuItem menuItem ) {
-        return action -> menuItem.setOnMenuItemClickListener( item -> {
             action.perform();
             return true;
         });
@@ -56,8 +50,8 @@ public class UiUtils {
         };
     }
 
-    public static MenuItem.OnActionExpandListener onCollapse(Action onCollapse) {
-        return new MenuItem.OnActionExpandListener() {
+    public static MenuItemCompat.OnActionExpandListener onCollapse(Action onCollapse) {
+        return new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem menuItem) {
                 return true;

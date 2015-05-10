@@ -29,17 +29,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockListActivity;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.*;
 import roboguice.RoboGuice;
+import roboguice.activity.RoboListActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ManageSitesActivity extends RoboSherlockListActivity {
+public class ManageSitesActivity extends RoboListActivity {
 
 	@Inject
 	Configuration config;
@@ -65,15 +63,14 @@ public class ManageSitesActivity extends RoboSherlockListActivity {
 	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuInflater inflater = getSupportMenuInflater();
+		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.edit_sites_menu, menu);
 
 		return true;
 	}
 	
 	@Override
-	public boolean onOptionsItemSelected(
-			com.actionbarsherlock.view.MenuItem item) {
+	public boolean onOptionsItemSelected( MenuItem item) {
 		showAddSiteDialog();
 		return true;
 	}

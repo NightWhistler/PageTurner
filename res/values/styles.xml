@@ -5,7 +5,7 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="Theme.Sherlock">
+    <style name="AppBaseTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
@@ -13,28 +13,27 @@
         -->
     </style>
    
-     <style name="DarkFullScreen" parent="Theme.Sherlock">
+     <style name="DarkFullScreen" parent="@style/Theme.AppCompat">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
-        -->
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:actionBarStyle">@style/Widget.MyTheme.ActionBar</item>
+        -->
     </style>
 
-     <style name="Widget.MyTheme.ActionBar" parent="Widget.Sherlock.ActionBar">
+     <style name="Widget.MyTheme.ActionBar" parent="Widget.AppCompat.ActionBar">
             <item name="android:background">#80000000</item>
-            <item name="background">#80000000</item>
      </style>
    
-     <style name="LightFullScreen" parent="Theme.Sherlock.Light.DarkActionBar">
+     <style name="LightFullScreen" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
-        -->
         <item name="android:windowActionBarOverlay">true</item>
+        -->
     </style>
     
     <!-- Application theme. -->

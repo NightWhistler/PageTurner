@@ -1,9 +1,10 @@
 package net.nightwhistler.ui;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 
 /**
  * Builder class for ActionMode callbacks.
@@ -91,8 +92,8 @@ public class ActionModeBuilder {
         return this;
     }
 
-    public void build( SherlockFragmentActivity sherlockActivity ) {
-        sherlockActivity.startActionMode( new ActionMode.Callback() {
+    public void build( ActionBarActivity sherlockActivity ) {
+        sherlockActivity.startSupportActionMode( new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
                 if ( createAction != null ) {

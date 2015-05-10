@@ -23,13 +23,13 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.*;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockPreferenceActivity;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
 import net.nightwhistler.pageturner.R;
 import roboguice.RoboGuice;
+import roboguice.activity.RoboPreferenceActivity;
 
-public class PageTurnerPrefsActivity extends RoboSherlockPreferenceActivity {
+public class PageTurnerPrefsActivity extends RoboPreferenceActivity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

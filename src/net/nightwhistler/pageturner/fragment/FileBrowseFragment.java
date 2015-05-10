@@ -19,25 +19,20 @@
 package net.nightwhistler.pageturner.fragment;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.*;
-import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockListFragment;
+import android.widget.ListView;
 import com.google.inject.Inject;
 import net.nightwhistler.pageturner.Configuration;
-import net.nightwhistler.pageturner.R;
 import net.nightwhistler.pageturner.activity.FileAdapter;
 import net.nightwhistler.pageturner.activity.FileItem;
+import roboguice.fragment.RoboListFragment;
 
 import java.io.File;
-import java.util.*;
 
-public class FileBrowseFragment extends RoboSherlockListFragment {
+public class FileBrowseFragment extends RoboListFragment {
 
 	private FileAdapter adapter;
 	

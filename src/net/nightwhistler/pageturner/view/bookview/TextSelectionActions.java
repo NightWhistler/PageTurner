@@ -82,7 +82,7 @@ public class TextSelectionActions implements ActionMode.Callback {
                             PlatformUtil.copyTextToClipboard(context, t))));
         }
 
-        menu.add( R.string.abs__shareactionprovider_share_with )
+        menu.add( R.string.abc_shareactionprovider_share_with )
                 .setOnMenuItemClickListener(
                         react(mode, () -> selectedTextProvider.getSelectedText().forEach(t ->
                                                 callBack.share(
@@ -92,7 +92,8 @@ public class TextSelectionActions implements ActionMode.Callback {
                                                 )
                                 )
                         )
-                ).setIcon(R.drawable.abs__ic_menu_share_holo_dark);
+                ).setIcon(R.drawable.abc_ic_menu_share_holo_dark);
+
 
         menu.add(R.string.highlight)
                 .setOnMenuItemClickListener(

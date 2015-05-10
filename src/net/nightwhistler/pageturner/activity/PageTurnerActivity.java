@@ -2,17 +2,13 @@ package net.nightwhistler.pageturner.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.view.KeyEvent;
-import android.view.View;
+import android.view.*;
 import android.widget.ExpandableListView;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 import com.google.inject.Inject;
-import com.limecreativelabs.sherlocksupport.ActionBarDrawerToggleCompat;
 import jedi.option.Option;
 import net.nightwhistler.pageturner.Configuration;
 import net.nightwhistler.pageturner.PageTurner;
@@ -30,7 +26,7 @@ import java.util.List;
 /**
  * Superclass for all PageTurner activity classes.
  */
-public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
+public abstract class PageTurnerActivity extends RoboActionBarActivity {
 
     @InjectView(R.id.drawer_layout)
     private DrawerLayout mDrawer;
@@ -38,7 +34,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
     @InjectView(R.id.left_drawer)
     private ExpandableListView mDrawerOptions;
 
-    private ActionBarDrawerToggleCompat mToggle;
+    private ActionBarDrawerToggle mToggle;
 
     private NavigationAdapter adapter;
 
@@ -74,7 +70,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
 
         initDrawerItems( mDrawerOptions );
 
-        mToggle = new ActionBarDrawerToggleCompat(this, mDrawer, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+        mToggle = new ActionBarDrawerToggle(this, mDrawer, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
             public void onDrawerClosed(View view) {
                 PageTurnerActivity.this.onDrawerClosed(view);
             }

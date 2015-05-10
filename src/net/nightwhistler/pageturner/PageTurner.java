@@ -44,7 +44,7 @@ public class PageTurner extends Application {
         }
 
 		if(Configuration.IS_EINK_DEVICE) { // e-ink looks better with dark-on-light (esp. Nook Touch where theming breaks light-on-dark
-			setTheme(R.style.Theme_Sherlock_Light);
+			setTheme(R.style.Theme_AppCompat_Light);
 		}
 		super.onCreate();
 	}

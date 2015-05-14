@@ -48,6 +48,7 @@ import android.widget.*;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import jedi.functional.Command;
+import jedi.functional.FunctionalPrimitives;
 import jedi.option.None;
 import jedi.option.Option;
 import net.nightwhistler.htmlspanner.spans.CenterSpan;
@@ -91,6 +92,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
+
+import android.support.v7.widget.SearchView;
 
 import static jedi.functional.FunctionalPrimitives.*;
 import static jedi.option.Options.none;
@@ -1764,8 +1767,8 @@ public class ReadingFragment extends RoboFragment implements
 
         LOG.debug("Got key event: " + keyCode + " with action " + action);
 
-        if ( searchMenuItem != null && searchMenuItem.isActionViewExpanded() ) {
-            boolean result = searchMenuItem.getActionView().dispatchKeyEvent(event);
+        if ( searchMenuItem != null && MenuItemCompat.isActionViewExpanded(searchMenuItem)) {
+            boolean result = MenuItemCompat.getActionView(searchMenuItem).dispatchKeyEvent(event);
 
             if ( result ) {
                 return true;
@@ -2685,6 +2688,8 @@ public class ReadingFragment extends RoboFragment implements
 
     public boolean hasTableOfContents() {
         Option<List<TocEntry>> toc = this.bookView.getTableOfContents();
+
+
 
         return !isEmpty(toc.getOrElse(new ArrayList<>()));
     }

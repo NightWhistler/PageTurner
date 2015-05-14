@@ -54,10 +54,10 @@ public abstract class PageTurnerActivity extends RoboActionBarActivity {
         PageTurner.changeLanguageSetting(this, config);
 
         setTheme( getTheme(config) );
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         super.onCreate(savedInstanceState);
 
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(getMainLayoutResource());
 
         // set a custom shadow that overlays the main content when the drawer opens
@@ -85,6 +85,8 @@ public abstract class PageTurnerActivity extends RoboActionBarActivity {
 
         onCreatePageTurnerActivity(savedInstanceState);
     }
+
+
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
@@ -192,7 +194,7 @@ public abstract class PageTurnerActivity extends RoboActionBarActivity {
     public void onDrawerClosed(View view) {
         this.drawerIsOpen = false;
         getSupportActionBar().setTitle(originalTitle);
-        invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+        supportInvalidateOptionsMenu();
     }
 
     public void onDrawerOpened(View drawerView) {
@@ -201,7 +203,7 @@ public abstract class PageTurnerActivity extends RoboActionBarActivity {
         this.originalTitle = getSupportActionBar().getTitle();
 
         getSupportActionBar().setTitle(R.string.app_name);
-        invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+        supportInvalidateOptionsMenu();
     }
 
     protected boolean isDrawerOpen() {

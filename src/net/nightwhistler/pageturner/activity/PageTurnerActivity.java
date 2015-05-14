@@ -219,8 +219,8 @@ public abstract class PageTurnerActivity extends RoboActionBarActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        setSupportProgressBarIndeterminate(true);
-        setSupportProgressBarIndeterminateVisibility(false);
+//        setSupportProgressBarIndeterminate(true);
+//        setSupportProgressBarIndeterminateVisibility(false);
 
         mToggle.syncState();
     }

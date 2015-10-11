@@ -15,8 +15,9 @@
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <RadioGroup
+        android:id="@+id/radioScanGroup"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content">
 
         <RadioButton
             android:id="@+id/radioScanSD"

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -53,41 +53,41 @@ import java.net.URL;
 
 /**
  * This is the main Guice module for PageTurner.
- * 
+ *
  * This module determines the implementations used to
  * inject dependencies used in actually running the app.
- * 
+ *
  * @author Alex Kuiper
  *
  */
 public class PageTurnerModule extends AbstractModule {
 
-	@Override
-	protected void configure() {
-		
-		bind( LibraryService.class ).to( SqlLiteLibraryService.class );
+    @Override
+    protected void configure() {
 
-		bind( ProgressService.class ).to( PageTurnerWebProgressService.class ).in( Singleton.class );
+        bind( LibraryService.class ).to( SqlLiteLibraryService.class );
+
+        bind( ProgressService.class ).to( PageTurnerWebProgressService.class ).in( Singleton.class );
 
         bind(TTSPlaybackQueue.class).in(Singleton.class);
         bind(TextLoader.class).in(Singleton.class);
         bind(HighlightManager.class).in(Singleton.class);
 
         bind(TaskQueue.class).in(ContextSingleton.class);
-	}
-	
-	/**
-	 * Binds the HttpClient interface to the DefaultHttpClient implementation.
-	 * 
-	 * In testing we'll use a stub.
-	 * 
-	 * @return
-	 */
-	@Provides
-	@Inject
-	public HttpClient getHttpClient(Configuration config) {
-		HttpParams httpParams = new BasicHttpParams();
-		DefaultHttpClient client;
+    }
+
+    /**
+     * Binds the HttpClient interface to the DefaultHttpClient implementation.
+     *
+     * In testing we'll use a stub.
+     *
+     * @return
+     */
+    @Provides
+    @Inject
+    public HttpClient getHttpClient(Configuration config) {
+        HttpParams httpParams = new BasicHttpParams();
+        DefaultHttpClient client;
 
         if ( config.isAcceptSelfSignedCertificates() ) {
             client = new SSLHttpClient(httpParams);
@@ -95,21 +95,21 @@ public class PageTurnerModule extends AbstractModule {
             client = new DefaultHttpClient(httpParams);
         }
 
-		for ( CustomOPDSSite site: config.getCustomOPDSSites() ) {
-			if ( site.getUserName() != null && site.getUserName().length() > 0 ) {
-				try {
-					URL url = new URL(site.getUrl());
-					client.getCredentialsProvider().setCredentials(
-						new AuthScope(url.getHost(), url.getPort()),
-						new UsernamePasswordCredentials(site.getUserName(), site.getPassword()));
-				} catch (MalformedURLException mal ) {
-					//skip to the next
-				}				
-			}
-		}		
-		
-		return client;
-	}
+        for ( CustomOPDSSite site: config.getCustomOPDSSites() ) {
+            if ( site.getUserName() != null && site.getUserName().length() > 0 ) {
+                try {
+                    URL url = new URL(site.getUrl());
+                    client.getCredentialsProvider().setCredentials(
+                        new AuthScope(url.getHost(), url.getPort()),
+                        new UsernamePasswordCredentials(site.getUserName(), site.getPassword()));
+                } catch (MalformedURLException mal ) {
+                    //skip to the next
+                }
+            }
+        }
+
+        return client;
+    }
 
     public class SSLHttpClient extends DefaultHttpClient {
 
@@ -121,7 +121,7 @@ public class PageTurnerModule extends AbstractModule {
         @Override protected ClientConnectionManager createClientConnectionManager() {
             SchemeRegistry registry = new SchemeRegistry();
             registry.register(
-                    new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+                new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
             registry.register(new Scheme("https", new EasySSLSocketFactory(), 443));
             return new SingleClientConnManager(getParams(), registry);
         }
@@ -129,5 +129,5 @@ public class PageTurnerModule extends AbstractModule {
     }
 
 
-	
+
 }

@@ -27,13 +27,13 @@ public interface LoadFeedCallback {
 
     public static enum ResultType { REPLACE, APPEND }
 
-	void setNewFeed( Feed feed, ResultType resultType );
+    void setNewFeed( Feed feed, ResultType resultType );
 
-	void errorLoadingFeed( String error );
+    void errorLoadingFeed( String error );
 
     void emptyFeedLoaded(Feed feed);
-		
-	void notifyLinkUpdated(Link link, Drawable drawable);
+
+    void notifyLinkUpdated(Link link, Drawable drawable);
 
     void onLoadingStart();
 

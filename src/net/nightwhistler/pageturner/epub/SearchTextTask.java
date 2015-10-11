@@ -43,42 +43,42 @@ import static jedi.option.Options.none;
 import static jedi.option.Options.option;
 
 public class SearchTextTask extends QueueableAsyncTask<String, SearchResult, List<SearchResult>> {
-	
-	private Book book;
-	
-	private HtmlSpanner spanner;
-	
-	public SearchTextTask(Book book) {
-		this.book = book;
-		
-		this.spanner = new HtmlSpanner();
-		
-		DummyHandler dummy = new DummyHandler();
-		
+
+    private Book book;
+
+    private HtmlSpanner spanner;
+
+    public SearchTextTask(Book book) {
+        this.book = book;
+
+        this.spanner = new HtmlSpanner();
+
+        DummyHandler dummy = new DummyHandler();
+
         spanner.registerHandler("img", dummy );
         spanner.registerHandler("image", dummy );
-        
+
         spanner.registerHandler("table", new TableHandler() );
-	}
+    }
 
 
-	@Override
-	public Option<List<SearchResult>> doInBackground(String... params) {
+    @Override
+    public Option<List<SearchResult>> doInBackground(String... params) {
 
-		String searchTerm = params[0];
-		Pattern pattern = Pattern.compile(Pattern.quote((searchTerm)),Pattern.CASE_INSENSITIVE);
+        String searchTerm = params[0];
+        Pattern pattern = Pattern.compile(Pattern.quote((searchTerm)),Pattern.CASE_INSENSITIVE);
 
-		List<SearchResult> result = new ArrayList<>();
+        List<SearchResult> result = new ArrayList<>();
 
-		try {
+        try {
 
-			PageTurnerSpine spine = new PageTurnerSpine(book);
+            PageTurnerSpine spine = new PageTurnerSpine(book);
 
-			for ( int index=0; index < spine.size(); index++ ) {
+            for ( int index=0; index < spine.size(); index++ ) {
 
-				spine.navigateByIndex(index);
+                spine.navigateByIndex(index);
 
-				publishProgress( new SearchResult(null, null, index, 0, 0) );
+                publishProgress( new SearchResult(null, null, index, 0, 0) );
 
                 Option<Resource> currentResource = spine.getCurrentResource();
 
@@ -105,20 +105,20 @@ public class SearchTextTask extends QueueableAsyncTask<String, SearchResult, Lis
                     return none();
                 }
 
-			}
-		} catch (IOException io) {
-			return none();
-		}
+            }
+        } catch (IOException io) {
+            return none();
+        }
 
-		return option(result);
-	}
-	
-	private static class DummyHandler extends TagNodeHandler {
-		@Override
-		public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-				int start, int end, SpanStack stack) {
+        return option(result);
+    }
 
-			 builder.append("\uFFFC");
-		}
-	}
+    private static class DummyHandler extends TagNodeHandler {
+        @Override
+        public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+            int start, int end, SpanStack stack) {
+
+            builder.append("\uFFFC");
+        }
+    }
 }

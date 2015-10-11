@@ -47,26 +47,26 @@ import static jedi.functional.FunctionalPrimitives.firstOption;
 import static jedi.functional.FunctionalPrimitives.isEmpty;
 
 public class Catalog {
-	
-	/**
-	 * Reserved ID to identify the feed entry where custom sites are added.
-	 */
-	public static final String CUSTOM_SITES_ID = "IdCustomSites";
-	
+
+    /**
+     * Reserved ID to identify the feed entry where custom sites are added.
+     */
+    public static final String CUSTOM_SITES_ID = "IdCustomSites";
+
     private static final int ABBREV_TEXT_LEN = 150;
 
-	private static final Logger LOG = LoggerFactory.getLogger("Catalog");
-		
-	private Catalog() {}
-	
-	/**
-	 * Selects the right image link for an entry, based on preference.
-	 * 
-	 * @param feed
-	 * @param entry
-	 * @return
-	 */
-	public static Option<Link> getImageLink(Feed feed, Entry entry) {
+    private static final Logger LOG = LoggerFactory.getLogger("Catalog");
+
+    private Catalog() {}
+
+    /**
+     * Selects the right image link for an entry, based on preference.
+     *
+     * @param feed
+     * @param entry
+     * @return
+     */
+    public static Option<Link> getImageLink(Feed feed, Entry entry) {
 
         List<Link> items;
 
@@ -77,44 +77,44 @@ public class Catalog {
         }
 
         return firstOption( items, l -> l != null );
-	}
+    }
 
-	/**
-	 * Loads the details for the given entry into the given layout.
-	 *
-	 * @param layout
-	 * @param entry
-	 * @param abbreviateText
-	 */
-	public static void loadBookDetails(View layout, Entry entry, boolean abbreviateText ) {
-		
-		HtmlSpanner spanner = new HtmlSpanner();
+    /**
+     * Loads the details for the given entry into the given layout.
+     *
+     * @param layout
+     * @param entry
+     * @param abbreviateText
+     */
+    public static void loadBookDetails(View layout, Entry entry, boolean abbreviateText ) {
+
+        HtmlSpanner spanner = new HtmlSpanner();
 
         //We don't want to load images here
         spanner.unregisterHandler( "img" );
-		
-		TextView title = (TextView) layout.findViewById(R.id.itemTitle);
-		TextView desc = (TextView) layout
-				.findViewById(R.id.itemDescription);
 
-		title.setText( entry.getTitle());
+        TextView title = (TextView) layout.findViewById(R.id.itemTitle);
+        TextView desc = (TextView) layout
+            .findViewById(R.id.itemDescription);
 
-		CharSequence text;
-		
-		if (entry.getContent() != null) {
-			text = spanner.fromHtml(entry.getContent().getText());
-		} else if (entry.getSummary() != null) {
-			text = spanner.fromHtml(entry.getSummary());
-		} else {
-			text = "";
-		}
-		
-		if (abbreviateText && text.length() > ABBREV_TEXT_LEN ) {
-			text = text.subSequence(0, ABBREV_TEXT_LEN) + "…";
-		}
-		
-		desc.setText(text);
-	}
+        title.setText( entry.getTitle());
+
+        CharSequence text;
+
+        if (entry.getContent() != null) {
+            text = spanner.fromHtml(entry.getContent().getText());
+        } else if (entry.getSummary() != null) {
+            text = spanner.fromHtml(entry.getSummary());
+        } else {
+            text = "";
+        }
+
+        if (abbreviateText && text.length() > ABBREV_TEXT_LEN ) {
+            text = text.subSequence(0, ABBREV_TEXT_LEN) + "…";
+        }
+
+        desc.setText(text);
+    }
 
 
 }

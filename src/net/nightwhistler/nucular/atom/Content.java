@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -22,23 +22,23 @@ import java.io.Serializable;
 
 public class Content implements Serializable {
 
-	private String type;
-	private String text;
-	
-	public String getText() {
-		return text;
-	}
-	
-	public String getType() {
-		return type;
-	}
-	
-	public void setText(String text) {
-		this.text = text;
-	}
-	
-	public void setType(String type) {
-		this.type = type;
-	}
-	
+    private String type;
+    private String text;
+
+    public String getText() {
+        return text;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
 }

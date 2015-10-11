@@ -39,46 +39,46 @@ import java.io.File;
 import java.util.*;
 
 public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implements OnCancelListener {
-	
-	private Context context;
-	private LibraryService libraryService;
-	private ImportCallback callBack;
-	private Configuration config;
-	
-	private boolean copyToLibrary;
-	
-	private List<String> errors = new ArrayList<>();
-	
-	private static final Logger LOG = LoggerFactory.getLogger(ImportTask.class);
-	
-	private static final int UPDATE_FOLDER = 1;
-	private static final int UPDATE_IMPORT = 2;
-	
-	private int foldersScanned = 0;
-	private int booksImported = 0;
+
+    private Context context;
+    private LibraryService libraryService;
+    private ImportCallback callBack;
+    private Configuration config;
+
+    private boolean copyToLibrary;
+
+    private List<String> errors = new ArrayList<>();
+
+    private static final Logger LOG = LoggerFactory.getLogger(ImportTask.class);
+
+    private static final int UPDATE_FOLDER = 1;
+    private static final int UPDATE_IMPORT = 2;
+
+    private int foldersScanned = 0;
+    private int booksImported = 0;
 
     private boolean emptyLibrary;
     private boolean silent;
-	
-	private String importFailed = null;
-	
-	public ImportTask( Context context, LibraryService libraryService,
-			ImportCallback callBack, Configuration config, boolean copyToLibrary,
-            boolean silent) {
 
-		this.context = context;
-		this.libraryService = libraryService;
-		this.callBack = callBack;
-		this.copyToLibrary = copyToLibrary;
-		this.config = config;
+    private String importFailed = null;
+
+    public ImportTask( Context context, LibraryService libraryService,
+        ImportCallback callBack, Configuration config, boolean copyToLibrary,
+        boolean silent) {
+
+        this.context = context;
+        this.libraryService = libraryService;
+        this.callBack = callBack;
+        this.copyToLibrary = copyToLibrary;
+        this.config = config;
         this.silent = silent;
-	}		
-	
-	@Override
-	public void onCancel(DialogInterface dialog) {
-		LOG.debug("User aborted import.");	
-		requestCancellation();
-	}
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        LOG.debug("User aborted import.");
+        requestCancellation();
+    }
 
     public boolean isSilent() {
         return this.silent;
@@ -89,21 +89,21 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
     }
 
     @Override
-	public Option<Void> doInBackground(File... params) {
+    public Option<Void> doInBackground(File... params) {
 
         doInBackground( params[0] );
 
-		return new None();
-	}
+        return new None();
+    }
 
     private void doInBackground(File parent) {
 
         LOG.debug( "Starting import of folder " + parent.getAbsolutePath() );
 
         /*
-        Hack: don't run automated import on an empty database, since we explicitly ask
-        the user to import.
-         */
+          Hack: don't run automated import on an empty database, since we explicitly ask
+          the user to import.
+        */
         if ( silent && libraryService.findAllByTitle(null).getSize() == 0 ) {
             return;
         }
@@ -141,12 +141,12 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
         }
 
     }
-	
-	private void findEpubsInFolder( File folder, List<File> items) {
-		
-		if ( folder == null  || ! folder.exists() ) {
-			return;
-		}
+
+    private void findEpubsInFolder( File folder, List<File> items) {
+
+        if ( folder == null  || ! folder.exists() ) {
+            return;
+        }
 
         //If we got a single file, just import that.
         if ( ! folder.isDirectory() ) {
@@ -179,7 +179,7 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
             }
         }
 
-	}
+    }
 
     private void processFile( File file, List<File> items ) {
 
@@ -198,16 +198,16 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
             };
 
             config.getLibraryFolder().forEach( libraryFolder -> {
-                if ( fileName.startsWith(libraryFolder.getAbsolutePath() ) ) {
-                    add.execute( file );
-                }
-            });
+                    if ( fileName.startsWith(libraryFolder.getAbsolutePath() ) ) {
+                        add.execute( file );
+                    }
+                });
 
             config.getDownloadsFolder().forEach( downloadsFolder ->  {
-                if ( fileName.startsWith( downloadsFolder.getAbsolutePath() )) {
-                    add.execute( file );
-                }
-            });
+                    if ( fileName.startsWith( downloadsFolder.getAbsolutePath() )) {
+                        add.execute( file );
+                    }
+                });
         }
 
     }
@@ -223,7 +223,7 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
                 EpubReader epubReader = new EpubReader();
 
                 Book importedBook = epubReader.readEpubLazy(fileName, "UTF-8",
-                        Arrays.asList(MediatypeService.mediatypes));
+                    Arrays.asList(MediatypeService.mediatypes));
 
                 libraryService.storeBook(fileName, importedBook, false, this.copyToLibrary);
 
@@ -246,16 +246,16 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
     @Override
     public void doOnProgressUpdate(Integer... values) {
 
-		String message;
-		
-		if ( values[0] == UPDATE_IMPORT ) {
-			message = String.format(context.getString(R.string.importing), values[1], values[2]);		
-		} else {
-			message = String.format(context.getString(R.string.scan_folders), values[1]);			
-		}
-		
-		callBack.importStatusUpdate(message, silent);
-	}
+        String message;
+
+        if ( values[0] == UPDATE_IMPORT ) {
+            message = String.format(context.getString(R.string.importing), values[1], values[2]);
+        } else {
+            message = String.format(context.getString(R.string.scan_folders), values[1]);
+        }
+
+        callBack.importStatusUpdate(message, silent);
+    }
 
     @Override
     public void doOnCancelled(Option<Void> none) {
@@ -267,10 +267,10 @@ public class ImportTask extends QueueableAsyncTask<File, Integer, Void> implemen
 
         LOG.debug("Import task completed, imported " + booksImported  + " books.");
 
-		if ( importFailed != null ) {
-			callBack.importFailed(importFailed, silent);
-		} else {
-			this.callBack.importComplete(booksImported, errors, emptyLibrary, silent);
-		}
-	}
+        if ( importFailed != null ) {
+            callBack.importFailed(importFailed, silent);
+        } else {
+            this.callBack.importComplete(booksImported, errors, emptyLibrary, silent);
+        }
+    }
 }

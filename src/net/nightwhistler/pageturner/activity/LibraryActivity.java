@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -32,10 +32,10 @@ public class LibraryActivity extends PageTurnerActivity {
         return R.layout.activity_library;
     }
 
-	@Override
-	public void onBackPressed() {
-		libraryFragment.onBackPressed();
-	}
+    @Override
+    public void onBackPressed() {
+        libraryFragment.onBackPressed();
+    }
 
     @Override
     public boolean onSearchRequested() {

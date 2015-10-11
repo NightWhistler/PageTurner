@@ -45,33 +45,33 @@ import static jedi.option.Options.none;
 import static jedi.option.Options.some;
 
 public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
-	
-	private static final Logger LOG = LoggerFactory.getLogger("LoadOPDSTask");
 
-	private Configuration config;
-	private Context context;
+    private static final Logger LOG = LoggerFactory.getLogger("LoadOPDSTask");
 
-	private HttpClient httpClient;
+    private Configuration config;
+    private Context context;
 
-	private LoadFeedCallback callBack;
-	
-	private String errorMessage;
-	private boolean asDetailsFeed;
+    private HttpClient httpClient;
+
+    private LoadFeedCallback callBack;
+
+    private String errorMessage;
+    private boolean asDetailsFeed;
     private boolean asSearchFeed;
 
     private LoadFeedCallback.ResultType resultType;
 
-	@Inject
-	LoadOPDSTask(Context context, Configuration config, HttpClient httpClient) {
-		this.context = context;
-		this.config = config;
-		this.httpClient = httpClient;
-	}
+    @Inject
+    LoadOPDSTask(Context context, Configuration config, HttpClient httpClient) {
+        this.context = context;
+        this.config = config;
+        this.httpClient = httpClient;
+    }
 
     @Override
     public void doOnPreExecute() {
         callBack.onLoadingStart();
-	}
+    }
 
     @Override
     public void requestCancellation() {
@@ -80,36 +80,36 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
     }
 
     @Override
-	public Option<Feed> doInBackground(String... params) {
+    public Option<Feed> doInBackground(String... params) {
 
-		String baseUrl = params[0];
+        String baseUrl = params[0];
 
-		if (baseUrl == null || baseUrl.trim().length() == 0) {
-			return none();
-		}
+        if (baseUrl == null || baseUrl.trim().length() == 0) {
+            return none();
+        }
 
         boolean isBaseFeed = baseUrl.equals(config.getBaseOPDSFeed());
 
-		baseUrl = baseUrl.trim();
+        baseUrl = baseUrl.trim();
 
-		try {			
+        try {
 
             HttpGet currentRequest = new HttpGet(baseUrl);
             currentRequest.setHeader("User-Agent", config.getUserAgent() );
             currentRequest.setHeader("Accept-Language", config.getLocale().getLanguage());
-			HttpResponse response = httpClient.execute(currentRequest);
+            HttpResponse response = httpClient.execute(currentRequest);
 
             LOG.debug("Starting download of " + baseUrl );
 
-			if ( response.getStatusLine().getStatusCode() != 200 ) {
-				this.errorMessage = "HTTP " + response.getStatusLine().getStatusCode() + ": " + response.getStatusLine().getReasonPhrase();
-				return none();
-			}
+            if ( response.getStatusLine().getStatusCode() != 200 ) {
+                this.errorMessage = "HTTP " + response.getStatusLine().getStatusCode() + ": " + response.getStatusLine().getReasonPhrase();
+                return none();
+            }
 
-			InputStream stream = response.getEntity().getContent();
-			Feed feed = Nucular.readAtomFeedFromStream(stream);
+            InputStream stream = response.getEntity().getContent();
+            Feed feed = Nucular.readAtomFeedFromStream(stream);
             feed.setURL(baseUrl);
-			feed.setDetailFeed(asDetailsFeed);
+            feed.setDetailFeed(asDetailsFeed);
             feed.setSearchFeed(asSearchFeed);
 
             for ( Entry entry: feed.getEntries() ) {
@@ -124,76 +124,76 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
                 return none();
             }
 
-			Option<Link> searchLinkOption = feed.findByRel(AtomConstants.REL_SEARCH);
+            Option<Link> searchLinkOption = feed.findByRel(AtomConstants.REL_SEARCH);
 
             if ( ! isEmpty(searchLinkOption) ) {
 
                 Link searchLink = searchLinkOption.unsafeGet();
 
-            	URL mBaseUrl = new URL(baseUrl);
-				URL mSearchUrl = new URL(mBaseUrl, searchLink.getHref());
-				searchLink.setHref(mSearchUrl.toString());
+                URL mBaseUrl = new URL(baseUrl);
+                URL mSearchUrl = new URL(mBaseUrl, searchLink.getHref());
+                searchLink.setHref(mSearchUrl.toString());
 
                 LOG.debug("Got searchLink of type " + searchLink.getType() +
-                        " with href=" + searchLink.getHref() );
+                    " with href=" + searchLink.getHref() );
 
                 /*
-                Some sites report the search as OpenSearch, but still have the
-                searchTerms in the URL. If the URL already contains searchTerms,
-                we ignore the reported type and treat it as Atom
-                 */
+                  Some sites report the search as OpenSearch, but still have the
+                  searchTerms in the URL. If the URL already contains searchTerms,
+                  we ignore the reported type and treat it as Atom
+                */
                 if ( searchLink.getHref().contains(AtomConstants.SEARCH_TERMS) ) {
                     searchLink.setType(AtomConstants.TYPE_ATOM);
                 }
 
-				if (AtomConstants.TYPE_OPENSEARCH.equals( searchLink.getType() )) {
+                if (AtomConstants.TYPE_OPENSEARCH.equals( searchLink.getType() )) {
 
-					String searchURL = searchLink.getHref();
+                    String searchURL = searchLink.getHref();
 
                     LOG.debug("Attempting to download OpenSearch description from " + searchURL );
 
                     try {
                         currentRequest = new HttpGet(searchURL);
-					    InputStream searchStream = httpClient.execute(currentRequest).getEntity().getContent();
-					
-					    SearchDescription desc = Nucular
-							.readOpenSearchFromStream(searchStream);
+                        InputStream searchStream = httpClient.execute(currentRequest).getEntity().getContent();
 
-					    desc.getSearchLink().forEach( l ->
+                        SearchDescription desc = Nucular
+                            .readOpenSearchFromStream(searchStream);
+
+                        desc.getSearchLink().forEach( l ->
                             searchLink.setHref(l.getHref())
-                        );
+                                                      );
 
                         searchLink.setType(AtomConstants.TYPE_ATOM);
 
                     } catch ( Exception searchIO ) {
                         LOG.error("Could not get search info", searchIO );
                     }
-				}
+                }
 
                 LOG.debug("Using searchURL " + searchLink.getHref() );
-			}
+            }
 
-			return some(feed);
-		} catch (Exception e) {
-			this.errorMessage = e.getLocalizedMessage();
-			LOG.error("Download failed for url: " + baseUrl, e);
-			return none();
-		}
+            return some(feed);
+        } catch (Exception e) {
+            this.errorMessage = e.getLocalizedMessage();
+            LOG.error("Download failed for url: " + baseUrl, e);
+            return none();
+        }
 
-	}
+    }
 
     public void setResultType(LoadFeedCallback.ResultType type) {
         this.resultType = type;
     }
 
-	public LoadOPDSTask setCallBack(LoadFeedCallback callBack) {
-		this.callBack = callBack;
-		return this;
-	}
-	
-	public void setAsDetailsFeed(boolean asDetailsFeed) {
-		this.asDetailsFeed = asDetailsFeed;
-	}
+    public LoadOPDSTask setCallBack(LoadFeedCallback callBack) {
+        this.callBack = callBack;
+        return this;
+    }
+
+    public void setAsDetailsFeed(boolean asDetailsFeed) {
+        this.asDetailsFeed = asDetailsFeed;
+    }
 
     public void setAsSearchFeed(boolean asSearchFeed) {
         this.asSearchFeed = asSearchFeed;
@@ -203,30 +203,30 @@ public class LoadOPDSTask extends QueueableAsyncTask<String, Object, Feed> {
     public void doOnPostExecute(Option<Feed> result) {
 
         result.match( f -> {
-            if ( f.getSize() == 0 ) {
-                callBack.emptyFeedLoaded(f);
-            } else {
-                callBack.setNewFeed(f, resultType);
-            }
-        }, () -> callBack.errorLoadingFeed(errorMessage) );
-	}
+                if ( f.getSize() == 0 ) {
+                    callBack.emptyFeedLoaded(f);
+                } else {
+                    callBack.setNewFeed(f, resultType);
+                }
+            }, () -> callBack.errorLoadingFeed(errorMessage) );
+    }
 
-	private void addCustomSitesEntry(Feed feed) {
+    private void addCustomSitesEntry(Feed feed) {
 
         Option<Link> iconLink = feed.findByRel("pageturner:custom_sites");
 
-		Entry entry = new Entry();
-		entry.setTitle(context.getString(R.string.custom_site));
-		entry.setSummary(context.getString(R.string.custom_site_desc));
-		entry.setId(Catalog.CUSTOM_SITES_ID);
+        Entry entry = new Entry();
+        entry.setTitle(context.getString(R.string.custom_site));
+        entry.setSummary(context.getString(R.string.custom_site_desc));
+        entry.setId(Catalog.CUSTOM_SITES_ID);
         entry.setBaseURL( feed.getURL() );
 
         iconLink.forEach( l -> {
-            Link thumbnailLink = new Link(l.getHref(), l.getType(), AtomConstants.REL_IMAGE, null);
-            entry.addLink(thumbnailLink);
-        });
+                Link thumbnailLink = new Link(l.getHref(), l.getType(), AtomConstants.REL_IMAGE, null);
+                entry.addLink(thumbnailLink);
+            });
 
-		feed.addEntry(entry);
-	}
+        feed.addEntry(entry);
+    }
 
 }

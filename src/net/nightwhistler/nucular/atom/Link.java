@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -18,42 +18,41 @@
  */
 package net.nightwhistler.nucular.atom;
 
-
 import java.io.Serializable;
 
 public class Link implements Serializable {
 
-	private String href;
-	private String type;
-	private String rel;
+    private String href;
+    private String type;
+    private String rel;
     private String title;
-	
-	public Link( String href, String type, String rel, String title ) {
-		this.href = href;
-		this.type = type;
-		this.rel = rel;
-        this.title = title;
-	}
 
-	public String getHref() {
-		return href;
-	}
-	public void setHref(String href) {
-		this.href = href;		
-	}
-	public String getType() {
-		return type;
-	}
-	public void setType(String type) {
-		this.type = type;
-	}
-	
-	public String getRel() {
-		return rel;
-	}
-	public void setRel(String rel) {
-		this.rel = rel;
-	}
+    public Link( String href, String type, String rel, String title ) {
+        this.href = href;
+        this.type = type;
+        this.rel = rel;
+        this.title = title;
+    }
+
+    public String getHref() {
+        return href;
+    }
+    public void setHref(String href) {
+        this.href = href;
+    }
+    public String getType() {
+        return type;
+    }
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getRel() {
+        return rel;
+    }
+    public void setRel(String rel) {
+        this.rel = rel;
+    }
 
     public String getTitle() {
         return title;
@@ -62,5 +61,5 @@ public class Link implements Serializable {
     public void setTitle(String title) {
         this.title = title;
     }
-	
+
 }

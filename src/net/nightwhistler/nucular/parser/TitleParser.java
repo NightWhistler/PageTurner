@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -24,37 +24,37 @@ import java.util.Map;
 
 public class TitleParser extends ElementParser {
 
-	private AtomElement parent;
-	
-	private boolean finished = false;
-	StringBuffer buffer = new StringBuffer();
-	
-	public TitleParser(AtomElement parent) {
-		super("title");
-		this.parent = parent;
-	}
-	
-	@Override
-	public void startElement(String name, Map<String, String> attributes) {
-		//Do nothing
-	}
-	
-	@Override
-	public void endElement(String name) {
-		if ( name.equals("title") ) {
-			this.finished = true;
-			parent.setTitle(buffer.toString().trim());
-		}
-	}
-	
-	@Override
-	public boolean isFinished() {
-		return finished;
-	}
-	
-	@Override
-	public void setTextContent(String text) {
-		buffer.append(text);
-	}
-	
+    private AtomElement parent;
+
+    private boolean finished = false;
+    StringBuffer buffer = new StringBuffer();
+
+    public TitleParser(AtomElement parent) {
+        super("title");
+        this.parent = parent;
+    }
+
+    @Override
+    public void startElement(String name, Map<String, String> attributes) {
+        //Do nothing
+    }
+
+    @Override
+    public void endElement(String name) {
+        if ( name.equals("title") ) {
+            this.finished = true;
+            parent.setTitle(buffer.toString().trim());
+        }
+    }
+
+    @Override
+    public boolean isFinished() {
+        return finished;
+    }
+
+    @Override
+    public void setTextContent(String text) {
+        buffer.append(text);
+    }
+
 }

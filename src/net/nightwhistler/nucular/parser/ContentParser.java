@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -24,51 +24,51 @@ import net.nightwhistler.nucular.atom.Content;
 import java.util.Map;
 
 public class ContentParser extends ElementParser {
-	
-	private Content content;
-	
-	StringBuffer buffer;
-	
-	private boolean finished;
-	
-	public ContentParser(AtomElement parent) {
-		super("content");
-		this.content = new Content();
-		parent.setContent(content);
-		
-		this.buffer = new StringBuffer();
-		this.finished = false;
-	}
-	
-	@Override
-	public void startElement(String name, Map<String, String> attributes) {
-		this.buffer.append("<" + name + ">");
-	}
-	
-	@Override
-	public boolean isFinished() {
-		return finished;
-	}
-	
-	@Override
-	public void setAttributes(Map<String, String> attributes) {
-		this.content.setType(attributes.get("type"));
-	}
-	
-	@Override
-	public void endElement(String name) {
-		
-		if ( name.equals("content") ) {
-			finished = true;
-			this.content.setText(buffer.toString());
-		} else {		
-			this.buffer.append( "</" + name + ">" );
-		}
-		
-	}
-	
-	@Override
-	public void setTextContent(String text) {
-		this.buffer.append( text );
-	}
+
+    private Content content;
+
+    StringBuffer buffer;
+
+    private boolean finished;
+
+    public ContentParser(AtomElement parent) {
+        super("content");
+        this.content = new Content();
+        parent.setContent(content);
+
+        this.buffer = new StringBuffer();
+        this.finished = false;
+    }
+
+    @Override
+    public void startElement(String name, Map<String, String> attributes) {
+        this.buffer.append("<" + name + ">");
+    }
+
+    @Override
+    public boolean isFinished() {
+        return finished;
+    }
+
+    @Override
+    public void setAttributes(Map<String, String> attributes) {
+        this.content.setType(attributes.get("type"));
+    }
+
+    @Override
+    public void endElement(String name) {
+
+        if ( name.equals("content") ) {
+            finished = true;
+            this.content.setText(buffer.toString());
+        } else {
+            this.buffer.append( "</" + name + ">" );
+        }
+
+    }
+
+    @Override
+    public void setTextContent(String text) {
+        this.buffer.append( text );
+    }
 }

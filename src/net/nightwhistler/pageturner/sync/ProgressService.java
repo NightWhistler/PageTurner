@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -24,20 +24,20 @@ import java.util.List;
 
 public interface ProgressService {
 
-	/**
-	 * Stores the progress for the given book.
-	 * @param userId
-	 * @param fileName
-	 * @param progress
-	 */
-	public void storeProgress( String fileName, int index, int progress, int percentage ) throws AccessException;
+    /**
+     * Stores the progress for the given book.
+     * @param userId
+     * @param fileName
+     * @param progress
+     */
+    public void storeProgress( String fileName, int index, int progress, int percentage ) throws AccessException;
 
-	/**
-	 * Returns the progress, or -1 of it wasn't found.
-	 *
-	 * @param fileName
-	 * @return
-	 */
-	public Option<List<BookProgress>> getProgress( String fileName ) throws AccessException;
+    /**
+     * Returns the progress, or -1 of it wasn't found.
+     *
+     * @param fileName
+     * @return
+     */
+    public Option<List<BookProgress>> getProgress( String fileName ) throws AccessException;
 
 }

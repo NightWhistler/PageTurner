@@ -75,14 +75,14 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
         initDrawerItems( mDrawerOptions );
 
         mToggle = new ActionBarDrawerToggleCompat(this, mDrawer, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
-            public void onDrawerClosed(View view) {
-                PageTurnerActivity.this.onDrawerClosed(view);
-            }
+                public void onDrawerClosed(View view) {
+                    PageTurnerActivity.this.onDrawerClosed(view);
+                }
 
-            public void onDrawerOpened(View drawerView) {
-                PageTurnerActivity.this.onDrawerOpened(drawerView);
-            }
-        };
+                public void onDrawerOpened(View drawerView) {
+                    PageTurnerActivity.this.onDrawerOpened(drawerView);
+                }
+            };
 
         mToggle.setDrawerIndicatorEnabled(true);
         mDrawer.setDrawerListener(mToggle);
@@ -123,14 +123,14 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
 
     private ExpandableListView createExpandableListView( List<NavigationCallback> items, int level ) {
         ExpandableListView e = new ExpandableListView(this) {
-            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-                /*
-                * Adjust height
-                */
-                heightMeasureSpec = MeasureSpec.makeMeasureSpec(10000, MeasureSpec.AT_MOST);
-                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            }
-        };
+                protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                    /*
+                     * Adjust height
+                     */
+                    heightMeasureSpec = MeasureSpec.makeMeasureSpec(10000, MeasureSpec.AT_MOST);
+                    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+                }
+            };
         setClickListeners(e, new NavigationAdapter(this, items, this::createExpandableListView, level ));
         return e;
     }
@@ -140,13 +140,13 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
         expandableListView.setAdapter( adapter );
 
         expandableListView.setOnGroupClickListener(
-                (e, v, groupId, l) -> this.onGroupClick(adapter, groupId) );
+            (e, v, groupId, l) -> this.onGroupClick(adapter, groupId) );
 
         expandableListView.setOnChildClickListener(
-                (e, v, groupId, childId, l) -> this.onChildClick(adapter, groupId, childId));
+            (e, v, groupId, childId, l) -> this.onChildClick(adapter, groupId, childId));
 
         expandableListView.setOnItemLongClickListener(
-                (av, v, position, id) -> this.onItemLongClick(adapter, position, id));
+            (av, v, position, id) -> this.onItemLongClick(adapter, position, id));
 
         expandableListView.setGroupIndicator(null);
     }
@@ -190,7 +190,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
 
     protected NavigationCallback navigate( String title, Class<? extends PageTurnerActivity> classToStart ) {
         return new NavigationCallback( title ).setOnClick(
-                () -> launchActivity(classToStart));
+            () -> launchActivity(classToStart));
     }
 
     public void onDrawerClosed(View view) {
@@ -255,14 +255,14 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
         LOG.debug( "Got onGroupClick for group " + groupId + " on level " + adapter.getLevel() );
 
         Option<Boolean> group =adapter.findGroup(groupId).map(g -> {
-            if (g.hasChildren()) {
-                return false; //Let the superclass handle it and expand the group
-            } else {
-                g.onClick();
-                closeNavigationDrawer();
-                return true;
-            }
-        });
+                if (g.hasChildren()) {
+                    return false; //Let the superclass handle it and expand the group
+                } else {
+                    g.onClick();
+                    closeNavigationDrawer();
+                    return true;
+                }
+            });
 
         return group.getOrElse( false );
     }
@@ -270,16 +270,16 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
     protected boolean onChildClick(NavigationAdapter adapter, int groupId, int childId) {
 
         LOG.debug("Got onChildClick event for group " + groupId + " and child " + childId
-                + " on level " + adapter.getLevel() );
+            + " on level " + adapter.getLevel() );
 
         Option<NavigationCallback> childItem = adapter.findChild(groupId, childId);
 
         childItem.forEach(item -> {
-            if ( ! item.hasChildren() ) {
-                item.onClick();
-                closeNavigationDrawer();
-            }
-        });
+                if ( ! item.hasChildren() ) {
+                    item.onClick();
+                    closeNavigationDrawer();
+                }
+            });
 
         return false;
     }
@@ -291,7 +291,7 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
         if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
             int groupPosition = ExpandableListView.getPackedPositionGroup(id);
             int childPosition = getAdapter().getIndexForChildId( groupPosition,
-                    ExpandableListView.getPackedPositionChild(id) );
+                ExpandableListView.getPackedPositionChild(id) );
 
             Option<NavigationCallback> childItem = adapter.findChild(groupPosition, childPosition);
 
@@ -299,9 +299,9 @@ public abstract class PageTurnerActivity extends RoboSherlockFragmentActivity {
             LOG.debug("Child-item: " + childItem );
 
             childItem.match(
-                    NavigationCallback::onLongClick,
-                    () -> LOG.error( "Could not get child-item for " + position + " and id " + id )
-            );
+                NavigationCallback::onLongClick,
+                () -> LOG.error( "Could not get child-item for " + position + " and id " + id )
+                            );
 
             closeNavigationDrawer();
             return true;

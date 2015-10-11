@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -32,11 +32,11 @@ import static jedi.option.Options.option;
 
 /**
  * This class allows page-offsets to be read from and stored as JSON.
- * 
- * Page-offsets are only valid under the circumstances they were 
+ *
+ * Page-offsets are only valid under the circumstances they were
  * calculated with: if text-size, page-margins, etc. change, they
- * must be re-calculated. This class allows checks for this. 
- * 
+ * must be re-calculated. This class allows checks for this.
+ *
  * @author Alex Kuiper
  *
  */
@@ -44,60 +44,60 @@ public class PageOffsets {
 
     public static int ALGORITHM_VERSION = 3;
 
-	private int fontSize;
-	private String fontFamily;
-	
-	private int vMargin;
-	private int hMargin;
-	
-	private int lineSpacing;
-	
-	private boolean fullScreen;
+    private int fontSize;
+    private String fontFamily;
+
+    private int vMargin;
+    private int hMargin;
+
+    private int lineSpacing;
+
+    private boolean fullScreen;
 
     private boolean allowStyling;
 
     private int algorithmVersion;
 
-	private List<List<Integer>> offsets;
-	
-	private static enum Fields { fontSize, fontFamily, vMargin, hMargin, lineSpacing, fullScreen, offsets,
-        allowStyling, algorithmVersion };
-	
-	private PageOffsets() {}
-	
-	public boolean isValid( Configuration config ) {
-		
-		return
-				this.fontFamily.equals( config.getDefaultFontFamily().getName() )
-				&& this.fontSize == config.getTextSize()
-				&& this.vMargin == config.getVerticalMargin()
-				&& this.hMargin == config.getHorizontalMargin()
-				&& this.lineSpacing == config.getLineSpacing()
-				&& this.fullScreen == config.isFullScreenEnabled()
-                && this.allowStyling == config.isAllowStyling()
-                && this.algorithmVersion == ALGORITHM_VERSION;
-	}
-	
-	public List<List<Integer>> getOffsets() {
-		return offsets;
-	}
-	
-	public static PageOffsets fromValues( Configuration config, List<List<Integer>> offsets ) {
-		PageOffsets result = new PageOffsets();
-		result.fontFamily = config.getDefaultFontFamily().getName();
-		result.fontSize = config.getTextSize();
-		result.hMargin = config.getHorizontalMargin();
-		result.vMargin = config.getVerticalMargin();
-		result.lineSpacing = config.getLineSpacing();
-		result.fullScreen = config.isFullScreenEnabled();
+    private List<List<Integer>> offsets;
+
+    private static enum Fields { fontSize, fontFamily, vMargin, hMargin, lineSpacing, fullScreen, offsets,
+                                 allowStyling, algorithmVersion };
+
+    private PageOffsets() {}
+
+    public boolean isValid( Configuration config ) {
+
+        return
+            this.fontFamily.equals( config.getDefaultFontFamily().getName() )
+            && this.fontSize == config.getTextSize()
+            && this.vMargin == config.getVerticalMargin()
+            && this.hMargin == config.getHorizontalMargin()
+            && this.lineSpacing == config.getLineSpacing()
+            && this.fullScreen == config.isFullScreenEnabled()
+            && this.allowStyling == config.isAllowStyling()
+            && this.algorithmVersion == ALGORITHM_VERSION;
+    }
+
+    public List<List<Integer>> getOffsets() {
+        return offsets;
+    }
+
+    public static PageOffsets fromValues( Configuration config, List<List<Integer>> offsets ) {
+        PageOffsets result = new PageOffsets();
+        result.fontFamily = config.getDefaultFontFamily().getName();
+        result.fontSize = config.getTextSize();
+        result.hMargin = config.getHorizontalMargin();
+        result.vMargin = config.getVerticalMargin();
+        result.lineSpacing = config.getLineSpacing();
+        result.fullScreen = config.isFullScreenEnabled();
         result.allowStyling = config.isAllowStyling();
 
         result.algorithmVersion = ALGORITHM_VERSION;
 
-		result.offsets = offsets;
-		
-		return result;
-	}
+        result.offsets = offsets;
+
+        return result;
+    }
 
 
     public static PageOffsets fromJSON( String json ) throws JSONException {
@@ -134,25 +134,25 @@ public class PageOffsets {
 
         return jsonObject.toString();
     }
-	
-	private static List<List<Integer>> readOffsets( JSONArray jsonArray ) throws JSONException {
-		
-		List<List<Integer>> result = new ArrayList<List<Integer>>();
-		
-		for (int i = 0; i < jsonArray.length(); i++) {
-			List<Integer> sublist = new ArrayList<>();
 
-			JSONArray subArray = new JSONArray(jsonArray.getString(i));
+    private static List<List<Integer>> readOffsets( JSONArray jsonArray ) throws JSONException {
 
-			for (int j = 0; j < subArray.length(); j++) {
-				int val = subArray.getInt(j);
-				sublist.add(val);
-			}
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
 
-			result.add(sublist);
-		}
-		
-		return result;
-	}
-	
+        for (int i = 0; i < jsonArray.length(); i++) {
+            List<Integer> sublist = new ArrayList<>();
+
+            JSONArray subArray = new JSONArray(jsonArray.getString(i));
+
+            for (int j = 0; j < subArray.length(); j++) {
+                int val = subArray.getInt(j);
+                sublist.add(val);
+            }
+
+            result.add(sublist);
+        }
+
+        return result;
+    }
+
 }

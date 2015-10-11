@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -36,7 +36,7 @@ public class CatalogBookDetailsActivity extends PageTurnerActivity implements Ca
     @Override
     protected void onCreatePageTurnerActivity(Bundle savedInstanceState) {
         if (getResources().getConfiguration().orientation
-                == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+            == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
             // If the screen is now in landscape mode, we can show the
             // dialog in-line with the list so we don't need this activity.
             finish();

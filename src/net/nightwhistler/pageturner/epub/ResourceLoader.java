@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -35,47 +35,47 @@ import java.util.zip.ZipFile;
 
 /**
  * This is mostly a performance utility:
- * 
+ *
  * We don't want to load all the images from an
  * EPUB at once, but lazy-loading several images
  * and opening the file for each is too slow.
- * 
+ *
  * The image loader allows a class to register call-backs
  * so several images can be loaded in a single go.
- * 
+ *
  * @author Alex Kuiper
  *
  */
 public class ResourceLoader  {
-	
-	private String fileName;
+
+    private String fileName;
 
     private static final Logger LOG = LoggerFactory.getLogger("ResourceLoader");
 
-	public ResourceLoader(String fileName) {
-		this.fileName = fileName;
-	}
-	
-	public static interface ResourceCallback {
-		void onLoadResource( String href, InputStream stream );
-	}
-	
-	private class Holder {
-		String href;
-		ResourceCallback callback;
-	}
-	
-	private List<Holder> callbacks = new ArrayList<>();
-	
-	public void clear() {
-		this.callbacks.clear();
-	}
-	
-	public void load() throws IOException {
+    public ResourceLoader(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public static interface ResourceCallback {
+        void onLoadResource( String href, InputStream stream );
+    }
+
+    private class Holder {
+        String href;
+        ResourceCallback callback;
+    }
+
+    private List<Holder> callbacks = new ArrayList<>();
+
+    public void clear() {
+        this.callbacks.clear();
+    }
+
+    public void load() throws IOException {
 
         ZipFile zipFile = null;
 
-		try {
+        try {
             zipFile = new ZipFile(this.fileName);
 
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -83,46 +83,46 @@ public class ResourceLoader  {
             while( entries.hasMoreElements() ) {
                 ZipEntry zipEntry = entries.nextElement();
 
-				if(zipEntry.isDirectory()) {
-					continue;
-				}
+                if(zipEntry.isDirectory()) {
+                    continue;
+                }
 
-				String href = zipEntry.getName();
+                String href = zipEntry.getName();
 
-				List<ResourceCallback> filteredCallbacks = findCallbacksFor(href);
+                List<ResourceCallback> filteredCallbacks = findCallbacksFor(href);
 
-				if ( ! filteredCallbacks.isEmpty() ) {
+                if ( ! filteredCallbacks.isEmpty() ) {
 
-					for ( ResourceCallback callBack: filteredCallbacks ) {
-						callBack.onLoadResource(href, zipFile.getInputStream(zipEntry) );
-					}
-				}
-			}
-		} finally {
-			if ( zipFile != null ) {
-				zipFile.close();
-			}
-			
-			this.callbacks.clear();
-		}
-	}
-	
-	private List<ResourceCallback> findCallbacksFor( String href ) {
-		List<ResourceCallback> result = new ArrayList<>();
+                    for ( ResourceCallback callBack: filteredCallbacks ) {
+                        callBack.onLoadResource(href, zipFile.getInputStream(zipEntry) );
+                    }
+                }
+            }
+        } finally {
+            if ( zipFile != null ) {
+                zipFile.close();
+            }
 
-		for ( Holder holder: this.callbacks ) {
-			if ( href.endsWith(holder.href ) ) {
-				result.add(holder.callback);
-			}
-		}
-		
-		return result;
-	}
-	
-	public void registerCallback( String forHref, ResourceCallback callback )
-            throws AssertionError{
-			
-		Holder holder = new Holder();
+            this.callbacks.clear();
+        }
+    }
+
+    private List<ResourceCallback> findCallbacksFor( String href ) {
+        List<ResourceCallback> result = new ArrayList<>();
+
+        for ( Holder holder: this.callbacks ) {
+            if ( href.endsWith(holder.href ) ) {
+                result.add(holder.callback);
+            }
+        }
+
+        return result;
+    }
+
+    public void registerCallback( String forHref, ResourceCallback callback )
+        throws AssertionError{
+
+        Holder holder = new Holder();
 
         // Default Charset for android is UTF-8
         // http://developer.android.com/reference/java/nio/charset/Charset.html#defaultCharset()
@@ -143,5 +143,5 @@ public class ResourceLoader  {
             // I don't think this will ever be reached
             throw new AssertionError(e);
         }
-	}
+    }
 }

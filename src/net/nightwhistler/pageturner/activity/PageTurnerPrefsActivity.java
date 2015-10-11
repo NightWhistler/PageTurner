@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -30,43 +30,43 @@ import net.nightwhistler.pageturner.R;
 import roboguice.RoboGuice;
 
 public class PageTurnerPrefsActivity extends RoboSherlockPreferenceActivity {
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class); 
-		PageTurner.changeLanguageSetting(this, config);
-		setTheme( config.getTheme() );
-		
-		super.onCreate(savedInstanceState);
-		
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
 
-		if ( ! settings.contains("device_name") ) {
-	 	   SharedPreferences.Editor editor = settings.edit();
-	 	   editor.putString("device_name", Build.MODEL );
-	 	   // Commit the edits!
-	 	   editor.commit();			
-		}
-		
-		addPreferencesFromResource(R.xml.pageturner_prefs);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class);
+        PageTurner.changeLanguageSetting(this, config);
+        setTheme( config.getTheme() );
 
-		final PreferenceScreen screen = getPreferenceScreen();
-		if(!Configuration.IS_NOOK_TOUCH) {
-			// Disable Nook-specific preferences
-			screen.removePreference(screen.findPreference("nook_prefs"));
-		}
-		else {
-			// Enable only builtin fonts on Nook Touch. This is because
-			// Nook Touch can't render OTF fonts (causes segfault), also most thin weighted fonts look terrible
-			// because the Nook Touch libskia uses antialiasing, but then the Nook Touch screen can't adequately
-			// render any antialiasing...
-			final String[] font_prefs = { "font_face", "serif_font", "sans_serif_font" };
-			for(String font_pref : font_prefs) {
-				ListPreference pref = (ListPreference) screen.findPreference(font_pref);
-				pref.setEntries(getResources().getStringArray(R.array.builtinFontLabels));
-				pref.setEntryValues(getResources().getStringArray(R.array.builtinFonts));
-			}
-		}
+        super.onCreate(savedInstanceState);
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if ( ! settings.contains("device_name") ) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString("device_name", Build.MODEL );
+            // Commit the edits!
+            editor.commit();
+        }
+
+        addPreferencesFromResource(R.xml.pageturner_prefs);
+
+        final PreferenceScreen screen = getPreferenceScreen();
+        if(!Configuration.IS_NOOK_TOUCH) {
+            // Disable Nook-specific preferences
+            screen.removePreference(screen.findPreference("nook_prefs"));
+        }
+        else {
+            // Enable only builtin fonts on Nook Touch. This is because
+            // Nook Touch can't render OTF fonts (causes segfault), also most thin weighted fonts look terrible
+            // because the Nook Touch libskia uses antialiasing, but then the Nook Touch screen can't adequately
+            // render any antialiasing...
+            final String[] font_prefs = { "font_face", "serif_font", "sans_serif_font" };
+            for(String font_pref : font_prefs) {
+                ListPreference pref = (ListPreference) screen.findPreference(font_pref);
+                pref.setEntries(getResources().getStringArray(R.array.builtinFontLabels));
+                pref.setEntryValues(getResources().getStringArray(R.array.builtinFonts));
+            }
+        }
 
         if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
 
@@ -75,5 +75,5 @@ public class PageTurnerPrefsActivity extends RoboSherlockPreferenceActivity {
 
             group.removePreference(uiPref);
         }
-	}
+    }
 }

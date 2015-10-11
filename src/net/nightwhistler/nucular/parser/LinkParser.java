@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -25,22 +25,22 @@ import java.util.Map;
 
 public class LinkParser extends ElementParser {
 
-	private AtomElement element;
-	
-	public LinkParser(AtomElement parent) {
-		super("link");
-		this.element = parent;
-	}	
-	
-	@Override
-	public void setAttributes(Map<String, String> attributes) {
-		Link link = new Link(
-				attributes.get("href"),
-				attributes.get("type"),
-				attributes.get("rel"),
-                attributes.get("title"));
-		
-		this.element.addLink(link);
-	}
-	
+    private AtomElement element;
+
+    public LinkParser(AtomElement parent) {
+        super("link");
+        this.element = parent;
+    }
+
+    @Override
+    public void setAttributes(Map<String, String> attributes) {
+        Link link = new Link(
+            attributes.get("href"),
+            attributes.get("type"),
+            attributes.get("rel"),
+            attributes.get("title"));
+
+        this.element.addLink(link);
+    }
+
 }

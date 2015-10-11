@@ -26,22 +26,22 @@ import java.util.Map;
 
 public class UrlParser extends ElementParser {
 
-	private SearchDescription element;
-	
-	public UrlParser(SearchDescription parent) {
-		super("Url");
-		this.element = parent;
-	}	
-	
-	@Override
-	public void setAttributes(Map<String, String> attributes) {
-		Link link = new Link(
-				attributes.get("template"),
-				attributes.get("type"),
-				attributes.get("rel"),
-                attributes.get("title"));
-		
-		this.element.addLink(link);
-	}
+    private SearchDescription element;
+
+    public UrlParser(SearchDescription parent) {
+        super("Url");
+        this.element = parent;
+    }
+
+    @Override
+    public void setAttributes(Map<String, String> attributes) {
+        Link link = new Link(
+            attributes.get("template"),
+            attributes.get("type"),
+            attributes.get("rel"),
+            attributes.get("title"));
+
+        this.element.addLink(link);
+    }
 
 }

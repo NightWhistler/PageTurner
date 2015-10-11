@@ -157,11 +157,11 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
         if ( !isEmpty( buyLink ) ) {
             buyNowButton.setOnClickListener( v -> {
-                String url = buyLink.unsafeGet().getHref();
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(url));
-                startActivity(i);
-            });
+                    String url = buyLink.unsafeGet().getHref();
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
+                });
         } else {
             buyNowButton.setVisibility(View.GONE);
 
@@ -172,8 +172,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
         if (entry.getAuthor() != null) {
             String authorText = String.format(
-                    getString(R.string.book_by), entry.getAuthor()
-                    .getName());
+                getString(R.string.book_by), entry.getAuthor()
+                .getName());
             authorTextView.setText(authorText);
         } else {
             authorTextView.setText("");
@@ -222,7 +222,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             icon.setImageDrawable(drawable);
         }
 
-       onLoadingDone();
+        onLoadingDone();
     }
 
     @Override
@@ -283,7 +283,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
             Intent intent;
 
             intent = new Intent(context,
-                    ReadingActivity.class);
+                ReadingActivity.class);
             config.setLastActivity( ReadingActivity.class );
 
             intent.setData(Uri.parse(destFile.getAbsolutePath()));
@@ -312,7 +312,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         private Context context;
 
         public NotificationBarCallback(Context context, String title,
-                                       boolean openOnCompletion) {
+            boolean openOnCompletion) {
             super( context, openOnCompletion );
             this.title = title;
             this.downloadSubtitle = getString(R.string.downloading);
@@ -329,8 +329,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
             builder = new NotificationCompat.Builder(context);
             builder.setContentTitle(title)
-                    .setContentText(downloadSubtitle)
-                    .setSmallIcon(R.drawable.download);
+                .setContentText(downloadSubtitle)
+                .setSmallIcon(R.drawable.download);
             builder.setTicker(downloadSubtitle);
 
             builder.setProgress( 0, 0, true);
@@ -352,11 +352,11 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         public void downloadSuccess(File destFile) {
 
             builder.setContentText(downloadSuccess)
-                    // Removes the progress bar
-                    .setProgress(0, 0, false);
+                // Removes the progress bar
+                .setProgress(0, 0, false);
 
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-                    getBookOpenIntent(destFile), 0);
+                getBookOpenIntent(destFile), 0);
             builder.setContentIntent( contentIntent );
             builder.setTicker(downloadSuccess);
             builder.setAutoCancel(true);
@@ -370,8 +370,8 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
         public void downloadFailed() {
 
             builder.setContentText(downloadFailed)
-                    // Removes the progress bar
-                    .setProgress(0, 0, false);
+                // Removes the progress bar
+                .setProgress(0, 0, false);
             builder.setAutoCancel(true);
 
             notificationManager.notify(notificationId, builder.build());
@@ -380,7 +380,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
     }
 
     private class ProgressDialogCallback extends AbstractDownloadCallback implements
-        DialogInterface.OnCancelListener {
+                                                                              DialogInterface.OnCancelListener {
 
         private ProgressDialog downloadDialog;
         private DownloadFileTask task;
@@ -425,7 +425,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
             if ( ! isOpenOnCompletion() ) {
                 Toast.makeText(getActivity(), R.string.download_complete,
-                        Toast.LENGTH_LONG).show();
+                    Toast.LENGTH_LONG).show();
             }
         }
 
@@ -436,7 +436,7 @@ public class BookDetailsFragment extends RoboSherlockFragment implements LoadFee
 
             if ( isAdded() ) {
                 Toast.makeText(getActivity(), R.string.book_failed,
-                        Toast.LENGTH_LONG).show();
+                    Toast.LENGTH_LONG).show();
             }
         }
 

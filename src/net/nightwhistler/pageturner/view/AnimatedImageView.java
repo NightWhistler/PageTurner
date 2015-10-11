@@ -27,26 +27,26 @@ import net.nightwhistler.pageturner.animation.Animator;
 
 public class AnimatedImageView extends ImageView {
 
-	private Animator animator;
-	
-	public AnimatedImageView(Context context, AttributeSet attributes) {
-		super(context, attributes);		
-	}
-	
-	public void setAnimator(Animator animator) {
-		this.animator = animator;
-	}
-	
-	public Animator getAnimator() {
-		return animator;
-	}
-	
-	@Override
-	protected void onDraw(Canvas canvas) {
-		super.onDraw(canvas);
-		
-		if ( this.animator != null ) {
-			animator.draw(canvas);
-		}
-	}
+    private Animator animator;
+
+    public AnimatedImageView(Context context, AttributeSet attributes) {
+        super(context, attributes);
+    }
+
+    public void setAnimator(Animator animator) {
+        this.animator = animator;
+    }
+
+    public Animator getAnimator() {
+        return animator;
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        if ( this.animator != null ) {
+            animator.draw(canvas);
+        }
+    }
 }

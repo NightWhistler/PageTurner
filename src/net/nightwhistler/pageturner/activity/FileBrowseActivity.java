@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -26,14 +26,14 @@ import net.nightwhistler.pageturner.R;
 import roboguice.RoboGuice;
 
 public class FileBrowseActivity extends RoboSherlockFragmentActivity {
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class); 
-		PageTurner.changeLanguageSetting(this, config);
-		setTheme( config.getTheme() );
-		
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_file_browse);
-	}
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        Configuration config = RoboGuice.getInjector(this).getInstance(Configuration.class);
+        PageTurner.changeLanguageSetting(this, config);
+        setTheme( config.getTheme() );
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_file_browse);
+    }
 }

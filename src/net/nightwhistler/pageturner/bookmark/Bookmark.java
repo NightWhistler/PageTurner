@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013 Alex Kuiper, Rob Hoelz
- * 
+ *
  * This file is part of PageTurner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

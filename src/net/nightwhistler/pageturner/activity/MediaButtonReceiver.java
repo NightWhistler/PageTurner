@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -27,45 +27,45 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Helper class which converts media-button events into PageTurner-specific events.
- * 
+ *
  * Since a BroadCastReceiver for MediaButton events has to be specified
  * by class-name, the created instance will have no access to the activity.
- * 
+ *
  * To work around this problem, this class will re-broadcast any media
  * events as pageturner.media.key events, which can then be picked up
  * by an internal class inside an Activity or Fragment.
- * 
+ *
  * @author Alex Kuiper
  *
  */
 public class MediaButtonReceiver extends BroadcastReceiver {
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger("MediaButtonReveiver");
-	
-	public static final String INTENT_PAGETURNER_MEDIA = "pageturner.media.key";
+    private static final Logger LOG = LoggerFactory
+        .getLogger("MediaButtonReveiver");
 
-	@Override
-	public void onReceive(Context context, Intent intent) {
+    public static final String INTENT_PAGETURNER_MEDIA = "pageturner.media.key";
 
-		String intentAction = intent.getAction();
-		if (Intent.ACTION_MEDIA_BUTTON.equals(intentAction)) {
+    @Override
+    public void onReceive(Context context, Intent intent) {
 
-			LOG.info("Received media button, re-broadcasting as PageTurnerMediaKey");
+        String intentAction = intent.getAction();
+        if (Intent.ACTION_MEDIA_BUTTON.equals(intentAction)) {
 
-			KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+            LOG.info("Received media button, re-broadcasting as PageTurnerMediaKey");
+
+            KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
 
             if ( event != null ) {
-			    Intent myIntent = new Intent(INTENT_PAGETURNER_MEDIA);
-			    myIntent.putExtra("action", event.getAction());
-			    myIntent.putExtra("keyCode", event.getKeyCode());
+                Intent myIntent = new Intent(INTENT_PAGETURNER_MEDIA);
+                myIntent.putExtra("action", event.getAction());
+                myIntent.putExtra("keyCode", event.getKeyCode());
 
-			    context.sendBroadcast(myIntent);
+                context.sendBroadcast(myIntent);
             }
-		}
+        }
 
-		if (isOrderedBroadcast()) {
-			abortBroadcast();
-		}
-	}
+        if (isOrderedBroadcast()) {
+            abortBroadcast();
+        }
+    }
 }

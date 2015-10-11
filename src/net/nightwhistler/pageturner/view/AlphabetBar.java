@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Alex Kuiper
- * 
+ *
  * This file is part of PageTurner
  *
  * PageTurner is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  * along with PageTurner.  If not, see <http://www.gnu.org/licenses/>.*
  *
  * Based on the AlphabetListView which can be found here:
- * 
+ *
  * http://devtcg.blogspot.com/2008/03/custom-android-list-view-widget-to.html
  */
 package net.nightwhistler.pageturner.view;
@@ -42,9 +42,9 @@ import java.util.List;
 public class AlphabetBar extends LinearLayout
 {
     private static final String TAG = "AlphabetBar";
-    
+
     private List<Character> alphabet = new ArrayList<Character>();
-    
+
     private AlphabetCallback callback;
 
     public AlphabetBar(Context context)
@@ -56,35 +56,35 @@ public class AlphabetBar extends LinearLayout
     public AlphabetBar(Context context, AttributeSet attrs)
     {
         super(context, attrs);
-        
+
         ColourProfile profile = RoboGuice.getInjector(context).getInstance(Configuration.class)
-        	.getColourProfile();
-        
+            .getColourProfile();
+
         if ( profile == ColourProfile.DAY ) {
-        	setBackgroundResource(R.drawable.alphabet_bar_bg);
+            setBackgroundResource(R.drawable.alphabet_bar_bg);
         } else {
-        	setBackgroundResource(R.drawable.alphabet_bar_bg_dark);
+            setBackgroundResource(R.drawable.alphabet_bar_bg_dark);
         }
-        
+
         init();
     }
-    
+
     public void setAlphabet(List<Character> alphabet ) {
-    	this.alphabet = alphabet;
-    	updateLabels();
-    	invalidate();
+        this.alphabet = alphabet;
+        updateLabels();
+        invalidate();
     }
-    
+
     public void setCallback(AlphabetCallback callback) {
-		this.callback = callback;
-	}
+        this.callback = callback;
+    }
 
     private void updateLabels() {
-    	
-    	removeAllViews();
-    	
-    	for ( final Character currentChar: this.alphabet ) {
-            
+
+        removeAllViews();
+
+        for ( final Character currentChar: this.alphabet ) {
+
             TextView label = new TextView(getContext());
             label.setText(String.valueOf(currentChar));
             label.setGravity(Gravity.CENTER_VERTICAL);
@@ -92,26 +92,26 @@ public class AlphabetBar extends LinearLayout
             label.setClickable(true);
             label.setFocusable(true);
             label.setOnClickListener( v ->  {
-                if ( callback != null ) {
-                    callback.characterClicked(currentChar);
-                }
-            });
+                    if ( callback != null ) {
+                        callback.characterClicked(currentChar);
+                    }
+                });
 
             addView(label, new LinearLayout.LayoutParams(
-              LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+                    LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
         }
     }
-    
+
     public void init()
     {
-    	setLayoutParams(new LinearLayout.LayoutParams(
-    	          LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+        setLayoutParams(new LinearLayout.LayoutParams(
+                LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
-    	        /* Not strictly necessary since we override onLayout and onMeasure with
-    	         * our custom logic, but it seems like good form to do this just to
-    	         * show how we're arranging the children. */
-    	        setOrientation(VERTICAL);        
-    }   
+        /* Not strictly necessary since we override onLayout and onMeasure with
+         * our custom logic, but it seems like good form to do this just to
+         * show how we're arranging the children. */
+        setOrientation(VERTICAL);
+    }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b)
@@ -119,11 +119,11 @@ public class AlphabetBar extends LinearLayout
         super.onLayout(changed, l, t, r, b);
     }
 
-    
+
     @Override
     protected void onMeasure(int wSpec, int hSpec)
     {
-        Log.d(TAG, "onMeasure(" + wSpec + ", " + hSpec + ")");      
+        Log.d(TAG, "onMeasure(" + wSpec + ", " + hSpec + ")");
 
         int count = getChildCount();
 
@@ -134,10 +134,10 @@ public class AlphabetBar extends LinearLayout
 
         int maxWidth = 0;
 
-        int hSizeAdj = hSize - getPaddingTop() - getPaddingBottom(); 
+        int hSizeAdj = hSize - getPaddingTop() - getPaddingBottom();
         float childHeight = 0f;
         if ( count > 0 ) {
-        	childHeight = hSizeAdj / count;
+            childHeight = hSizeAdj / count;
         }
 
         /* Calculate how many extra 1-pixel spaces we'll need in order to make
@@ -147,35 +147,34 @@ public class AlphabetBar extends LinearLayout
         int paddingWidth = getPaddingLeft() + getPaddingRight();
 
         for (int i = 0; i < count; i++)
-        {
-            TextView label = (TextView)getChildAt(i);
-
-            label.setTextSize(childHeight * 0.5F);
-
-            int thisHeight = (int)childHeight;
-
-            if (variance > 0)
             {
-                thisHeight++;
-                variance--;
+                TextView label = (TextView)getChildAt(i);
+
+                label.setTextSize(childHeight * 0.5F);
+
+                int thisHeight = (int)childHeight;
+
+                if (variance > 0)
+                    {
+                        thisHeight++;
+                        variance--;
+                    }
+
+
+                label.measure
+                    (MeasureSpec.makeMeasureSpec(26, MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(thisHeight, MeasureSpec.EXACTLY));
+
+
+                maxWidth = Math.max(maxWidth, label.getMeasuredWidth());
             }
-
-            
-            label.measure
-              (MeasureSpec.makeMeasureSpec(26, MeasureSpec.EXACTLY),
-               MeasureSpec.makeMeasureSpec(thisHeight, MeasureSpec.EXACTLY));		
-            
-
-            maxWidth = Math.max(maxWidth, label.getMeasuredWidth());
-        }
 
         maxWidth += paddingWidth;
 
-        setMeasuredDimension(resolveSize(maxWidth, wSpec), hSize); 
-    }   
-    
+        setMeasuredDimension(resolveSize(maxWidth, wSpec), hSize);
+    }
+
     public static interface AlphabetCallback {
-    	public void characterClicked( Character c );
+        public void characterClicked( Character c );
     }
 }
-

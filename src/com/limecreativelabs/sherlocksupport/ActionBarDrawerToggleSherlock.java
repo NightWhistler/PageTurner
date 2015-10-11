@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package com.limecreativelabs.sherlocksupport;/*
+package com.limecreativelabs.sherlocksupport;
+/*
  * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,12 +55,12 @@ class ActionBarDrawerToggleSherlock {
     private static final String TAG = "ActionBarDrawerToggleHoneycomb";
 
     private static final int[] THEME_ATTRS = new int[]{
-            android.R.attr.homeAsUpIndicator,
-            R.attr.homeAsUpIndicator
+        android.R.attr.homeAsUpIndicator,
+        R.attr.homeAsUpIndicator
     };
 
     public static Object setActionBarUpIndicator(Object info, Activity activity,
-                                                 Drawable drawable, int contentDescRes) {
+        Drawable drawable, int contentDescRes) {
         if (info == null) {
             info = new SetIndicatorInfo(activity);
         }
@@ -73,7 +74,7 @@ class ActionBarDrawerToggleSherlock {
     }
 
     public static Object setActionBarDescription(Object info, Activity activity,
-                                                 int contentDescRes) {
+        int contentDescRes) {
         if (info == null) {
             info = new SetIndicatorInfo(activity);
         }
@@ -112,9 +113,9 @@ class ActionBarDrawerToggleSherlock {
         SetIndicatorInfo(Activity activity) {
             try {
                 setHomeAsUpIndicator = ActionBar.class.getDeclaredMethod("setHomeAsUpIndicator",
-                        Drawable.class);
+                    Drawable.class);
                 setHomeActionContentDescription = ActionBar.class.getDeclaredMethod(
-                        "setHomeActionContentDescription", Integer.TYPE);
+                    "setHomeActionContentDescription", Integer.TYPE);
 
                 // If we got the method we won't need the stuff below.
                 return;

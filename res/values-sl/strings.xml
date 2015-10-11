@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    
+    <string name="app_name" translatable="false">PageTurner</string>
+    
+    <string name="title">Naslov</string>
+    <string name="app_desc">PageTurner je bralnik e-knjig, ki vam omogoča usklajevanje napredka branja na več napravah.</string>
+    <string name="browse">Prebrskaj …</string>
+    <string name="open_file">Odpri datoteko ePub</string>
+    <string name="open_library">Moje knjige</string>
+    <string name="profile_day">Preklopi na dnevni način</string>
+    <string name="profile_night">Preklopi na nočni način</string>
+    <string name="manual_sync">Uskladi napredek branja</string>
+    <string name="prefs">Nastavitve</string>
+    <string name="show_toc">Prikaži kazalo</string>
+    <string name="rolling_blind">Samodejno pomikanje</string>
+    <string name="about">O programu PageTurner</string>
+    <string name="about_gpl">PageTurner je prosta programska opremo pod licenco GPL v3.</string>
+    <string name="error_open_bk">Napaka pri odpiranju knjige: %s</string>
+    <string name="dictionary_lookup">Poišči v slovarju</string>
+    <string name="wikipedia_lookup">Poišči na Wikipediji</string>
+    <string name="google_lookup">Poišči z Googlom</string>
+    <string name="word_select">"Izbrali ste '%s'</string>
+    <string name="loading_wait">Nalaganje, prosim počakajte</string>
+    <string name="install_oi">Namestite prosim OI File Manager iz Android Marketa.</string>
+    <string name="cloud_bm">Zaznamki v oblaku</string>
+    <string name="toc_label">Kazalo</string>
+    <string name="syncing">"Napredek usklajevanja …"</string>
+    <string name="sync_failed">Napaka pri usklajevanju</string>
+    <string name="connection_fail">Strežnik za usklajevanje ni dosegljiv.</string>
+    <string name="never_read">Nikoli</string>
+    <string name="library">Knjižnica</string>
+    <string name="book_details">Podrobnosti o knjigi</string>
+    <string name="book_by">Avtor %s</string>
+    <string name="last_read">Nazadnje brano: %s</string>
+    <string name="added_to_lib">Dodano v knjižnico: %s</string>
+    <string name="view_details">Pokaži podrobnosti</string>
+    <string name="delete">Izbriši</string>
+    <string name="scan_books">Poišči knjige</string>
+    <string name="importing_books">Uvažanje knjig …</string>
+    <string name="scanning_epub">Iskanje datotek EPUB.</string>
+    <string name="importing">Uvoz %1$d od %2$d</string>
+    <string name="scan_folders">Iskanje datotek EPUB.\nPregledane mape: %d</string>
+    <string name="import_errors">Pri uvozu nekaterih datotek je prišlo do napake:</string>
+    <string name="no_books_found">Nobenih knijig.</string>
+
+    <string name="no_bks_fnd_text">Na vaši napravi ni bilo mogoče najti nobene knjige.\nKnjige lahko najdete pri gutenberg.org ali feedbooks.com</string>
+
+    <string name="loading_library">Nalaganje knjižnice …</string>
+    <string name="scan_bks_question">V vaši knjižnici ni knjig.\nŽelite poiskati knjige na vaši napravi?</string>
+    <string name="brightness">Svetlost</string>
+
+    <string-array name="v_animLabels">
+        <item>Drsno</item>
+        <item>Nič</item>
+    </string-array>
+    <string-array name="h_animLabels">
+        <item>Obračanje strani</item>
+        <item>Drsno</item>
+        <item>Nič</item>
+    </string-array>
+    <string-array name="orientationLabels">
+        <item>Omogoči spremembo usmerjenosti</item>
+        <item>Navpično</item>
+        <item>Vodoravno</item>
+        <item>Obrnjeno navpično</item>
+        <item>Obrnjeno vodoravno</item>
+    </string-array>
+    <string-array name="autoscrollLabels">
+        <item>Neprekinjeno drsenje</item>
+        <item>Obračanje strani na čas</item>
+    </string-array>
+
+    <string-array name="nook_touch_direction_labels">
+        <item>Zgornji gumbi premaknejo naprej</item>
+        <item>Spodnji gumbi premaknejo naprej</item>
+    </string-array>
+        
+    <string-array name="libraryQueries">
+        <item>Nazadnje brane knjige</item>
+        <item>Nazadnje dodane knjige</item>
+        <item>Neprebrane knjige</item>
+        <item>Vse knjige po naslovu</item>
+        <item>Vse knjige po avtorju</item>
+    </string-array>
+ 
+
+    <string name="access_denied">Vaš dostopni ključ ni veljaven. Obiščite prosim pageturner-reader.org za veljaven dostopni ključ.</string>
+    <string name="import_books">Uvozi knjige</string>
+    <string name="import_desc">Lahko preiščete celotno kartico SD ali določite mapo za iskanje.</string>
+    <string name="scan_whole_card">Preišči celotno kartico SD</string>
+    <string name="scan_folder">Preglej določeno mapo</string>
+    <string name="copy_to_library">Kopiraj knjige v mapo moje knjižnice</string>
+    <string name="no_such_folder">Mapa %s ne obstaja.</string>
+    <string name="import_failed">Napaka pri uvozu</string>
+    <string name="list_view">Preklopi na spisek</string>
+    <string name="shelves_view">Preklopi na knjižne police</string>
+    <string name="read">Beri</string>
+    <string name="download">Prenašanje knjig</string>
+    <string name="downloading">Prenašanje knjige …</string>
+    <string name="search_books">Išči knjige</string>
+    <string name="enter_query">Vpišite iskani niz</string>
+    <string name="buy_now">Kupi</string>
+    <string name="enter_email">Usklajevanje v oblaku je trenutno onemogočeno. Za vklop vpišite svoj e-poštni naslov v nastavitvah.</string>
+    <string name="add_to_library">Dodaj v knjižnico</string>
+    <string name="search_wait">Iskanje … Prosim počakajte.</string>
+    <string name="search_text">Išči besedilo</string>
+    <string name="search_hits">Iskanje …\nNajdeni rezultati: %d.</string>
+    <string name="search_cancelled">Iskanje je prekinjeno.</string>
+    <string name="search_no_matches">Iskanje nima rezultatov.</string>
+    <string name="search_results">Rezultat iskanja</string>
+    <string name="opening_file">Odpiranje datoteke …</string>
+    <string name="loading_text">Nalaganje besedila …</string>
+    <string name="end_of_section">Konec poglavja.\nKliknite za nadaljevanje.</string>
+    <string name="download_complete">Prenos končan.\nKnjiga je zdaj v vaši knjižnici</string>
+
+
+    <string name="feed_failed">S stranjo ni mogoče navezati stika. Poskusite ponovno.</string>
+    <string name="book_failed">Knjige ni moogče prejeti. Poskusite ponovno.</string>
+
+    <string name="custom_site">Katalogi OPDS po meri</string>
+    <string name="add_site">Dodaj katalog po meri</string>
+    <string name="edit_site">Uredi katalog po meri</string>
+    <string name="add_site_header">Kakšno vrsto kataloga želite dodati?</string>
+    <string name="calibre_server">Strežnik vsebin Calibre</string>
+    <string name="cops_server">Strežnik COPS</string>
+    <string name="c2opds_server">Calibre2OPDS</string>
+    <string name="generic_server">Splošen katalog OPDS</string>
+    <string name="save">Shrani spremembe</string>
+    
+    <string name="custom_site_desc">Vaši lastni katalogi OPDS / Calibre. Lahko jih dodate iz Možnosti.</string>
+    <string name="site_name">Ime kataloga</string>
+    <string name="site_url">URL kataloga</string>
+    <string name="site_desc">Opis</string>
+    <string name="site_username">Uporabniško ime</string>
+    <string name="site_password">Geslo</string>
+    
+    <string name="msg_name_blank">Vpišite prosim ime.</string>
+    <string name="msg_url_blank">Vpišite prosim URL.</string>
+    
+    <string name="edit">Uredi</string>
+    
+    <string name="no_custom_sites">Nobenih katalogov po meri niste določili. Dodajte jih prosim v možnostih.</string>
+    <string name="text_to_speech">Beri na glas (TTS)</string>    
+    
+    <string name="init_tts">Zagon TTS…\nProsim počakajte.</string>
+    <string name="tts_failed">Napaka TTS.</string>
+
+    <string name="search_library">Prešči knjižnico</string>
+    <string name="no_sync_points">Trenutno nimate še nobenih usklajevalnih točk shranjenih v oblaku.\nUsklajevalne točke se shranijo samodejno, ko zapustite PageTurner.</string>
+    <string name="no_new_books_found">Nobene nove knjige ni najti.</string>
+
+    <string name="next_page">Naslednja stran …</string>
+    <string name="prev_page">Prejšnja stran …</string>
+
+    <string name="empty_opds_feed">Vir je prazen. Preverite, da uporabljate pravilen URL.</string>
+    <string name="search_results_item">Poišči rezultate …</string>
+    <string name="lookup_wiktionary">Poišči na Wikislovarju</string>
+
+	<string name="no_search_results">Vaše iskanje ni obrodilo rezultatov.</string>
+
+    <string name="dead_link">Zgleda, da link, na katerega ste kliknili žal ni pravilen.</string>
+    <string name="could_not_load">Besedila ni mogoče naložiti: %s</string>
+    <string name="out_of_memory">PageTurner žal ne more sprostiti zadosti pomnilnika, da bi naložil to datoteko.</string>
+
+    <string name="highlight">Poudarek</string>
+    <string name="highlights">Poudarki</string>
+
+    <string name="highlight_options">Možnosti za poudarke</string>
+    <string name="text_note">Tekstovna opomba</string>
+    <string name="clear_note">Izbriši opombo</string>
+    <string name="save_note">Shrani opombo</string>
+
+    <string name="set_colour">Nastavi barvo</string>
+
+    <string name="page_number_of">Stran %1$d od %2$d</string>
+
+    <string name="import_this">Uvozi to mapo</string>
+    <string name="cancelling">Prekinjanje …</string>
+
+    <string name="no_bks_fnd_text2">Na vaši napravi ni bilo mogoče najti nobene knjige.\nŽelite prejeti kako knjigo?</string>
+    <string name="notes_attached">Ta poudarek ima pripeto tekstovno opombo.\nAli ga res želite izbrisati?</string>
+    <string name="highlight_deleted">Poudarek je odstranjen</string>
+
+    <string name="add_bookmark">Dodaj zaznamek</string>
+    <string name="add">Dodaj</string>
+    <string name="bookmarks">Zaznamki</string>
+    <string name="bookmark_options">Možnosti zaznamkov</string>
+    <string name="bookmark_deleted">Zaznamek je odstranjen</string>
+
+    <string name="now_reading">Zdaj berete: %s</string>
+    <string name="library_failed">Ni bilo mogoče naložiti podatkov o knjižnici.</string>
+
+
+    <!-- Preferences -->
+
+    <string name="pref_sync_settings">Nastavitev sinhronizacije</string>
+    <string name="pref_email">E-poštni naslov</string>
+    <string name="pref_email_summary">Uporabimo ga za usklajevanje bralnega napredka na napravah. Pustite prazno, da onemogočite uskljajevanje.</string>
+    <string name="pref_email_message">Vpišite veljaven e-poštni naslov</string>
+    <string name="pref_device_name">Ime naprave</string>
+    <string name="pref_device_name_summary">Edinstveno ime za napravo, za reševanje sporov.</string>
+    <string name="pref_device_name_message">Vpišite ime za napravo.</string>
+    <string name="pref_access_key">Dostopni ključ</string>
+    <string name="pref_access_key_summary">Za usklajevanje potrebujete dostopni kluč. Obiščite spletno stran, da preberete kako lahko dobite ključ.</string>
+    <string name="pref_access_key_message">Vpišite svoj dostopni ključ.</string>
+    <string name="pref_autoscroll_settings">Nastavitev samodejnega drsenja</string>
+    <string name="pref_scroll_style">Slog samodejnega drsenja</string>
+    <string name="pref_scroll_style_summary">Neprekinjeno drsenje ali obračanje na čas</string>
+    <string name="pref_scroll_speed">Hitrost samodejnega drsenja</string>
+    <string name="pref_scroll_speed_summary">Koliko sekund bo prikazana stran.</string>
+    <string name="pref_my_books_settings">Nastavitve mojih knjig</string>
+    <string name="pref_copy_to_library">Kopiraj v mapo knjižnice</string>
+    <string name="pref_copy_to_library_summary">Ali naj PageTurner kopira datoteke v mapo lastne knjižnice</string>
+    <string name="pref_calibre_server">Strežnik vsebin Calibre</string>
+    <string name="pref_calibre_server_summary">Povežite se z lastno knjižnico Calibre</string>
+    <string name="pref_calibre_server_message">URL Calibre</string>
+    <string name="pref_calibre_server_hint">http://192.168.1.1:8080/opds</string>
+    <string name="pref_calibre_user">Uporabniško ime</string>
+    <string name="pref_calibre_user_summary">Vaše uporabniško ime za Calibre</string>
+    <string name="pref_calibre_user_hint">calibre</string>
+    <string name="pref_calibre_password">Geslo</string>
+    <string name="pref_calibre_password_summary">Vaše geslo za Calibre</string>
+    <string name="pref_visual_settings">Vizualne nastavitve</string>
+    <string name="pref_full_screen">Celozaslonsko</string>
+    <string name="pref_full_screen_summary">Skrij vse vrstice stanja.</string>
+    <string name="pref_screen_orientation">Usmerjenost zaslona</string>
+    <string name="pref_screen_orientation_summary">Omogoči zaklepanje usmerjenosti zaslona</string>
+    <string name="pref_keep_screen_on">Ohrani vključen zaslon</string>
+    <string name="pref_keep_screen_on_summary">Onemogoči zaklepanje zaslona med branjem</string>
+    <string name="pref_set_brightness">Nadzor svetlosti</string>
+    <string name="pref_set_brightness_summary">PageTurner lahko nadzoruje svetlost zaslona</string>
+    <string name="pref_day_bright">Svetlost zaslona</string>
+    <string name="pref_day_bright_summary">Za dnevni način</string>
+    <string name="pref_day_night">Svetlost zaslona</string>
+    <string name="pref_day_night_summary">Za nočni način</string>
+    <string name="pref_text_display_settings">Nastavitev prikaza besedila</string>
+    <string name="pref_font_face">Pisava</string>
+    <string name="pref_font_face_summary">Osnovna pisava za prikaz besedila</string>
+    <string name="pref_strip_whitespace">Odstrani presledke</string>
+    <string name="pref_strip_whitespace_summary">Odstrani nepotrebne prazne vrstice.</string>
+    <string name="pref_itext_size">Velikost besedila</string>
+    <string name="pref_itext_size_summary">Velikost pisave za prikaz knjig.</string>
+    <string name="pref_margin_h">Vodoravni robovi</string>
+    <string name="pref_margin_h_summary">Prostor na levem in desnem robu zaslona.</string>
+    <string name="pref_margin_v">Navpični robovi</string>
+    <string name="pref_margin_v_summary">Prostor na zgornjem in spodnjem robu zaslona.</string>
+    <string name="pref_line_spacing">Razmik med vrsticami</string>
+    <string name="pref_line_spacing_summary">Dodaten navpični prostor med vrsticami.</string>
+    <string name="pref_colour_settings">Nastavitev barve</string>
+    <string name="pref_day_text">Barva besedila</string>
+    <string name="pref_day_text_summary">Za dnevni način</string>
+    <string name="pref_day_bg">Barva ozadja</string>
+    <string name="pref_day_bg_summary">Za dnevni način</string>
+    <string name="pref_day_link">Barva povezave</string>
+    <string name="pref_day_link_summary">Za dnevni način</string>
+    <string name="pref_night_text">Barva besedila</string>
+    <string name="pref_night_text_summary">Za nočni način</string>
+    <string name="pref_night_bg">Barva ozadja</string>
+    <string name="pref_night_bg_summary">Za nočni način</string>
+    <string name="pref_night_link">Barva povezave</string>
+    <string name="pref_night_link_summary">Za nočni način</string>
+    <string name="pref_animations">Animacije</string>
+    <string name="pref_h_animation">Vodoravne animacije</string>
+    <string name="pref_h_animation_summary">Vodoravne animacije obračanja strani</string>
+    <string name="pref_v_animation">Navpične animacije</string>
+    <string name="pref_v_animation_summary">Navpične animacije obračanja strani</string>
+    <string name="pref_navigation_settings">Nastavitev krmarjenja</string>
+    <string name="pref_scrolling">Omogoči drsenje</string>
+    <string name="pref_scrolling_summary">Omogoči drsejne kot v brskalniku</string>
+    <string name="pref_nav_vol">Omogoči gumbe za glasnost</string>
+    <string name="pref_nav_vol_summary">Pritisnite gumb za glasnost, da obrnete stran.</string>
+    <string name="pref_nav_swipe_h">Omogoči vodoravno podrsnjenje</string>
+    <string name="pref_nav_swipe_h_summary">Podrsnite levo/desno, da obrnete stran.</string>
+    <string name="pref_nav_swipe_v">Omogoči navpično podrsnjenje</string>
+    <string name="pref_nav_swipe_v_summary">Podrsnite gor/dol, da obrnete stran.</string>
+    <string name="pref_nav_tap_h">Omogoči tapnjenje na straneh</string>
+    <string name="pref_nav_tap_h_summary">Tapnite levi/desni rob zaslona, da obrnete stran.</string>
+    <string name="pref_nav_tap_v">Omogoči tapnjenje zgoraj/spodaj</string>
+    <string name="pref_nav_tap_v_summary">Tapnite zgornji/spodnji rob zaslona, da obrnete stran.</string>
+    <string name="pref_show_pagenum">Pokaži številke strani</string>
+    <string name="pref_show_pagenum_summary">Med branjem prikaže številko strani. Za prvi prikaz lahko potrebuje nekaj sekund.</string>
+
+    <string name="pref_nook_touch">Nastavitve za Nook Touch</string>
+   <string name="pref_nook_touch_button_nav">Krmarjenje z gumbi</string>
+   <string name="pref_nook_touch_button_nav_summary">Kako naj stranski gumbi obračajo strani?</string>
+    
+    <string name="pref_reading_direction">Smer branja</string>
+    <string name="pref_reading_direction_summary">Branje iz leve proti desni ali iz desne proti levi (arabščina in hebrejščina)</string>
+       
+    <string-array name="reading_directionsLabels">
+        <item>Iz leve proti desni</item>
+        <item>Iz desne proti levi</item>        
+    </string-array>    
+    
+    <string name="pref_manage_sites">Upravljanje s katalogi OPDS / Calibre</string>
+    <string name="pref_manage_sites_summary">Dodaj in odstrani spletne kataloge in strežnike Calibre po meri.</string>
+
+    
+    <string name="pref_serif_font">Pisava s serifi</string>
+    <string name="pref_serif_summary">Pisava, ko knjiga zahteva pisavo s serifi.</string>
+   
+    <string name="pref_sans_serif_font">Pisava brez serifov</string>
+    <string name="pref_sans_serif_summary">Pisava, ko knjiga zahteva pisavo brez serifov.</string>   
+    
+    <string name="pref_lang">Jezik UI</string>
+    <string name="pref_lang_summary">Omogoči spremembo jezikovnih nastavitev za PageTurner.</string>
+    <string name="language_switch_message">Nova nastavitev bo v uporabi naslednjič, ko odprete knjigo.</string>
+
+    <string name="pref_accept_self_signed">Sprejmi samodejno podpisana potrdila</string>
+    <string name="pref_accept_self_signed_summary">Omogoči povezavo s katalogi OPDS, ki uporabljajo samodejno podpisana potrdila.</string>
+    
+    <string-array name="supported_languagesLabels">
+ 	    <item>Uporabi nastavitev naprave</item>
+ 	    <item>Angleščina</item>
+ 	    <item>Nizozemščina</item>
+ 	    <item>Nemščina</item>
+ 	    <item>Španščina</item>
+ 	    <item>Italijanščina</item>
+ 	    <item>Arabščina</item> 	    
+ 	    <item>Hebrejščina</item>
+ 	    <item>Farsi</item>
+ 	    <item>Slovenščina</item> 	    
+ 	</string-array>
+
+    <string name="pref_dim_system_ui">Zatemni sistemski UI</string>
+    <string name="pref_dim_system_ui_summary">Zatemni sistemske gumbe, ko berete v celozaslonskem načinu.</string>
+
+    <string name="pref_long_short">Zamenjaj dolg pritisk / kratek pritisk</string>
+    <string name="pref_long_short_summary">Kako odpreti knjige v knjižnici</string>
+
+    <string-array name="long_short_labels">
+        <item>Dolgo pritisnite, da odprete, kratko za podrobnosti</item>
+        <item>Kratko pritisnite, da odprete, dolgo za podrobnosti</item>
+     </string-array>
+
+    <string name="pref_dev_settings">Nastavitve za razvijalce</string>
+
+    <string name="pref_acra">Pošlji poročila o napaki</string>
+    <string name="pref_acra_summary">Dovoli, da PageTurner pošlje anonimna poročila o napaki, ko se zruši.</string>
+
+    <string name="opds_settings">Nastavitve OPDS</string>
+
+    <string name="pref_use_publisher_style">Uporabi slog založnika (CSS)</string>
+    <string name="pref_use_publisher_style_summary">Dovoli knjigi, da spremeni pisavo, barve, itd.</string>
+
+    <string name="drawer_open">Odprt predal</string>
+    <string name="drawer_close">Zaprt predal</string>
+    <string name="drawer_layout">Postavitev predala</string>
+
+    <string name="pref_allow_css_colours">Dovoli knjigi, da nastavi barve</string>
+    <string name="pref_css_colours_day_summary">Za dnevni način</string>
+    <string name="pref_css_colours_night_summary">Za nočni način</string>
+
+    <string name="pref_always_open_book">Vedno odpri zadnjo knjigo</string>
+    <string name="pref_always_open_book_summary">PageTurner bo vedno odprl zadnjo brano knjgo namesto nazadnje odprtega zaslona.</string>
+
+    <string name="pref_sync_server">Strežnik za usklajevanje</string>
+    <string name="pref_sync_server_summary">Izberite s katerim strežnikom želite usklajevati branje.</string>
+    <string name="pref_sync_server_message">Vpište prosim URL usklajevalnega strežnika.</string>
+
+
+    <!-- Translation is not needed for the strings below -->
+    <string name="no_author_byline" translatable="false">by John Doe</string>
+    <string name="zero_percent" translatable="false">0%  </string>
+    <string name="default_timestamp" translatable="false">01-01-2012 13:44</string>
+    <string name="default_device_name_and_progress" translatable="false">Phone - 15%</string>
+    <string name="folder_name" translatable="false">Folder Name</string>
+    <string name="small_text" translatable="false">Small Text</string>
+    <string name="large_text" translatable="false">Large Text</string>
+    <string name="default_added_to_library" translatable="false">Added to library: never</string>
+    <string name="default_last_read" translatable="false">Last read: never</string>
+    <string name="default_filename" translatable="false">book.epub</string>
+    <string name="default_book_title" translatable="false">Title of the book</string>
+    <string name="hello_world" translatable="false">Hello world!</string>
+
+    
+
+</resources>

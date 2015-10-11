@@ -51,7 +51,7 @@
     <string name="scan_folders">Scansione file ePub.\nCartelle scansionate: %d</string>
     <string name="import_errors">Trovati errori in alcuni file durante l\'importazione:</string>
     <string name="no_books_found">Nessun libro trovato.</string>
-    <string name="no_bks_fnd_text">Non sono stati trovati libri sull\'apparecchio.\nSi possono scaricare libri su gutenberg.org o feedbooks.com</string>
+    <string name="no_bks_fnd_text">Non sono stati trovati libri sull\'apparecchio.\nSi possono scaricare libri da gutenberg.org o feedbooks.com</string>
     <string name="loading_library">Caricamento libreria…</string>
     <string name="scan_bks_question">Non ci sono libri nella libreria.\nEffettuare una scansione dei file per trovare libri?</string>   
     <string name="brightness">Luminosità</string> 
@@ -71,8 +71,8 @@
         <item>Non bloccare l\'orientamento</item>
         <item>Verticale</item>
         <item>Orizzontale</item>
-        <item>Reverse Portrait</item>
-        <item>Reverse Landscape</item>
+        <item>Verticale inverso</item>
+        <item>Orizzontale inverso</item>
     </string-array>  
    
     <string-array name="autoscrollLabels">
@@ -88,10 +88,10 @@
         <item>Tutti i libri per autore</item> 
     </string-array>
         
-    <string name="access_denied">Il vostro accesso-chiave non è valida. Si prega di visitare pageturner-reader.org per ottenere una chiave di accesso valido.</string>
+    <string name="access_denied">La tua chiave di accesso non è valida. Visitare pageturner-reader.org per ottenere una chiave di accesso valida.</string>
     <string name="import_books">Importa libri</string>
-    <string name="import_desc">È possibile eseguire la scansione dell\'intero SD-Card, o di specificare una cartella per la ricerca.</string>
-    <string name="scan_whole_card">Scansione tutta la mia carta SD</string>
+    <string name="import_desc">È possibile eseguire la scansione dell\'intera scheda SD, o di specificare una cartella per la ricerca.</string>
+    <string name="scan_whole_card">Scansione tutta la mia scheda SD</string>
     <string name="scan_folder">Scansione di una cartella specifica</string>
     <string name="copy_to_library">Copia i libri nella mia cartella della libreria</string>
     <string name="no_such_folder">%s La cartella non esiste.</string>
@@ -100,104 +100,101 @@
     <string name="list_view">Passa alla visualizzazione elenco</string>    
 	<string name="shelves_view">Passare alla visualizzazione libreria</string>
     <string name="read">Leggi ora</string>
-
-
-    <!-- Not yet translated -->
- 
-     <string name="download">Download books</string>
-    <string name="downloading">Downloading book…</string>
-    <string name="feed_failed">Could not contact the site. Please try again.</string>
-    <string name="book_failed">Could not download the book. Please try again.</string>
-
-    <string name="search_books">Search for books</string>
-    <string name="enter_query">Please enter a search-term</string>
-    <string name="buy_now">Buy now</string>
-
-    <string name="enter_email">Cloud sync is currently disabled. To enable it, please enter an e-mail address in the preferences.</string>
-    <string name="add_to_library">Add to library</string>
     
-    <string name="search_wait">Searching… please wait.</string>
-    <string name="search_text">Text search</string>
-    <string name="search_hits">Searching…\nFound %d matches.</string>
-    <string name="search_cancelled">Search cancelled.</string>
-    <string name="search_no_matches">Search did not find any matches.</string>
-    <string name="search_results">Search results</string>
-    
-    <string name="opening_file">Opening file…</string>
-    <string name="loading_text">Loading text…</string>
-    
-    <string name="end_of_section">End of chapter.\nClick here to continue.</string>
-    <string name="download_complete">Download complete.\nThe book has been added to your library</string>
+    <string name="download">Scarica libri</string>
+    <string name="downloading">Scaricamento libro…</string>
+    <string name="feed_failed">Impossibile contattre il sito. Riprova più tardi.</string>
+    <string name="book_failed">Impossibile scaricare il libro. Riprova più tardi.</string>
 
-    <string name="custom_site">My custom OPDS sites</string>
-    <string name="add_site">Add custom site</string>
-    <string name="edit_site">Edit custom site</string>
-    <string name="add_site_header">What kind of site would you like to add?</string>
-    <string name="calibre_server">Calibre content server</string>
-    <string name="cops_server">COPS server</string>
+    <string name="search_books">Ricerca libri</string>
+    <string name="enter_query">Inserisci un termine di ricerca</string>
+    <string name="buy_now">Acquista</string>
+
+    <string name="enter_email">La sincronizzazioen cloud è attualmente disabilitata. Per abilitarla inserisci un indirizzo email valido nelle preference.</string>
+    <string name="add_to_library">Aggiungi alla libreria</string>
+    
+    <string name="search_wait">Ricerca… attendere prego.</string>
+    <string name="search_text">Ricerca testuale</string>
+    <string name="search_hits">Ricerca…\nTrovate %d corrispondenze.</string>
+    <string name="search_cancelled">Ricerca annullata.</string>
+    <string name="search_no_matches">La ricerca non ha prodotto risultati.</string>
+    <string name="search_results">Risultati della ricerca</string>
+    
+    <string name="opening_file">Apertura file…</string>
+    <string name="loading_text">Caricamento testo…</string>
+    
+    <string name="end_of_section">Fine capitolo.\nClicca per continuare.</string>
+    <string name="download_complete">Download completato.\nIl libro è stato aggiunto alla tua libreria</string>
+
+    <string name="custom_site">I miei siti OPDS</string>
+    <string name="add_site">Aggiungi un sito personalizzato</string>
+    <string name="edit_site">Modifica un sito personalizzato</string>
+    <string name="add_site_header">Che tipo di sito vuoi aggiungere?</string>
+    <string name="calibre_server">Server di contentuti Calibre</string>
+    <string name="cops_server">Server COPS</string>
     <string name="c2opds_server">Calibre2OPDS</string>
-    <string name="generic_server">Generic OPDS site</string>
-    <string name="save">Save changes</string>
+    <string name="generic_server">Sito OPDS generico</string>
+    <string name="save">Salva i cambiamenti</string>
 
-    <string name="custom_site_desc">Your own OPDS / Calibre sites. You can add sites from the Preferences screen.</string>
-    <string name="site_name">Site name</string>
-    <string name="site_url">Site URL</string>
-    <string name="site_desc">Description</string>
-    <string name="site_username">Username</string>
+    <string name="custom_site_desc">I siti OPDS / Calibre personali. Puoi aggiungere i siti nelle Preferenze.</string>
+    <string name="site_name">Nome del sito</string>
+    <string name="site_url">URL del sito</string>
+    <string name="site_desc">Descrizione</string>
+    <string name="site_username">Nome utente</string>
     <string name="site_password">Password</string>
 
-    <string name="msg_name_blank">Please fill in a name.</string>
-    <string name="msg_url_blank">Please fill in a URL.</string>
+    <string name="msg_name_blank">Inserisci un nome.</string>
+    <string name="msg_url_blank">Inserisci una URL.</string>
 
-    <string name="edit">Edit</string>
+    <string name="edit">Modifica</string>
 
-    <string name="no_custom_sites">You don\'t have any custom sites defined. Please add some in the preferences.</string>
-    <string name="text_to_speech">Read out loud (TTS)</string>
+    <string name="no_custom_sites">Non hai definito nessun sito persoanle. Puoi aggiungerli nelle preferenze.</string>
+    <string name="text_to_speech">Leggi ad alta voce (TTS)</string>
 
-    <string name="init_tts">Initializing TTS…\nPlease wait.</string>
-    <string name="tts_failed">TTS Failed.</string>
+    <string name="init_tts">Inizializzazioe di TTS…\nAttendere prego.</string>
+    <string name="tts_failed">TTS fallito.</string>
 
-    <string name="search_library">Search library</string>
-    <string name="no_sync_points">You don\'t have any cloud-sync points stored yet.\nSync points are stored automatically when you leave PageTurner.</string>
-    <string name="no_new_books_found">The scan did not find any new books.</string>
+    <string name="search_library">Cerca nella libreria</string>
+    <string name="no_sync_points">Non hai ancora nessun punto di sincronizzazione nel cloud.\nI punti di sincronizzazione vengono salvati in automatico, quando esci da PageTurner.</string>
+    <string name="no_new_books_found">Non sono stati trovati libri nuovi.</string>
 
-    <string name="next_page">Next page…</string>
-    <string name="prev_page">Previous page…</string>
+    <string name="next_page">Pagina successiva…</string>
+    <string name="prev_page">Pagina precedente…</string>
 
-    <string name="empty_opds_feed">The feed was empty. Please check that you are using the correct URL.</string>
-    <string name="search_results_item">Search results…</string>
-    <string name="lookup_wiktionary">Search on Wiktionary</string>
+    <string name="empty_opds_feed">Il feed era vuoto. Verifica di utilizzare un URL corretto.</string>
+    <string name="search_results_item">Risultati della ricerca…</string>
+    <string name="lookup_wiktionary">Cerca su Wiktionary</string>
 
-    <string name="no_search_results">Your search yielded no results.</string>
+    <string name="no_search_results">La tua ricerca non ha prodotto risultati.</string>
 
-    <string name="dead_link">Sorry, it looks like the link you clicked is broken.</string>
-    <string name="could_not_load">Could not load text: %s</string>
-    <string name="out_of_memory">Sorry, PageTurner could not free enough memory to load this file.</string>
+    <string name="dead_link">Purtroppo sembra che il link su cui hai cliccato non funzioni.</string>
+    <string name="could_not_load">Impossibile caricare il testo: %s</string>
+    <string name="out_of_memory">Purtroppo PageTurner non è riuscito a liberare abbastanza memoria per caricare il file.</string>
 
     <string name="highlight">Highlight</string>
     <string name="highlights">Highlights</string>
 
-    <string name="highlight_options">Highlight options</string>
-    <string name="text_note">Text note</string>
-    <string name="clear_note">Clear note</string>
-    <string name="save_note">Save note</string>
+    <string name="highlight_options">Opzioni per i Highlight</string>
+    <string name="text_note">Nota testuale</string>
+    <string name="clear_note">Cancella nota</string>
+    <string name="save_note">Salva nota</string>
 
-    <string name="set_colour">Set colour</string>
+    <string name="set_colour">Imposta colore</string>
 
-    <string name="page_number_of">Page %1$d of %2$d</string>
+    <string name="page_number_of">Pagina %1$d di %2$d</string>
 
-    <string name="import_this">Import this folder</string>
-    <string name="cancelling">Cancelling…</string>
+    <string name="import_this">Importa questa cartella</string>
+    <string name="cancelling">Anullamento…</string>
 
-    <string name="no_bks_fnd_text2">No books were found on your device.\nWould you like to download some books?</string>
-    <string name="notes_attached">This highlight has an attached text note.\nAre you sure you to delete it?</string>
-    <string name="highlight_deleted">Highlight has been removed</string>
+    <string name="no_bks_fnd_text2">Sul tuo apprecchio non sono stati trovati libri.\nVuoi scaricare qualche libro?</string>
+    <string name="notes_attached">Questo highlight ha allegata una nota testuale.\nSei sicuro di volerlo cancellare?</string>
+    <string name="highlight_deleted">Il highlight è stato rimosso</string>
 
-    <string name="add_bookmark">Add Bookmark</string>
-    <string name="add">Add</string>
-    <string name="bookmarks">Bookmarks</string>
-    <string name="bookmark_options">Bookmark options</string>
-    <string name="bookmark_deleted">Bookmark has been removed</string>
+    <string name="add_bookmark">Aggiungi segnalibro</string>
+    <string name="add">Aggiungi</string>
+    <string name="bookmarks">Segnalibri</string>
+    <string name="bookmark_options">Opzioni segnalibri</string>
+    <string name="bookmark_deleted">Il segnalibro è stato rimosso</string>
 
 
 
@@ -227,7 +224,7 @@
     <string name="pref_full_screen_summary">Nasconde tutte le barre di stato.</string>
     <string name="pref_screen_orientation">Orientamento schermo</string>
     <string name="pref_screen_orientation_summary">Permette di bloccare l\'orientamento dello schermo</string>
-   <string name="pref_set_brightness">Controlli luminosità</string>
+	<string name="pref_set_brightness">Controlli luminosità</string>
     <string name="pref_set_brightness_summary">Permette a PageTurner di controllare la luminosità dello schermo</string>
     <string name="pref_day_bright">Luminosità schermo</string>
     <string name="pref_day_bright_summary">In modalità diurna</string>
@@ -280,59 +277,56 @@
     <string name="pref_nav_tap_v">Colpetto in alto/basso</string>
     <string name="pref_nav_tap_v_summary">Toccare il bordo in alto/basso dello schermo per cambiare pagina.</string>
     
-
-    <!-- Not yet translated -->
-    
-    <string name="pref_sync_settings">Sync settings</string>
-    <string name="pref_keep_screen_on">Keep screen on</string>
-    <string name="pref_keep_screen_on_summary">Prevents the screen from locking while reading</string>
+    <string name="pref_sync_settings">Impostazioni sincronizzazione</string>
+    <string name="pref_keep_screen_on">Mantieni lo schermo acceso</string>
+    <string name="pref_keep_screen_on_summary">Non consente il blocco dello schermo durante la lettura</string>
  
-    <string name="pref_show_pagenum">Show page numbers</string>
-    <string name="pref_show_pagenum_summary">Shows page numbers while reading. It may take a few seconds for page numbers to be displayed the first time.</string>
+    <string name="pref_show_pagenum">Mostra i numeri di pagina</string>
+    <string name="pref_show_pagenum_summary">Mostra i numeri di pagina durante la lettura. Possono passare alcuni secondi, prima che i numeri vengano visualizzati per la prima volta.</string>
 
-    <string name="pref_colour_settings">Colour settings</string>
-    <string name="pref_calibre_server">Calibre content server</string>
-    <string name="pref_calibre_server_summary">Connect to your own Calibre library</string>
-    <string name="pref_calibre_server_message">Calibre URL</string>
+    <string name="pref_colour_settings">Impostazione colori</string>
+    <string name="pref_calibre_server">Server dei contenuti Calibre</string>
+    <string name="pref_calibre_server_summary">Connetti la tua libreria Calibre personale</string>
+    <string name="pref_calibre_server_message">URL di Calibre</string>
     <string name="pref_calibre_server_hint">http://192.168.1.1:8080/opds</string>
-    <string name="pref_calibre_user">User name</string>
-    <string name="pref_calibre_user_summary">Your calibre user name</string>
+    <string name="pref_calibre_user">Nome utente</string>
+    <string name="pref_calibre_user_summary">Il tuo nome utente calibre</string>
     <string name="pref_calibre_user_hint">calibre</string>
     <string name="pref_calibre_password">Password</string>
-    <string name="pref_calibre_password_summary">Your calibre password</string>
+    <string name="pref_calibre_password_summary">La tua password calibre</string>
 
-    <string name="pref_access_key">Access Key</string>
-    <string name="pref_access_key_summary">An access key is required to use the synchronization service. Visit the site to learn how to get a key.</string>
-    <string name="pref_access_key_message">Please enter your access key.</string>
+    <string name="pref_access_key">Chiave di accesso</string>
+    <string name="pref_access_key_summary">Per utilizzare il servizio di sincronizzazione è necessario avere una chiave di accesso. Visita il sito per sapere come avere una chiave.</string>
+    <string name="pref_access_key_message">Inserisci la tua chiave di accesso.</string>
 
 
-    <string name="pref_nook_touch">Nook Touch Preferences</string>
-    <string name="pref_nook_touch_button_nav">Button Navigation</string>
-    <string name="pref_nook_touch_button_nav_summary">How should the buttons on the side of the Nook turn the page?</string>
+    <string name="pref_nook_touch">Preferenze per Nook Touch</string>
+    <string name="pref_nook_touch_button_nav">Navigazione con pulsanti</string>
+    <string name="pref_nook_touch_button_nav_summary">Come devono cambiare pagina i pulsanti laterali del Nook?</string>
 
-    <string name="pref_reading_direction">Reading direction</string>
-    <string name="pref_reading_direction_summary">Read left to right or right to left (Hebrew and Arabic)</string>
+    <string name="pref_reading_direction">Senso di lettura</string>
+    <string name="pref_reading_direction_summary">Lettura da sinistra verso destra o da destra verso sinistra (Arabo ed Ebraico)</string>
 
     <string-array name="reading_directionsLabels">
-        <item>Left to right</item>
-        <item>Right to left</item>
+        <item>Da sinistra verso destra</item>
+        <item>Da destra verso sinistra</item>
     </string-array>
 
-    <string name="pref_manage_sites">Manage OPDS / Calibre Catalogs</string>
-    <string name="pref_manage_sites_summary">Add and remove custom online catalogs and Calibre servers.</string>
+    <string name="pref_manage_sites">Gestione cataloghi OPDS / Calibre</string>
+    <string name="pref_manage_sites_summary">Aggiungi o rimuovi i cataloghi personalizzati e server Calibre.</string>
 
-    <string name="pref_serif_font">Serif font</string>
-    <string name="pref_serif_summary">Font to use if a book requests a Serif font.</string>
+    <string name="pref_serif_font">Carattere con grazie</string>
+    <string name="pref_serif_summary">Carattere da utilizzare quando il libro richiede un carattere con grazie.</string>
 
-    <string name="pref_sans_serif_font">Sans-Serif font</string>
-    <string name="pref_sans_serif_summary">Font to use if a book requests a Sans-Serif font.</string>
+    <string name="pref_sans_serif_font">Carattere senza grazie</string>
+    <string name="pref_sans_serif_summary">Carattere da utilizzare quando il libro richiede un carattere senza grazie</string>
 
-    <string name="pref_lang">UI Language</string>
-    <string name="pref_lang_summary">Allows you to switch PageTurner\'s language settings.</string>
-    <string name="language_switch_message">The new language setting will become active the next time you open a book.</string>
+    <string name="pref_lang">Lingua UI</string>
+    <string name="pref_lang_summary">Consente di cambiare le impostazioni della lingua di PageTurner.</string>
+    <string name="language_switch_message">La nuova lingua sarà attivata quando verrà aperto un libro.</string>
 
-    <string name="pref_accept_self_signed">Accept self-signed certificates</string>
-    <string name="pref_accept_self_signed_summary">Allows you to connect to OPDS sites which use self-signed certificates.</string>
+    <string name="pref_accept_self_signed">Acctta certificati auto firmati</string>
+    <string name="pref_accept_self_signed_summary">Consente la connessione a siti OPDS che utilizzano certificati autofirmati.</string>
 
     <string-array name="supported_languagesLabels">
         <item>Use device setting</item>
@@ -344,46 +338,45 @@
         <item>Arabic</item>
         <item>Hebrew</item>
         <item>Farsi</item>
+        <item>Slovene</item>
     </string-array>
 
 
-    <string name="pref_dim_system_ui">Dim System UI</string>
-    <string name="pref_dim_system_ui_summary">Dims the System UI buttons when reading in fullscreen mode.</string>
+    <string name="pref_dim_system_ui">Oscura UI di sistema</string>
+    <string name="pref_dim_system_ui_summary">Oscura i pulsanti della UI di sistema nella modalità a pieno schermo.</string>
 
-    <string name="pref_long_short">Switch long press / short press</string>
-    <string name="pref_long_short_summary">How to open books in the library</string>
+    <string name="pref_long_short">Commuta pressione lunga / breve</string>
+    <string name="pref_long_short_summary">Come aprire i libri in libreria</string>
 
     <string-array name="long_short_labels">
-        <item>Long press to open, short press for details</item>
-        <item>Short press to open, long press for details</item>
+        <item>Pressione lunga per aprire, breve per i dettagli</item>
+        <item>Pressione breve per aprire, lunga per i dettagli</item>
     </string-array>
 
-    <string name="pref_dev_settings">Development settings</string>
+    <string name="pref_dev_settings">Impostazioni di sviluppo</string>
 
-    <string name="pref_acra">Send error reports</string>
-    <string name="pref_acra_summary">Allow PageTurner to send anonymous error reports when it crashes.</string>
+    <string name="pref_acra">Spedisci i rapporti di errore</string>
+    <string name="pref_acra_summary">Consente a PageTurner di spedire dei rapporti di errore anonimi in caso di crash.</string>
 
-    <string name="opds_settings">OPDS settings</string>
-
-
-    <string name="pref_use_publisher_style">Use Publisher style (CSS)</string>
-    <string name="pref_use_publisher_style_summary">Allow the book to change fonts, colours, etc.</string>
-
-    <string name="drawer_open">Drawer open</string>
-    <string name="drawer_close">Drawer closed</string>
-    <string name="drawer_layout">Drawer layout</string>
-
-    <string name="pref_allow_css_colours">Allow the book to set colours</string>
-    <string name="pref_css_colours_day_summary">For day mode</string>
-    <string name="pref_css_colours_night_summary">For night mode</string>
-
-    <string name="pref_always_open_book">Always open last book</string>
-    <string name="pref_always_open_book_summary">PageTurner will always start in the last read book instead of last open screen.</string>
-
-    <string name="pref_sync_server">Sync Server</string>
-    <string name="pref_sync_server_summary">Select which server you would like to sync with.</string>
-    <string name="pref_sync_server_message">Please enter a sync server url.</string>
+    <string name="opds_settings">Impostazioni OPDS</string>
 
 
+    <string name="pref_use_publisher_style">Utilizza gli stili dell\'editore (CSS)</string>
+    <string name="pref_use_publisher_style_summary">Consente al libro di cambiare i caratteri, colori, ecc.</string>
+
+    <string name="drawer_open">Cassetto aperto</string>
+    <string name="drawer_close">Cassetto chiuso</string>
+    <string name="drawer_layout">Impostazioni cassetto</string>
+
+    <string name="pref_allow_css_colours">Consenti al libro di impostare i colori</string>
+    <string name="pref_css_colours_day_summary">Modalità diurna</string>
+    <string name="pref_css_colours_night_summary">Modalità notturna</string>
+
+    <string name="pref_always_open_book">Apri sempre l\'ultimo libro</string>
+    <string name="pref_always_open_book_summary">PageTurner aprirà sempre l\'ultimo libro letto e non l\'ultima schermata aperta.</string>
+
+    <string name="pref_sync_server">Server di sinchronizzazone</string>
+    <string name="pref_sync_server_summary">Scegli il server con cui vuoi sincronizzarti.</string>
+    <string name="pref_sync_server_message">Insrisci la URL del server di sincronizzazione.</string>
 
 </resources>

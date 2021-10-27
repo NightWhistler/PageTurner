@@ -2,7 +2,9 @@ buildscript {
     repositories {
 
         mavenLocal()
-
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
         maven { url 'http://repo.pageturner-reader.org' }
         maven { url 'http://acra.googlecode.com/svn/repository/releases' }
 
@@ -11,20 +13,26 @@ buildscript {
         maven {
             url 'https://oss.sonatype.org/content/repositories/snapshots/'
         }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
 
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
-        classpath 'org.robolectric:robolectric-gradle-plugin:0.13.+'
+        classpath 'com.android.tools.build:gradle:2.3.3'
+//        classpath 'org.robolectric:robolectric-gradle-plugin:0.13.+'
         classpath 'me.tatarka:gradle-retrolambda:2.4.0'
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5"
     }
 }
 
 apply plugin: 'com.android.application' //or apply plugin: 'java'
 apply plugin: 'retrolambda'
-apply plugin: 'robolectric'
+//apply plugin: 'robolectric'
 apply plugin: 'idea'
+apply plugin: "org.sonarqube"
 
 repositories {
     
@@ -37,6 +45,10 @@ repositories {
     
     maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+    maven {
+        url 'https://maven.google.com/'
+        name 'Google'
     }
 
 }
@@ -117,13 +129,13 @@ idea {
 }
 
 android {
-    buildToolsVersion "19.1.0"
+    buildToolsVersion "25.0.3"
     compileSdkVersion 19
 
-    compileOptions {
+/*    compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
+    }*/
 
     defaultConfig {
         testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
@@ -193,20 +205,20 @@ retrolambda {
     javaVersion JavaVersion.VERSION_1_6
 }
 
-robolectric {
-    include '**/*Test.class'
-    exclude '**/espresso/**/*.class'
-}
-
-apply plugin: 'sonar-runner'
-
-sonarRunner {
-    sonarProperties {
-        property "sonar.sourceEncoding", "UTF-8"
-//        property "sonar.profile", "Android Lint"
-        property "sonar.sources", "src"
-        property "sonar.binaries", file("${project.buildDir}/intermediates/classes/debug") 
-       // property "sonar.libraries", "android.sourceSets.main.runtimeClasspath"
-    }
-}
+//robolectric {
+//    include '**/*Test.class'
+//    exclude '**/espresso/**/*.class'
+//}
+//
+//apply plugin: 'sonar-runner'
+//
+//sonarRunner {
+//    sonarProperties {
+//        property "sonar.sourceEncoding", "UTF-8"
+////        property "sonar.profile", "Android Lint"
+//        property "sonar.sources", "src"
+//        property "sonar.binaries", file("${project.buildDir}/intermediates/classes/debug")
+//       // property "sonar.libraries", "android.sourceSets.main.runtimeClasspath"
+//    }
+//}
 
